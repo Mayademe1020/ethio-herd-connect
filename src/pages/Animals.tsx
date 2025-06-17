@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNavigation } from '@/components/BottomNavigation';
 import { Button } from '@/components/ui/button';
-import { Plus, Camera, List } from 'lucide-react';
+import { Plus, Camera, List, Users } from 'lucide-react';
 
 const Animals = () => {
   const [language, setLanguage] = useState<'am' | 'en'>('am');
