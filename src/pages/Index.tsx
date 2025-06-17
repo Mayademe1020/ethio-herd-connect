@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { Header } from '@/components/Header';
+import { BottomNavigation } from '@/components/BottomNavigation';
 import { DashboardCards } from '@/components/DashboardCards';
 import { RecentActivity } from '@/components/RecentActivity';
 import { QuickActions } from '@/components/QuickActions';
@@ -9,7 +10,7 @@ const Index = () => {
   const [language, setLanguage] = useState<'am' | 'en'>('am');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-20">
       <Header language={language} setLanguage={setLanguage} />
       
       <main className="container mx-auto px-4 py-6 space-y-8">
@@ -35,6 +36,8 @@ const Index = () => {
         {/* Recent Activity */}
         <RecentActivity language={language} />
       </main>
+
+      <BottomNavigation language={language} />
     </div>
   );
 };
