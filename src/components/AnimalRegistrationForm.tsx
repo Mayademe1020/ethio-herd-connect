@@ -120,7 +120,7 @@ export const AnimalRegistrationForm = ({ language, onClose }: AnimalRegistration
                     <input
                       type="file"
                       accept="image/*"
-                      capture="camera"
+                      capture="environment"
                       className="hidden"
                       onChange={handlePhotoCapture}
                     />
