@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNavigation } from '@/components/BottomNavigation';
@@ -75,7 +74,7 @@ const Index = () => {
       descAm: 'ክብደት እና ምርት',
       descEn: 'Weight and production',
       color: 'from-purple-500 to-purple-600',
-      link: '/animals'
+      link: '/growth'
     },
     {
       icon: '🛒',
@@ -94,24 +93,16 @@ const Index = () => {
       <OfflineIndicator language={language} />
       
       <main className="container mx-auto px-4 py-6 space-y-8">
-        {/* Hero Welcome Section */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-3">
-            {language === 'am' ? '🚀 እንኳን ወደ ቤት-ግጦሽ በደህና መጡ' : '🚀 Welcome to Bet-Gitosa'}
+        {/* Simplified Welcome Section */}
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">
+            {language === 'am' ? 'ቤት-ግጦሽ ዳሽቦርድ' : 'Bet-Gitosa Dashboard'}
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-6">
-            {language === 'am' 
-              ? 'የእርስዎን የከብት እና የዶሮ እርባታ በዘመናዊ መንገድ ያስተዳድሩ፣ ጤንነት ይከታተሉ እና በቀላሉ ይሽጡ'
-              : 'Manage your livestock and poultry with modern tools, track health, and sell with ease'
-            }
-          </p>
-          
-          {/* Primary CTA */}
           <Link to="/animals">
-            <Button className="text-lg px-8 py-4 h-auto bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg">
-              <Zap className="w-5 h-5 mr-2" />
-              {language === 'am' ? 'እንስሳ ምዝገባ ጀምር' : 'Start Registering Animals'}
-              <ArrowRight className="w-5 h-5 ml-2" />
+            <Button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700">
+              <Zap className="w-4 h-4 mr-2" />
+              {language === 'am' ? 'እንስሳ ምዝገባ' : 'Register Animal'}
+              <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </Link>
         </div>
