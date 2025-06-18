@@ -1,5 +1,5 @@
 
-import { Home, Users, Heart, ShoppingCart, User } from 'lucide-react';
+import { Home, Users, Heart, TrendingUp, ShoppingCart, User } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 interface BottomNavigationProps {
@@ -26,6 +26,11 @@ export const BottomNavigation = ({ language }: BottomNavigationProps) => {
       label: language === 'am' ? 'ጤንነት' : 'Health',
     },
     {
+      path: '/growth',
+      icon: TrendingUp,
+      label: language === 'am' ? 'እድገት' : 'Growth',
+    },
+    {
       path: '/market',
       icon: ShoppingCart,
       label: language === 'am' ? 'ገበያ' : 'Market',
@@ -39,7 +44,7 @@ export const BottomNavigation = ({ language }: BottomNavigationProps) => {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
-      <div className="flex justify-around items-center h-16 px-2">
+      <div className="flex justify-around items-center h-16 px-1">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
@@ -54,7 +59,7 @@ export const BottomNavigation = ({ language }: BottomNavigationProps) => {
                   : 'text-gray-500 hover:text-green-600'
               }`}
             >
-              <Icon className="w-5 h-5 mb-1" />
+              <Icon className="w-4 h-4 mb-1" />
               <span className="text-xs font-medium truncate">{item.label}</span>
             </Link>
           );
