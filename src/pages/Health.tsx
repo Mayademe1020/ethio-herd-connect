@@ -3,15 +3,18 @@ import { useState } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNavigation } from '@/components/BottomNavigation';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
-import { BulkVaccinationForm } from '@/components/BulkVaccinationForm';
+import { VaccinationForm } from '@/components/VaccinationForm';
 import { IllnessReportForm } from '@/components/IllnessReportForm';
+import { HealthReminderSystem } from '@/components/HealthReminderSystem';
 import { Button } from '@/components/ui/button';
-import { Syringe, FileText, Calendar, AlertTriangle, Activity, TrendingUp } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Syringe, AlertTriangle, Calendar, Activity, TrendingUp, Bell } from 'lucide-react';
 
 const Health = () => {
   const [language, setLanguage] = useState<'am' | 'en'>('am');
   const [showVaccinationForm, setShowVaccinationForm] = useState(false);
   const [showIllnessForm, setShowIllnessForm] = useState(false);
+  const [vaccinationMode, setVaccinationMode] = useState<'single' | 'bulk'>('bulk');
 
   // Mock data - in real app this would come from storage/API
   const healthStats = {
@@ -19,6 +22,11 @@ const Health = () => {
     scheduledTasks: 3,
     healthyAnimals: 8,
     needAttention: 2
+  };
+
+  const handleVaccinationClick = (mode: 'single' | 'bulk') => {
+    setVaccinationMode(mode);
+    setShowVaccinationForm(true);
   };
 
   return (
@@ -30,7 +38,7 @@ const Health = () => {
         {/* Page Title */}
         <div className="text-center">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
-            {language === 'am' ? '💉 የጤንነት አስተዳደር' : '💉 Health Management'}
+            💉 {language === 'am' ? 'የጤንነት አስተዳደር' : 'Health Management'}
           </h1>
           <p className="text-gray-600">
             {language === 'am' 
@@ -41,24 +49,35 @@ const Health = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           <Button 
-            className="h-24 flex flex-col space-y-2 bg-blue-600 hover:bg-blue-700"
-            onClick={() => setShowVaccinationForm(true)}
+            className="h-20 flex flex-col space-y-2 bg-blue-600 hover:bg-blue-700 touch-manipulation"
+            onClick={() => handleVaccinationClick('bulk')}
           >
-            <Syringe className="w-8 h-8" />
-            <span className="text-lg font-medium">
+            <Syringe className="w-6 h-6" />
+            <span className="text-sm font-medium">
               {language === 'am' ? 'ጅምላ ክትባት' : 'Bulk Vaccination'}
+            </span>
+          </Button>
+
+          <Button 
+            variant="outline" 
+            className="h-20 flex flex-col space-y-2 border-blue-200 hover:bg-blue-50 touch-manipulation"
+            onClick={() => handleVaccinationClick('single')}
+          >
+            <Syringe className="w-6 h-6 text-blue-500" />
+            <span className="text-sm font-medium">
+              {language === 'am' ? 'ነጠላ ክትባት' : 'Single Vaccination'}
             </span>
           </Button>
           
           <Button 
             variant="outline" 
-            className="h-24 flex flex-col space-y-2 border-red-200 hover:bg-red-50"
+            className="h-20 flex flex-col space-y-2 border-red-200 hover:bg-red-50 touch-manipulation col-span-2 md:col-span-1"
             onClick={() => setShowIllnessForm(true)}
           >
-            <AlertTriangle className="w-8 h-8 text-red-500" />
-            <span className="text-lg font-medium">
+            <AlertTriangle className="w-6 h-6 text-red-500" />
+            <span className="text-sm font-medium">
               {language === 'am' ? 'በሽታ ሪፖርት' : 'Report Illness'}
             </span>
           </Button>
@@ -126,107 +145,83 @@ const Health = () => {
           </div>
         </div>
 
-        {/* Upcoming Reminders */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-green-100">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            <Calendar className="w-5 h-5 mr-2 text-blue-600" />
-            {language === 'am' ? 'የሚመጡ ስራዎች' : 'Upcoming Tasks'}
-          </h3>
+        {/* Tabs for different sections */}
+        <Tabs defaultValue="reminders" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="reminders" className="flex items-center space-x-2">
+              <Bell className="w-4 h-4" />
+              <span>{language === 'am' ? 'አስታወሾች' : 'Reminders'}</span>
+            </TabsTrigger>
+            <TabsTrigger value="history" className="flex items-center space-x-2">
+              <TrendingUp className="w-4 h-4" />
+              <span>{language === 'am' ? 'ታሪክ' : 'History'}</span>
+            </TabsTrigger>
+          </TabsList>
           
-          {/* Mock upcoming tasks */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 border border-blue-100 rounded-lg bg-blue-50">
-              <div className="flex items-center space-x-3">
-                <Syringe className="w-5 h-5 text-blue-600" />
-                <div>
-                  <p className="font-medium text-gray-800">
-                    {language === 'am' ? 'ቦራ ፍየሎች - FMD ክትባት' : 'Boran Cattle - FMD Vaccination'}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {language === 'am' ? 'ነገ' : 'Tomorrow'}
-                  </p>
-                </div>
-              </div>
-              <Button size="sm" variant="outline" className="text-xs">
-                {language === 'am' ? 'ተከናውኗል' : 'Mark Done'}
-              </Button>
-            </div>
-
-            <div className="flex items-center justify-between p-3 border border-green-100 rounded-lg bg-green-50">
-              <div className="flex items-center space-x-3">
-                <TrendingUp className="w-5 h-5 text-green-600" />
-                <div>
-                  <p className="font-medium text-gray-800">
-                    {language === 'am' ? 'ክብደት መለካት - ሞላ' : 'Weight Check - Mola'}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {language === 'am' ? 'በ 3 ቀናት ውስጥ' : 'In 3 days'}
-                  </p>
-                </div>
-              </div>
-              <Button size="sm" variant="outline" className="text-xs">
-                {language === 'am' ? 'አስታወስ' : 'Remind'}
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Recent Health Records */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-green-100">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-            <FileText className="w-5 h-5 mr-2 text-purple-600" />
-            {language === 'am' ? 'የቅርብ ጊዜ መዝገቦች' : 'Recent Health Records'}
-          </h3>
+          <TabsContent value="reminders" className="mt-6">
+            <HealthReminderSystem language={language} />
+          </TabsContent>
           
-          {/* Mock recent records */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 border border-gray-100 rounded-lg">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <Syringe className="w-4 h-4 text-blue-600" />
+          <TabsContent value="history" className="mt-6">
+            {/* Recent Health Records */}
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-green-100">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <TrendingUp className="w-5 h-5 mr-2 text-purple-600" />
+                {language === 'am' ? 'የቅርብ ጊዜ መዝገቦች' : 'Recent Health Records'}
+              </h3>
+              
+              {/* Mock recent records */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 border border-gray-100 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                      <Syringe className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-800">
+                        {language === 'am' ? 'ክትባት - አበባ, ገብሬ' : 'Vaccination - Abeba, Gebre'}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {language === 'am' ? '2 ቀናት በፊት' : '2 days ago'}
+                      </p>
+                    </div>
+                  </div>
+                  <Button size="sm" variant="ghost" className="text-xs">
+                    {language === 'am' ? 'ዝርዝር' : 'Details'}
+                  </Button>
                 </div>
-                <div>
-                  <p className="font-medium text-gray-800">
-                    {language === 'am' ? 'ክትባት - አበባ, ገብሬ' : 'Vaccination - Abeba, Gebre'}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {language === 'am' ? '2 ቀናት በፊት' : '2 days ago'}
-                  </p>
-                </div>
-              </div>
-              <Button size="sm" variant="ghost" className="text-xs">
-                {language === 'am' ? 'ዝርዝር' : 'Details'}
-              </Button>
-            </div>
 
-            <div className="flex items-center justify-between p-3 border border-gray-100 rounded-lg">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                  <AlertTriangle className="w-4 h-4 text-red-600" />
-                </div>
-                <div>
-                  <p className="font-medium text-gray-800">
-                    {language === 'am' ? 'በሽታ ሪፖርት - ሞላ' : 'Illness Report - Mola'}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {language === 'am' ? '1 ሳምንት በፊት' : '1 week ago'}
-                  </p>
+                <div className="flex items-center justify-between p-3 border border-gray-100 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                      <AlertTriangle className="w-4 h-4 text-red-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-800">
+                        {language === 'am' ? 'በሽታ ሪፖርት - ሞላ' : 'Illness Report - Mola'}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        {language === 'am' ? '1 ሳምንት በፊት' : '1 week ago'}
+                      </p>
+                    </div>
+                  </div>
+                  <Button size="sm" variant="ghost" className="text-xs">
+                    {language === 'am' ? 'ዝርዝር' : 'Details'}
+                  </Button>
                 </div>
               </div>
-              <Button size="sm" variant="ghost" className="text-xs">
-                {language === 'am' ? 'ዝርዝር' : 'Details'}
-              </Button>
             </div>
-          </div>
-        </div>
+          </TabsContent>
+        </Tabs>
       </main>
 
       <BottomNavigation language={language} />
 
       {/* Forms */}
       {showVaccinationForm && (
-        <BulkVaccinationForm 
+        <VaccinationForm 
           language={language} 
+          mode={vaccinationMode}
           onClose={() => setShowVaccinationForm(false)} 
         />
       )}
