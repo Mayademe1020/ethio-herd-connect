@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { ClickableDashboardCard } from './ClickableDashboardCard';
-import { Cow, Heart, TrendingUp, ShoppingCart, AlertTriangle, Calendar } from 'lucide-react';
+import { Home, Heart, TrendingUp, ShoppingCart, AlertTriangle, Calendar } from 'lucide-react';
 
 interface DashboardCardsProps {
   language: 'am' | 'en';
@@ -21,7 +21,7 @@ export const DashboardCards: React.FC<DashboardCardsProps> = ({ language, stats 
       <ClickableDashboardCard
         title={language === 'am' ? 'ጠቅላላ እንስሳት' : 'Total Animals'}
         value={stats.totalAnimals}
-        icon={<Cow className="w-5 h-5" />}
+        icon={<Home className="w-5 h-5" />}
         navigateTo="/animals"
         subtitle={language === 'am' ? 'ሁሉም እንስሳት' : 'All registered animals'}
         className="animate-slideInLeft"

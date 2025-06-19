@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Cow, Heart, TrendingUp, ShoppingCart, Baby, Users } from 'lucide-react';
+import { Plus, Home, Heart, TrendingUp, ShoppingCart, Baby, Users } from 'lucide-react';
 import { AnimalRegistrationForm } from './AnimalRegistrationForm';
 import { CalfRegistrationForm } from './CalfRegistrationForm';
 import { PoultryGroupForm } from './PoultryGroupForm';
@@ -21,7 +20,7 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ language, onActionCo
     {
       id: 'register-animal',
       title: language === 'am' ? 'እንስሳ ምዝገባ' : 'Register Animal',
-      icon: <Cow className="w-5 h-5" />,
+      icon: <Home className="w-5 h-5" />,
       action: () => setShowAnimalForm(true),
       color: 'bg-green-600 hover:bg-green-700'
     },
