@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { X, Home, User, Phone, MapPin } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
 interface FarmSetupFormProps {
@@ -28,6 +30,7 @@ export const FarmSetupForm: React.FC<FarmSetupFormProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
   
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const generatePrefix = (farmName: string): string => {
     // Take first 3 consonants from farm name, fallback to first 3 chars
@@ -68,12 +71,18 @@ export const FarmSetupForm: React.FC<FarmSetupFormProps> = ({
     
     if (!validateForm()) return;
 
+    if (!user) {
+      toast({
+        title: language === 'am' ? 'ስህተት' : 'Error',
+        description: language === 'am' ? 'እባክዎ በመጀመሪያ ይግቡ' : 'Please sign in first',
+        variant: 'destructive'
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const user = (await supabase.auth.getUser()).data.user;
-      if (!user) throw new Error('User not authenticated');
-
       const { error } = await supabase
         .from('farm_profiles')
         .upsert([{
@@ -83,7 +92,9 @@ export const FarmSetupForm: React.FC<FarmSetupFormProps> = ({
           owner_name: formData.ownerName,
           location: formData.location,
           phone: formData.phone || null
-        }]);
+        }], {
+          onConflict: 'user_id'
+        });
 
       if (error) throw error;
 
@@ -206,7 +217,7 @@ export const FarmSetupForm: React.FC<FarmSetupFormProps> = ({
                 className="flex-1 bg-green-600 hover:bg-green-700"
               >
                 {loading ? (
-                  language === 'am' ? 'እየቀመጠ...' : 'Saving...'
+                  language === 'am' ? 'እየተቀመጠ...' : 'Saving...'
                 ) : (
                   language === 'am' ? 'ይቀምጡ' : 'Save Profile'
                 )}

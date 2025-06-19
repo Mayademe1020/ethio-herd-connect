@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Syringe, Calendar, X, Check } from 'lucide-react';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 interface BulkVaccinationFormProps {
@@ -27,6 +28,7 @@ export const BulkVaccinationForm = ({ language, onClose }: BulkVaccinationFormPr
     notes: ''
   });
   const { addToQueue } = useOfflineSync();
+  const { user } = useAuth();
 
   // Mock animals data - in real app this would come from storage/API
   const animals: Animal[] = [
@@ -51,9 +53,15 @@ export const BulkVaccinationForm = ({ language, onClose }: BulkVaccinationFormPr
       return;
     }
 
+    if (!user) {
+      toast.error(language === 'am' ? 'እባክዎ በመጀመሪያ ይግቡ' : 'Please sign in first');
+      return;
+    }
+
     const vaccinationRecord = {
       id: `vaccination-${Date.now()}`,
       animalIds: selectedAnimals,
+      user_id: user.id,
       medicine: vaccinationData.medicine,
       date: vaccinationData.date,
       notes: vaccinationData.notes,

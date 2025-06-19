@@ -1,10 +1,13 @@
+
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { BottomNavigation } from '@/components/BottomNavigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FarmSetupForm } from '@/components/FarmSetupForm';
-import { User, Settings, Phone, MapPin, Calendar, Award, Home, Edit } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { User, Settings, Phone, MapPin, Calendar, Award, Home, Edit, LogOut } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -21,10 +24,14 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   
   const { toast } = useToast();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    fetchProfileData();
-  }, []);
+    if (user) {
+      fetchProfileData();
+    }
+  }, [user]);
 
   const fetchProfileData = async () => {
     try {
@@ -34,35 +41,56 @@ const Profile = () => {
       const { data: farmData, error: farmError } = await supabase
         .from('farm_profiles')
         .select('*')
+        .eq('user_id', user?.id)
         .single();
 
-      if (farmError && farmError.code !== 'PGRST116') throw farmError;
-      setFarmProfile(farmData);
+      if (farmError && farmError.code !== 'PGRST116') {
+        console.error('Farm profile error:', farmError);
+      } else {
+        setFarmProfile(farmData);
+      }
 
       // Fetch statistics
-      const [animalsRes, healthRes, marketRes, userRes] = await Promise.all([
-        supabase.from('animals').select('id', { count: 'exact' }),
-        supabase.from('health_records').select('id', { count: 'exact' }),
-        supabase.from('market_listings').select('id', { count: 'exact' }),
-        supabase.auth.getUser()
+      const [animalsRes, healthRes, marketRes] = await Promise.all([
+        supabase.from('animals').select('id', { count: 'exact' }).eq('user_id', user?.id),
+        supabase.from('health_records').select('id', { count: 'exact' }).eq('user_id', user?.id),
+        supabase.from('market_listings').select('id',  { count: 'exact' }).eq('user_id', user?.id)
       ]);
 
       setStats({
         totalAnimals: animalsRes.count || 0,
         totalVaccinations: healthRes.count || 0,
         totalListings: marketRes.count || 0,
-        memberSince: userRes.data.user?.created_at || new Date().toISOString()
+        memberSince: user?.created_at || new Date().toISOString()
       });
 
     } catch (error) {
       console.error('Error fetching profile data:', error);
       toast({
         title: language === 'am' ? 'ስህተት' : 'Error',
-        description: language === 'am' ? 'መረጃ ማ Mamጣት አልተሳካም' : 'Failed to fetch profile data',
+        description: language === 'am' ? 'መረጃ ማምጣት አልተሳካም' : 'Failed to fetch profile data',
         variant: 'destructive'
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast({
+        title: language === 'am' ? 'በሳልካሻ ወጡ' : 'Signed out',
+        description: language === 'am' ? 'እንደገና ይገቡ' : 'Come back soon!'
+      });
+      navigate('/auth');
+    } catch (error) {
+      console.error('Error signing out:', error);
+      toast({
+        title: language === 'am' ? 'ስህተት' : 'Error',
+        description: language === 'am' ? 'መውጣት አልተሳከም' : 'Failed to sign out',
+        variant: 'destructive'
+      });
     }
   };
 
@@ -89,7 +117,7 @@ const Profile = () => {
               </div>
               <div className="flex-1">
                 <h2 className="text-xl font-bold text-gray-800">
-                  {farmProfile?.owner_name || (language === 'am' ? 'የገበሬ ስም' : 'Farmer Name')}
+                  {farmProfile?.owner_name || user?.email || (language === 'am' ? 'የገበሬ ስም' : 'Farmer Name')}
                 </h2>
                 <p className="text-gray-600">
                   {farmProfile?.farm_name || (language === 'am' ? 'ከብት እና ዶሮ አርቢ' : 'Cattle & Poultry Farmer')}
@@ -100,13 +128,23 @@ const Profile = () => {
                   </p>
                 )}
               </div>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setShowFarmSetup(true)}
-              >
-                <Edit className="w-4 h-4" />
-              </Button>
+              <div className="flex space-x-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setShowFarmSetup(true)}
+                >
+                  <Edit className="w-4 h-4" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleSignOut}
+                  className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
+                >
+                  <LogOut className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -250,6 +288,14 @@ const Profile = () => {
             <Button variant="outline" className="w-full justify-start">
               <Award className="w-4 h-4 mr-2" />
               {language === 'am' ? 'እርዳታ እና ድጋፍ' : 'Help & Support'}
+            </Button>
+            <Button 
+              variant="outline" 
+              className="w-full justify-start text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
+              onClick={handleSignOut}
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              {language === 'am' ? 'ውጣ' : 'Sign Out'}
             </Button>
           </CardContent>
         </Card>

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -74,9 +75,27 @@ export const useOfflineSync = () => {
             .insert([item.data]);
           break;
         case 'health':
-          result = await supabase
-            .from('health_records')
-            .insert([item.data]);
+          // Handle bulk vaccination data structure
+          if (item.data.animalIds && Array.isArray(item.data.animalIds)) {
+            // This is bulk vaccination data - create individual records
+            const healthRecords = item.data.animalIds.map((animalId: string) => ({
+              animal_id: animalId,
+              user_id: item.data.user_id,
+              record_type: 'vaccination',
+              medicine_name: item.data.medicine,
+              administered_date: item.data.date,
+              notes: item.data.notes
+            }));
+            
+            result = await supabase
+              .from('health_records')
+              .insert(healthRecords);
+          } else {
+            // Single health record
+            result = await supabase
+              .from('health_records')
+              .insert([item.data]);
+          }
           break;
         case 'market':
           result = await supabase
