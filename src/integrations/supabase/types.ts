@@ -13,6 +13,7 @@ export type Database = {
         Row: {
           age: number | null
           animal_code: string
+          birth_date: string | null
           breed: string | null
           created_at: string
           health_status: string | null
@@ -20,6 +21,7 @@ export type Database = {
           is_vet_verified: boolean | null
           last_vaccination: string | null
           name: string
+          parent_id: string | null
           photo_url: string | null
           type: string
           updated_at: string
@@ -29,6 +31,7 @@ export type Database = {
         Insert: {
           age?: number | null
           animal_code: string
+          birth_date?: string | null
           breed?: string | null
           created_at?: string
           health_status?: string | null
@@ -36,6 +39,7 @@ export type Database = {
           is_vet_verified?: boolean | null
           last_vaccination?: string | null
           name: string
+          parent_id?: string | null
           photo_url?: string | null
           type: string
           updated_at?: string
@@ -45,6 +49,7 @@ export type Database = {
         Update: {
           age?: number | null
           animal_code?: string
+          birth_date?: string | null
           breed?: string | null
           created_at?: string
           health_status?: string | null
@@ -52,11 +57,50 @@ export type Database = {
           is_vet_verified?: boolean | null
           last_vaccination?: string | null
           name?: string
+          parent_id?: string | null
           photo_url?: string | null
           type?: string
           updated_at?: string
           user_id?: string
           weight?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "animals_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      farm_assistants: {
+        Row: {
+          assistant_user_id: string
+          created_at: string
+          farm_owner_id: string
+          id: string
+          permissions: Json | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          assistant_user_id: string
+          created_at?: string
+          farm_owner_id: string
+          id?: string
+          permissions?: Json | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          assistant_user_id?: string
+          created_at?: string
+          farm_owner_id?: string
+          id?: string
+          permissions?: Json | null
+          status?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -244,6 +288,78 @@ export type Database = {
         }
         Relationships: []
       }
+      poultry_groups: {
+        Row: {
+          batch_date: string
+          breed: string | null
+          created_at: string
+          current_count: number
+          group_code: string
+          group_name: string
+          id: string
+          notes: string | null
+          total_count: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          batch_date?: string
+          breed?: string | null
+          created_at?: string
+          current_count?: number
+          group_code: string
+          group_name: string
+          id?: string
+          notes?: string | null
+          total_count?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          batch_date?: string
+          breed?: string | null
+          created_at?: string
+          current_count?: number
+          group_code?: string
+          group_name?: string
+          id?: string
+          notes?: string | null
+          total_count?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      vaccination_schedules: {
+        Row: {
+          age_days: number
+          animal_type: string
+          created_at: string
+          description: string | null
+          id: string
+          is_mandatory: boolean | null
+          vaccine_name: string
+        }
+        Insert: {
+          age_days: number
+          animal_type: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_mandatory?: boolean | null
+          vaccine_name: string
+        }
+        Update: {
+          age_days?: number
+          animal_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_mandatory?: boolean | null
+          vaccine_name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -255,6 +371,10 @@ export type Database = {
           p_farm_prefix: string
           p_animal_type: string
         }
+        Returns: string
+      }
+      generate_poultry_group_code: {
+        Args: { p_user_id: string; p_farm_prefix: string }
         Returns: string
       }
     }

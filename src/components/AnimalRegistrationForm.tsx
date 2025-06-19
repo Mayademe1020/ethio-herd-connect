@@ -8,6 +8,8 @@ import { Camera, X, User, Weight, Calendar } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { useToast } from '@/hooks/use-toast';
+import { DatePicker } from './DatePicker';
+import { breedsByType } from '@/utils/breedData';
 
 interface AnimalRegistrationFormProps {
   language: 'am' | 'en';
@@ -24,9 +26,11 @@ export const AnimalRegistrationForm: React.FC<AnimalRegistrationFormProps> = ({
     name: '',
     type: '',
     breed: '',
+    customBreed: '',
     age: '',
     weight: ''
   });
+  const [birthDate, setBirthDate] = useState<Date>();
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string>('');
   const [loading, setLoading] = useState(false);
@@ -107,7 +111,6 @@ export const AnimalRegistrationForm: React.FC<AnimalRegistrationFormProps> = ({
   };
 
   const generateAnimalCode = async (userId: string, animalType: string): Promise<string> => {
-    // Default farm prefix if no profile exists
     const farmPrefix = farmProfile?.farm_prefix || 'FARM';
     
     try {
@@ -121,7 +124,6 @@ export const AnimalRegistrationForm: React.FC<AnimalRegistrationFormProps> = ({
       return data;
     } catch (error) {
       console.error('Error generating animal code:', error);
-      // Fallback to simple code generation
       const typeCode = animalType === 'cattle' ? 'COW' : animalType === 'poultry' ? 'POU' : 'ANM';
       const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
       const dateCode = new Date().toISOString().slice(2, 10).replace(/-/g, '');
@@ -146,17 +148,18 @@ export const AnimalRegistrationForm: React.FC<AnimalRegistrationFormProps> = ({
         uploadedPhotoUrl = await uploadPhoto();
       }
 
-      // Generate animal code
       const animalCode = await generateAnimalCode(user.id, formData.type);
+      const finalBreed = formData.breed === 'other' ? formData.customBreed : formData.breed;
 
       const animalData = {
         animal_code: animalCode,
         user_id: user.id,
         name: formData.name,
         type: formData.type,
-        breed: formData.breed || null,
+        breed: finalBreed || null,
         age: formData.age ? parseInt(formData.age) : null,
         weight: formData.weight ? parseFloat(formData.weight) : null,
+        birth_date: birthDate?.toISOString().split('T')[0] || null,
         photo_url: uploadedPhotoUrl,
         health_status: 'healthy',
         is_vet_verified: false
@@ -194,6 +197,8 @@ export const AnimalRegistrationForm: React.FC<AnimalRegistrationFormProps> = ({
       setLoading(false);
     }
   };
+
+  const availableBreeds = formData.type ? breedsByType[formData.type as keyof typeof breedsByType] || [] : [];
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -264,7 +269,7 @@ export const AnimalRegistrationForm: React.FC<AnimalRegistrationFormProps> = ({
               <label className="text-sm font-medium">
                 {language === 'am' ? 'አይነት' : 'Type'} *
               </label>
-              <Select value={formData.type} onValueChange={(value) => setFormData(prev => ({ ...prev, type: value }))}>
+              <Select value={formData.type} onValueChange={(value) => setFormData(prev => ({ ...prev, type: value, breed: '' }))}>
                 <SelectTrigger>
                   <SelectValue placeholder={language === 'am' ? 'እንስሳ አይነት ይምረጡ' : 'Select animal type'} />
                 </SelectTrigger>
@@ -286,15 +291,50 @@ export const AnimalRegistrationForm: React.FC<AnimalRegistrationFormProps> = ({
               {errors.type && <p className="text-sm text-red-600">{errors.type}</p>}
             </div>
 
-            {/* Breed */}
+            {/* Breed - Shows after type selection */}
+            {formData.type && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">
+                  {language === 'am' ? 'ዝርያ' : 'Breed'}
+                </label>
+                <Select value={formData.breed} onValueChange={(value) => setFormData(prev => ({ ...prev, breed: value }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder={language === 'am' ? 'ዝርያ ይምረጡ' : 'Select breed'} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableBreeds.map((breed) => (
+                      <SelectItem key={breed} value={breed.toLowerCase().replace(/\s+/g, '_')}>
+                        {breed}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="other">
+                      {language === 'am' ? 'ሌላ' : 'Other'}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {formData.breed === 'other' && (
+                  <Input
+                    value={formData.customBreed}
+                    onChange={(e) => setFormData(prev => ({ ...prev, customBreed: e.target.value }))}
+                    placeholder={language === 'am' ? 'ዝርያ ይጻፉ' : 'Enter breed name'}
+                    className="mt-2"
+                  />
+                )}
+              </div>
+            )}
+
+            {/* Birth Date */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">
-                {language === 'am' ? 'ዝርያ' : 'Breed'}
+              <label className="text-sm font-medium flex items-center space-x-2">
+                <Calendar className="w-4 h-4" />
+                <span>{language === 'am' ? 'የመወለድ ቀን' : 'Birth Date'}</span>
               </label>
-              <Input
-                value={formData.breed}
-                onChange={(e) => setFormData(prev => ({ ...prev, breed: e.target.value }))}
-                placeholder={language === 'am' ? 'ዝርያ' : 'Breed'}
+              <DatePicker
+                date={birthDate}
+                onDateChange={setBirthDate}
+                placeholder={language === 'am' ? 'የመወለድ ቀን ይምረጡ' : 'Select birth date'}
+                language={language}
               />
             </div>
 
@@ -338,7 +378,7 @@ export const AnimalRegistrationForm: React.FC<AnimalRegistrationFormProps> = ({
               <Button
                 type="submit"
                 disabled={loading}
-                className="flex-1 bg-green-600 hover:bg-green-700"
+                className="flex-1 bg-green-600 hover:bg-green-700 transition-colors duration-200"
               >
                 {loading ? (
                   language === 'am' ? 'እየተመዘገበ...' : 'Registering...'

@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface SyncData {
   id: string;
-  type: 'animal' | 'health' | 'market' | 'growth';
+  type: 'animal' | 'health' | 'market' | 'growth' | 'poultry_group';
   data: any;
   timestamp: number;
   synced: boolean;
@@ -18,14 +18,13 @@ export const useOfflineSync = () => {
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
-      syncAll(); // Auto-sync when coming online
+      syncAll();
     };
     const handleOffline = () => setIsOnline(false);
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
-    // Load pending data from localStorage
     const stored = localStorage.getItem('bet-gitosa-pending-sync');
     if (stored) {
       try {
@@ -57,7 +56,6 @@ export const useOfflineSync = () => {
 
     console.log(`Added to offline queue: ${type}`, syncItem);
 
-    // If online, try to sync immediately
     if (isOnline && !syncing) {
       syncData(syncItem);
     }
@@ -75,9 +73,7 @@ export const useOfflineSync = () => {
             .insert([item.data]);
           break;
         case 'health':
-          // Handle bulk vaccination data structure
           if (item.data.animalIds && Array.isArray(item.data.animalIds)) {
-            // This is bulk vaccination data - create individual records
             const healthRecords = item.data.animalIds.map((animalId: string) => ({
               animal_id: animalId,
               user_id: item.data.user_id,
@@ -91,7 +87,6 @@ export const useOfflineSync = () => {
               .from('health_records')
               .insert(healthRecords);
           } else {
-            // Single health record
             result = await supabase
               .from('health_records')
               .insert([item.data]);
@@ -107,6 +102,11 @@ export const useOfflineSync = () => {
             .from('growth_records')
             .insert([item.data]);
           break;
+        case 'poultry_group':
+          result = await supabase
+            .from('poultry_groups')
+            .insert([item.data]);
+          break;
         default:
           throw new Error(`Unknown sync type: ${item.type}`);
       }
@@ -115,7 +115,6 @@ export const useOfflineSync = () => {
         throw result.error;
       }
 
-      // Mark as synced
       const updatedQueue = pendingSync.map(q => 
         q.id === item.id ? { ...q, synced: true } : q
       );
@@ -125,7 +124,6 @@ export const useOfflineSync = () => {
       console.log(`Successfully synced ${item.type}:`, item.id);
     } catch (error) {
       console.error('Sync failed for item:', item, error);
-      // Keep in queue for retry
     }
   };
 
@@ -139,11 +137,9 @@ export const useOfflineSync = () => {
     
     for (const item of unsynced) {
       await syncData(item);
-      // Small delay between syncs to avoid overwhelming the server
       await new Promise(resolve => setTimeout(resolve, 100));
     }
 
-    // Clean up synced items
     const stillPending = pendingSync.filter(item => !item.synced);
     setPendingSync(stillPending);
     localStorage.setItem('bet-gitosa-pending-sync', JSON.stringify(stillPending));
