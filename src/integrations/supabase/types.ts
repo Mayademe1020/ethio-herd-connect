@@ -9,13 +9,254 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      animals: {
+        Row: {
+          age: number | null
+          animal_code: string
+          breed: string | null
+          created_at: string
+          health_status: string | null
+          id: string
+          is_vet_verified: boolean | null
+          last_vaccination: string | null
+          name: string
+          photo_url: string | null
+          type: string
+          updated_at: string
+          user_id: string
+          weight: number | null
+        }
+        Insert: {
+          age?: number | null
+          animal_code: string
+          breed?: string | null
+          created_at?: string
+          health_status?: string | null
+          id?: string
+          is_vet_verified?: boolean | null
+          last_vaccination?: string | null
+          name: string
+          photo_url?: string | null
+          type: string
+          updated_at?: string
+          user_id: string
+          weight?: number | null
+        }
+        Update: {
+          age?: number | null
+          animal_code?: string
+          breed?: string | null
+          created_at?: string
+          health_status?: string | null
+          id?: string
+          is_vet_verified?: boolean | null
+          last_vaccination?: string | null
+          name?: string
+          photo_url?: string | null
+          type?: string
+          updated_at?: string
+          user_id?: string
+          weight?: number | null
+        }
+        Relationships: []
+      }
+      farm_profiles: {
+        Row: {
+          created_at: string
+          farm_name: string
+          farm_prefix: string
+          id: string
+          location: string | null
+          owner_name: string | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          farm_name: string
+          farm_prefix: string
+          id?: string
+          location?: string | null
+          owner_name?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          farm_name?: string
+          farm_prefix?: string
+          id?: string
+          location?: string | null
+          owner_name?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      growth_records: {
+        Row: {
+          animal_id: string | null
+          created_at: string
+          height: number | null
+          id: string
+          notes: string | null
+          recorded_date: string
+          user_id: string
+          weight: number
+        }
+        Insert: {
+          animal_id?: string | null
+          created_at?: string
+          height?: number | null
+          id?: string
+          notes?: string | null
+          recorded_date?: string
+          user_id: string
+          weight: number
+        }
+        Update: {
+          animal_id?: string | null
+          created_at?: string
+          height?: number | null
+          id?: string
+          notes?: string | null
+          recorded_date?: string
+          user_id?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "growth_records_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: false
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      health_records: {
+        Row: {
+          administered_date: string
+          animal_id: string | null
+          created_at: string
+          id: string
+          medicine_name: string | null
+          notes: string | null
+          photo_url: string | null
+          record_type: string
+          severity: string | null
+          symptoms: string | null
+          user_id: string
+        }
+        Insert: {
+          administered_date: string
+          animal_id?: string | null
+          created_at?: string
+          id?: string
+          medicine_name?: string | null
+          notes?: string | null
+          photo_url?: string | null
+          record_type: string
+          severity?: string | null
+          symptoms?: string | null
+          user_id: string
+        }
+        Update: {
+          administered_date?: string
+          animal_id?: string | null
+          created_at?: string
+          id?: string
+          medicine_name?: string | null
+          notes?: string | null
+          photo_url?: string | null
+          record_type?: string
+          severity?: string | null
+          symptoms?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "health_records_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: false
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      market_listings: {
+        Row: {
+          age: number | null
+          animal_id: string
+          contact_method: string | null
+          contact_value: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_vet_verified: boolean | null
+          location: string | null
+          photos: string[] | null
+          price: number
+          status: string | null
+          title: string
+          updated_at: string
+          user_id: string
+          weight: number | null
+        }
+        Insert: {
+          age?: number | null
+          animal_id: string
+          contact_method?: string | null
+          contact_value?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_vet_verified?: boolean | null
+          location?: string | null
+          photos?: string[] | null
+          price: number
+          status?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+          weight?: number | null
+        }
+        Update: {
+          age?: number | null
+          animal_id?: string
+          contact_method?: string | null
+          contact_value?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_vet_verified?: boolean | null
+          location?: string | null
+          photos?: string[] | null
+          price?: number
+          status?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          weight?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_animal_code: {
+        Args: {
+          p_user_id: string
+          p_farm_prefix: string
+          p_animal_type: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

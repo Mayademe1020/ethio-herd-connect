@@ -1,206 +1,271 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { BottomNavigation } from '@/components/BottomNavigation';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AnimalRegistrationForm } from '@/components/AnimalRegistrationForm';
 import { ModernAnimalCard } from '@/components/ModernAnimalCard';
-import { OfflineIndicator } from '@/components/OfflineIndicator';
-import { Plus, Search, Filter, TrendingUp } from 'lucide-react';
+import { Plus, Search, Filter } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+interface Animal {
+  id: string;
+  animal_code: string;
+  name: string;
+  type: string;
+  breed?: string;
+  age?: number;
+  weight?: number;
+  photo_url?: string;
+  health_status: 'healthy' | 'attention' | 'sick';
+  last_vaccination?: string;
+  is_vet_verified: boolean;
+  created_at: string;
+}
 
 const Animals = () => {
   const [language, setLanguage] = useState<'am' | 'en'>('am');
   const [showRegistrationForm, setShowRegistrationForm] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState('all');
+  const [animals, setAnimals] = useState<Animal[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [healthFilter, setHealthFilter] = useState<string>('all');
+  
+  const { toast } = useToast();
 
-  // Mock data - replace with real data from Supabase
-  const mockAnimals = [
-    {
-      id: '1',
-      name: 'ሞላ',
-      type: 'cattle',
-      breed: 'ቦራ',
-      age: '3',
-      weight: '285',
-      healthStatus: 'healthy' as const,
-      lastVaccination: '2 ወር'
-    },
-    {
-      id: '2',
-      name: 'ድንቅ',
-      type: 'cattle',
-      breed: 'ሆልስታይን',
-      age: '4',
-      weight: '320',
-      healthStatus: 'attention' as const,
-      lastVaccination: '5 ወር'
-    },
-    {
-      id: '3',
-      name: 'ቂጥ ቂጥ',
-      type: 'poultry',
-      breed: 'ሮድ አይላንድ',
-      age: '1',
-      weight: '2.5',
-      healthStatus: 'healthy' as const,
-      lastVaccination: '1 ወር'
+  useEffect(() => {
+    fetchAnimals();
+  }, []);
+
+  const fetchAnimals = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('animals')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setAnimals(data || []);
+    } catch (error) {
+      console.error('Error fetching animals:', error);
+      toast({
+        title: language === 'am' ? 'ስህተት' : 'Error',
+        description: language === 'am' ? 'እንስሳትን ማምጣት አልተሳካም' : 'Failed to fetch animals',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
     }
-  ];
-
-  const filteredAnimals = mockAnimals.filter(animal => {
-    const matchesSearch = animal.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         animal.breed.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterType === 'all' || animal.type === filterType;
-    return matchesSearch && matchesFilter;
-  });
-
-  const stats = {
-    total: mockAnimals.length,
-    cattle: mockAnimals.filter(a => a.type === 'cattle').length,
-    poultry: mockAnimals.filter(a => a.type === 'poultry').length,
-    healthy: mockAnimals.filter(a => a.healthStatus === 'healthy').length
   };
 
+  const filteredAnimals = animals.filter(animal => {
+    const matchesSearch = animal.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         animal.animal_code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         animal.breed?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesType = typeFilter === 'all' || animal.type === typeFilter;
+    const matchesHealth = healthFilter === 'all' || animal.health_status === healthFilter;
+    
+    return matchesSearch && matchesType && matchesHealth;
+  });
+
+  const getStatusCounts = () => {
+    return {
+      total: animals.length,
+      healthy: animals.filter(a => a.health_status === 'healthy').length,
+      attention: animals.filter(a => a.health_status === 'attention').length,
+      sick: animals.filter(a => a.health_status === 'sick').length,
+      verified: animals.filter(a => a.is_vet_verified).length
+    };
+  };
+
+  const statusCounts = getStatusCounts();
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-24">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-20">
       <Header language={language} setLanguage={setLanguage} />
-      <OfflineIndicator language={language} />
       
       <main className="container mx-auto px-4 py-6 space-y-6">
-        {/* Hero Stats Section */}
-        <div className="text-center mb-6">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
-            {language === 'am' ? '🐄 የእንስሳት አስተዳደር' : '🐄 Animal Management'}
+        {/* Page Title */}
+        <div className="text-center">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
+            {language === 'am' ? 'የእንስሳት ምዝገባ' : 'Animal Registration'}
           </h1>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600">
             {language === 'am' 
-              ? 'ዘመናዊ የከብት እና የዶሮ መዝገብ አስተዳደር'
-              : 'Modern livestock and poultry management'
+              ? 'እንስሳትዎን ይመዝግቡ እና ይከታተሉ'
+              : 'Register and manage your livestock'
             }
           </p>
+        </div>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-green-100">
-              <div className="text-2xl font-bold text-green-600">{stats.total}</div>
-              <p className="text-sm text-gray-600">
-                {language === 'am' ? 'ጠቅላላ እንስሳት' : 'Total Animals'}
-              </p>
-            </div>
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-blue-100">
-              <div className="text-2xl font-bold text-blue-600">{stats.cattle}</div>
-              <p className="text-sm text-gray-600">
-                {language === 'am' ? 'ከብቶች' : 'Cattle'}
-              </p>
-            </div>
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-yellow-100">
-              <div className="text-2xl font-bold text-yellow-600">{stats.poultry}</div>
-              <p className="text-sm text-gray-600">
-                {language === 'am' ? 'ዶሮዎች' : 'Poultry'}
-              </p>
-            </div>
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-emerald-100">
-              <div className="text-2xl font-bold text-emerald-600">{stats.healthy}</div>
-              <p className="text-sm text-gray-600">
-                {language === 'am' ? 'ጤናማ' : 'Healthy'}
-              </p>
-            </div>
+        {/* Quick Add Button */}
+        <div className="text-center">
+          <Button 
+            className="h-16 px-8 bg-emerald-600 hover:bg-emerald-700 text-lg"
+            onClick={() => setShowRegistrationForm(true)}
+          >
+            <Plus className="w-6 h-6 mr-2" />
+            {language === 'am' ? 'አዲስ እንስሳ ይመዝግቡ' : 'Register New Animal'}
+          </Button>
+        </div>
+
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="bg-white rounded-xl p-4 text-center shadow-sm border border-green-100">
+            <div className="text-2xl font-bold text-gray-800">{statusCounts.total}</div>
+            <p className="text-sm text-gray-600">
+              {language === 'am' ? 'ጠቅላላ እንስሳት' : 'Total Animals'}
+            </p>
+          </div>
+          
+          <div className="bg-white rounded-xl p-4 text-center shadow-sm border border-green-100">
+            <div className="text-2xl font-bold text-green-600">{statusCounts.healthy}</div>
+            <p className="text-sm text-gray-600">
+              {language === 'am' ? 'ጤናማ' : 'Healthy'}
+            </p>
+          </div>
+          
+          <div className="bg-white rounded-xl p-4 text-center shadow-sm border border-green-100">
+            <div className="text-2xl font-bold text-yellow-600">{statusCounts.attention}</div>
+            <p className="text-sm text-gray-600">
+              {language === 'am' ? 'ትኩረት' : 'Attention'}
+            </p>
+          </div>
+          
+          <div className="bg-white rounded-xl p-4 text-center shadow-sm border border-green-100">
+            <div className="text-2xl font-bold text-red-600">{statusCounts.sick}</div>
+            <p className="text-sm text-gray-600">
+              {language === 'am' ? 'ታማሚ' : 'Sick'}
+            </p>
+          </div>
+          
+          <div className="bg-white rounded-xl p-4 text-center shadow-sm border border-green-100">
+            <div className="text-2xl font-bold text-blue-600">{statusCounts.verified}</div>
+            <p className="text-sm text-gray-600">
+              {language === 'am' ? 'ዶክተር ማረጋገጫ' : 'Vet Verified'}
+            </p>
           </div>
         </div>
 
-        {/* Primary Action Button */}
-        <Button 
-          className="w-full h-16 text-lg font-semibold bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-lg"
-          onClick={() => setShowRegistrationForm(true)}
-        >
-          <Plus className="w-6 h-6 mr-3" />
-          {language === 'am' ? '✨ አዲስ እንስሳ ይመዝግቡ' : '✨ Register New Animal'}
-        </Button>
-
-        {/* Search and Filter Bar */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="text"
-              placeholder={language === 'am' ? 'እንስሳ ፈልግ...' : 'Search animals...'}
-              className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+        {/* Search and Filters */}
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-green-100 space-y-4">
+          <div className="flex items-center space-x-2">
+            <Search className="w-5 h-5 text-gray-400" />
+            <Input
+              placeholder={language === 'am' ? 'እንስሳት ይፈልጉ...' : 'Search animals...'}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-1"
             />
           </div>
-          <select
-            className="px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500"
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
-          >
-            <option value="all">{language === 'am' ? 'ሁሉም' : 'All Types'}</option>
-            <option value="cattle">{language === 'am' ? 'ከብት' : 'Cattle'}</option>
-            <option value="poultry">{language === 'am' ? 'ዶሮ' : 'Poultry'}</option>
-            <option value="goat">{language === 'am' ? 'ፍየል' : 'Goat'}</option>
-            <option value="sheep">{language === 'am' ? 'በግ' : 'Sheep'}</option>
-          </select>
+          
+          <div className="flex space-x-2">
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger className="w-32">
+                <SelectValue placeholder={language === 'am' ? 'አይነት' : 'Type'} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">
+                  {language === 'am' ? 'ሁሉም' : 'All'}
+                </SelectItem>
+                <SelectItem value="cattle">
+                  {language === 'am' ? 'ከብት' : 'Cattle'}
+                </SelectItem>
+                <SelectItem value="poultry">
+                  {language === 'am' ? 'ዶሮ' : 'Poultry'}
+                </SelectItem>
+                <SelectItem value="goat">
+                  {language === 'am' ? 'ፍየል' : 'Goat'}
+                </SelectItem>
+                <SelectItem value="sheep">
+                  {language === 'am' ? 'በግ' : 'Sheep'}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <Select value={healthFilter} onValueChange={setHealthFilter}>
+              <SelectTrigger className="w-32">
+                <SelectValue placeholder={language === 'am' ? 'ጤንነት' : 'Health'} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">
+                  {language === 'am' ? 'ሁሉም' : 'All'}
+                </SelectItem>
+                <SelectItem value="healthy">
+                  {language === 'am' ? 'ጤናማ' : 'Healthy'}
+                </SelectItem>
+                <SelectItem value="attention">
+                  {language === 'am' ? 'ትኩረት' : 'Attention'}
+                </SelectItem>
+                <SelectItem value="sick">
+                  {language === 'am' ? 'ታማሚ' : 'Sick'}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Animals Grid */}
-        {filteredAnimals.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredAnimals.map((animal) => (
-              <ModernAnimalCard
-                key={animal.id}
-                animal={animal}
-                language={language}
-                onClick={() => console.log('View animal details:', animal.id)}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">🔍</div>
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">
-              {language === 'am' ? 'ምንም እንስሳ አልተገኘም' : 'No animals found'}
-            </h3>
-            <p className="text-gray-500">
-              {language === 'am' 
-                ? 'የፍለጋ ቃልዎን ይለውጡ ወይም አዲስ እንስሳ ያስመዝግቡ'
-                : 'Try adjusting your search or register a new animal'
-              }
-            </p>
-          </div>
-        )}
-
-        {/* Growth Insights */}
-        {mockAnimals.length > 0 && (
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-green-100">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-                <TrendingUp className="w-5 h-5 mr-2 text-green-600" />
-                {language === 'am' ? 'የእድገት ትንታኔ' : 'Growth Insights'}
+        <div>
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+            {language === 'am' ? 'የእኔ እንስሳት' : 'My Animals'}
+            {filteredAnimals.length > 0 && (
+              <span className="text-gray-500 font-normal ml-2">
+                ({filteredAnimals.length} {language === 'am' ? 'ውጤቶች' : 'results'})
+              </span>
+            )}
+          </h2>
+          
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[1, 2, 3, 4, 5, 6].map(i => (
+                <div key={i} className="bg-white rounded-xl p-4 shadow-sm border border-green-100 animate-pulse">
+                  <div className="w-full h-48 bg-gray-200 rounded-lg mb-4"></div>
+                  <div className="space-y-2">
+                    <div className="h-4 bg-gray-200 rounded"></div>
+                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+                    <div className="h-6 bg-gray-200 rounded w-1/3"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : filteredAnimals.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredAnimals.map((animal) => (
+                <ModernAnimalCard
+                  key={animal.id}
+                  animal={animal}
+                  language={language}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">🐄</div>
+              <h3 className="text-lg font-semibold text-gray-600 mb-2">
+                {language === 'am' ? 'ምንም እንስሳ አልተገኘም' : 'No animals found'}
               </h3>
+              <p className="text-gray-500 mb-4">
+                {animals.length === 0 
+                  ? (language === 'am' ? 'የመጀመሪያ እንስሳዎን ይመዝግቡ' : 'Register your first animal')
+                  : (language === 'am' ? 'የተለያዩ ቃላት ይሞክሩ ወይም ማጣሪያዎቹን ይለውጡ' : 'Try different search terms or adjust your filters')
+                }
+              </p>
+              <Button 
+                onClick={() => setShowRegistrationForm(true)}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                {language === 'am' ? 'እንስሳ ይመዝግቡ' : 'Register Animal'}
+              </Button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="text-center p-4 bg-green-50 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">+15%</div>
-                <p className="text-sm text-gray-600">
-                  {language === 'am' ? 'የወር እድገት' : 'Monthly Growth'}
-                </p>
-              </div>
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">98%</div>
-                <p className="text-sm text-gray-600">
-                  {language === 'am' ? 'የጤንነት መጠን' : 'Health Rate'}
-                </p>
-              </div>
-              <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">₹2,450</div>
-                <p className="text-sm text-gray-600">
-                  {language === 'am' ? 'የወር ገቢ' : 'Monthly Revenue'}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </main>
 
       <BottomNavigation language={language} />
@@ -210,6 +275,7 @@ const Animals = () => {
         <AnimalRegistrationForm
           language={language}
           onClose={() => setShowRegistrationForm(false)}
+          onSuccess={fetchAnimals}
         />
       )}
     </div>
