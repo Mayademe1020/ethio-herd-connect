@@ -50,7 +50,14 @@ const Animals = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setAnimals(data || []);
+      
+      // Ensure health_status is properly typed
+      const typedAnimals: Animal[] = (data || []).map(animal => ({
+        ...animal,
+        health_status: animal.health_status as 'healthy' | 'attention' | 'sick'
+      }));
+      
+      setAnimals(typedAnimals);
     } catch (error) {
       console.error('Error fetching animals:', error);
       toast({
@@ -239,7 +246,10 @@ const Animals = () => {
               {filteredAnimals.map((animal) => (
                 <ModernAnimalCard
                   key={animal.id}
-                  animal={animal}
+                  animal={{
+                    ...animal,
+                    healthStatus: animal.health_status
+                  }}
                   language={language}
                 />
               ))}

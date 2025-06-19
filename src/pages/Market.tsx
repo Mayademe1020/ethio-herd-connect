@@ -53,7 +53,15 @@ const Market = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setListings(data || []);
+      
+      // Ensure contact_method is properly typed
+      const typedListings: MarketListing[] = (data || []).map(listing => ({
+        ...listing,
+        contact_method: listing.contact_method as 'phone' | 'telegram' | 'sms',
+        photos: listing.photos || []
+      }));
+      
+      setListings(typedListings);
     } catch (error) {
       console.error('Error fetching listings:', error);
       toast({

@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { X, Farm, User, Phone, MapPin } from 'lucide-react';
+import { X, Barn, User, Phone, MapPin } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -112,7 +111,7 @@ export const FarmSetupForm: React.FC<FarmSetupFormProps> = ({
       <Card className="w-full max-w-lg">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center space-x-2">
-            <Farm className="w-5 h-5" />
+            <Barn className="w-5 h-5" />
             <span>{language === 'am' ? 'የእርሻ መረጃ' : 'Farm Profile'}</span>
           </CardTitle>
           <Button variant="ghost" size="sm" onClick={onClose}>
@@ -125,7 +124,7 @@ export const FarmSetupForm: React.FC<FarmSetupFormProps> = ({
             {/* Farm Name */}
             <div className="space-y-2">
               <label className="text-sm font-medium flex items-center space-x-2">
-                <Farm className="w-4 h-4" />
+                <Barn className="w-4 h-4" />
                 <span>{language === 'am' ? 'የእርሻ ስም' : 'Farm Name'} *</span>
               </label>
               <Input
