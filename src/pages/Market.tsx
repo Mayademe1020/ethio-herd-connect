@@ -35,7 +35,7 @@ const Market = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('all');
-  const [locationFilter, setLocationFilter] = useState('');
+  const [locationFilter, setLocationFilter] = useState('all');
   
   const { toast } = useToast();
 
@@ -96,7 +96,7 @@ const Market = () => {
   const filteredListings = listings.filter(listing => {
     const matchesSearch = listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          listing.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesLocation = !locationFilter || listing.location.toLowerCase().includes(locationFilter.toLowerCase());
+    const matchesLocation = locationFilter === 'all' || listing.location.toLowerCase().includes(locationFilter.toLowerCase());
     
     return matchesSearch && matchesLocation;
   });
@@ -164,7 +164,7 @@ const Market = () => {
                 <SelectValue placeholder={language === 'am' ? 'አካባቢ' : 'Location'} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">
+                <SelectItem value="all">
                   {language === 'am' ? 'ሁሉም አካባቢዎች' : 'All Locations'}
                 </SelectItem>
                 {uniqueLocations.map(location => (
