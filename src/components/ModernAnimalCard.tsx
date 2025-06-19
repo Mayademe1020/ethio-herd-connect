@@ -8,9 +8,9 @@ interface AnimalData {
   id: string;
   name: string;
   type: string;
-  breed: string;
-  age: string;
-  weight: string;
+  breed?: string; // Make breed optional to match database
+  age?: string;
+  weight?: string;
   photo?: string;
   lastVaccination?: string;
   healthStatus: 'healthy' | 'attention' | 'sick';
@@ -65,7 +65,7 @@ export const ModernAnimalCard = ({ animal, language, onClick }: ModernAnimalCard
             <div>
               <h3 className="font-bold text-gray-900">{animal.name}</h3>
               <p className="text-sm text-gray-600">
-                {animal.breed} • {animal.age} {language === 'am' ? 'ዓመት' : 'years'}
+                {animal.breed || 'Unknown breed'} • {animal.age || 'Unknown age'} {language === 'am' ? 'ዓመት' : 'years'}
               </p>
             </div>
           </div>
@@ -89,7 +89,7 @@ export const ModernAnimalCard = ({ animal, language, onClick }: ModernAnimalCard
           <div className="text-center p-2 bg-blue-50 rounded-lg">
             <Weight className="w-4 h-4 mx-auto text-blue-600 mb-1" />
             <p className="text-xs text-gray-600">{language === 'am' ? 'ክብደት' : 'Weight'}</p>
-            <p className="text-sm font-bold text-gray-900">{animal.weight}kg</p>
+            <p className="text-sm font-bold text-gray-900">{animal.weight || 'N/A'}kg</p>
           </div>
           <div className="text-center p-2 bg-purple-50 rounded-lg">
             <Calendar className="w-4 h-4 mx-auto text-purple-600 mb-1" />

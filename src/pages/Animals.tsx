@@ -247,7 +247,14 @@ const Animals = () => {
                 <ModernAnimalCard
                   key={animal.id}
                   animal={{
-                    ...animal,
+                    id: animal.id,
+                    name: animal.name,
+                    type: animal.type,
+                    breed: animal.breed || 'Unknown',
+                    age: animal.age?.toString() || 'Unknown',
+                    weight: animal.weight?.toString() || 'Unknown',
+                    photo: animal.photo_url,
+                    lastVaccination: animal.last_vaccination || undefined,
                     healthStatus: animal.health_status
                   }}
                   language={language}

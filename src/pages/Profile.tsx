@@ -4,7 +4,7 @@ import { BottomNavigation } from '@/components/BottomNavigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FarmSetupForm } from '@/components/FarmSetupForm';
-import { User, Settings, Phone, MapPin, Calendar, Award, Barn, Edit } from 'lucide-react';
+import { User, Settings, Phone, MapPin, Calendar, Award, Home, Edit } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -82,7 +82,7 @@ const Profile = () => {
             <div className="flex items-center space-x-4">
               <div className="w-16 h-16 bg-gradient-to-br from-green-600 to-emerald-700 rounded-full flex items-center justify-center">
                 {farmProfile ? (
-                  <Barn className="w-8 h-8 text-white" />
+                  <Home className="w-8 h-8 text-white" />
                 ) : (
                   <User className="w-8 h-8 text-white" />
                 )}
@@ -116,13 +116,13 @@ const Profile = () => {
           <Card className="border-green-100">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
-                <Barn className="w-5 h-5 text-green-600" />
+                <Home className="w-5 h-5 text-green-600" />
                 <span>{language === 'am' ? 'የእርሻ መረጃ' : 'Farm Information'}</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center space-x-3">
-                <Barn className="w-5 h-5 text-gray-500" />
+                <Home className="w-5 h-5 text-gray-500" />
                 <div>
                   <p className="text-sm text-gray-600">
                     {language === 'am' ? 'የእርሻ ስም' : 'Farm Name'}
@@ -167,7 +167,7 @@ const Profile = () => {
         ) : (
           <Card className="border-yellow-200 bg-yellow-50">
             <CardContent className="p-6 text-center">
-              <Barn className="w-12 h-12 mx-auto mb-3 text-yellow-600" />
+              <Home className="w-12 h-12 mx-auto mb-3 text-yellow-600" />
               <h3 className="font-semibold text-gray-800 mb-2">
                 {language === 'am' ? 'የእርሻ መረጃ ያስፈልጋል' : 'Farm Profile Required'}
               </h3>
@@ -181,7 +181,7 @@ const Profile = () => {
                 onClick={() => setShowFarmSetup(true)}
                 className="bg-green-600 hover:bg-green-700"
               >
-                <Barn className="w-4 h-4 mr-2" />
+                <Home className="w-4 h-4 mr-2" />
                 {language === 'am' ? 'እርሻ ያስተማሩ' : 'Setup Farm'}
               </Button>
             </CardContent>
@@ -240,7 +240,7 @@ const Profile = () => {
               className="w-full justify-start"
               onClick={() => setShowFarmSetup(true)}
             >
-              <Barn className="w-4 h-4 mr-2" />
+              <Home className="w-4 h-4 mr-2" />
               {language === 'am' ? 'የእርሻ መረጃ ያርትዑ' : 'Edit Farm Profile'}
             </Button>
             <Button variant="outline" className="w-full justify-start">
