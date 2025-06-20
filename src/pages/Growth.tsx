@@ -7,15 +7,22 @@ import { AnimalGrowthCard } from '@/components/AnimalGrowthCard';
 import { InteractiveSummaryCard } from '@/components/InteractiveSummaryCard';
 import { EnhancedHeader } from '@/components/EnhancedHeader';
 import { BottomNavigation } from '@/components/BottomNavigation';
+import { OfflineIndicator } from '@/components/OfflineIndicator';
+import { GrowthDetailView } from '@/components/DetailedViews/GrowthDetailView';
 import { Plus, TrendingUp, BarChart3, Users, Scale, Target, Calendar } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useOfflineSync } from '@/hooks/useOfflineSync';
+import { useToastNotifications } from '@/hooks/useToastNotifications';
 
 const Growth = () => {
   const { language } = useLanguage();
+  const { addToQueue, isOnline } = useOfflineSync();
+  const { showSuccess, showError } = useToastNotifications();
   const [showWeightForm, setShowWeightForm] = useState(false);
   const [selectedAnimalForChart, setSelectedAnimalForChart] = useState<string | null>(null);
+  const [selectedDetailView, setSelectedDetailView] = useState<string | null>(null);
 
-  // Mock animals data with growth information
+  // Enhanced mock animals data with growth information
   const animals = [
     {
       id: '1',
@@ -24,7 +31,9 @@ const Growth = () => {
       breed: 'ቦራ',
       currentWeight: 78,
       lastWeighed: '2024-06-01',
-      growthTrend: 'up' as const
+      growthTrend: 'up' as const,
+      targetWeight: 90,
+      weeklyGain: 2.1
     },
     {
       id: '2',
@@ -33,7 +42,9 @@ const Growth = () => {
       breed: 'ሆላንድ',
       currentWeight: 85,
       lastWeighed: '2024-05-28',
-      growthTrend: 'stable' as const
+      growthTrend: 'stable' as const,
+      targetWeight: 95,
+      weeklyGain: 0.8
     },
     {
       id: '3',
@@ -42,7 +53,9 @@ const Growth = () => {
       breed: 'አርሲ-ባሌ',
       currentWeight: 25,
       lastWeighed: '2024-05-30',
-      growthTrend: 'up' as const
+      growthTrend: 'up' as const,
+      targetWeight: 30,
+      weeklyGain: 1.2
     }
   ];
 
@@ -52,7 +65,9 @@ const Growth = () => {
     averageWeight: Math.round(animals.reduce((acc, animal) => acc + (animal.currentWeight || 0), 0) / animals.length),
     totalWeight: animals.reduce((acc, animal) => acc + (animal.currentWeight || 0), 0),
     improvingGrowth: animals.filter(a => a.growthTrend === 'up').length,
-    upcomingWeighings: 3
+    upcomingWeighings: 3,
+    onTarget: animals.filter(a => (a.currentWeight / a.targetWeight) >= 0.8).length,
+    averageWeeklyGain: Math.round((animals.reduce((acc, a) => acc + a.weeklyGain, 0) / animals.length) * 10) / 10
   };
 
   const handleAddWeight = (animalId?: string) => {
@@ -63,17 +78,58 @@ const Growth = () => {
     setSelectedAnimalForChart(animalId);
   };
 
+  const handleDetailViewClick = (cardType: string) => {
+    setSelectedDetailView(cardType);
+  };
+
+  const handleWeightAdded = (weightData: any) => {
+    if (!isOnline) {
+      addToQueue('growth', weightData);
+      showSuccess(
+        language === 'am' ? 'ክብደት ታክሏል' : 'Weight Added',
+        language === 'am' ? 'ከመስመር ወጪ ሁኔታ። ሲመለስ ይሰምራል።' : 'Saved offline. Will sync when online.'
+      );
+    } else {
+      showSuccess(
+        language === 'am' ? 'ክብደት ታክሏል' : 'Weight Added',
+        language === 'am' ? 'ክብደት በተሳካ ሁኔታ ታክሏል' : 'Weight recorded successfully'
+      );
+    }
+    setShowWeightForm(false);
+  };
+
   const selectedAnimal = selectedAnimalForChart 
     ? animals.find(a => a.id === selectedAnimalForChart)
     : null;
 
+  // If detail view is selected, show it
+  if (selectedDetailView) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-20">
+        <EnhancedHeader />
+        <OfflineIndicator language={language} />
+        
+        <main className="container mx-auto px-4 py-6">
+          <GrowthDetailView
+            language={language}
+            type={selectedDetailView}
+            onBack={() => setSelectedDetailView(null)}
+          />
+        </main>
+
+        <BottomNavigation language={language} />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-20">
       <EnhancedHeader />
+      <OfflineIndicator language={language} />
       
       <main className="container mx-auto px-4 py-6 space-y-6">
         {/* Page Title */}
-        <div className="text-center">
+        <div className="text-center animate-fade-in">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
             {language === 'am' ? 'የእድገት ክትትል' : 'Growth Monitoring'}
           </h1>
@@ -86,7 +142,7 @@ const Growth = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in" style={{ animationDelay: '100ms' }}>
           <Button 
             className="h-24 flex flex-col space-y-2 bg-green-600 hover:bg-green-700 transition-all duration-300 hover:scale-105 active:scale-95"
             onClick={() => handleAddWeight()}
@@ -110,14 +166,14 @@ const Growth = () => {
         </div>
 
         {/* Interactive Growth Statistics */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-8 gap-3 lg:gap-4 animate-fade-in" style={{ animationDelay: '200ms' }}>
           <InteractiveSummaryCard
             title="Total Animals"
             titleAm="ጠቅላላ እንስሳ"
             value={growthStats.totalAnimals}
             icon={<Users className="w-4 h-4 sm:w-5 sm:h-5" />}
             color="blue"
-            onClick={() => {}}
+            onClick={() => handleDetailViewClick('total')}
           />
           
           <InteractiveSummaryCard
@@ -126,7 +182,7 @@ const Growth = () => {
             value={growthStats.trackedAnimals}
             icon={<Target className="w-4 h-4 sm:w-5 sm:h-5" />}
             color="green"
-            onClick={() => {}}
+            onClick={() => handleDetailViewClick('tracked')}
           />
           
           <InteractiveSummaryCard
@@ -135,7 +191,7 @@ const Growth = () => {
             value={`${growthStats.averageWeight}kg`}
             icon={<Scale className="w-4 h-4 sm:w-5 sm:h-5" />}
             color="purple"
-            onClick={() => {}}
+            onClick={() => handleDetailViewClick('average')}
           />
           
           <InteractiveSummaryCard
@@ -144,7 +200,7 @@ const Growth = () => {
             value={`${growthStats.totalWeight}kg`}
             icon={<Scale className="w-4 h-4 sm:w-5 sm:h-5" />}
             color="teal"
-            onClick={() => {}}
+            onClick={() => handleDetailViewClick('total')}
           />
           
           <InteractiveSummaryCard
@@ -153,7 +209,7 @@ const Growth = () => {
             value={growthStats.improvingGrowth}
             icon={<TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />}
             color="emerald"
-            onClick={() => {}}
+            onClick={() => handleDetailViewClick('growing')}
           />
           
           <InteractiveSummaryCard
@@ -162,13 +218,31 @@ const Growth = () => {
             value={growthStats.upcomingWeighings}
             icon={<Calendar className="w-4 h-4 sm:w-5 sm:h-5" />}
             color="orange"
-            onClick={() => {}}
+            onClick={() => handleDetailViewClick('upcoming')}
+          />
+
+          <InteractiveSummaryCard
+            title="On Target"
+            titleAm="በዒላማ ላይ"
+            value={growthStats.onTarget}
+            icon={<Target className="w-4 h-4 sm:w-5 sm:h-5" />}
+            color="indigo"
+            onClick={() => handleDetailViewClick('targets')}
+          />
+
+          <InteractiveSummaryCard
+            title="Weekly Gain"
+            titleAm="ሳምንታዊ ጭማሪ"
+            value={`${growthStats.averageWeeklyGain}kg`}
+            icon={<TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />}
+            color="pink"
+            onClick={() => handleDetailViewClick('gains')}
           />
         </div>
 
         {/* Chart View */}
         {selectedAnimalForChart && (
-          <div className="space-y-4">
+          <div className="space-y-4 animate-fade-in">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold text-gray-800">
                 {language === 'am' ? 'የእድገት ቻርት' : 'Growth Chart'}
@@ -192,20 +266,25 @@ const Growth = () => {
 
         {/* Animals List */}
         {!selectedAnimalForChart && (
-          <div className="space-y-4">
+          <div className="space-y-4 animate-fade-in" style={{ animationDelay: '300ms' }}>
             <h2 className="text-xl font-semibold text-gray-800">
               {language === 'am' ? 'እንስሳቶች' : 'Animals'}
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {animals.map((animal) => (
-                <AnimalGrowthCard
+              {animals.map((animal, index) => (
+                <div 
                   key={animal.id}
-                  language={language}
-                  animal={animal}
-                  onAddWeight={handleAddWeight}
-                  onViewChart={handleViewChart}
-                />
+                  className="animate-fade-in"
+                  style={{ animationDelay: `${400 + index * 100}ms` }}
+                >
+                  <AnimalGrowthCard
+                    language={language}
+                    animal={animal}
+                    onAddWeight={handleAddWeight}
+                    onViewChart={handleViewChart}
+                  />
+                </div>
               ))}
             </div>
           </div>
@@ -219,6 +298,7 @@ const Growth = () => {
         <WeightEntryForm
           language={language}
           onClose={() => setShowWeightForm(false)}
+          onSubmit={handleWeightAdded}
         />
       )}
     </div>

@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useToastNotifications } from '@/hooks/useToastNotifications';
 
 interface SyncData {
   id: string;
@@ -14,13 +15,19 @@ export const useOfflineSync = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [pendingSync, setPendingSync] = useState<SyncData[]>([]);
   const [syncing, setSyncing] = useState(false);
+  const { showSuccess, showError, showInfo } = useToastNotifications();
 
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
+      showInfo('Back online', 'Starting to sync pending changes...');
       syncAll();
     };
-    const handleOffline = () => setIsOnline(false);
+    
+    const handleOffline = () => {
+      setIsOnline(false);
+      showInfo('Offline mode', 'Changes will be saved locally and synced when online.');
+    };
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
@@ -28,7 +35,15 @@ export const useOfflineSync = () => {
     const stored = localStorage.getItem('bet-gitosa-pending-sync');
     if (stored) {
       try {
-        setPendingSync(JSON.parse(stored));
+        const parsedData = JSON.parse(stored);
+        setPendingSync(parsedData);
+        
+        if (parsedData.length > 0 && isOnline) {
+          showInfo(
+            `${parsedData.length} pending changes`,
+            'Will sync automatically when online.'
+          );
+        }
       } catch (error) {
         console.error('Error parsing stored sync data:', error);
         localStorage.removeItem('bet-gitosa-pending-sync');
@@ -124,6 +139,10 @@ export const useOfflineSync = () => {
       console.log(`Successfully synced ${item.type}:`, item.id);
     } catch (error) {
       console.error('Sync failed for item:', item, error);
+      showError(
+        'Sync failed',
+        `Failed to sync ${item.type} data. Will retry later.`
+      );
     }
   };
 
@@ -135,8 +154,26 @@ export const useOfflineSync = () => {
     
     const unsynced = pendingSync.filter(item => !item.synced);
     
+    if (unsynced.length === 0) {
+      setSyncing(false);
+      return;
+    }
+
+    showInfo(
+      'Syncing data',
+      `Syncing ${unsynced.length} pending changes...`
+    );
+    
+    let successCount = 0;
+    let failCount = 0;
+    
     for (const item of unsynced) {
-      await syncData(item);
+      try {
+        await syncData(item);
+        successCount++;
+      } catch (error) {
+        failCount++;
+      }
       await new Promise(resolve => setTimeout(resolve, 100));
     }
 
@@ -145,6 +182,14 @@ export const useOfflineSync = () => {
     localStorage.setItem('bet-gitosa-pending-sync', JSON.stringify(stillPending));
     
     setSyncing(false);
+    
+    if (successCount > 0) {
+      showSuccess(
+        'Sync complete',
+        `Successfully synced ${successCount} items${failCount > 0 ? `, ${failCount} failed` : ''}.`
+      );
+    }
+    
     console.log('Sync completed');
   };
 
