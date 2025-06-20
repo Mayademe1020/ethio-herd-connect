@@ -6,13 +6,15 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { User, Mail, Lock, Eye, EyeOff, Phone } from 'lucide-react';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -34,9 +36,15 @@ const Auth = () => {
       return;
     }
 
-    if (!isLogin && password !== confirmPassword) {
-      toast.error('Passwords do not match');
-      return;
+    if (!isLogin && (!mobileNumber || password !== confirmPassword)) {
+      if (!mobileNumber) {
+        toast.error('Mobile number is required');
+        return;
+      }
+      if (password !== confirmPassword) {
+        toast.error('Passwords do not match');
+        return;
+      }
     }
 
     if (password.length < 6) {
@@ -51,7 +59,7 @@ const Auth = () => {
       if (isLogin) {
         result = await signIn(email, password);
       } else {
-        result = await signUp(email, password);
+        result = await signUp(email, password, mobileNumber, fullName);
       }
 
       if (result.error) {
@@ -109,6 +117,39 @@ const Auth = () => {
                 required
               />
             </div>
+
+            {/* Mobile Number (Sign Up only) */}
+            {!isLogin && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center space-x-2">
+                  <Phone className="w-4 h-4" />
+                  <span>Mobile Number</span>
+                </label>
+                <Input
+                  type="tel"
+                  value={mobileNumber}
+                  onChange={(e) => setMobileNumber(e.target.value)}
+                  placeholder="Enter your mobile number"
+                  required={!isLogin}
+                />
+              </div>
+            )}
+
+            {/* Full Name (Sign Up only) */}
+            {!isLogin && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center space-x-2">
+                  <User className="w-4 h-4" />
+                  <span>Full Name (Optional)</span>
+                </label>
+                <Input
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Enter your full name"
+                />
+              </div>
+            )}
 
             {/* Password */}
             <div className="space-y-2">

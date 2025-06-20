@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Cow, Activity, Calendar, Weight } from 'lucide-react';
+import { ArrowLeft, Heart, Activity, Calendar, Weight } from 'lucide-react';
 
 interface AnimalDetailViewProps {
   language: 'am' | 'en';
@@ -58,7 +58,7 @@ export const AnimalDetailView = ({ language, type, onBack }: AnimalDetailViewPro
           >
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center space-x-2 text-lg">
-                <Cow className="w-5 h-5 text-green-600" />
+                <Heart className="w-5 h-5 text-green-600" />
                 <span>{animal.name}</span>
               </CardTitle>
             </CardHeader>

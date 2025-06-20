@@ -43,13 +43,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [rememberMe, setRememberMe] = useLocalStorage('bet-gitosa-remember-me', false);
   const { showSuccess, showError } = useToastNotifications();
 
-  // Fetch user profile data
+  // Fetch user profile data from farm_profiles table
   const fetchUserProfile = async (userId: string) => {
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from('farm_profiles')
         .select('*')
-        .eq('id', userId)
+        .eq('user_id', userId)
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
@@ -58,7 +58,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (data) {
-        setUserProfile(data);
+        // Map farm_profiles data to UserProfile structure
+        setUserProfile({
+          id: data.user_id,
+          email: user?.email || '',
+          mobile_number: data.phone,
+          full_name: data.owner_name,
+          farm_name: data.farm_name,
+          farm_prefix: data.farm_prefix
+        });
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -147,22 +155,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       });
 
-      // Create profile record if signup successful
+      // Create farm profile record if signup successful
       if (!error && data.user) {
         const { error: profileError } = await supabase
-          .from('profiles')
+          .from('farm_profiles')
           .insert([
             {
-              id: data.user.id,
-              email: email,
-              mobile_number: mobileNumber,
-              full_name: fullName,
+              user_id: data.user.id,
+              owner_name: fullName || '',
+              phone: mobileNumber,
+              farm_name: `${fullName || 'User'}'s Farm`,
+              location: '',
               created_at: new Date().toISOString()
             }
           ]);
 
         if (profileError) {
-          console.error('Error creating profile:', profileError);
+          console.error('Error creating farm profile:', profileError);
         }
       }
       
@@ -189,9 +198,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const { error } = await supabase
-        .from('profiles')
-        .update(profileUpdates)
-        .eq('id', user.id);
+        .from('farm_profiles')
+        .update({
+          owner_name: profileUpdates.full_name,
+          phone: profileUpdates.mobile_number,
+          farm_name: profileUpdates.farm_name,
+          farm_prefix: profileUpdates.farm_prefix
+        })
+        .eq('user_id', user.id);
 
       if (!error) {
         setUserProfile(prev => prev ? { ...prev, ...profileUpdates } : null);

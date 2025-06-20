@@ -298,7 +298,7 @@ const Growth = () => {
         <WeightEntryForm
           language={language}
           onClose={() => setShowWeightForm(false)}
-          onSubmit={handleWeightAdded}
+          onWeightAdded={handleWeightAdded}
         />
       )}
     </div>
