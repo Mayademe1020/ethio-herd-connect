@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 interface WeightEntryFormProps {
   language: 'am' | 'en';
   onClose: () => void;
+  onWeightAdded: (weightData: any) => void;
 }
 
 interface Animal {
@@ -18,7 +19,7 @@ interface Animal {
   breed: string;
 }
 
-export const WeightEntryForm = ({ language, onClose }: WeightEntryFormProps) => {
+export const WeightEntryForm = ({ language, onClose, onWeightAdded }: WeightEntryFormProps) => {
   const [selectedAnimal, setSelectedAnimal] = useState('');
   const [weight, setWeight] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -36,7 +37,7 @@ export const WeightEntryForm = ({ language, onClose }: WeightEntryFormProps) => 
     e.preventDefault();
     
     if (!selectedAnimal || !weight) {
-      toast.error(language === 'am' ? 'እባክዎ ሁல ጥ አነ ሞሉ' : 'Please fill all required fields');
+      toast.error(language === 'am' ? 'እባክዎ ሁል ጥ አነ ሞሉ' : 'Please fill all required fields');
       return;
     }
 
@@ -57,6 +58,7 @@ export const WeightEntryForm = ({ language, onClose }: WeightEntryFormProps) => 
         : '✅ Weight recorded successfully'
     );
 
+    onWeightAdded(weightRecord);
     onClose();
   };
 

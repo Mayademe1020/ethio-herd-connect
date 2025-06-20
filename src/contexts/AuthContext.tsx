@@ -157,6 +157,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // Create farm profile record if signup successful
       if (!error && data.user) {
+        // Generate a simple farm prefix from the user's name or email
+        const farmPrefix = (fullName || email.split('@')[0]).toUpperCase().substring(0, 3);
+        
         const { error: profileError } = await supabase
           .from('farm_profiles')
           .insert([
@@ -165,6 +168,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               owner_name: fullName || '',
               phone: mobileNumber,
               farm_name: `${fullName || 'User'}'s Farm`,
+              farm_prefix: farmPrefix,
               location: '',
               created_at: new Date().toISOString()
             }
