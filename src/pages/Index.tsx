@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const Index = () => {
-  const { language, setLanguage } = useLanguage();
+  const { language } = useLanguage();
 
   // Mock data - replace with real Supabase data
   const dashboardStats = {
@@ -30,7 +30,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-24">
-      <EnhancedHeader language={language} setLanguage={setLanguage} />
+      <EnhancedHeader />
       <OfflineIndicator language={language} />
       
       <main className="container mx-auto px-4 py-6 space-y-8">

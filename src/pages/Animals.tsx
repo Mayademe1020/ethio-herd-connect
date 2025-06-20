@@ -386,7 +386,7 @@ const Animals = () => {
         </div>
       </main>
 
-      <BottomNavigation />
+      <BottomNavigation language={language} />
 
       {/* Registration Form Modal */}
       {showRegistrationForm && (

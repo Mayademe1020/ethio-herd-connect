@@ -212,7 +212,7 @@ const Growth = () => {
         )}
       </main>
 
-      <BottomNavigation />
+      <BottomNavigation language={language} />
 
       {/* Weight Entry Form Modal */}
       {showWeightForm && (

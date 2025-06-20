@@ -309,7 +309,7 @@ const Market = () => {
         </div>
       </main>
 
-      <BottomNavigation />
+      <BottomNavigation language={language} />
 
       {/* Create Listing Form Modal */}
       {showCreateForm && (

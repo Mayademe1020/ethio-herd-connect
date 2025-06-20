@@ -302,7 +302,7 @@ const Profile = () => {
         </Card>
       </main>
 
-      <BottomNavigation />
+      <BottomNavigation language={language} />
 
       {/* Farm Setup Form Modal */}
       {showFarmSetup && (
