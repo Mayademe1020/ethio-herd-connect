@@ -1,7 +1,5 @@
 
 import { useState, useEffect } from 'react';
-import { Header } from '@/components/Header';
-import { BottomNavigation } from '@/components/BottomNavigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -9,6 +7,8 @@ import { MarketListingForm } from '@/components/MarketListingForm';
 import { MarketListingCard } from '@/components/MarketListingCard';
 import { MarketListingDetails } from '@/components/MarketListingDetails';
 import { InteractiveSummaryCard } from '@/components/InteractiveSummaryCard';
+import { EnhancedHeader } from '@/components/EnhancedHeader';
+import { BottomNavigation } from '@/components/BottomNavigation';
 import { Plus, Search, Filter, MapPin, Phone, MessageSquare, ShoppingCart, CheckCircle, DollarSign, Users } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -120,7 +120,7 @@ const Market = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-20">
-      <Header language={language} setLanguage={() => {}} />
+      <EnhancedHeader />
       
       <main className="container mx-auto px-4 py-6 space-y-6">
         {/* Page Title */}
@@ -309,7 +309,7 @@ const Market = () => {
         </div>
       </main>
 
-      <BottomNavigation language={language} />
+      <BottomNavigation />
 
       {/* Create Listing Form Modal */}
       {showCreateForm && (

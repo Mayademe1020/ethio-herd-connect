@@ -1,18 +1,19 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Header } from '@/components/Header';
-import { BottomNavigation } from '@/components/BottomNavigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FarmSetupForm } from '@/components/FarmSetupForm';
+import { EnhancedHeader } from '@/components/EnhancedHeader';
+import { BottomNavigation } from '@/components/BottomNavigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { User, Settings, Phone, MapPin, Calendar, Award, Home, Edit, LogOut } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 const Profile = () => {
-  const [language, setLanguage] = useState<'am' | 'en'>('am');
+  const { language } = useLanguage();
   const [showFarmSetup, setShowFarmSetup] = useState(false);
   const [farmProfile, setFarmProfile] = useState<any>(null);
   const [stats, setStats] = useState({
@@ -101,7 +102,7 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-20">
-      <Header language={language} setLanguage={setLanguage} />
+      <EnhancedHeader />
       
       <main className="container mx-auto px-4 py-6 space-y-6">
         {/* Profile Header */}
@@ -301,7 +302,7 @@ const Profile = () => {
         </Card>
       </main>
 
-      <BottomNavigation language={language} />
+      <BottomNavigation />
 
       {/* Farm Setup Form Modal */}
       {showFarmSetup && (

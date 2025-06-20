@@ -1,12 +1,12 @@
 
 import { useState } from 'react';
-import { Header } from '@/components/Header';
-import { BottomNavigation } from '@/components/BottomNavigation';
-import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { VaccinationForm } from '@/components/VaccinationForm';
 import { IllnessReportForm } from '@/components/IllnessReportForm';
 import { HealthReminderSystem } from '@/components/HealthReminderSystem';
 import { InteractiveSummaryCard } from '@/components/InteractiveSummaryCard';
+import { EnhancedHeader } from '@/components/EnhancedHeader';
+import { BottomNavigation } from '@/components/BottomNavigation';
+import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
@@ -175,22 +175,22 @@ const Health = () => {
   if (selectedDetailView) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-20">
-        <Header language={language} setLanguage={() => {}} />
-        <OfflineIndicator language={language} />
+        <EnhancedHeader />
+        <OfflineIndicator />
         
         <main className="container mx-auto px-4 py-6">
           <DetailView type={selectedDetailView} />
         </main>
 
-        <BottomNavigation language={language} />
+        <BottomNavigation />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-20">
-      <Header language={language} setLanguage={() => {}} />
-      <OfflineIndicator language={language} />
+      <EnhancedHeader />
+      <OfflineIndicator />
       
       <main className="container mx-auto px-4 py-6 space-y-6">
         {/* Page Title */}
@@ -369,7 +369,7 @@ const Health = () => {
         </Tabs>
       </main>
 
-      <BottomNavigation language={language} />
+      <BottomNavigation />
 
       {/* Forms */}
       {showVaccinationForm && (

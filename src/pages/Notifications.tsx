@@ -1,15 +1,16 @@
 
 import React, { useState } from 'react';
-import { EnhancedHeader } from '@/components/EnhancedHeader';
-import { BottomNavigation } from '@/components/BottomNavigation';
-import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { EnhancedHeader } from '@/components/EnhancedHeader';
+import { BottomNavigation } from '@/components/BottomNavigation';
+import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { Bell, Check, Trash2, Filter, Calendar, Heart, TrendingUp, ShoppingCart } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Notifications = () => {
-  const [language, setLanguage] = useState<'am' | 'en'>('am');
+  const { language } = useLanguage();
   const [filter, setFilter] = useState<'all' | 'health' | 'growth' | 'market' | 'general'>('all');
 
   const notifications = [
@@ -96,8 +97,8 @@ const Notifications = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-20">
-      <EnhancedHeader language={language} setLanguage={setLanguage} />
-      <OfflineIndicator language={language} />
+      <EnhancedHeader />
+      <OfflineIndicator />
       
       <main className="container mx-auto px-4 py-6 space-y-6">
         {/* Page Header */}
@@ -250,7 +251,7 @@ const Notifications = () => {
         )}
       </main>
 
-      <BottomNavigation language={language} />
+      <BottomNavigation />
     </div>
   );
 };

@@ -1,12 +1,12 @@
 
 import { useState } from 'react';
-import { Header } from '@/components/Header';
-import { BottomNavigation } from '@/components/BottomNavigation';
 import { Button } from '@/components/ui/button';
 import { WeightEntryForm } from '@/components/WeightEntryForm';
 import { GrowthChart } from '@/components/GrowthChart';
 import { AnimalGrowthCard } from '@/components/AnimalGrowthCard';
 import { InteractiveSummaryCard } from '@/components/InteractiveSummaryCard';
+import { EnhancedHeader } from '@/components/EnhancedHeader';
+import { BottomNavigation } from '@/components/BottomNavigation';
 import { Plus, TrendingUp, BarChart3, Users, Scale, Target, Calendar } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -69,7 +69,7 @@ const Growth = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-20">
-      <Header language={language} setLanguage={() => {}} />
+      <EnhancedHeader />
       
       <main className="container mx-auto px-4 py-6 space-y-6">
         {/* Page Title */}
@@ -212,7 +212,7 @@ const Growth = () => {
         )}
       </main>
 
-      <BottomNavigation language={language} />
+      <BottomNavigation />
 
       {/* Weight Entry Form Modal */}
       {showWeightForm && (
