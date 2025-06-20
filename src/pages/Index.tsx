@@ -1,5 +1,4 @@
 
-import { useState } from 'react';
 import { EnhancedHeader } from '@/components/EnhancedHeader';
 import { BottomNavigation } from '@/components/BottomNavigation';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
@@ -7,9 +6,10 @@ import { InteractiveDashboard } from '@/components/InteractiveDashboard';
 import { QuickActions } from '@/components/QuickActions';
 import { RecentActivity } from '@/components/RecentActivity';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Index = () => {
-  const [language, setLanguage] = useState<'am' | 'en'>('am');
+  const { language, setLanguage } = useLanguage();
 
   // Mock data - replace with real Supabase data
   const dashboardStats = {

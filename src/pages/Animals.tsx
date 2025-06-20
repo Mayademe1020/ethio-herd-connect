@@ -7,9 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AnimalRegistrationForm } from '@/components/AnimalRegistrationForm';
 import { ModernAnimalCard } from '@/components/ModernAnimalCard';
-import { Plus, Search, Filter } from 'lucide-react';
+import { InteractiveSummaryCard } from '@/components/InteractiveSummaryCard';
+import { Plus, Search, Filter, Users, Heart, AlertTriangle, CheckCircle, Download } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Animal {
   id: string;
@@ -27,13 +29,14 @@ interface Animal {
 }
 
 const Animals = () => {
-  const [language, setLanguage] = useState<'am' | 'en'>('am');
+  const { language } = useLanguage();
   const [showRegistrationForm, setShowRegistrationForm] = useState(false);
   const [animals, setAnimals] = useState<Animal[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [healthFilter, setHealthFilter] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<string>('date');
   
   const { toast } = useToast();
 
@@ -80,6 +83,20 @@ const Animals = () => {
     return matchesSearch && matchesType && matchesHealth;
   });
 
+  const sortedAnimals = [...filteredAnimals].sort((a, b) => {
+    switch (sortBy) {
+      case 'name':
+        return a.name.localeCompare(b.name);
+      case 'age':
+        return (b.age || 0) - (a.age || 0);
+      case 'weight':
+        return (b.weight || 0) - (a.weight || 0);
+      case 'date':
+      default:
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    }
+  });
+
   const getStatusCounts = () => {
     return {
       total: animals.length,
@@ -92,9 +109,51 @@ const Animals = () => {
 
   const statusCounts = getStatusCounts();
 
+  const handleFilterByStatus = (status: string) => {
+    setHealthFilter(status);
+  };
+
+  const handleExportData = () => {
+    // Create CSV data
+    const csvData = animals.map(animal => ({
+      'Animal Code': animal.animal_code,
+      'Name': animal.name,
+      'Type': animal.type,
+      'Breed': animal.breed || 'Unknown',
+      'Age': animal.age || 'Unknown',
+      'Weight': animal.weight || 'Unknown',
+      'Health Status': animal.health_status,
+      'Vet Verified': animal.is_vet_verified ? 'Yes' : 'No',
+      'Registration Date': new Date(animal.created_at).toLocaleDateString()
+    }));
+
+    // Convert to CSV string
+    const headers = Object.keys(csvData[0] || {});
+    const csvContent = [
+      headers.join(','),
+      ...csvData.map(row => headers.map(header => `"${row[header as keyof typeof row]}"`).join(','))
+    ].join('\n');
+
+    // Download file
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `animals-export-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+
+    toast({
+      title: language === 'am' ? 'ውጤታማ' : 'Success',
+      description: language === 'am' ? 'መረጃ ወደ ፋይል ወጣ' : 'Data exported successfully',
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-20">
-      <Header language={language} setLanguage={setLanguage} />
+      <Header language={language} setLanguage={() => {}} />
       
       <main className="container mx-auto px-4 py-6 space-y-6">
         {/* Page Title */}
@@ -113,7 +172,7 @@ const Animals = () => {
         {/* Quick Add Button */}
         <div className="text-center">
           <Button 
-            className="h-16 px-8 bg-emerald-600 hover:bg-emerald-700 text-lg"
+            className="h-16 px-8 bg-emerald-600 hover:bg-emerald-700 text-lg transition-all duration-300 hover:scale-105 active:scale-95"
             onClick={() => setShowRegistrationForm(true)}
           >
             <Plus className="w-6 h-6 mr-2" />
@@ -121,45 +180,57 @@ const Animals = () => {
           </Button>
         </div>
 
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className="bg-white rounded-xl p-4 text-center shadow-sm border border-green-100">
-            <div className="text-2xl font-bold text-gray-800">{statusCounts.total}</div>
-            <p className="text-sm text-gray-600">
-              {language === 'am' ? 'ጠቅላላ እንስሳት' : 'Total Animals'}
-            </p>
-          </div>
+        {/* Interactive Statistics Cards */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 lg:gap-4">
+          <InteractiveSummaryCard
+            title="Total Animals"
+            titleAm="ጠቅላላ እንስሳት"
+            value={statusCounts.total}
+            icon={<Users className="w-4 h-4 sm:w-5 sm:h-5" />}
+            color="blue"
+            onClick={() => setHealthFilter('all')}
+          />
           
-          <div className="bg-white rounded-xl p-4 text-center shadow-sm border border-green-100">
-            <div className="text-2xl font-bold text-green-600">{statusCounts.healthy}</div>
-            <p className="text-sm text-gray-600">
-              {language === 'am' ? 'ጤናማ' : 'Healthy'}
-            </p>
-          </div>
+          <InteractiveSummaryCard
+            title="Healthy"
+            titleAm="ጤናማ"
+            value={statusCounts.healthy}
+            icon={<Heart className="w-4 h-4 sm:w-5 sm:h-5" />}
+            color="green"
+            onClick={() => handleFilterByStatus('healthy')}
+          />
           
-          <div className="bg-white rounded-xl p-4 text-center shadow-sm border border-green-100">
-            <div className="text-2xl font-bold text-yellow-600">{statusCounts.attention}</div>
-            <p className="text-sm text-gray-600">
-              {language === 'am' ? 'ትኩረት' : 'Attention'}
-            </p>
-          </div>
+          <InteractiveSummaryCard
+            title="Need Attention"
+            titleAm="ትኩረት"
+            value={statusCounts.attention}
+            icon={<AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" />}
+            color="yellow"
+            onClick={() => handleFilterByStatus('attention')}
+            disabled={statusCounts.attention === 0}
+          />
           
-          <div className="bg-white rounded-xl p-4 text-center shadow-sm border border-green-100">
-            <div className="text-2xl font-bold text-red-600">{statusCounts.sick}</div>
-            <p className="text-sm text-gray-600">
-              {language === 'am' ? 'ታማሚ' : 'Sick'}
-            </p>
-          </div>
+          <InteractiveSummaryCard
+            title="Sick"
+            titleAm="ታማሚ"
+            value={statusCounts.sick}
+            icon={<AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" />}
+            color="red"
+            onClick={() => handleFilterByStatus('sick')}
+            disabled={statusCounts.sick === 0}
+          />
           
-          <div className="bg-white rounded-xl p-4 text-center shadow-sm border border-green-100">
-            <div className="text-2xl font-bold text-blue-600">{statusCounts.verified}</div>
-            <p className="text-sm text-gray-600">
-              {language === 'am' ? 'ዶክተር ማረጋገጫ' : 'Vet Verified'}
-            </p>
-          </div>
+          <InteractiveSummaryCard
+            title="Vet Verified"
+            titleAm="ዶክተር ማረጋገጫ"
+            value={statusCounts.verified}
+            icon={<CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />}
+            color="purple"
+            onClick={() => {}}
+          />
         </div>
 
-        {/* Search and Filters */}
+        {/* Search, Filters, and Export */}
         <div className="bg-white rounded-xl p-4 shadow-sm border border-green-100 space-y-4">
           <div className="flex items-center space-x-2">
             <Search className="w-5 h-5 text-gray-400" />
@@ -171,7 +242,7 @@ const Animals = () => {
             />
           </div>
           
-          <div className="flex space-x-2">
+          <div className="flex flex-wrap gap-2">
             <Select value={typeFilter} onValueChange={setTypeFilter}>
               <SelectTrigger className="w-32">
                 <SelectValue placeholder={language === 'am' ? 'አይነት' : 'Type'} />
@@ -214,6 +285,36 @@ const Animals = () => {
                 </SelectItem>
               </SelectContent>
             </Select>
+
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-32">
+                <SelectValue placeholder={language === 'am' ? 'ደርድር' : 'Sort'} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="date">
+                  {language === 'am' ? 'ቀን' : 'Date'}
+                </SelectItem>
+                <SelectItem value="name">
+                  {language === 'am' ? 'ስም' : 'Name'}
+                </SelectItem>
+                <SelectItem value="age">
+                  {language === 'am' ? 'እድሜ' : 'Age'}
+                </SelectItem>
+                <SelectItem value="weight">
+                  {language === 'am' ? 'ክብደት' : 'Weight'}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Button
+              variant="outline"
+              onClick={handleExportData}
+              className="ml-auto transition-all duration-300 hover:scale-105 active:scale-95"
+              disabled={animals.length === 0}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              {language === 'am' ? 'ወጣት' : 'Export'}
+            </Button>
           </div>
         </div>
 
@@ -221,9 +322,9 @@ const Animals = () => {
         <div>
           <h2 className="text-xl font-semibold text-gray-800 mb-4">
             {language === 'am' ? 'የእኔ እንስሳት' : 'My Animals'}
-            {filteredAnimals.length > 0 && (
+            {sortedAnimals.length > 0 && (
               <span className="text-gray-500 font-normal ml-2">
-                ({filteredAnimals.length} {language === 'am' ? 'ውጤቶች' : 'results'})
+                ({sortedAnimals.length} {language === 'am' ? 'ውጤቶች' : 'results'})
               </span>
             )}
           </h2>
@@ -241,9 +342,9 @@ const Animals = () => {
                 </div>
               ))}
             </div>
-          ) : filteredAnimals.length > 0 ? (
+          ) : sortedAnimals.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredAnimals.map((animal) => (
+              {sortedAnimals.map((animal) => (
                 <ModernAnimalCard
                   key={animal.id}
                   animal={{
@@ -275,7 +376,7 @@ const Animals = () => {
               </p>
               <Button 
                 onClick={() => setShowRegistrationForm(true)}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-green-600 hover:bg-green-700 transition-all duration-300 hover:scale-105 active:scale-95"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 {language === 'am' ? 'እንስሳ ይመዝግቡ' : 'Register Animal'}

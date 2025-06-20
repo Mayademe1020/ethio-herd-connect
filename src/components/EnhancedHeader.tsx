@@ -5,17 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-interface EnhancedHeaderProps {
-  language: 'am' | 'en';
-  setLanguage: (lang: 'am' | 'en') => void;
-}
-
-export const EnhancedHeader: React.FC<EnhancedHeaderProps> = ({ language, setLanguage }) => {
+export const EnhancedHeader: React.FC = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const { language, setLanguage } = useLanguage();
 
   // Mock notifications data
   const notifications = [

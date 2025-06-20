@@ -1,13 +1,11 @@
 
 import { Bell, Menu, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/contexts/LanguageContext';
 
-interface HeaderProps {
-  language: 'am' | 'en';
-  setLanguage: (lang: 'am' | 'en') => void;
-}
-
-export const Header = ({ language, setLanguage }: HeaderProps) => {
+export const Header = () => {
+  const { language, setLanguage } = useLanguage();
+  
   return (
     <header className="bg-white shadow-sm border-b border-green-100">
       <div className="container mx-auto px-4 py-4">
@@ -30,20 +28,20 @@ export const Header = ({ language, setLanguage }: HeaderProps) => {
               variant="outline"
               size="sm"
               onClick={() => setLanguage(language === 'am' ? 'en' : 'am')}
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-2 transition-all duration-200 hover:scale-105 active:scale-95"
             >
               <Globe className="w-4 h-4" />
               <span>{language === 'am' ? 'English' : 'አማርኛ'}</span>
             </Button>
 
             {/* Notifications */}
-            <Button variant="outline" size="sm" className="relative">
+            <Button variant="outline" size="sm" className="relative transition-all duration-200 hover:scale-105 active:scale-95">
               <Bell className="w-4 h-4" />
               <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs"></span>
             </Button>
 
             {/* Menu */}
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="transition-all duration-200 hover:scale-105 active:scale-95">
               <Menu className="w-4 h-4" />
             </Button>
           </div>

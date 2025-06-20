@@ -6,13 +6,15 @@ import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { VaccinationForm } from '@/components/VaccinationForm';
 import { IllnessReportForm } from '@/components/IllnessReportForm';
 import { HealthReminderSystem } from '@/components/HealthReminderSystem';
+import { InteractiveSummaryCard } from '@/components/InteractiveSummaryCard';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
-import { Syringe, AlertTriangle, Calendar, Activity, TrendingUp, Bell, ArrowRight } from 'lucide-react';
+import { Syringe, AlertTriangle, Calendar, Activity, TrendingUp, Bell, ArrowLeft } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Health = () => {
-  const [language, setLanguage] = useState<'am' | 'en'>('am');
+  const { language } = useLanguage();
   const [showVaccinationForm, setShowVaccinationForm] = useState(false);
   const [showIllnessForm, setShowIllnessForm] = useState(false);
   const [vaccinationMode, setVaccinationMode] = useState<'single' | 'bulk'>('bulk');
@@ -24,7 +26,7 @@ const Health = () => {
     scheduledTasks: 3,
     healthyAnimals: 8,
     needAttention: 2,
-    overdueVaccinations: 1,
+    overdueVaccinations: 0,
     upcomingCheckups: 2
   };
 
@@ -33,95 +35,8 @@ const Health = () => {
     setShowVaccinationForm(true);
   };
 
-  const handleSummaryCardClick = (cardType: string) => {
+  const handleDetailViewClick = (cardType: string) => {
     setSelectedDetailView(cardType);
-  };
-
-  const SummaryCard = ({ 
-    title, 
-    value, 
-    icon, 
-    cardType, 
-    color = 'green',
-    disabled = false 
-  }: {
-    title: string;
-    value: number;
-    icon: React.ReactNode;
-    cardType: string;
-    color?: string;
-    disabled?: boolean;
-  }) => {
-    const colorClasses = {
-      green: 'border-green-200 hover:border-green-300 hover:bg-green-50',
-      orange: 'border-orange-200 hover:border-orange-300 hover:bg-orange-50',
-      emerald: 'border-emerald-200 hover:border-emerald-300 hover:bg-emerald-50',
-      yellow: 'border-yellow-200 hover:border-yellow-300 hover:bg-yellow-50',
-      red: 'border-red-200 hover:border-red-300 hover:bg-red-50',
-      blue: 'border-blue-200 hover:border-blue-300 hover:bg-blue-50'
-    };
-
-    const iconColorClasses = {
-      green: 'text-green-600',
-      orange: 'text-orange-600',
-      emerald: 'text-emerald-600',
-      yellow: 'text-yellow-600',
-      red: 'text-red-600',
-      blue: 'text-blue-600'
-    };
-
-    if (disabled && value === 0) {
-      return (
-        <Card className="opacity-50 cursor-not-allowed border-gray-200">
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                <div className="text-gray-400">{icon}</div>
-              </div>
-              <div>
-                <p className="text-sm text-gray-400">{title}</p>
-                <p className="text-2xl font-bold text-gray-400">{value}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      );
-    }
-
-    return (
-      <Card 
-        className={`
-          cursor-pointer 
-          transition-all 
-          duration-300 
-          ease-in-out 
-          hover:shadow-lg 
-          hover:scale-105 
-          active:scale-95 
-          transform
-          touch-manipulation
-          ${colorClasses[color as keyof typeof colorClasses]}
-        `}
-        onClick={() => handleSummaryCardClick(cardType)}
-      >
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className={`w-12 h-12 bg-${color}-100 rounded-lg flex items-center justify-center`}>
-                <div className={iconColorClasses[color as keyof typeof iconColorClasses]}>
-                  {icon}
-                </div>
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">{title}</p>
-                <p className="text-2xl font-bold text-gray-800">{value}</p>
-              </div>
-            </div>
-            <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
-          </div>
-        </CardContent>
-      </Card>
-    );
   };
 
   const DetailView = ({ type }: { type: string }) => {
@@ -243,15 +158,16 @@ const Health = () => {
     return (
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
         <div className="flex items-center justify-between mb-4">
-          {getDetailContent()}
           <Button 
             variant="ghost" 
             onClick={() => setSelectedDetailView(null)}
-            className="ml-4"
+            className="mb-4"
           >
-            ✕
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            {language === 'am' ? 'ተመለስ' : 'Back'}
           </Button>
         </div>
+        {getDetailContent()}
       </div>
     );
   };
@@ -259,19 +175,10 @@ const Health = () => {
   if (selectedDetailView) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-20">
-        <Header language={language} setLanguage={setLanguage} />
+        <Header language={language} setLanguage={() => {}} />
         <OfflineIndicator language={language} />
         
         <main className="container mx-auto px-4 py-6">
-          <div className="mb-4">
-            <Button 
-              variant="ghost" 
-              onClick={() => setSelectedDetailView(null)}
-              className="mb-4"
-            >
-              ← {language === 'am' ? 'ተመለስ' : 'Back'}
-            </Button>
-          </div>
           <DetailView type={selectedDetailView} />
         </main>
 
@@ -282,7 +189,7 @@ const Health = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-20">
-      <Header language={language} setLanguage={setLanguage} />
+      <Header language={language} setLanguage={() => {}} />
       <OfflineIndicator language={language} />
       
       <main className="container mx-auto px-4 py-6 space-y-6">
@@ -334,55 +241,61 @@ const Health = () => {
           </Button>
         </div>
 
-        {/* Health Overview - Responsive Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          <SummaryCard
-            title={language === 'am' ? 'ክትባቶች' : 'Vaccinations'}
+        {/* Interactive Health Overview - Responsive Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 lg:gap-4">
+          <InteractiveSummaryCard
+            title="Vaccinations"
+            titleAm="ክትባቶች"
             value={healthStats.totalVaccinations}
-            icon={<Syringe className="w-6 h-6" />}
-            cardType="vaccinations"
+            icon={<Syringe className="w-4 h-4 sm:w-5 sm:h-5" />}
             color="green"
+            onClick={() => handleDetailViewClick('vaccinations')}
           />
           
-          <SummaryCard
-            title={language === 'am' ? 'መርሐ ግብር' : 'Scheduled'}
+          <InteractiveSummaryCard
+            title="Scheduled"
+            titleAm="መርሐ ግብር"
             value={healthStats.scheduledTasks}
-            icon={<Calendar className="w-6 h-6" />}
-            cardType="scheduled"
+            icon={<Calendar className="w-4 h-4 sm:w-5 sm:h-5" />}
             color="orange"
+            onClick={() => handleDetailViewClick('scheduled')}
           />
 
-          <SummaryCard
-            title={language === 'am' ? 'ጤናማ' : 'Healthy'}
+          <InteractiveSummaryCard
+            title="Healthy"
+            titleAm="ጤናማ"
             value={healthStats.healthyAnimals}
-            icon={<Activity className="w-6 h-6" />}
-            cardType="healthy"
+            icon={<Activity className="w-4 h-4 sm:w-5 sm:h-5" />}
             color="emerald"
+            onClick={() => handleDetailViewClick('healthy')}
           />
           
-          <SummaryCard
-            title={language === 'am' ? 'ትኩረት ያስፈልጋል' : 'Need Attention'}
+          <InteractiveSummaryCard
+            title="Need Attention"
+            titleAm="ትኩረት ያስፈልጋል"
             value={healthStats.needAttention}
-            icon={<AlertTriangle className="w-6 h-6" />}
-            cardType="attention"
+            icon={<AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" />}
             color="yellow"
+            onClick={() => handleDetailViewClick('attention')}
           />
 
-          <SummaryCard
-            title={language === 'am' ? 'ያለፉ ክትባቶች' : 'Overdue Vaccines'}
+          <InteractiveSummaryCard
+            title="Overdue Vaccines"
+            titleAm="ያለፉ ክትባቶች"
             value={healthStats.overdueVaccinations}
-            icon={<AlertTriangle className="w-6 h-6" />}
-            cardType="overdue"
+            icon={<AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" />}
             color="red"
-            disabled={true}
+            onClick={() => handleDetailViewClick('overdue')}
+            disabled={healthStats.overdueVaccinations === 0}
           />
 
-          <SummaryCard
-            title={language === 'am' ? 'ቀሪ ምርመራዎች' : 'Upcoming Checkups'}
+          <InteractiveSummaryCard
+            title="Upcoming Checkups"
+            titleAm="ቀሪ ምርመራዎች"
             value={healthStats.upcomingCheckups}
-            icon={<Calendar className="w-6 h-6" />}
-            cardType="checkups"
+            icon={<Calendar className="w-4 h-4 sm:w-5 sm:h-5" />}
             color="blue"
+            onClick={() => handleDetailViewClick('checkups')}
           />
         </div>
 

@@ -6,10 +6,12 @@ import { Button } from '@/components/ui/button';
 import { WeightEntryForm } from '@/components/WeightEntryForm';
 import { GrowthChart } from '@/components/GrowthChart';
 import { AnimalGrowthCard } from '@/components/AnimalGrowthCard';
-import { Plus, TrendingUp, BarChart3 } from 'lucide-react';
+import { InteractiveSummaryCard } from '@/components/InteractiveSummaryCard';
+import { Plus, TrendingUp, BarChart3, Users, Scale, Target, Calendar } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Growth = () => {
-  const [language, setLanguage] = useState<'am' | 'en'>('am');
+  const { language } = useLanguage();
   const [showWeightForm, setShowWeightForm] = useState(false);
   const [selectedAnimalForChart, setSelectedAnimalForChart] = useState<string | null>(null);
 
@@ -44,6 +46,15 @@ const Growth = () => {
     }
   ];
 
+  const growthStats = {
+    totalAnimals: animals.length,
+    trackedAnimals: animals.length,
+    averageWeight: Math.round(animals.reduce((acc, animal) => acc + (animal.currentWeight || 0), 0) / animals.length),
+    totalWeight: animals.reduce((acc, animal) => acc + (animal.currentWeight || 0), 0),
+    improvingGrowth: animals.filter(a => a.growthTrend === 'up').length,
+    upcomingWeighings: 3
+  };
+
   const handleAddWeight = (animalId?: string) => {
     setShowWeightForm(true);
   };
@@ -58,7 +69,7 @@ const Growth = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-20">
-      <Header language={language} setLanguage={setLanguage} />
+      <Header language={language} setLanguage={() => {}} />
       
       <main className="container mx-auto px-4 py-6 space-y-6">
         {/* Page Title */}
@@ -77,7 +88,7 @@ const Growth = () => {
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Button 
-            className="h-24 flex flex-col space-y-2 bg-green-600 hover:bg-green-700"
+            className="h-24 flex flex-col space-y-2 bg-green-600 hover:bg-green-700 transition-all duration-300 hover:scale-105 active:scale-95"
             onClick={() => handleAddWeight()}
           >
             <Plus className="w-8 h-8" />
@@ -88,7 +99,7 @@ const Growth = () => {
           
           <Button 
             variant="outline" 
-            className="h-24 flex flex-col space-y-2 border-green-200 hover:bg-green-50"
+            className="h-24 flex flex-col space-y-2 border-green-200 hover:bg-green-50 transition-all duration-300 hover:scale-105 active:scale-95"
             onClick={() => setSelectedAnimalForChart('1')}
           >
             <BarChart3 className="w-8 h-8" />
@@ -96,6 +107,63 @@ const Growth = () => {
               {language === 'am' ? 'እድገት ቻርት' : 'Growth Charts'}
             </span>
           </Button>
+        </div>
+
+        {/* Interactive Growth Statistics */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
+          <InteractiveSummaryCard
+            title="Total Animals"
+            titleAm="ጠቅላላ እንስሳ"
+            value={growthStats.totalAnimals}
+            icon={<Users className="w-4 h-4 sm:w-5 sm:h-5" />}
+            color="blue"
+            onClick={() => {}}
+          />
+          
+          <InteractiveSummaryCard
+            title="Tracked"
+            titleAm="ተከታትለው"
+            value={growthStats.trackedAnimals}
+            icon={<Target className="w-4 h-4 sm:w-5 sm:h-5" />}
+            color="green"
+            onClick={() => {}}
+          />
+          
+          <InteractiveSummaryCard
+            title="Avg Weight"
+            titleAm="አማካኝ ክብደት"
+            value={`${growthStats.averageWeight}kg`}
+            icon={<Scale className="w-4 h-4 sm:w-5 sm:h-5" />}
+            color="purple"
+            onClick={() => {}}
+          />
+          
+          <InteractiveSummaryCard
+            title="Total Weight"
+            titleAm="ጠቅላላ ክብደት"
+            value={`${growthStats.totalWeight}kg`}
+            icon={<Scale className="w-4 h-4 sm:w-5 sm:h-5" />}
+            color="teal"
+            onClick={() => {}}
+          />
+          
+          <InteractiveSummaryCard
+            title="Growing"
+            titleAm="እያደጉ"
+            value={growthStats.improvingGrowth}
+            icon={<TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />}
+            color="emerald"
+            onClick={() => {}}
+          />
+          
+          <InteractiveSummaryCard
+            title="Upcoming"
+            titleAm="ቀሪ ክትትል"
+            value={growthStats.upcomingWeighings}
+            icon={<Calendar className="w-4 h-4 sm:w-5 sm:h-5" />}
+            color="orange"
+            onClick={() => {}}
+          />
         </div>
 
         {/* Chart View */}
@@ -109,6 +177,7 @@ const Growth = () => {
                 variant="outline" 
                 size="sm"
                 onClick={() => setSelectedAnimalForChart(null)}
+                className="transition-all duration-300 hover:scale-105 active:scale-95"
               >
                 {language === 'am' ? 'ዝርዝር ተመለስ' : 'Back to List'}
               </Button>
@@ -141,50 +210,6 @@ const Growth = () => {
             </div>
           </div>
         )}
-
-        {/* Overall Statistics */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-green-100">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center space-x-2">
-            <TrendingUp className="w-5 h-5 text-green-600" />
-            <span>{language === 'am' ? 'አጠቃላይ ስታትስቲክስ' : 'Overall Statistics'}</span>
-          </h3>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-green-700">{animals.length}</p>
-              <p className="text-sm text-gray-600">
-                {language === 'am' ? 'ተከታትለው እንስሳ' : 'Animals Tracked'}
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <p className="text-2xl font-bold text-blue-700">
-                {animals.filter(a => a.growthTrend === 'up').length}
-              </p>
-              <p className="text-sm text-gray-600">
-                {language === 'am' ? 'እያደጉ' : 'Growing'}
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <p className="text-2xl font-bold text-purple-700">
-                {animals.reduce((acc, animal) => acc + (animal.currentWeight || 0), 0).toFixed(0)}
-              </p>
-              <p className="text-sm text-gray-600">
-                {language === 'am' ? 'ጠቅላላ ክብደት (ኪግ)' : 'Total Weight (kg)'}
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <p className="text-2xl font-bold text-orange-700">
-                {(animals.reduce((acc, animal) => acc + (animal.currentWeight || 0), 0) / animals.length).toFixed(1)}
-              </p>
-              <p className="text-sm text-gray-600">
-                {language === 'am' ? 'አማካኝ ክብደት' : 'Avg Weight'}
-              </p>
-            </div>
-          </div>
-        </div>
       </main>
 
       <BottomNavigation language={language} />

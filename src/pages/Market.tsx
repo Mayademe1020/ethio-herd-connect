@@ -8,9 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { MarketListingForm } from '@/components/MarketListingForm';
 import { MarketListingCard } from '@/components/MarketListingCard';
 import { MarketListingDetails } from '@/components/MarketListingDetails';
-import { Plus, Search, Filter, MapPin, Phone, MessageSquare } from 'lucide-react';
+import { InteractiveSummaryCard } from '@/components/InteractiveSummaryCard';
+import { Plus, Search, Filter, MapPin, Phone, MessageSquare, ShoppingCart, CheckCircle, DollarSign, Users } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface MarketListing {
   id: string;
@@ -28,7 +30,7 @@ interface MarketListing {
 }
 
 const Market = () => {
-  const [language, setLanguage] = useState<'am' | 'en'>('am');
+  const { language } = useLanguage();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedListing, setSelectedListing] = useState<MarketListing | null>(null);
   const [listings, setListings] = useState<MarketListing[]>([]);
@@ -104,9 +106,21 @@ const Market = () => {
   // Get unique locations for filter
   const uniqueLocations = [...new Set(listings.map(listing => listing.location))];
 
+  const marketStats = {
+    totalListings: listings.length,
+    vetVerified: listings.filter(l => l.is_vet_verified).length,
+    totalLocations: uniqueLocations.length,
+    averagePrice: listings.length > 0 ? Math.round(listings.reduce((acc, l) => acc + l.price, 0) / listings.length) : 0,
+    activeListings: listings.length,
+    recentListings: listings.filter(l => {
+      const daysSinceCreated = Math.floor((Date.now() - new Date(l.created_at).getTime()) / (1000 * 60 * 60 * 24));
+      return daysSinceCreated <= 7;
+    }).length
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-20">
-      <Header language={language} setLanguage={setLanguage} />
+      <Header language={language} setLanguage={() => {}} />
       
       <main className="container mx-auto px-4 py-6 space-y-6">
         {/* Page Title */}
@@ -125,7 +139,7 @@ const Market = () => {
         {/* Quick Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Button 
-            className="h-24 flex flex-col space-y-2 bg-emerald-600 hover:bg-emerald-700"
+            className="h-24 flex flex-col space-y-2 bg-emerald-600 hover:bg-emerald-700 transition-all duration-300 hover:scale-105 active:scale-95"
             onClick={() => setShowCreateForm(true)}
           >
             <Plus className="w-8 h-8" />
@@ -136,7 +150,7 @@ const Market = () => {
           
           <Button 
             variant="outline" 
-            className="h-24 flex flex-col space-y-2 border-emerald-200 hover:bg-emerald-50"
+            className="h-24 flex flex-col space-y-2 border-emerald-200 hover:bg-emerald-50 transition-all duration-300 hover:scale-105 active:scale-95"
             onClick={() => document.getElementById('listings-section')?.scrollIntoView({ behavior: 'smooth' })}
           >
             <Search className="w-8 h-8" />
@@ -144,6 +158,64 @@ const Market = () => {
               {language === 'am' ? 'እንስሳት ይፈልጉ' : 'Browse Animals'}
             </span>
           </Button>
+        </div>
+
+        {/* Interactive Market Statistics */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
+          <InteractiveSummaryCard
+            title="Total Listings"
+            titleAm="ጠቅላላ ዝርዝሮች"
+            value={marketStats.totalListings}
+            icon={<ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />}
+            color="green"
+            onClick={() => {}}
+          />
+          
+          <InteractiveSummaryCard
+            title="Vet Verified"
+            titleAm="ዶክተር ማረጋገጫ"
+            value={marketStats.vetVerified}
+            icon={<CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />}
+            color="blue"
+            onClick={() => {}}
+          />
+          
+          <InteractiveSummaryCard
+            title="Locations"
+            titleAm="አካባቢዎች"
+            value={marketStats.totalLocations}
+            icon={<MapPin className="w-4 h-4 sm:w-5 sm:h-5" />}
+            color="purple"
+            onClick={() => {}}
+          />
+          
+          <InteractiveSummaryCard
+            title="Avg Price"
+            titleAm="አማካኝ ዋጋ"
+            value={marketStats.averagePrice}
+            icon={<DollarSign className="w-4 h-4 sm:w-5 sm:h-5" />}
+            color="orange"
+            currency={true}
+            onClick={() => {}}
+          />
+          
+          <InteractiveSummaryCard
+            title="Active"
+            titleAm="ንቁ"
+            value={marketStats.activeListings}
+            icon={<Users className="w-4 h-4 sm:w-5 sm:h-5" />}
+            color="emerald"
+            onClick={() => {}}
+          />
+          
+          <InteractiveSummaryCard
+            title="Recent"
+            titleAm="አዲስ"
+            value={marketStats.recentListings}
+            icon={<Plus className="w-4 h-4 sm:w-5 sm:h-5" />}
+            color="teal"
+            onClick={() => {}}
+          />
         </div>
 
         {/* Search and Filters */}
@@ -174,43 +246,6 @@ const Market = () => {
                 ))}
               </SelectContent>
             </Select>
-          </div>
-        </div>
-
-        {/* Market Statistics */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-xl p-4 text-center shadow-sm border border-green-100">
-            <div className="text-2xl font-bold text-green-600">{listings.length}</div>
-            <p className="text-sm text-gray-600">
-              {language === 'am' ? 'ጠቅላላ ዝርዝሮች' : 'Total Listings'}
-            </p>
-          </div>
-          
-          <div className="bg-white rounded-xl p-4 text-center shadow-sm border border-green-100">
-            <div className="text-2xl font-bold text-blue-600">
-              {listings.filter(l => l.is_vet_verified).length}
-            </div>
-            <p className="text-sm text-gray-600">
-              {language === 'am' ? 'ዶክተር ማረጋገጫ' : 'Vet Verified'}
-            </p>
-          </div>
-          
-          <div className="bg-white rounded-xl p-4 text-center shadow-sm border border-green-100">
-            <div className="text-2xl font-bold text-purple-600">
-              {uniqueLocations.length}
-            </div>
-            <p className="text-sm text-gray-600">
-              {language === 'am' ? 'አካባቢዎች' : 'Locations'}
-            </p>
-          </div>
-          
-          <div className="bg-white rounded-xl p-4 text-center shadow-sm border border-green-100">
-            <div className="text-2xl font-bold text-orange-600">
-              {listings.length > 0 ? Math.round(listings.reduce((acc, l) => acc + l.price, 0) / listings.length) : 0}
-            </div>
-            <p className="text-sm text-gray-600">
-              {language === 'am' ? 'አማካኝ ዋጋ' : 'Avg Price'}
-            </p>
           </div>
         </div>
 
@@ -264,7 +299,7 @@ const Market = () => {
               </p>
               <Button 
                 onClick={() => setShowCreateForm(true)}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-green-600 hover:bg-green-700 transition-all duration-300 hover:scale-105 active:scale-95"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 {language === 'am' ? 'የመጀመሪያው ዝርዝር ይፍጠሩ' : 'Create First Listing'}
