@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { VaccinationForm } from '@/components/VaccinationForm';
 import { IllnessReportForm } from '@/components/IllnessReportForm';
@@ -175,13 +176,13 @@ const Health = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-20">
         <EnhancedHeader />
-        <OfflineIndicator />
+        <OfflineIndicator language={language} />
         
         <main className="container mx-auto px-4 py-6">
           <DetailView type={selectedDetailView} />
         </main>
 
-        <BottomNavigation />
+        <BottomNavigation language={language} />
       </div>
     );
   }
