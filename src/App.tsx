@@ -11,6 +11,7 @@ import Growth from "./pages/Growth";
 import Market from "./pages/Market";
 import Profile from "./pages/Profile";
 import Auth from "./pages/Auth";
+import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -73,6 +74,11 @@ const App = () => {
               <Route path="/profile" element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              } />
+              <Route path="/notifications" element={
+                <ProtectedRoute>
+                  <Notifications />
                 </ProtectedRoute>
               } />
               <Route path="*" element={<NotFound />} />
