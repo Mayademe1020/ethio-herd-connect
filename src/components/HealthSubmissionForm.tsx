@@ -59,7 +59,7 @@ export const HealthSubmissionForm: React.FC<HealthSubmissionFormProps> = ({
       const user = (await supabase.auth.getUser()).data.user;
       if (!user) throw new Error('User not authenticated');
 
-      let photoUrl = null;
+      let photoUrl: string | null = null;
 
       // Upload photo if provided
       if (formData.photo) {
@@ -81,18 +81,20 @@ export const HealthSubmissionForm: React.FC<HealthSubmissionFormProps> = ({
         }
       }
 
-      // Submit health case
+      // Submit health case with proper typing
+      const submissionData = {
+        user_id: user.id,
+        animal_id: formData.animalId,
+        symptoms: formData.symptoms,
+        description: formData.description || null,
+        urgency: formData.urgency,
+        photo_url: photoUrl,
+        status: 'new' as const
+      };
+
       const { error } = await supabase
         .from('health_submissions')
-        .insert([{
-          user_id: user.id,
-          animal_id: formData.animalId,
-          symptoms: formData.symptoms,
-          description: formData.description,
-          urgency: formData.urgency,
-          photo_url: photoUrl,
-          status: 'new'
-        }]);
+        .insert([submissionData]);
 
       if (error) throw error;
 

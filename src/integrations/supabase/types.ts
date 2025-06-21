@@ -231,6 +231,51 @@ export type Database = {
           },
         ]
       }
+      health_submissions: {
+        Row: {
+          admin_notes: string | null
+          animal_id: string
+          created_at: string
+          description: string | null
+          id: string
+          photo_url: string | null
+          status: string | null
+          symptoms: string
+          updated_at: string
+          urgency: string | null
+          user_id: string
+          vet_advice: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          animal_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          photo_url?: string | null
+          status?: string | null
+          symptoms: string
+          updated_at?: string
+          urgency?: string | null
+          user_id: string
+          vet_advice?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          animal_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          photo_url?: string | null
+          status?: string | null
+          symptoms?: string
+          updated_at?: string
+          urgency?: string | null
+          user_id?: string
+          vet_advice?: string | null
+        }
+        Relationships: []
+      }
       market_listings: {
         Row: {
           age: number | null
