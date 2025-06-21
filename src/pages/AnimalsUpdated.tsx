@@ -46,7 +46,7 @@ export const AnimalsUpdated = () => {
   
   // Modal states
   const [showVaccinationForm, setShowVaccinationForm] = useState(false);
-  const [showMarketForm, setShowMarketForm] = useState(false);
+  const [showMarketListingForm, setShowMarketListingForm] = useState(false);
   const [selectedAnimal, setSelectedAnimal] = useState<AnimalData | null>(null);
 
   useEffect(() => {
@@ -54,29 +54,23 @@ export const AnimalsUpdated = () => {
   }, []);
 
   const fetchAnimals = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        console.error('No authenticated user');
-        return;
-      }
-
       const { data, error } = await supabase
         .from('animals')
         .select('*')
-        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-
-      const mappedData = (data || []).map(animal => ({
+      
+      // Transform the data to match our AnimalData interface
+      const transformedData = data?.map(animal => ({
         ...animal,
-        healthStatus: animal.health_status as 'healthy' | 'attention' | 'sick'
-      }));
-
-      setAnimals(mappedData);
+        health_status: (animal.health_status || 'healthy') as 'healthy' | 'attention' | 'sick',
+        healthStatus: (animal.health_status || 'healthy') as 'healthy' | 'attention' | 'sick'
+      })) || [];
+      
+      setAnimals(transformedData);
     } catch (error) {
       console.error('Error fetching animals:', error);
       toast({
@@ -144,7 +138,7 @@ export const AnimalsUpdated = () => {
 
   const handleSell = (animal: AnimalData) => {
     setSelectedAnimal(animal);
-    setShowMarketForm(true);
+    setShowMarketListingForm(true);
   };
 
   const handleRegistrationSuccess = () => {
@@ -161,7 +155,7 @@ export const AnimalsUpdated = () => {
 
   const handleMarketSuccess = () => {
     fetchAnimals();
-    setShowMarketForm(false);
+    setShowMarketListingForm(false);
     setSelectedAnimal(null);
   };
 
@@ -347,25 +341,25 @@ export const AnimalsUpdated = () => {
       {showVaccinationForm && selectedAnimal && (
         <VaccinationForm
           language={language}
-          animalId={selectedAnimal.id}
-          onClose={() => {
+          mode="single"
+          preSelectedAnimal={selectedAnimal.id}
+          onClose={() => setShowVaccinationForm(false)}
+          onSuccess={() => {
             setShowVaccinationForm(false);
-            setSelectedAnimal(null);
+            fetchAnimals();
           }}
-          onSuccess={handleVaccinationSuccess}
         />
       )}
 
       {/* Market Listing Form Modal */}
-      {showMarketForm && selectedAnimal && (
+      {showMarketListingForm && selectedAnimal && (
         <MarketListingForm
           language={language}
-          animalId={selectedAnimal.id}
-          onClose={() => {
-            setShowMarketForm(false);
-            setSelectedAnimal(null);
+          onClose={() => setShowMarketListingForm(false)}
+          onSuccess={() => {
+            setShowMarketListingForm(false);
+            fetchAnimals();
           }}
-          onSuccess={handleMarketSuccess}
         />
       )}
     </div>
