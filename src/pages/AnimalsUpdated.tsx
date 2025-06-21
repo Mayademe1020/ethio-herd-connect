@@ -128,6 +128,14 @@ export const AnimalsUpdated = () => {
     setShowVaccinationForm(true);
   };
 
+  const handleTrack = (animal: AnimalData) => {
+    // Navigate to tracking/growth page for this animal
+    toast({
+      title: language === 'am' ? 'ክትትል' : 'Tracking',
+      description: language === 'am' ? 'የእንስሳ ክትትል ገጽ' : 'Animal tracking page'
+    });
+  };
+
   const handleSell = (animal: AnimalData) => {
     setSelectedAnimal(animal);
     setShowMarketListingForm(true);
