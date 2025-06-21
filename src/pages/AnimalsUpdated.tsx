@@ -1,97 +1,82 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Plus, Grid, List, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  Plus, 
-  Search, 
-  Filter, 
-  Grid3X3, 
-  List, 
-  ArrowUpDown,
-  MoreVertical,
-  Syringe,
-  TrendingUp,
-  DollarSign,
-  Edit,
-  Trash2
-} from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useToast } from '@/hooks/use-toast';
+import { EnhancedAnimalRegistrationForm } from '@/components/EnhancedAnimalRegistrationForm';
 import { ModernAnimalCard } from '@/components/ModernAnimalCard';
 import { AnimalTableView } from '@/components/AnimalTableView';
-import { EnhancedAnimalRegistrationForm } from '@/components/EnhancedAnimalRegistrationForm';
+import { EnhancedOfflineIndicator } from '@/components/EnhancedOfflineIndicator';
 import { VaccinationForm } from '@/components/VaccinationForm';
 import { MarketListingForm } from '@/components/MarketListingForm';
-import { EnhancedOfflineIndicator } from '@/components/EnhancedOfflineIndicator';
 
 interface AnimalData {
   id: string;
-  animal_code: string;
   name: string;
+  animal_code: string;
   type: string;
   breed?: string;
   age?: number;
   weight?: number;
-  health_status: 'healthy' | 'attention' | 'sick';
   photo_url?: string;
-  is_vet_verified: boolean;
-  tracker_id?: string;
-  created_at: string;
-  updated_at: string;
-  user_id: string;
-  birth_date?: string;
+  health_status: 'healthy' | 'attention' | 'sick';
+  healthStatus: 'healthy' | 'attention' | 'sick';
   last_vaccination?: string;
-  parent_id?: string;
+  is_vet_verified: boolean;
+  created_at: string;
+  tracker_id?: string;
 }
 
 export const AnimalsUpdated = () => {
+  const { language } = useLanguage();
+  const { toast } = useToast();
+  
   const [animals, setAnimals] = useState<AnimalData[]>([]);
-  const [filteredAnimals, setFilteredAnimals] = useState<AnimalData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterType, setFilterType] = useState('all');
-  const [filterHealth, setFilterHealth] = useState('all');
-  const [sortBy, setSortBy] = useState('name');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
   const [showRegistrationForm, setShowRegistrationForm] = useState(false);
+  const [editingAnimal, setEditingAnimal] = useState<AnimalData | null>(null);
+  const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [healthFilter, setHealthFilter] = useState<string>('all');
+  
+  // Modal states
   const [showVaccinationForm, setShowVaccinationForm] = useState(false);
   const [showMarketForm, setShowMarketForm] = useState(false);
   const [selectedAnimal, setSelectedAnimal] = useState<AnimalData | null>(null);
-  const [editingAnimal, setEditingAnimal] = useState<AnimalData | null>(null);
-
-  const { toast } = useToast();
-  const { language } = useLanguage();
 
   useEffect(() => {
     fetchAnimals();
   }, []);
 
-  useEffect(() => {
-    applyFiltersAndSort();
-  }, [animals, searchQuery, filterType, filterHealth, sortBy, sortOrder]);
-
   const fetchAnimals = async () => {
     try {
+      setLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        console.error('No authenticated user');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('animals')
         .select('*')
+        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      
-      // Type assertion to ensure health_status is properly typed
-      const typedData = (data || []).map(animal => ({
+
+      const mappedData = (data || []).map(animal => ({
         ...animal,
-        health_status: animal.health_status as 'healthy' | 'attention' | 'sick'
+        healthStatus: animal.health_status as 'healthy' | 'attention' | 'sick'
       }));
-      
-      setAnimals(typedData);
+
+      setAnimals(mappedData);
     } catch (error) {
       console.error('Error fetching animals:', error);
       toast({
@@ -104,77 +89,22 @@ export const AnimalsUpdated = () => {
     }
   };
 
-  const applyFiltersAndSort = () => {
-    let filtered = [...animals];
+  const filteredAnimals = animals.filter(animal => {
+    const matchesSearch = animal.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         animal.animal_code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         animal.breed?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesType = typeFilter === 'all' || animal.type === typeFilter;
+    const matchesHealth = healthFilter === 'all' || animal.health_status === healthFilter;
+    
+    return matchesSearch && matchesType && matchesHealth;
+  });
 
-    // Apply search filter
-    if (searchQuery) {
-      filtered = filtered.filter(animal => 
-        animal.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        animal.animal_code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        animal.type.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    // Apply type filter
-    if (filterType !== 'all') {
-      filtered = filtered.filter(animal => animal.type === filterType);
-    }
-
-    // Apply health filter
-    if (filterHealth !== 'all') {
-      filtered = filtered.filter(animal => animal.health_status === filterHealth);
-    }
-
-    // Apply sorting
-    filtered.sort((a, b) => {
-      let aValue, bValue;
-      
-      switch (sortBy) {
-        case 'name':
-          aValue = a.name;
-          bValue = b.name;
-          break;
-        case 'age':
-          aValue = a.age || 0;
-          bValue = b.age || 0;
-          break;
-        case 'weight':
-          aValue = a.weight || 0;
-          bValue = b.weight || 0;
-          break;
-        case 'created_at':
-          aValue = new Date(a.created_at);
-          bValue = new Date(b.created_at);
-          break;
-        default:
-          aValue = a.name;
-          bValue = b.name;
-      }
-
-      if (typeof aValue === 'string' && typeof bValue === 'string') {
-        return sortOrder === 'asc' 
-          ? aValue.localeCompare(bValue)
-          : bValue.localeCompare(aValue);
-      } else {
-        return sortOrder === 'asc' 
-          ? (aValue as number) - (bValue as number)
-          : (bValue as number) - (aValue as number);
-      }
-    });
-
-    setFilteredAnimals(filtered);
+  const handleEdit = (animal: AnimalData) => {
+    setEditingAnimal(animal);
+    setShowRegistrationForm(true);
   };
 
-  const handleDeleteAnimal = async (animalId: string) => {
-    const confirmed = window.confirm(
-      language === 'am' 
-        ? 'እንስሳውን ማጥፋት እርግጠኛ ነዎት?' 
-        : 'Are you sure you want to delete this animal?'
-    );
-
-    if (!confirmed) return;
-
+  const handleDelete = async (animalId: string) => {
     try {
       const { error } = await supabase
         .from('animals')
@@ -185,7 +115,7 @@ export const AnimalsUpdated = () => {
 
       toast({
         title: language === 'am' ? 'ተሳክቷል' : 'Success',
-        description: language === 'am' ? 'እንስሳ ተጠፋ' : 'Animal deleted successfully'
+        description: language === 'am' ? 'እንስሳ ተሰርዟል' : 'Animal deleted successfully'
       });
 
       fetchAnimals();
@@ -193,15 +123,10 @@ export const AnimalsUpdated = () => {
       console.error('Error deleting animal:', error);
       toast({
         title: language === 'am' ? 'ስህተት' : 'Error',
-        description: language === 'am' ? 'እንስሳ ማጥፋት አልተሳካም' : 'Failed to delete animal',
+        description: language === 'am' ? 'እንስሳ መሰረዝ አልተሳካም' : 'Failed to delete animal',
         variant: 'destructive'
       });
     }
-  };
-
-  const handleEditAnimal = (animal: AnimalData) => {
-    setEditingAnimal(animal);
-    setShowRegistrationForm(true);
   };
 
   const handleVaccinate = (animal: AnimalData) => {
@@ -209,39 +134,44 @@ export const AnimalsUpdated = () => {
     setShowVaccinationForm(true);
   };
 
+  const handleTrack = (animal: AnimalData) => {
+    // Navigate to tracking/growth page for this animal
+    toast({
+      title: language === 'am' ? 'ክትትል' : 'Tracking',
+      description: language === 'am' ? 'የእንስሳ ክትትል ገጽ' : 'Animal tracking page'
+    });
+  };
+
   const handleSell = (animal: AnimalData) => {
     setSelectedAnimal(animal);
     setShowMarketForm(true);
   };
 
-  const getHealthStatusBadge = (status: string) => {
-    const statusMap = {
-      healthy: { color: 'bg-green-100 text-green-800', text: language === 'am' ? 'ጤናማ' : 'Healthy' },
-      attention: { color: 'bg-yellow-100 text-yellow-800', text: language === 'am' ? 'ትኩረት' : 'Attention' },
-      sick: { color: 'bg-red-100 text-red-800', text: language === 'am' ? 'ታማሚ' : 'Sick' }
-    };
-    
-    const statusInfo = statusMap[status as keyof typeof statusMap] || statusMap.healthy;
-    return <Badge className={statusInfo.color}>{statusInfo.text}</Badge>;
+  const handleRegistrationSuccess = () => {
+    fetchAnimals();
+    setShowRegistrationForm(false);
+    setEditingAnimal(null);
   };
 
-  const getTypeEmoji = (type: string) => {
-    const typeMap: Record<string, string> = {
-      cattle: '🐄',
-      goat: '🐐',
-      sheep: '🐑',
-      poultry: '🐔'
-    };
-    return typeMap[type] || '🐾';
+  const handleVaccinationSuccess = () => {
+    fetchAnimals();
+    setShowVaccinationForm(false);
+    setSelectedAnimal(null);
+  };
+
+  const handleMarketSuccess = () => {
+    fetchAnimals();
+    setShowMarketForm(false);
+    setSelectedAnimal(null);
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-4"></div>
           <p className="text-gray-600">
-            {language === 'am' ? 'እየጠበቀ...' : 'Loading...'}
+            {language === 'am' ? 'እየተጠበቀ...' : 'Loading...'}
           </p>
         </div>
       </div>
@@ -249,96 +179,98 @@ export const AnimalsUpdated = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <EnhancedOfflineIndicator />
-      
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 pb-20">
+      {/* Enhanced Offline Indicator */}
+      <EnhancedOfflineIndicator language={language} />
+
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 py-4">
+      <div className="bg-white shadow-sm border-b border-green-100 p-4">
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold text-gray-900">
-            {language === 'am' ? 'የእንስሳ ዝርዝር' : 'My Animals'}
+            {language === 'am' ? 'እንስሳቶቼ' : 'My Animals'}
           </h1>
           <Button
             onClick={() => setShowRegistrationForm(true)}
             className="bg-green-600 hover:bg-green-700"
           >
             <Plus className="w-4 h-4 mr-2" />
-            {language === 'am' ? 'አዲስ እንስሳ' : 'Add Animal'}
+            {language === 'am' ? 'እንስሳ ጨምር' : 'Add Animal'}
           </Button>
         </div>
 
         {/* Search and Filters */}
-        <div className="space-y-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+        <div className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <Search className="w-5 h-5 text-gray-400" />
             <Input
-              placeholder={language === 'am' ? 'ስም ወይም ID በመተየብ ይፈልጉ...' : 'Search by name or ID...'}
+              placeholder={language === 'am' ? 'እንስሳት ይፈልጉ...' : 'Search animals...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="flex-1"
             />
           </div>
+          
+          <div className="flex flex-wrap gap-2 items-center justify-between">
+            <div className="flex gap-2">
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger className="w-32">
+                  <SelectValue placeholder={language === 'am' ? 'አይነት' : 'Type'} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">
+                    {language === 'am' ? 'ሁሉም' : 'All'}
+                  </SelectItem>
+                  <SelectItem value="cattle">
+                    {language === 'am' ? 'ከብት' : 'Cattle'}
+                  </SelectItem>
+                  <SelectItem value="poultry">
+                    {language === 'am' ? 'ዶሮ' : 'Poultry'}
+                  </SelectItem>
+                  <SelectItem value="goat">
+                    {language === 'am' ? 'ፍየል' : 'Goat'}
+                  </SelectItem>
+                  <SelectItem value="sheep">
+                    {language === 'am' ? 'በግ' : 'Sheep'}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Select value={healthFilter} onValueChange={setHealthFilter}>
+                <SelectTrigger className="w-32">
+                  <SelectValue placeholder={language === 'am' ? 'ጤንነት' : 'Health'} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">
+                    {language === 'am' ? 'ሁሉም' : 'All'}
+                  </SelectItem>
+                  <SelectItem value="healthy">
+                    {language === 'am' ? 'ጤናማ' : 'Healthy'}
+                  </SelectItem>
+                  <SelectItem value="attention">
+                    {language === 'am' ? 'ትኩረት' : 'Attention'}
+                  </SelectItem>
+                  <SelectItem value="sick">
+                    {language === 'am' ? 'ታማሚ' : 'Sick'}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-          <div className="flex flex-wrap gap-2">
-            <Select value={filterType} onValueChange={setFilterType}>
-              <SelectTrigger className="w-32">
-                <SelectValue placeholder={language === 'am' ? 'አይነት' : 'Type'} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{language === 'am' ? 'ሁሉም' : 'All'}</SelectItem>
-                <SelectItem value="cattle">{language === 'am' ? 'ከብት' : 'Cattle'}</SelectItem>
-                <SelectItem value="goat">{language === 'am' ? 'ፍየል' : 'Goat'}</SelectItem>
-                <SelectItem value="sheep">{language === 'am' ? 'በግ' : 'Sheep'}</SelectItem>
-                <SelectItem value="poultry">{language === 'am' ? 'ዶሮ' : 'Poultry'}</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={filterHealth} onValueChange={setFilterHealth}>
-              <SelectTrigger className="w-32">
-                <SelectValue placeholder={language === 'am' ? 'ጤና' : 'Health'} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{language === 'am' ? 'ሁሉም' : 'All'}</SelectItem>
-                <SelectItem value="healthy">{language === 'am' ? 'ጤናማ' : 'Healthy'}</SelectItem>
-                <SelectItem value="attention">{language === 'am' ? 'ትኩረት' : 'Attention'}</SelectItem>
-                <SelectItem value="sick">{language === 'am' ? 'ታማሚ' : 'Sick'}</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-32">
-                <SelectValue placeholder={language === 'am' ? 'ደርድር' : 'Sort'} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="name">{language === 'am' ? 'ስም' : 'Name'}</SelectItem>
-                <SelectItem value="age">{language === 'am' ? 'እድሜ' : 'Age'}</SelectItem>
-                <SelectItem value="weight">{language === 'am' ? 'ክብደት' : 'Weight'}</SelectItem>
-                <SelectItem value="created_at">{language === 'am' ? 'ቀን' : 'Date'}</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-            >
-              <ArrowUpDown className="w-4 h-4" />
-            </Button>
-
-            <div className="flex border rounded-lg">
+            {/* View Mode Toggle */}
+            <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
               <Button
-                variant={viewMode === 'card' ? 'default' : 'ghost'}
                 size="sm"
+                variant={viewMode === 'card' ? 'default' : 'ghost'}
                 onClick={() => setViewMode('card')}
-                className="rounded-r-none"
+                className="h-8 px-3"
               >
-                <Grid3X3 className="w-4 h-4" />
+                <Grid className="w-4 h-4" />
               </Button>
               <Button
-                variant={viewMode === 'table' ? 'default' : 'ghost'}
                 size="sm"
+                variant={viewMode === 'table' ? 'default' : 'ghost'}
                 onClick={() => setViewMode('table')}
-                className="rounded-l-none"
+                className="h-8 px-3"
               >
                 <List className="w-4 h-4" />
               </Button>
@@ -348,26 +280,19 @@ export const AnimalsUpdated = () => {
       </div>
 
       {/* Content */}
-      <div className="px-4 py-6">
+      <div className="p-4">
         {filteredAnimals.length === 0 ? (
-          <Card className="text-center py-8">
+          <Card className="text-center py-12">
             <CardContent>
-              <div className="text-6xl mb-4">🐄</div>
-              <h3 className="text-lg font-semibold mb-2">
-                {language === 'am' ? 'እንስሳ አልተገኘም' : 'No Animals Found'}
-              </h3>
-              <p className="text-gray-600 mb-4">
-                {language === 'am' 
-                  ? 'የመጀመሪያውን እንስሳ ይመዝግቡ ወይም የፍለጋ ተፅዕኖዎን ይለውጡ'
-                  : 'Register your first animal or adjust your search filters'
-                }
-              </p>
+              <div className="text-gray-500 mb-4">
+                {language === 'am' ? 'ምንም እንስሳ አልተገኘም' : 'No animals found'}
+              </div>
               <Button
                 onClick={() => setShowRegistrationForm(true)}
                 className="bg-green-600 hover:bg-green-700"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                {language === 'am' ? 'እንስሳ ይመዝግቡ' : 'Register Animal'}
+                {language === 'am' ? 'የመጀመሪያ እንስሳዎን ይመዝግቡ' : 'Register Your First Animal'}
               </Button>
             </CardContent>
           </Card>
@@ -376,12 +301,19 @@ export const AnimalsUpdated = () => {
             {filteredAnimals.map((animal) => (
               <ModernAnimalCard
                 key={animal.id}
-                animal={animal}
+                animal={{
+                  id: animal.id,
+                  name: animal.name,
+                  type: animal.type,
+                  breed: animal.breed,
+                  age: animal.age?.toString(),
+                  weight: animal.weight?.toString(),
+                  photo: animal.photo_url,
+                  lastVaccination: animal.last_vaccination,
+                  healthStatus: animal.health_status
+                }}
                 language={language}
-                onEdit={() => handleEditAnimal(animal)}
-                onDelete={() => handleDeleteAnimal(animal.id)}
-                onVaccinate={() => handleVaccinate(animal)}
-                onSell={() => handleSell(animal)}
+                onClick={() => handleEdit(animal)}
               />
             ))}
           </div>
@@ -389,15 +321,16 @@ export const AnimalsUpdated = () => {
           <AnimalTableView
             animals={filteredAnimals}
             language={language}
-            onEdit={handleEditAnimal}
-            onDelete={handleDeleteAnimal}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
             onVaccinate={handleVaccinate}
+            onTrack={handleTrack}
             onSell={handleSell}
           />
         )}
       </div>
 
-      {/* Forms */}
+      {/* Registration Form Modal */}
       {showRegistrationForm && (
         <EnhancedAnimalRegistrationForm
           language={language}
@@ -405,38 +338,34 @@ export const AnimalsUpdated = () => {
             setShowRegistrationForm(false);
             setEditingAnimal(null);
           }}
-          onSuccess={() => {
-            fetchAnimals();
-            setShowRegistrationForm(false);
-            setEditingAnimal(null);
-          }}
+          onSuccess={handleRegistrationSuccess}
           editAnimal={editingAnimal}
         />
       )}
 
-      {showVaccinationForm && (
+      {/* Vaccination Form Modal */}
+      {showVaccinationForm && selectedAnimal && (
         <VaccinationForm
           language={language}
+          animalId={selectedAnimal.id}
           onClose={() => {
             setShowVaccinationForm(false);
             setSelectedAnimal(null);
           }}
-          mode="single"
-          preSelectedAnimal={selectedAnimal?.id}
+          onSuccess={handleVaccinationSuccess}
         />
       )}
 
-      {showMarketForm && (
+      {/* Market Listing Form Modal */}
+      {showMarketForm && selectedAnimal && (
         <MarketListingForm
           language={language}
+          animalId={selectedAnimal.id}
           onClose={() => {
             setShowMarketForm(false);
             setSelectedAnimal(null);
           }}
-          onSuccess={() => {
-            setShowMarketForm(false);
-            setSelectedAnimal(null);
-          }}
+          onSuccess={handleMarketSuccess}
         />
       )}
     </div>
