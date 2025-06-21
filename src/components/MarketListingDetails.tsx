@@ -18,6 +18,12 @@ interface MarketListing {
   is_vet_verified: boolean;
   photos: string[];
   created_at: string;
+  animal?: {
+    photo_url?: string;
+    name?: string;
+    breed?: string;
+    type?: string;
+  };
 }
 
 interface MarketListingDetailsProps {
@@ -66,6 +72,12 @@ export const MarketListingDetails: React.FC<MarketListingDetailsProps> = ({
     }
   };
 
+  // Combine listing photos with animal photo
+  const allPhotos = [
+    ...(listing.photos || []),
+    ...(listing.animal?.photo_url ? [listing.animal.photo_url] : [])
+  ];
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -78,13 +90,16 @@ export const MarketListingDetails: React.FC<MarketListingDetailsProps> = ({
         
         <CardContent className="space-y-6">
           {/* Photo Gallery */}
-          {listing.photos && listing.photos.length > 0 && (
+          {allPhotos && allPhotos.length > 0 && (
             <div className="space-y-3">
               <div className="relative">
                 <img
-                  src={listing.photos[currentPhotoIndex]}
+                  src={allPhotos[currentPhotoIndex]}
                   alt={`${listing.title} - ${currentPhotoIndex + 1}`}
                   className="w-full h-64 object-cover rounded-lg"
+                  onError={(e) => {
+                    e.currentTarget.src = '/placeholder.svg';
+                  }}
                 />
                 
                 {listing.is_vet_verified && (
@@ -95,9 +110,9 @@ export const MarketListingDetails: React.FC<MarketListingDetailsProps> = ({
                 )}
               </div>
               
-              {listing.photos.length > 1 && (
+              {allPhotos.length > 1 && (
                 <div className="flex space-x-2 overflow-x-auto">
-                  {listing.photos.map((photo, index) => (
+                  {allPhotos.map((photo, index) => (
                     <button
                       key={index}
                       onClick={() => setCurrentPhotoIndex(index)}
@@ -109,11 +124,54 @@ export const MarketListingDetails: React.FC<MarketListingDetailsProps> = ({
                         src={photo}
                         alt={`Thumbnail ${index + 1}`}
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = '/placeholder.svg';
+                        }}
                       />
                     </button>
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {!allPhotos || allPhotos.length === 0 && (
+            <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+              <div className="text-center">
+                <Camera className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                <p className="text-gray-500">
+                  {language === 'am' ? 'ምንም ፎቶ የለም' : 'No photos available'}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Animal Details */}
+          {listing.animal && (
+            <div className="bg-green-50 p-4 rounded-lg">
+              <h3 className="font-semibold text-green-800 mb-2">
+                {language === 'am' ? 'የእንስሳ መረጃ' : 'Animal Information'}
+              </h3>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                {listing.animal.name && (
+                  <div>
+                    <span className="text-gray-600">{language === 'am' ? 'ስም:' : 'Name:'}</span>
+                    <span className="ml-2 font-medium">{listing.animal.name}</span>
+                  </div>
+                )}
+                {listing.animal.type && (
+                  <div>
+                    <span className="text-gray-600">{language === 'am' ? 'አይነት:' : 'Type:'}</span>
+                    <span className="ml-2 font-medium capitalize">{listing.animal.type}</span>
+                  </div>
+                )}
+                {listing.animal.breed && (
+                  <div>
+                    <span className="text-gray-600">{language === 'am' ? 'ዝርያ:' : 'Breed:'}</span>
+                    <span className="ml-2 font-medium">{listing.animal.breed}</span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 

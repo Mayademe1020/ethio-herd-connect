@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Plus } from 'lucide-react';
 import { ModernAnimalCard } from '@/components/ModernAnimalCard';
 import { AnimalTableView } from '@/components/AnimalTableView';
+import { AnimalDetailModal } from '@/components/AnimalDetailModal';
 
 interface AnimalData {
   id: string;
@@ -21,6 +22,7 @@ interface AnimalData {
   is_vet_verified: boolean;
   created_at: string;
   tracker_id?: string;
+  birth_date?: string;
 }
 
 interface AnimalsListViewProps {
@@ -46,6 +48,16 @@ export const AnimalsListView = ({
   onSell,
   onShowRegistrationForm
 }: AnimalsListViewProps) => {
+  const [selectedAnimal, setSelectedAnimal] = useState<AnimalData | null>(null);
+
+  const handleAnimalClick = (animal: AnimalData) => {
+    setSelectedAnimal(animal);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedAnimal(null);
+  };
+
   if (animals.length === 0) {
     return (
       <Card className="text-center py-12">
@@ -67,38 +79,71 @@ export const AnimalsListView = ({
 
   if (viewMode === 'card') {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {animals.map((animal) => (
-          <ModernAnimalCard
-            key={animal.id}
-            animal={{
-              id: animal.id,
-              name: animal.name,
-              type: animal.type,
-              breed: animal.breed,
-              age: animal.age?.toString(),
-              weight: animal.weight?.toString(),
-              photo: animal.photo_url,
-              lastVaccination: animal.last_vaccination,
-              healthStatus: animal.health_status
-            }}
+      <>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {animals.map((animal) => (
+            <ModernAnimalCard
+              key={animal.id}
+              animal={{
+                id: animal.id,
+                name: animal.name,
+                type: animal.type,
+                breed: animal.breed,
+                age: animal.age?.toString(),
+                weight: animal.weight?.toString(),
+                photo: animal.photo_url,
+                lastVaccination: animal.last_vaccination,
+                healthStatus: animal.health_status
+              }}
+              language={language}
+              onClick={() => handleAnimalClick(animal)}
+            />
+          ))}
+        </div>
+        
+        {/* Animal Detail Modal */}
+        {selectedAnimal && (
+          <AnimalDetailModal
+            animal={selectedAnimal}
             language={language}
-            onClick={() => onEdit(animal)}
+            onClose={handleCloseModal}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            onVaccinate={onVaccinate}
+            onTrack={onTrack}
+            onSell={onSell}
           />
-        ))}
-      </div>
+        )}
+      </>
     );
   }
 
   return (
-    <AnimalTableView
-      animals={animals}
-      language={language}
-      onEdit={onEdit}
-      onDelete={onDelete}
-      onVaccinate={onVaccinate}
-      onTrack={onTrack}
-      onSell={onSell}
-    />
+    <>
+      <AnimalTableView
+        animals={animals}
+        language={language}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        onVaccinate={onVaccinate}
+        onTrack={onTrack}
+        onSell={onSell}
+        onAnimalClick={handleAnimalClick}
+      />
+      
+      {/* Animal Detail Modal */}
+      {selectedAnimal && (
+        <AnimalDetailModal
+          animal={selectedAnimal}
+          language={language}
+          onClose={handleCloseModal}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onVaccinate={onVaccinate}
+          onTrack={onTrack}
+          onSell={onSell}
+        />
+      )}
+    </>
   );
 };

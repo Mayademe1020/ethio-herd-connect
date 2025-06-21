@@ -30,6 +30,7 @@ interface AnimalTableViewProps {
   onVaccinate: (animal: Animal) => void;
   onTrack: (animal: Animal) => void;
   onSell: (animal: Animal) => void;
+  onAnimalClick?: (animal: Animal) => void;
 }
 
 export const AnimalTableView: React.FC<AnimalTableViewProps> = ({
@@ -39,7 +40,8 @@ export const AnimalTableView: React.FC<AnimalTableViewProps> = ({
   onDelete,
   onVaccinate,
   onTrack,
-  onSell
+  onSell,
+  onAnimalClick
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('all');
@@ -200,7 +202,8 @@ export const AnimalTableView: React.FC<AnimalTableViewProps> = ({
             {filteredAnimals.map((animal) => (
               <TableRow 
                 key={animal.id} 
-                className="hover:bg-green-50 transition-colors"
+                className="hover:bg-green-50 transition-colors cursor-pointer"
+                onClick={() => onAnimalClick?.(animal)}
               >
                 <TableCell className="font-medium">
                   <div>
@@ -229,12 +232,15 @@ export const AnimalTableView: React.FC<AnimalTableViewProps> = ({
                   {getHealthStatusBadge(animal.health_status)}
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
                     <Button
                       size="sm"
                       variant="outline"
                       className="h-8 w-8 p-0 hover:bg-blue-50 hover:border-blue-300"
-                      onClick={() => onVaccinate(animal)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onVaccinate(animal);
+                      }}
                     >
                       <Syringe className="w-4 h-4 text-blue-600" />
                     </Button>
@@ -242,7 +248,10 @@ export const AnimalTableView: React.FC<AnimalTableViewProps> = ({
                       size="sm"
                       variant="outline"
                       className="h-8 w-8 p-0 hover:bg-green-50 hover:border-green-300"
-                      onClick={() => onTrack(animal)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onTrack(animal);
+                      }}
                     >
                       <TrendingUp className="w-4 h-4 text-green-600" />
                     </Button>
@@ -250,7 +259,10 @@ export const AnimalTableView: React.FC<AnimalTableViewProps> = ({
                       size="sm"
                       variant="outline"
                       className="h-8 w-8 p-0 hover:bg-orange-50 hover:border-orange-300"
-                      onClick={() => onSell(animal)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSell(animal);
+                      }}
                     >
                       <DollarSign className="w-4 h-4 text-orange-600" />
                     </Button>
@@ -260,17 +272,24 @@ export const AnimalTableView: React.FC<AnimalTableViewProps> = ({
                           size="sm"
                           variant="outline"
                           className="h-8 w-8 p-0 hover:bg-gray-50 hover:border-gray-300"
+                          onClick={(e) => e.stopPropagation()}
                         >
                           <MoreVertical className="w-4 h-4 text-gray-600" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => onEdit(animal)}>
+                        <DropdownMenuItem onClick={(e) => {
+                          e.stopPropagation();
+                          onEdit(animal);
+                        }}>
                           <Edit className="w-4 h-4 mr-2" />
                           {language === 'am' ? 'አርትዕ' : 'Edit'}
                         </DropdownMenuItem>
                         <DropdownMenuItem 
-                          onClick={() => onDelete(animal.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(animal.id);
+                          }}
                           className="text-red-600 hover:text-red-800"
                         >
                           <Trash2 className="w-4 h-4 mr-2" />

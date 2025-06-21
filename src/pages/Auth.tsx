@@ -6,10 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { User, Mail, Lock, Eye, EyeOff, Phone } from 'lucide-react';
+import { User, Phone, Lock, Eye, EyeOff, Mail } from 'lucide-react';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [loginMethod, setLoginMethod] = useState<'mobile' | 'email'>('mobile');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -31,7 +32,9 @@ const Auth = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password) {
+    const loginIdentifier = loginMethod === 'mobile' ? mobileNumber : email;
+    
+    if (!loginIdentifier || !password) {
       toast.error('Please fill in all fields');
       return;
     }
@@ -57,14 +60,18 @@ const Auth = () => {
     try {
       let result;
       if (isLogin) {
-        result = await signIn(email, password);
+        // For login, use email format even if mobile number is provided
+        const emailForLogin = loginMethod === 'mobile' ? `${mobileNumber}@mylivestock.app` : email;
+        result = await signIn(emailForLogin, password);
       } else {
-        result = await signUp(email, password, mobileNumber, fullName);
+        // For signup, always require both mobile and email
+        const emailForSignup = email || `${mobileNumber}@mylivestock.app`;
+        result = await signUp(emailForSignup, password, mobileNumber, fullName);
       }
 
       if (result.error) {
         if (result.error.message.includes('Invalid login credentials')) {
-          toast.error('Invalid email or password');
+          toast.error('Invalid credentials. Please check your mobile number/email and password.');
         } else if (result.error.message.includes('User already registered')) {
           toast.error('User already exists. Please sign in instead.');
           setIsLogin(true);
@@ -91,10 +98,10 @@ const Auth = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="w-16 h-16 bg-gradient-to-br from-green-600 to-emerald-700 rounded-full flex items-center justify-center mx-auto mb-4">
-            <User className="w-8 h-8 text-white" />
+            <span className="text-white text-2xl">🐄</span>
           </div>
           <CardTitle className="text-2xl">
-            {isLogin ? 'Welcome Back' : 'Create Account'}
+            {isLogin ? 'Welcome Back' : 'Join MyLivestock'}
           </CardTitle>
           <p className="text-gray-600">
             {isLogin ? 'Sign in to your livestock account' : 'Start managing your livestock'}
@@ -103,34 +110,66 @@ const Auth = () => {
         
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium flex items-center space-x-2">
-                <Mail className="w-4 h-4" />
-                <span>Email</span>
-              </label>
-              <Input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                required
-              />
-            </div>
+            {/* Login Method Toggle (Login only) */}
+            {isLogin && (
+              <div className="flex bg-gray-100 rounded-lg p-1 mb-4">
+                <button
+                  type="button"
+                  onClick={() => setLoginMethod('mobile')}
+                  className={`flex-1 flex items-center justify-center space-x-2 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                    loginMethod === 'mobile' 
+                      ? 'bg-white text-green-600 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  <Phone className="w-4 h-4" />
+                  <span>Mobile</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLoginMethod('email')}
+                  className={`flex-1 flex items-center justify-center space-x-2 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                    loginMethod === 'email' 
+                      ? 'bg-white text-green-600 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  <Mail className="w-4 h-4" />
+                  <span>Email</span>
+                </button>
+              </div>
+            )}
 
-            {/* Mobile Number (Sign Up only) */}
-            {!isLogin && (
+            {/* Mobile Number */}
+            {(loginMethod === 'mobile' || !isLogin) && (
               <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center space-x-2">
                   <Phone className="w-4 h-4" />
-                  <span>Mobile Number</span>
+                  <span>Mobile Number {!isLogin ? '*' : ''}</span>
                 </label>
                 <Input
                   type="tel"
                   value={mobileNumber}
                   onChange={(e) => setMobileNumber(e.target.value)}
                   placeholder="Enter your mobile number"
-                  required={!isLogin}
+                  required={loginMethod === 'mobile' || !isLogin}
+                />
+              </div>
+            )}
+
+            {/* Email (shown for email login or signup) */}
+            {(loginMethod === 'email' || !isLogin) && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center space-x-2">
+                  <Mail className="w-4 h-4" />
+                  <span>Email {loginMethod === 'email' ? '*' : '(Optional)'}</span>
+                </label>
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required={loginMethod === 'email'}
                 />
               </div>
             )}
@@ -155,7 +194,7 @@ const Auth = () => {
             <div className="space-y-2">
               <label className="text-sm font-medium flex items-center space-x-2">
                 <Lock className="w-4 h-4" />
-                <span>Password</span>
+                <span>Password *</span>
               </label>
               <div className="relative">
                 <Input
@@ -183,7 +222,7 @@ const Auth = () => {
               <div className="space-y-2">
                 <label className="text-sm font-medium flex items-center space-x-2">
                   <Lock className="w-4 h-4" />
-                  <span>Confirm Password</span>
+                  <span>Confirm Password *</span>
                 </label>
                 <div className="relative">
                   <Input
