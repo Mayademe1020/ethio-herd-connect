@@ -7,16 +7,20 @@ import { InteractiveSummaryCard } from '@/components/InteractiveSummaryCard';
 import { EnhancedHeader } from '@/components/EnhancedHeader';
 import { BottomNavigation } from '@/components/BottomNavigation';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
+import { StaffManagement } from '@/components/StaffManagement';
+import { HealthSubmissionForm } from '@/components/HealthSubmissionForm';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
-import { Syringe, AlertTriangle, Calendar, Activity, TrendingUp, Bell, ArrowLeft } from 'lucide-react';
+import { Syringe, AlertTriangle, Calendar, Activity, TrendingUp, Bell, ArrowLeft, Users, Stethoscope } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const Health = () => {
   const { language } = useLanguage();
   const [showVaccinationForm, setShowVaccinationForm] = useState(false);
   const [showIllnessForm, setShowIllnessForm] = useState(false);
+  const [showStaffManagement, setShowStaffManagement] = useState(false);
+  const [showHealthSubmission, setShowHealthSubmission] = useState(false);
   const [vaccinationMode, setVaccinationMode] = useState<'single' | 'bulk'>('bulk');
   const [selectedDetailView, setSelectedDetailView] = useState<string | null>(null);
 
@@ -207,7 +211,7 @@ const Health = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Button 
             className="h-20 flex flex-col space-y-2 bg-blue-600 hover:bg-blue-700 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation"
             onClick={() => handleVaccinationClick('bulk')}
@@ -231,12 +235,37 @@ const Health = () => {
           
           <Button 
             variant="outline" 
-            className="h-20 flex flex-col space-y-2 border-red-200 hover:bg-red-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation sm:col-span-2 lg:col-span-1"
+            className="h-20 flex flex-col space-y-2 border-red-200 hover:bg-red-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation"
             onClick={() => setShowIllnessForm(true)}
           >
             <AlertTriangle className="w-6 h-6 text-red-500" />
             <span className="text-sm font-medium">
               {language === 'am' ? 'በሽታ ሪፖርት' : 'Report Illness'}
+            </span>
+          </Button>
+
+          <Button 
+            variant="outline" 
+            className="h-20 flex flex-col space-y-2 border-green-200 hover:bg-green-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation"
+            onClick={() => setShowHealthSubmission(true)}
+          >
+            <Stethoscope className="w-6 h-6 text-green-500" />
+            <span className="text-sm font-medium">
+              {language === 'am' ? 'የዓይነ ሐኪም ድጋፍ' : 'Vet Support'}
+            </span>
+          </Button>
+        </div>
+
+        {/* Management Actions */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Button 
+            variant="outline" 
+            className="h-16 flex items-center justify-center space-x-2 border-purple-200 hover:bg-purple-50 transition-all duration-300"
+            onClick={() => setShowStaffManagement(true)}
+          >
+            <Users className="w-5 h-5 text-purple-500" />
+            <span className="font-medium">
+              {language === 'am' ? 'ሰራተኞች ማስተዳደር' : 'Staff Management'}
             </span>
           </Button>
         </div>
@@ -371,7 +400,7 @@ const Health = () => {
 
       <BottomNavigation language={language} />
 
-      {/* Forms */}
+      {/* Forms and Modals */}
       {showVaccinationForm && (
         <VaccinationForm 
           language={language} 
@@ -384,6 +413,20 @@ const Health = () => {
         <IllnessReportForm 
           language={language} 
           onClose={() => setShowIllnessForm(false)} 
+        />
+      )}
+
+      {showStaffManagement && (
+        <StaffManagement 
+          language={language} 
+          onClose={() => setShowStaffManagement(false)} 
+        />
+      )}
+
+      {showHealthSubmission && (
+        <HealthSubmissionForm 
+          language={language} 
+          onClose={() => setShowHealthSubmission(false)} 
         />
       )}
     </div>
