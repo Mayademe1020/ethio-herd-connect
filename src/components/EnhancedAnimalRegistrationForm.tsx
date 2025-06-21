@@ -28,6 +28,7 @@ interface Animal {
   photo_url?: string;
   health_status: 'healthy' | 'attention' | 'sick';
   tracker_id?: string;
+  animal_code?: string;
 }
 
 export const EnhancedAnimalRegistrationForm: React.FC<EnhancedAnimalRegistrationFormProps> = ({
@@ -139,13 +140,14 @@ export const EnhancedAnimalRegistrationForm: React.FC<EnhancedAnimalRegistration
 
       const finalBreed = formData.breed === 'other' ? formData.customBreed : formData.breed;
       
-      let animalCode = '';
+      let animalCode = editAnimal?.animal_code || '';
       if (!editAnimal) {
         animalCode = await generateAnimalCode(user.id);
       }
 
       const animalData = {
-        ...(editAnimal ? { id: editAnimal.id } : { animal_code: animalCode }),
+        ...(editAnimal ? { id: editAnimal.id } : {}),
+        animal_code: animalCode,
         user_id: user.id,
         name: formData.name,
         type: formData.type,
