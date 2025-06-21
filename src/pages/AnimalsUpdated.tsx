@@ -75,7 +75,7 @@ export const AnimalsUpdated = () => {
       console.error('Error fetching animals:', error);
       toast({
         title: language === 'am' ? 'ስህተት' : 'Error',
-        description: language === 'am' ? 'እንስሳትን ማምጣት አልተሳካም' : 'Failed to fetch animals',
+        description: language === 'am' ? 'እንስሳት አልተሳካም' : 'Failed to fetch animals',
         variant: 'destructive'
       });
     } finally {
@@ -128,14 +128,6 @@ export const AnimalsUpdated = () => {
     setShowVaccinationForm(true);
   };
 
-  const handleTrack = (animal: AnimalData) => {
-    // Navigate to tracking/growth page for this animal
-    toast({
-      title: language === 'am' ? 'ክትትል' : 'Tracking',
-      description: language === 'am' ? 'የእንስሳ ክትትል ገጽ' : 'Animal tracking page'
-    });
-  };
-
   const handleSell = (animal: AnimalData) => {
     setSelectedAnimal(animal);
     setShowMarketListingForm(true);
@@ -144,7 +136,6 @@ export const AnimalsUpdated = () => {
   const handleRegistrationSuccess = () => {
     fetchAnimals();
     setShowRegistrationForm(false);
-    setEditingAnimal(null);
   };
 
   const handleVaccinationSuccess = () => {
@@ -343,11 +334,7 @@ export const AnimalsUpdated = () => {
           language={language}
           mode="single"
           preSelectedAnimal={selectedAnimal.id}
-          onClose={() => setShowVaccinationForm(false)}
-          onSuccess={() => {
-            setShowVaccinationForm(false);
-            fetchAnimals();
-          }}
+          onClose={handleVaccinationSuccess}
         />
       )}
 
@@ -365,3 +352,5 @@ export const AnimalsUpdated = () => {
     </div>
   );
 };
+
+export default AnimalsUpdated;
