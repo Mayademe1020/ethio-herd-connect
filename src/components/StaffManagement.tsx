@@ -8,6 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus, X, User, Mail, Phone, Settings, Trash2, UserCheck, UserX } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import type { Database } from '@/integrations/supabase/types';
+
+type DatabaseStaffMember = Database['public']['Tables']['farm_assistants']['Row'];
 
 interface StaffMember {
   id: string;
@@ -61,7 +64,24 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setStaff(data || []);
+      
+      // Transform database data to match our interface
+      const transformedStaff: StaffMember[] = (data || []).map((item: DatabaseStaffMember) => ({
+        id: item.id,
+        assistant_user_id: item.assistant_user_id,
+        farm_owner_id: item.farm_owner_id,
+        status: (item.status as 'pending' | 'active' | 'inactive') || 'pending',
+        permissions: typeof item.permissions === 'object' && item.permissions !== null 
+          ? item.permissions as StaffMember['permissions']
+          : {
+              view_records: true,
+              update_health: false,
+              register_animals: false
+            },
+        created_at: item.created_at
+      }));
+      
+      setStaff(transformedStaff);
     } catch (error) {
       console.error('Error fetching staff:', error);
       toast({
