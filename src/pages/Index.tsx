@@ -5,11 +5,16 @@ import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { InteractiveDashboard } from '@/components/InteractiveDashboard';
 import { QuickActions } from '@/components/QuickActions';
 import { RecentActivity } from '@/components/RecentActivity';
+import { StaffManagement } from '@/components/StaffManagement';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Users } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useState } from 'react';
 
 const Index = () => {
   const { language } = useLanguage();
+  const [showStaffManagement, setShowStaffManagement] = useState(false);
 
   // Mock data - replace with real Supabase data
   const dashboardStats = {
@@ -37,7 +42,7 @@ const Index = () => {
         {/* Welcome Section */}
         <div className="text-center mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
-            {language === 'am' ? 'ቤት-ግጦሽ ዳሽቦርድ' : 'Bet-Gitosa Dashboard'}
+            {language === 'am' ? 'MyLivestock ዳሽቦርድ' : 'MyLivestock Dashboard'}
           </h1>
           <p className="text-gray-600">
             {language === 'am' 
@@ -50,8 +55,37 @@ const Index = () => {
         {/* Interactive Dashboard Cards */}
         <InteractiveDashboard language={language} stats={dashboardStats} />
 
-        {/* Quick Actions */}
-        <QuickActions language={language} onActionComplete={handleActionComplete} />
+        {/* Quick Actions with Staff Management */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <QuickActions language={language} onActionComplete={handleActionComplete} />
+          </div>
+          
+          {/* Staff Management Card */}
+          <Card className="border-green-100">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg font-semibold text-gray-800 flex items-center space-x-2">
+                <Users className="w-5 h-5 text-green-600" />
+                <span>{language === 'am' ? 'የሰራተኞች አስተዳደር' : 'Staff Management'}</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-600 mb-4">
+                {language === 'am' 
+                  ? 'የእርሻ ሰራተኞችን ያክሉ እና ያስተዳድሩ'
+                  : 'Add and manage farm staff members'
+                }
+              </p>
+              <Button
+                onClick={() => setShowStaffManagement(true)}
+                className="w-full bg-green-600 hover:bg-green-700"
+              >
+                <Users className="w-4 h-4 mr-2" />
+                {language === 'am' ? 'ሰራተኞችን አስተዳድር' : 'Manage Staff'}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Recent Activity */}
         <Card className="border-green-100">
@@ -67,6 +101,14 @@ const Index = () => {
       </main>
 
       <BottomNavigation language={language} />
+
+      {/* Staff Management Modal */}
+      {showStaffManagement && (
+        <StaffManagement
+          language={language}
+          onClose={() => setShowStaffManagement(false)}
+        />
+      )}
     </div>
   );
 };

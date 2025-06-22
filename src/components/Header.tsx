@@ -18,7 +18,7 @@ export const Header = () => {
             <div>
               <h1 className="text-xl font-bold text-gray-900">MyLivestock</h1>
               <p className="text-sm text-gray-600">
-                {language === 'am' ? 'ቤት-ግጦሽ' : 'Formerly Bet-Gitosa'}
+                {language === 'am' ? 'የእንስሳት አስተዳደር' : 'Livestock Management'}
               </p>
             </div>
           </div>

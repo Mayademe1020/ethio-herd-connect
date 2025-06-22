@@ -4,28 +4,25 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, X, User, Mail, Phone, Settings, Trash2, UserCheck, UserX } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { X, Plus, Phone, Trash2, Users, Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import type { Database } from '@/integrations/supabase/types';
-
-type DatabaseStaffMember = Database['public']['Tables']['farm_assistants']['Row'];
 
 interface StaffMember {
   id: string;
-  assistant_user_id: string;
-  farm_owner_id: string;
-  status: 'pending' | 'active' | 'inactive';
+  phone: string;
+  name: string;
+  role: string;
+  status: 'active' | 'pending' | 'inactive';
   permissions: {
     view_records: boolean;
     update_health: boolean;
     register_animals: boolean;
+    manage_market: boolean;
+    view_reports: boolean;
   };
   created_at: string;
-  email?: string;
-  phone?: string;
-  name?: string;
 }
 
 interface StaffManagementProps {
@@ -37,19 +34,22 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({
   language,
   onClose
 }) => {
-  const [staff, setStaff] = useState<StaffMember[]>([]);
+  const [staffMembers, setStaffMembers] = useState<StaffMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newStaff, setNewStaff] = useState({
-    email: '',
-    phone: '',
     name: '',
-    permissions: {
-      view_records: true,
-      update_health: false,
-      register_animals: false
-    }
+    phone: '',
+    role: 'assistant'
   });
+  const [newPermissions, setNewPermissions] = useState({
+    view_records: true,
+    update_health: true,
+    register_animals: false,
+    manage_market: false,
+    view_reports: false
+  });
+
   const { toast } = useToast();
 
   useEffect(() => {
@@ -58,35 +58,37 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({
 
   const fetchStaff = async () => {
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from('farm_assistants')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      
-      // Transform database data to match our interface
-      const transformedStaff: StaffMember[] = (data || []).map((item: DatabaseStaffMember) => ({
+
+      // Transform data to match our interface
+      const transformedData: StaffMember[] = (data || []).map(item => ({
         id: item.id,
-        assistant_user_id: item.assistant_user_id,
-        farm_owner_id: item.farm_owner_id,
-        status: (item.status as 'pending' | 'active' | 'inactive') || 'pending',
-        permissions: typeof item.permissions === 'object' && item.permissions !== null 
-          ? item.permissions as StaffMember['permissions']
-          : {
-              view_records: true,
-              update_health: false,
-              register_animals: false
-            },
+        phone: item.assistant_user_id, // Using this as phone for now
+        name: `Staff Member ${item.id.slice(0, 8)}`, // Generate name from ID
+        role: 'assistant',
+        status: item.status as 'active' | 'pending' | 'inactive',
+        permissions: item.permissions || {
+          view_records: true,
+          update_health: true,
+          register_animals: false,
+          manage_market: false,
+          view_reports: false
+        },
         created_at: item.created_at
       }));
-      
-      setStaff(transformedStaff);
+
+      setStaffMembers(transformedData);
     } catch (error) {
       console.error('Error fetching staff:', error);
       toast({
         title: language === 'am' ? 'ስህተት' : 'Error',
-        description: language === 'am' ? 'ሰራተኞች ማምጣት አልተሳካም' : 'Failed to fetch staff',
+        description: language === 'am' ? 'ሰራተኞችን ማምጣት አልተሳካም' : 'Failed to fetch staff members',
         variant: 'destructive'
       });
     } finally {
@@ -94,29 +96,27 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({
     }
   };
 
-  const handleAddStaff = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!newStaff.email || !newStaff.phone) {
+  const handleAddStaff = async () => {
+    if (!newStaff.name.trim() || !newStaff.phone.trim()) {
       toast({
         title: language === 'am' ? 'ስህተት' : 'Error',
-        description: language === 'am' ? 'ኢሜል እና ስልክ ቁጥር ያስፈልጋል' : 'Email and phone number are required',
+        description: language === 'am' ? 'ሁሉም መስኮች ያስፈልጋሉ' : 'All fields are required',
         variant: 'destructive'
       });
       return;
     }
 
     try {
-      const user = (await supabase.auth.getUser()).data.user;
+      const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
       const { error } = await supabase
         .from('farm_assistants')
         .insert([{
           farm_owner_id: user.id,
-          assistant_user_id: newStaff.email, // Temporary, will be updated when they register
-          permissions: newStaff.permissions,
-          status: 'pending'
+          assistant_user_id: newStaff.phone, // Using phone as identifier
+          permissions: newPermissions,
+          status: 'active'
         }]);
 
       if (error) throw error;
@@ -126,15 +126,13 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({
         description: language === 'am' ? 'ሰራተኛ ተጨምሯል' : 'Staff member added successfully'
       });
 
-      setNewStaff({
-        email: '',
-        phone: '',
-        name: '',
-        permissions: {
-          view_records: true,
-          update_health: false,
-          register_animals: false
-        }
+      setNewStaff({ name: '', phone: '', role: 'assistant' });
+      setNewPermissions({
+        view_records: true,
+        update_health: true,
+        register_animals: false,
+        manage_market: false,
+        view_reports: false
       });
       setShowAddForm(false);
       fetchStaff();
@@ -143,31 +141,6 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({
       toast({
         title: language === 'am' ? 'ስህተት' : 'Error',
         description: language === 'am' ? 'ሰራተኛ መጨመር አልተሳካም' : 'Failed to add staff member',
-        variant: 'destructive'
-      });
-    }
-  };
-
-  const handleUpdateStatus = async (staffId: string, newStatus: 'active' | 'inactive') => {
-    try {
-      const { error } = await supabase
-        .from('farm_assistants')
-        .update({ status: newStatus })
-        .eq('id', staffId);
-
-      if (error) throw error;
-
-      toast({
-        title: language === 'am' ? 'ተሳክቷል' : 'Success',
-        description: language === 'am' ? 'ሁኔታ ተዘምኗል' : 'Status updated successfully'
-      });
-
-      fetchStaff();
-    } catch (error) {
-      console.error('Error updating status:', error);
-      toast({
-        title: language === 'am' ? 'ስህተት' : 'Error',
-        description: language === 'am' ? 'ሁኔታ ማዘመን አልተሳካም' : 'Failed to update status',
         variant: 'destructive'
       });
     }
@@ -184,7 +157,7 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({
 
       toast({
         title: language === 'am' ? 'ተሳክቷል' : 'Success',
-        description: language === 'am' ? 'ሰራተኛ ተሰርዟል' : 'Staff member removed successfully'
+        description: language === 'am' ? 'ሰራተኛ ተሰርዟል' : 'Staff member deleted successfully'
       });
 
       fetchStaff();
@@ -192,51 +165,28 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({
       console.error('Error deleting staff:', error);
       toast({
         title: language === 'am' ? 'ስህተት' : 'Error',
-        description: language === 'am' ? 'ሰራተኛ መሰረዝ አልተሳካም' : 'Failed to remove staff member',
+        description: language === 'am' ? 'ሰራተኛ መሰረዝ አልተሳካም' : 'Failed to delete staff member',
         variant: 'destructive'
       });
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    const variants = {
-      pending: 'bg-yellow-100 text-yellow-800',
-      active: 'bg-green-100 text-green-800',
-      inactive: 'bg-red-100 text-red-800'
-    };
-    
-    const labels = {
-      pending: language === 'am' ? 'በመጠባበቅ ላይ' : 'Pending',
-      active: language === 'am' ? 'ንቁ' : 'Active',
-      inactive: language === 'am' ? 'ገባር' : 'Inactive'
-    };
-
-    return (
-      <Badge className={variants[status as keyof typeof variants]}>
-        {labels[status as keyof typeof labels]}
-      </Badge>
-    );
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return 'bg-green-100 text-green-800';
+      case 'pending': return 'bg-yellow-100 text-yellow-800';
+      case 'inactive': return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
   };
-
-  if (loading) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-        <Card className="w-full max-w-2xl">
-          <CardContent className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center space-x-2">
-            <User className="w-5 h-5" />
-            <span>{language === 'am' ? 'ሰራተኞች ማስተዳደር' : 'Staff Management'}</span>
+            <Users className="w-5 h-5" />
+            <span>{language === 'am' ? 'የሰራተኞች አስተዳደር' : 'Staff Management'}</span>
           </CardTitle>
           <Button variant="ghost" size="sm" onClick={onClose}>
             <X className="w-4 h-4" />
@@ -246,11 +196,14 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({
         <CardContent className="space-y-6">
           {/* Add Staff Button */}
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">
-              {language === 'am' ? 'ሰራተኞች' : 'Staff Members'} ({staff.length})
-            </h3>
+            <p className="text-gray-600">
+              {language === 'am' 
+                ? 'የእርሻ ሰራተኞችን ያክሉ እና ያስተዳድሩ'
+                : 'Add and manage your farm staff members'
+              }
+            </p>
             <Button
-              onClick={() => setShowAddForm(true)}
+              onClick={() => setShowAddForm(!showAddForm)}
               className="bg-green-600 hover:bg-green-700"
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -266,211 +219,188 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({
                   {language === 'am' ? 'አዲስ ሰራተኛ ጨምር' : 'Add New Staff Member'}
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <form onSubmit={handleAddStaff} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium flex items-center space-x-2">
-                        <Mail className="w-4 h-4" />
-                        <span>{language === 'am' ? 'ኢሜል' : 'Email'} *</span>
-                      </label>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
+                      {language === 'am' ? 'ስም' : 'Name'} *
+                    </label>
+                    <Input
+                      value={newStaff.name}
+                      onChange={(e) => setNewStaff(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder={language === 'am' ? 'የሰራተኛ ስም' : 'Staff member name'}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
+                      {language === 'am' ? 'ስልክ ቁጥር' : 'Phone Number'} *
+                    </label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                       <Input
-                        type="email"
-                        value={newStaff.email}
-                        onChange={(e) => setNewStaff(prev => ({ ...prev, email: e.target.value }))}
-                        placeholder={language === 'am' ? 'ኢሜል አድራሻ' : 'Email address'}
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <label className="text-sm font-medium flex items-center space-x-2">
-                        <Phone className="w-4 h-4" />
-                        <span>{language === 'am' ? 'ስልክ ቁጥር' : 'Phone Number'} *</span>
-                      </label>
-                      <Input
-                        type="tel"
                         value={newStaff.phone}
                         onChange={(e) => setNewStaff(prev => ({ ...prev, phone: e.target.value }))}
-                        placeholder={language === 'am' ? 'ስልክ ቁጥር' : 'Phone number'}
-                        required
-                      />
-                    </div>
-
-                    <div className="space-y-2 md:col-span-2">
-                      <label className="text-sm font-medium flex items-center space-x-2">
-                        <User className="w-4 h-4" />
-                        <span>{language === 'am' ? 'ሙሉ ስም' : 'Full Name'}</span>
-                      </label>
-                      <Input
-                        type="text"
-                        value={newStaff.name}
-                        onChange={(e) => setNewStaff(prev => ({ ...prev, name: e.target.value }))}
-                        placeholder={language === 'am' ? 'ሙሉ ስም' : 'Full name'}
+                        placeholder="+251912345678"
+                        className="pl-10"
                       />
                     </div>
                   </div>
+                </div>
 
-                  {/* Permissions */}
-                  <div className="space-y-3">
-                    <h4 className="font-medium flex items-center space-x-2">
-                      <Settings className="w-4 h-4" />
-                      <span>{language === 'am' ? 'ፈቃዶች' : 'Permissions'}</span>
-                    </h4>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <label className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          checked={newStaff.permissions.view_records}
-                          onChange={(e) => setNewStaff(prev => ({
-                            ...prev,
-                            permissions: { ...prev.permissions, view_records: e.target.checked }
-                          }))}
-                          className="rounded"
-                        />
-                        <span className="text-sm">
-                          {language === 'am' ? 'መዝገቦች ማየት' : 'View Records'}
-                        </span>
-                      </label>
-
-                      <label className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          checked={newStaff.permissions.update_health}
-                          onChange={(e) => setNewStaff(prev => ({
-                            ...prev,
-                            permissions: { ...prev.permissions, update_health: e.target.checked }
-                          }))}
-                          className="rounded"
-                        />
-                        <span className="text-sm">
-                          {language === 'am' ? 'ጤንነት ማዘመን' : 'Update Health'}
-                        </span>
-                      </label>
-
-                      <label className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          checked={newStaff.permissions.register_animals}
-                          onChange={(e) => setNewStaff(prev => ({
-                            ...prev,
-                            permissions: { ...prev.permissions, register_animals: e.target.checked }
-                          }))}
-                          className="rounded"
-                        />
-                        <span className="text-sm">
-                          {language === 'am' ? 'እንስሳት መመዝገብ' : 'Register Animals'}
-                        </span>
-                      </label>
+                {/* Permissions */}
+                <div>
+                  <label className="text-sm font-medium mb-3 block">
+                    {language === 'am' ? 'ፈቃዶች' : 'Permissions'}
+                  </label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">{language === 'am' ? 'መዝገቦችን ማየት' : 'View Records'}</span>
+                      <Switch
+                        checked={newPermissions.view_records}
+                        onCheckedChange={(checked) => 
+                          setNewPermissions(prev => ({ ...prev, view_records: checked }))
+                        }
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">{language === 'am' ? 'ጤንነት ማዘመን' : 'Update Health'}</span>
+                      <Switch
+                        checked={newPermissions.update_health}
+                        onCheckedChange={(checked) => 
+                          setNewPermissions(prev => ({ ...prev, update_health: checked }))
+                        }
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">{language === 'am' ? 'እንስሳት ማስመዝገብ' : 'Register Animals'}</span>
+                      <Switch
+                        checked={newPermissions.register_animals}
+                        onCheckedChange={(checked) => 
+                          setNewPermissions(prev => ({ ...prev, register_animals: checked }))
+                        }
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">{language === 'am' ? 'ገበያ ማስተዳደር' : 'Manage Market'}</span>
+                      <Switch
+                        checked={newPermissions.manage_market}
+                        onCheckedChange={(checked) => 
+                          setNewPermissions(prev => ({ ...prev, manage_market: checked }))
+                        }
+                      />
                     </div>
                   </div>
+                </div>
 
-                  <div className="flex space-x-3">
-                    <Button type="submit" className="bg-green-600 hover:bg-green-700">
-                      {language === 'am' ? 'ጨምር' : 'Add Staff'}
-                    </Button>
-                    <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
-                      {language === 'am' ? 'ሰርዝ' : 'Cancel'}
-                    </Button>
-                  </div>
-                </form>
+                <div className="flex space-x-3">
+                  <Button onClick={handleAddStaff} className="bg-green-600 hover:bg-green-700">
+                    {language === 'am' ? 'ሰራተኛ ጨምር' : 'Add Staff'}
+                  </Button>
+                  <Button variant="outline" onClick={() => setShowAddForm(false)}>
+                    {language ===
+
+ 'am' ? 'ሰርዝ' : 'Cancel'}
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           )}
 
           {/* Staff List */}
-          <div className="space-y-4">
-            {staff.length === 0 ? (
-              <Card className="text-center py-8">
-                <CardContent>
-                  <User className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">
-                    {language === 'am' ? 'ምንም ሰራተኛ አልተጨመረም' : 'No staff members added yet'}
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              staff.map((member) => (
-                <Card key={member.id} className="border-l-4 border-l-green-500">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                          <User className="w-5 h-5 text-green-600" />
-                        </div>
+          <div>
+            <h3 className="text-lg font-semibold mb-4">
+              {language === 'am' ? 'የሰራተኞች ዝርዝር' : 'Staff Members'}
+            </h3>
+            
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="border rounded-lg p-4 animate-pulse">
+                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                  </div>
+                ))}
+              </div>
+            ) : staffMembers.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {staffMembers.map((staff) => (
+                  <Card key={staff.id} className="border-gray-200">
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start mb-3">
                         <div>
-                          <h4 className="font-medium">
-                            {member.name || member.assistant_user_id}
-                          </h4>
-                          <p className="text-sm text-gray-600">{member.assistant_user_id}</p>
-                          <div className="flex items-center space-x-2 mt-1">
-                            {getStatusBadge(member.status)}
-                            <span className="text-xs text-gray-500">
-                              {language === 'am' ? 'ጨመረ' : 'Added'}: {new Date(member.created_at).toLocaleDateString()}
-                            </span>
-                          </div>
+                          <h4 className="font-medium">{staff.name}</h4>
+                          <p className="text-sm text-gray-600 flex items-center space-x-1">
+                            <Phone className="w-3 h-3" />
+                            <span>{staff.phone}</span>
+                          </p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Badge className={getStatusColor(staff.status)}>
+                            {staff.status}
+                          </Badge>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteStaff(staff.id)}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
                         </div>
                       </div>
-
-                      <div className="flex items-center space-x-2">
-                        {member.status === 'pending' && (
-                          <Button
-                            size="sm"
-                            onClick={() => handleUpdateStatus(member.id, 'active')}
-                            className="bg-green-600 hover:bg-green-700"
-                          >
-                            <UserCheck className="w-4 h-4" />
-                          </Button>
-                        )}
-                        
-                        {member.status === 'active' && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleUpdateStatus(member.id, 'inactive')}
-                          >
-                            <UserX className="w-4 h-4" />
-                          </Button>
-                        )}
-
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleDeleteStaff(member.id)}
-                          className="text-red-600 hover:text-red-800"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2 text-sm">
+                          <Shield className="w-3 h-3" />
+                          <span className="font-medium">{language === 'am' ? 'ፈቃዶች:' : 'Permissions:'}</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-1 text-xs">
+                          {staff.permissions.view_records && (
+                            <span className="bg-green-100 text-green-700 px-2 py-1 rounded">
+                              {language === 'am' ? 'መዝገብ' : 'Records'}
+                            </span>
+                          )}
+                          {staff.permissions.update_health && (
+                            <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded">
+                              {language === 'am' ? 'ጤንነት' : 'Health'}
+                            </span>
+                          )}
+                          {staff.permissions.register_animals && (
+                            <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded">
+                              {language === 'am' ? 'ምዝገባ' : 'Register'}
+                            </span>
+                          )}
+                          {staff.permissions.manage_market && (
+                            <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded">
+                              {language === 'am' ? 'ገበያ' : 'Market'}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-
-                    {/* Permissions Display */}
-                    <div className="mt-3 pt-3 border-t">
-                      <p className="text-sm text-gray-600 mb-2">
-                        {language === 'am' ? 'ፈቃዶች:' : 'Permissions:'}
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {member.permissions.view_records && (
-                          <Badge variant="outline">
-                            {language === 'am' ? 'መዝገቦች ማየት' : 'View Records'}
-                          </Badge>
-                        )}
-                        {member.permissions.update_health && (
-                          <Badge variant="outline">
-                            {language === 'am' ? 'ጤንነት ማዘመን' : 'Update Health'}
-                          </Badge>
-                        )}
-                        {member.permissions.register_animals && (
-                          <Badge variant="outline">
-                            {language === 'am' ? 'እንስሳት መመዝገብ' : 'Register Animals'}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Users className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                <h3 className="text-lg font-semibold text-gray-600 mb-2">
+                  {language === 'am' ? 'ምንም ሰራተኛ የለም' : 'No Staff Members'}
+                </h3>
+                <p className="text-gray-500 mb-4">
+                  {language === 'am' 
+                    ? 'የመጀመሪያ ሰራተኛዎን ይጨምሩ'
+                    : 'Add your first staff member to get started'
+                  }
+                </p>
+                <Button 
+                  onClick={() => setShowAddForm(true)}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  {language === 'am' ? 'ሰራተኛ ጨምር' : 'Add Staff Member'}
+                </Button>
+              </div>
             )}
           </div>
         </CardContent>

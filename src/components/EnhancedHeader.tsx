@@ -162,8 +162,8 @@ export const EnhancedHeader: React.FC = () => {
               <span className="text-white text-xl font-bold">🐄</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">ቤት-ግጦሽ</h1>
-              <p className="text-sm text-gray-600">Bet-Gitosa</p>
+              <h1 className="text-xl font-bold text-gray-900">MyLivestock</h1>
+              <p className="text-sm text-gray-600">Livestock Management</p>
             </div>
           </div>
 
