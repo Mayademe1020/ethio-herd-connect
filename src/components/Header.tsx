@@ -8,43 +8,44 @@ export const Header = () => {
   
   return (
     <header className="bg-white shadow-sm border-b border-green-100">
-      <div className="container mx-auto px-4 py-4">
+      <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-4">
         <div className="flex items-center justify-between">
           {/* Logo and Title */}
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-green-600 to-emerald-700 rounded-xl flex items-center justify-center">
-              <span className="text-white text-xl font-bold">🐄</span>
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-600 to-emerald-700 rounded-xl flex items-center justify-center">
+              <span className="text-white text-lg sm:text-xl font-bold">🐄</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">MyLivestock</h1>
-              <p className="text-sm text-gray-600">
+              <h1 className="text-lg sm:text-xl font-bold text-gray-900">MyLivestock</h1>
+              <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">
                 {language === 'am' ? 'የእንስሳት አስተዳደር' : 'Livestock Management'}
               </p>
             </div>
           </div>
 
           {/* Actions */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 sm:space-x-3">
             {/* Language Toggle */}
             <Button
               variant="outline"
               size="sm"
               onClick={() => setLanguage(language === 'am' ? 'en' : 'am')}
-              className="flex items-center space-x-2 transition-all duration-200 hover:scale-105 active:scale-95"
+              className="flex items-center space-x-1 sm:space-x-2 transition-all duration-200 hover:scale-105 active:scale-95 text-xs sm:text-sm px-2 sm:px-3"
             >
-              <Globe className="w-4 h-4" />
-              <span>{language === 'am' ? 'English' : 'አማርኛ'}</span>
+              <Globe className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">{language === 'am' ? 'English' : 'አማርኛ'}</span>
+              <span className="sm:hidden">{language === 'am' ? 'EN' : 'አማ'}</span>
             </Button>
 
             {/* Notifications */}
-            <Button variant="outline" size="sm" className="relative transition-all duration-200 hover:scale-105 active:scale-95">
-              <Bell className="w-4 h-4" />
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs"></span>
+            <Button variant="outline" size="sm" className="relative transition-all duration-200 hover:scale-105 active:scale-95 p-2 sm:px-3">
+              <Bell className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full text-xs"></span>
             </Button>
 
             {/* Menu */}
-            <Button variant="outline" size="sm" className="transition-all duration-200 hover:scale-105 active:scale-95">
-              <Menu className="w-4 h-4" />
+            <Button variant="outline" size="sm" className="transition-all duration-200 hover:scale-105 active:scale-95 p-2 sm:px-3">
+              <Menu className="w-3 h-3 sm:w-4 sm:h-4" />
             </Button>
           </div>
         </div>
