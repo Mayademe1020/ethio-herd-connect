@@ -1,402 +1,379 @@
-import { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MarketListingForm } from '@/components/MarketListingForm';
-import { MarketListingCard } from '@/components/MarketListingCard';
-import { MarketListingDetails } from '@/components/MarketListingDetails';
-import { InteractiveSummaryCard } from '@/components/InteractiveSummaryCard';
+import { Card, CardContent } from '@/components/ui/card';
+import { Plus, Search, List, Filter, ShoppingCart, TrendingUp, DollarSign, User } from 'lucide-react';
 import { EnhancedHeader } from '@/components/EnhancedHeader';
 import { BottomNavigation } from '@/components/BottomNavigation';
-import { Plus, Search, Filter, MapPin, Phone, MessageSquare, ShoppingCart, CheckCircle, DollarSign, Users, X } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { OfflineIndicator } from '@/components/OfflineIndicator';
+import { InteractiveSummaryCard } from '@/components/InteractiveSummaryCard';
+import { MarketListingCard } from '@/components/MarketListingCard';
+import { MarketListingForm } from '@/components/MarketListingForm';
+import { MarketListingDetails } from '@/components/MarketListingDetails';
+import { AdvancedSearchFilters } from '@/components/AdvancedSearchFilters';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface MarketListing {
   id: string;
   title: string;
-  description?: string;
+  category: string;
   price: number;
-  weight?: number;
-  age?: number;
   location: string;
-  contact_method: 'phone' | 'telegram' | 'sms';
-  contact_value: string;
-  is_vet_verified: boolean;
-  photos: string[];
-  created_at: string;
-  system_verified?: boolean;
-  vaccination_history?: boolean;
-  pregnancy_status?: boolean;
-  production_history?: boolean;
+  description: string;
+  photo: string;
+  isFeatured: boolean;
+  isFavorite: boolean;
 }
+
+const mockListings: MarketListing[] = [
+  {
+    id: '1',
+    title: 'Healthy Cow for Sale',
+    category: 'cattle',
+    price: 12000,
+    location: 'Addis Ababa',
+    description: 'High-yield dairy cow, vaccinated and healthy.',
+    photo: '/images/cow1.jpg',
+    isFeatured: true,
+    isFavorite: false,
+  },
+  {
+    id: '2',
+    title: ' Boer Goats - Excellent Breed',
+    category: 'goat',
+    price: 3500,
+    location: 'Adama',
+    description: 'Purebred Boer goats, ideal for breeding.',
+    photo: '/images/goat1.jpg',
+    isFeatured: false,
+    isFavorite: true,
+  },
+  {
+    id: '3',
+    title: 'Free-Range Chickens',
+    category: 'poultry',
+    price: 450,
+    location: 'Bishoftu',
+    description: 'Healthy free-range chickens, great for eggs.',
+    photo: '/images/chicken1.jpg',
+    isFeatured: false,
+    isFavorite: false,
+  },
+  {
+    id: '4',
+    title: 'Dorper Sheep for Sale',
+    category: 'sheep',
+    price: 5000,
+    location: 'Debre Birhan',
+    description: 'High-quality Dorper sheep, excellent meat.',
+    photo: '/images/sheep1.jpg',
+    isFeatured: true,
+    isFavorite: true,
+  },
+];
 
 const Market = () => {
   const { language } = useLanguage();
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [viewMode, setViewMode] = useState<'browse' | 'myListings'>('browse');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({});
+  const [showListingForm, setShowListingForm] = useState(false);
   const [selectedListing, setSelectedListing] = useState<MarketListing | null>(null);
-  const [listings, setListings] = useState<MarketListing[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [typeFilter, setTypeFilter] = useState<string>('all');
-  const [locationFilter, setLocationFilter] = useState('all');
-  const [activeTab, setActiveTab] = useState('livestock');
-  
-  const { toast } = useToast();
 
-  useEffect(() => {
-    fetchListings();
-  }, []);
-
-  const fetchListings = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('market_listings')
-        .select('*')
-        .eq('status', 'active')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      
-      // Ensure contact_method is properly typed
-      const typedListings: MarketListing[] = (data || []).map(listing => ({
-        ...listing,
-        contact_method: listing.contact_method as 'phone' | 'telegram' | 'sms',
-        photos: listing.photos || []
-      }));
-      
-      setListings(typedListings);
-    } catch (error) {
-      console.error('Error fetching listings:', error);
-      toast({
-        title: language === 'am' ? 'ስህተት' : 'Error',
-        description: language === 'am' ? 'ዝርዝሮችን ማምጣት አልተሳካም' : 'Failed to fetch listings',
-        variant: 'destructive'
-      });
-    } finally {
-      setLoading(false);
-    }
+  const handleContact = (listing: MarketListing) => {
+    alert(`Contact seller for ${listing.title}`);
   };
 
-  const handleContact = (contactMethod: string, contactValue: string) => {
-    let contactUrl = '';
-    
-    switch (contactMethod) {
-      case 'telegram':
-        contactUrl = `https://t.me/${contactValue.replace('@', '')}`;
-        break;
-      case 'sms':
-        contactUrl = `sms:${contactValue}`;
-        break;
-      case 'phone':
-      default:
-        contactUrl = `tel:${contactValue}`;
-        break;
-    }
-    
-    window.open(contactUrl, '_blank');
+  const handleFavorite = (listing: MarketListing) => {
+    alert(`Added ${listing.title} to favorites`);
   };
 
-  const filteredListings = listings.filter(listing => {
-    const matchesSearch = listing.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         listing.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesLocation = locationFilter === 'all' || listing.location.toLowerCase().includes(locationFilter.toLowerCase());
-    
-    return matchesSearch && matchesLocation;
+  const handleListingSubmit = (listing: MarketListing) => {
+    alert(`Listing submitted: ${listing.title}`);
+  };
+
+  const handleEditListing = (listing: MarketListing) => {
+    alert(`Editing listing: ${listing.title}`);
+  };
+
+  const filteredListings = mockListings.filter((listing) => {
+    const searchRegex = new RegExp(searchTerm, 'i');
+    const categoryMatch = selectedCategory === 'all' || listing.category === selectedCategory;
+    const searchTermMatch = searchRegex.test(listing.title) || searchRegex.test(listing.description);
+    return categoryMatch && searchTermMatch;
   });
 
-  // Get unique locations for filter
-  const uniqueLocations = [...new Set(listings.map(listing => listing.location))];
-
-  const marketStats = {
-    totalListings: listings.length,
-    vetVerified: listings.filter(l => l.is_vet_verified).length,
-    totalLocations: uniqueLocations.length,
-    averagePrice: listings.length > 0 ? Math.round(listings.reduce((acc, l) => acc + l.price, 0) / listings.length) : 0,
-    activeListings: listings.length,
-    recentListings: listings.filter(l => {
-      const daysSinceCreated = Math.floor((Date.now() - new Date(l.created_at).getTime()) / (1000 * 60 * 60 * 24));
-      return daysSinceCreated <= 7;
-    }).length
+  const translations = {
+    am: {
+      title: 'የገበያ ቦታ',
+      subtitle: 'እንስሳዎችን ይግዙ እና ይሽጡ',
+      sell: 'ይሽጡ',
+      buy: 'ይግዙ',
+      myListings: 'የእኔ ዝርዝሮች',
+      browse: 'ያስሱ',
+      filter: 'ማጣሪያ',
+      search: 'ይፈልጉ',
+      allCategories: 'ሁሉም ምድቦች',
+      priceRange: 'የዋጋ ክልል',
+      location: 'አካባቢ',
+      featured: 'የተመረጡ',
+      recent: 'የቅርብ ጊዜ'
+    },
+    en: {
+      title: 'Marketplace',
+      subtitle: 'Buy and sell animals',
+      sell: 'Sell',
+      buy: 'Buy',
+      myListings: 'My Listings',
+      browse: 'Browse',
+      filter: 'Filter',
+      search: 'Search',
+      allCategories: 'All Categories',
+      priceRange: 'Price Range',
+      location: 'Location',
+      featured: 'Featured',
+      recent: 'Recent'
+    },
+    or: {
+      title: 'Gabaa',
+      subtitle: 'Horii gurgurii fi bituu',
+      sell: 'Gurguri',
+      buy: 'Biti',
+      myListings: 'Tarree Koo',
+      browse: 'Sakatta\'i',
+      filter: 'Calaqqisiisi',
+      search: 'Barbaadi',
+      allCategories: 'Akaakuu Hundaa',
+      priceRange: 'Gatii Daangaa',
+      location: 'Bakka',
+      featured: 'Filatamoo',
+      recent: 'Dhiyoo'
+    },
+    sw: {
+      title: 'Soko',
+      subtitle: 'Nunua na uza wanyama',
+      sell: 'Uza',
+      buy: 'Nunua',
+      myListings: 'Orodha Zangu',
+      browse: 'Vinjari',
+      filter: 'Chuja',
+      search: 'Tafuta',
+      allCategories: 'Kategoria Zote',
+      priceRange: 'Kiwango cha Bei',
+      location: 'Mahali',
+      featured: 'Zilizoangaziwa',
+      recent: 'Za Hivi Karibuni'
+    }
   };
 
-  const TabContent = ({ children }: { children: React.ReactNode }) => (
-    <div className="space-y-6">
-      {children}
-    </div>
-  );
+  const t = translations[language];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 pb-16 sm:pb-20 lg:pb-24">
       <EnhancedHeader />
+      <OfflineIndicator language={language} />
       
-      <main className="container mx-auto px-4 py-6 space-y-6">
-        {/* Page Title with Cancel Button */}
-        <div className="flex items-center justify-between">
-          <div className="text-center flex-1">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
-              {language === 'am' ? 'የእንስሳት ገበያ' : 'Livestock Market'}
-            </h1>
-            <p className="text-gray-600">
-              {language === 'am' 
-                ? 'እንስሳትዎን ይሽጡ ወይም ይግዙ'
-                : 'Buy or sell your livestock'
-              }
-            </p>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => window.history.back()}
-            className="flex items-center space-x-1 text-gray-600 hover:text-gray-800"
+      <main className="container mx-auto px-2 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6 space-y-3 sm:space-y-4 lg:space-y-6">
+        {/* Page Title */}
+        <div className="text-center px-2">
+          <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-800 mb-1 sm:mb-2">
+            🛒 {t.title}
+          </h1>
+          <p className="text-gray-600 text-xs sm:text-sm lg:text-base">
+            {t.subtitle}
+          </p>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
+          <Button 
+            onClick={() => setShowListingForm(true)}
+            className="h-12 sm:h-14 lg:h-16 flex flex-col space-y-1 bg-orange-600 hover:bg-orange-700 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
           >
-            <X className="w-4 h-4" />
-            <span>{language === 'am' ? 'ሰርዝ' : 'Cancel'}</span>
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
+            <span className="font-medium text-center leading-tight">
+              {t.sell}
+            </span>
+          </Button>
+
+          <Button 
+            variant="outline" 
+            onClick={() => setViewMode('browse')}
+            className="h-12 sm:h-14 lg:h-16 flex flex-col space-y-1 border-green-200 hover:bg-green-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
+          >
+            <Search className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-green-500" />
+            <span className="font-medium text-center leading-tight">
+              {t.browse}
+            </span>
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            onClick={() => setViewMode('myListings')}
+            className="h-12 sm:h-14 lg:h-16 flex flex-col space-y-1 border-blue-200 hover:bg-blue-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
+          >
+            <List className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-500" />
+            <span className="font-medium text-center leading-tight">
+              {t.myListings}
+            </span>
+          </Button>
+
+          <Button 
+            variant="outline" 
+            onClick={() => setShowFilters(!showFilters)}
+            className="h-12 sm:h-14 lg:h-16 flex flex-col space-y-1 border-purple-200 hover:bg-purple-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
+          >
+            <Filter className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-purple-500" />
+            <span className="font-medium text-center leading-tight">
+              {t.filter}
+            </span>
           </Button>
         </div>
 
-        {/* Market Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="livestock">
-              {language === 'am' ? 'እንስሳት' : 'Livestock'}
-            </TabsTrigger>
-            <TabsTrigger value="feed">
-              {language === 'am' ? 'መኖ' : 'Feed'}
-            </TabsTrigger>
-            <TabsTrigger value="medicine">
-              {language === 'am' ? 'መድኃኒት' : 'Medicine'}
-            </TabsTrigger>
-          </TabsList>
+        {/* Market Stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
+          <InteractiveSummaryCard
+            title="Active Listings"
+            titleAm="ንቁ ዝርዝሮች"
+            titleOr="Tarreewwan Ka\'aan"
+            titleSw="Orodha Zinazofanya Kazi"
+            value={mockListings.length}
+            icon={<ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
+            color="orange"
+            language={language}
+          />
+          
+          <InteractiveSummaryCard
+            title="Sold This Week"
+            titleAm="በዚህ ሳምንት የተሸጡ"
+            titleOr="Torban Kana Gurguraman"
+            titleSw="Ziliouzwa Wiki Hii"
+            value={12}
+            icon={<TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
+            color="green"
+            language={language}
+          />
 
-          <TabsContent value="livestock">
-            <TabContent>
-              {/* Quick Actions */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Button 
-                  className="h-24 flex flex-col space-y-2 bg-emerald-600 hover:bg-emerald-700 transition-all duration-300 hover:scale-105 active:scale-95"
-                  onClick={() => setShowCreateForm(true)}
-                >
-                  <Plus className="w-8 h-8" />
-                  <span className="text-lg font-medium">
-                    {language === 'am' ? 'ለሽያጭ ያስቀምጡ' : 'List for Sale'}
-                  </span>
-                </Button>
-                
-                <Button 
-                  variant="outline" 
-                  className="h-24 flex flex-col space-y-2 border-emerald-200 hover:bg-emerald-50 transition-all duration-300 hover:scale-105 active:scale-95"
-                  onClick={() => document.getElementById('listings-section')?.scrollIntoView({ behavior: 'smooth' })}
-                >
-                  <Search className="w-8 h-8" />
-                  <span className="text-lg font-medium">
-                    {language === 'am' ? 'እንስሳት ይፈልጉ' : 'Browse Animals'}
-                  </span>
-                </Button>
-              </div>
+          <InteractiveSummaryCard
+            title="Average Price"
+            titleAm="አማካይ ዋጋ"
+            titleOr="Gatii Giddugaleessa"
+            titleSw="Bei ya Wastani"
+            value="15,000 ETB"
+            icon={<DollarSign className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
+            color="blue"
+            language={language}
+          />
 
-              {/* Interactive Market Statistics */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
-                <InteractiveSummaryCard
-                  title="Total Listings"
-                  titleAm="ጠቅላላ ዝርዝሮች"
-                  value={marketStats.totalListings}
-                  icon={<ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />}
-                  color="green"
-                  onClick={() => {}}
-                />
-                
-                <InteractiveSummaryCard
-                  title="Vet Verified"
-                  titleAm="ዶክተር ማረጋገጫ"
-                  value={marketStats.vetVerified}
-                  icon={<CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />}
-                  color="blue"
-                  onClick={() => {}}
-                />
-                
-                <InteractiveSummaryCard
-                  title="Locations"
-                  titleAm="አካባቢዎች"
-                  value={marketStats.totalLocations}
-                  icon={<MapPin className="w-4 h-4 sm:w-5 sm:h-5" />}
-                  color="purple"
-                  onClick={() => {}}
-                />
-                
-                <InteractiveSummaryCard
-                  title="Avg Price"
-                  titleAm="አማካኝ ዋጋ"
-                  value={marketStats.averagePrice}
-                  icon={<DollarSign className="w-4 h-4 sm:w-5 sm:h-5" />}
-                  color="orange"
-                  currency={true}
-                  onClick={() => {}}
-                />
-                
-                <InteractiveSummaryCard
-                  title="Active"
-                  titleAm="ንቁ"
-                  value={marketStats.activeListings}
-                  icon={<Users className="w-4 h-4 sm:w-5 sm:h-5" />}
-                  color="emerald"
-                  onClick={() => {}}
-                />
-                
-                <InteractiveSummaryCard
-                  title="Recent"
-                  titleAm="አዲስ"
-                  value={marketStats.recentListings}
-                  icon={<Plus className="w-4 h-4 sm:w-5 sm:h-5" />}
-                  color="teal"
-                  onClick={() => {}}
-                />
-              </div>
+          <InteractiveSummaryCard
+            title="My Sales"
+            titleAm="የእኔ ሽያጭ"
+            titleOr="Gurgurtaa Koo"
+            titleSw="Mauzo Yangu"
+            value="5"
+            icon={<User className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
+            color="purple"
+            language={language}
+          />
+        </div>
 
-              {/* Search and Filters */}
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-green-100 space-y-4" id="listings-section">
-                <div className="flex items-center space-x-2">
-                  <Search className="w-5 h-5 text-gray-400" />
-                  <Input
-                    placeholder={language === 'am' ? 'እንስሳት ይፈልጉ...' : 'Search animals...'}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="flex-1"
-                  />
-                </div>
-                
-                <div className="flex space-x-2">
-                  <Select value={locationFilter} onValueChange={setLocationFilter}>
-                    <SelectTrigger className="w-48">
-                      <SelectValue placeholder={language === 'am' ? 'አካባቢ' : 'Location'} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">
-                        {language === 'am' ? 'ሁሉም አካባቢዎች' : 'All Locations'}
-                      </SelectItem>
-                      {uniqueLocations.map(location => (
-                        <SelectItem key={location} value={location}>
-                          {location}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+        {/* Search Bar */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
+          <div className="flex-1">
+            <Input
+              placeholder={
+                language === 'am' ? 'እንስሳዎችን ይፈልጉ...' :
+                language === 'or' ? 'Horii barbaadi...' :
+                language === 'sw' ? 'Tafuta wanyama...' :
+                'Search animals...'
+              }
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="h-8 sm:h-9 lg:h-10 text-xs sm:text-sm"
+            />
+          </div>
+          
+          <div className="flex space-x-2">
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="w-32 sm:w-40 h-8 sm:h-9 lg:h-10 text-xs sm:text-sm">
+                <SelectValue placeholder={t.allCategories} />
+              </SelectTrigger>
+              <SelectContent className="bg-white border shadow-lg z-50">
+                <SelectItem value="all">{t.allCategories}</SelectItem>
+                <SelectItem value="cattle">🐄 {language === 'am' ? 'ከብት' : language === 'or' ? 'Loon' : language === 'sw' ? 'Ng\'ombe' : 'Cattle'}</SelectItem>
+                <SelectItem value="goat">🐐 {language === 'am' ? 'ፍየል' : language === 'or' ? 'Re\'ee' : language === 'sw' ? 'Mbuzi' : 'Goat'}</SelectItem>
+                <SelectItem value="sheep">🐑 {language === 'am' ? 'በግ' : language === 'or' ? 'Hoolaa' : language === 'sw' ? 'Kondoo' : 'Sheep'}</SelectItem>
+                <SelectItem value="poultry">🐔 {language === 'am' ? 'ዶሮ' : language === 'or' ? 'Lukku' : language === 'sw' ? 'Kuku' : 'Poultry'}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
-              {/* Listings Grid */}
-              <div>
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                  {language === 'am' ? 'የእንስሳት ዝርዝሮች' : 'Animal Listings'}
-                  {filteredListings.length > 0 && (
-                    <span className="text-gray-500 font-normal ml-2">
-                      ({filteredListings.length} {language === 'am' ? 'ውጤቶች' : 'results'})
-                    </span>
-                  )}
-                </h2>
-                
-                {loading ? (
-                  // ... keep existing code (loading skeleton)
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {[1, 2, 3, 4, 5, 6].map(i => (
-                      <div key={i} className="bg-white rounded-xl p-4 shadow-sm border border-green-100 animate-pulse">
-                        <div className="w-full h-48 bg-gray-200 rounded-lg mb-4"></div>
-                        <div className="space-y-2">
-                          <div className="h-4 bg-gray-200 rounded"></div>
-                          <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-                          <div className="h-6 bg-gray-200 rounded w-1/3"></div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : filteredListings.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {filteredListings.map((listing) => (
-                      <MarketListingCard
-                        key={listing.id}
-                        listing={listing}
-                        language={language}
-                        onContact={handleContact}
-                        onViewDetails={setSelectedListing}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <Search className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                    <h3 className="text-lg font-semibold text-gray-600 mb-2">
-                      {language === 'am' ? 'ምንም ዝርዝር አልተገኘም' : 'No listings found'}
-                    </h3>
-                    <p className="text-gray-500 mb-4">
-                      {language === 'am' 
-                        ? 'የተለያዩ ቃላት ይሞክሩ ወይም ማጣሪያዎቹን ይለውጡ'
-                        : 'Try different search terms or adjust your filters'
-                      }
-                    </p>
-                    <Button 
-                      onClick={() => setShowCreateForm(true)}
-                      className="bg-green-600 hover:bg-green-700 transition-all duration-300 hover:scale-105 active:scale-95"
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      {language === 'am' ? 'የመጀመሪያው ዝርዝር ይፍጠሩ' : 'Create First Listing'}
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </TabContent>
-          </TabsContent>
+        {/* Advanced Filters */}
+        {showFilters && (
+          <Card className="border-orange-100">
+            <CardContent className="p-3 sm:p-4 lg:p-6">
+              <AdvancedSearchFilters
+                filters={filters}
+                onFiltersChange={setFilters}
+                language={language}
+                context="market"
+              />
+            </CardContent>
+          </Card>
+        )}
 
-          <TabsContent value="feed">
-            <TabContent>
-              <div className="text-center py-12">
-                <div className="text-6xl mb-4">🌾</div>
-                <h3 className="text-lg font-semibold text-gray-600 mb-2">
-                  {language === 'am' ? 'የመኖ ገበያ' : 'Feed Market'}
-                </h3>
-                <p className="text-gray-500">
-                  {language === 'am' ? 'በቅርቡ ይመጣል' : 'Coming Soon'}
-                </p>
-              </div>
-            </TabContent>
-          </TabsContent>
+        {/* Market Listings */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+          {filteredListings.map((listing) => (
+            <MarketListingCard
+              key={listing.id}
+              listing={listing}
+              language={language}
+              onContact={handleContact}
+              onFavorite={handleFavorite}
+              onClick={() => setSelectedListing(listing)}
+            />
+          ))}
+        </div>
 
-          <TabsContent value="medicine">
-            <TabContent>
-              <div className="text-center py-12">
-                <div className="text-6xl mb-4">💊</div>
-                <h3 className="text-lg font-semibold text-gray-600 mb-2">
-                  {language === 'am' ? 'የመድኃኒት ገበያ' : 'Medicine Market'}
-                </h3>
-                <p className="text-gray-500">
-                  {language === 'am' ? 'በቅርቡ ይመጣል' : 'Coming Soon'}
-                </p>
+        {/* Load More */}
+        {filteredListings.length === 0 && (
+          <Card className="text-center py-8 sm:py-12 mx-2 sm:mx-0">
+            <CardContent className="px-3 sm:px-6">
+              <div className="text-gray-500 mb-3 sm:mb-4 text-sm sm:text-base">
+                {language === 'am' ? 'ምንም ዝርዝር አልተገኘም' :
+                 language === 'or' ? 'Tarreen tokkollee hin argamne' :
+                 language === 'sw' ? 'Hakuna orodha iliyopatikana' :
+                 'No listings found'}
               </div>
-            </TabContent>
-          </TabsContent>
-        </Tabs>
+            </CardContent>
+          </Card>
+        )}
       </main>
 
       <BottomNavigation language={language} />
 
-      {/* Create Listing Form Modal */}
-      {showCreateForm && (
+      {/* Listing Form */}
+      {showListingForm && (
         <MarketListingForm
           language={language}
-          onClose={() => setShowCreateForm(false)}
-          onSuccess={fetchListings}
+          onClose={() => setShowListingForm(false)}
+          onSubmit={handleListingSubmit}
         />
       )}
 
-      {/* Listing Details Modal */}
+      {/* Listing Details */}
       {selectedListing && (
         <MarketListingDetails
           listing={selectedListing}
           language={language}
           onClose={() => setSelectedListing(null)}
           onContact={handleContact}
+          onEdit={handleEditListing}
         />
       )}
     </div>

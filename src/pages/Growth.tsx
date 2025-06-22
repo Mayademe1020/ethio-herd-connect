@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { WeightEntryForm } from '@/components/WeightEntryForm';
@@ -87,7 +86,7 @@ const Growth = () => {
       addToQueue('growth', weightData);
       showSuccess(
         language === 'am' ? 'ክብደት ታክሏል' : 'Weight Added',
-        language === 'am' ? 'ከመስመር ወጪ ሁኔታ። ሲመለስ ይሰምራል።' : 'Saved offline. Will sync when online.'
+        language === 'am' ? 'ከመስመር ሁኔታ። ሲመለስ ይሰምራል።' : 'Saved offline. Will sync when online.'
       );
     } else {
       showSuccess(

@@ -1,157 +1,136 @@
 
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface InteractiveSummaryCardProps {
   title: string;
-  titleAm: string;
-  value: number | string;
+  titleAm?: string;
+  titleOr?: string;
+  titleSw?: string;
+  value: string | number;
   icon: React.ReactNode;
-  color?: string;
-  badge?: string;
-  badgeAm?: string;
-  navigateTo?: string;
+  color: 'blue' | 'green' | 'yellow' | 'red' | 'purple' | 'orange' | 'emerald';
+  language: 'am' | 'en' | 'or' | 'sw';
   onClick?: () => void;
   disabled?: boolean;
-  className?: string;
-  currency?: boolean;
+  trend?: {
+    value: number;
+    isPositive: boolean;
+  };
 }
 
 export const InteractiveSummaryCard: React.FC<InteractiveSummaryCardProps> = ({
   title,
   titleAm,
+  titleOr,
+  titleSw,
   value,
   icon,
-  color = 'green',
-  badge,
-  badgeAm,
-  navigateTo,
+  color,
+  language,
   onClick,
   disabled = false,
-  className = '',
-  currency = false,
-  ...props
+  trend
 }) => {
-  const navigate = useNavigate();
-
-  const handleClick = () => {
-    if (disabled) return;
-    if (onClick) {
-      onClick();
-    } else if (navigateTo) {
-      navigate(navigateTo);
+  const getTitle = () => {
+    switch (language) {
+      case 'am':
+        return titleAm || title;
+      case 'or':
+        return titleOr || title;
+      case 'sw':
+        return titleSw || title;
+      default:
+        return title;
     }
-  };
-
-  const formatValue = (val: number | string) => {
-    if (currency && typeof val === 'number') {
-      return `₹${val.toLocaleString()}`;
-    }
-    return val;
   };
 
   const colorClasses = {
-    green: disabled ? 'border-gray-200 bg-gray-50' : 'border-green-200 hover:border-green-300 hover:bg-green-50',
-    blue: disabled ? 'border-gray-200 bg-gray-50' : 'border-blue-200 hover:border-blue-300 hover:bg-blue-50',
-    orange: disabled ? 'border-gray-200 bg-gray-50' : 'border-orange-200 hover:border-orange-300 hover:bg-orange-50',
-    red: disabled ? 'border-gray-200 bg-gray-50' : 'border-red-200 hover:border-red-300 hover:bg-red-50',
-    purple: disabled ? 'border-gray-200 bg-gray-50' : 'border-purple-200 hover:border-purple-300 hover:bg-purple-50',
-    yellow: disabled ? 'border-gray-200 bg-gray-50' : 'border-yellow-200 hover:border-yellow-300 hover:bg-yellow-50',
-    teal: disabled ? 'border-gray-200 bg-gray-50' : 'border-teal-200 hover:border-teal-300 hover:bg-teal-50',
-    emerald: disabled ? 'border-gray-200 bg-gray-50' : 'border-emerald-200 hover:border-emerald-300 hover:bg-emerald-50',
+    blue: {
+      bg: 'bg-blue-50 hover:bg-blue-100',
+      border: 'border-blue-200',
+      icon: 'text-blue-600',
+      text: 'text-blue-900',
+      value: 'text-blue-700'
+    },
+    green: {
+      bg: 'bg-green-50 hover:bg-green-100',
+      border: 'border-green-200',
+      icon: 'text-green-600',
+      text: 'text-green-900',
+      value: 'text-green-700'
+    },
+    yellow: {
+      bg: 'bg-yellow-50 hover:bg-yellow-100',
+      border: 'border-yellow-200',
+      icon: 'text-yellow-600',
+      text: 'text-yellow-900',
+      value: 'text-yellow-700'
+    },
+    red: {
+      bg: 'bg-red-50 hover:bg-red-100',
+      border: 'border-red-200',
+      icon: 'text-red-600',
+      text: 'text-red-900',
+      value: 'text-red-700'
+    },
+    purple: {
+      bg: 'bg-purple-50 hover:bg-purple-100',
+      border: 'border-purple-200',
+      icon: 'text-purple-600',
+      text: 'text-purple-900',
+      value: 'text-purple-700'
+    },
+    orange: {
+      bg: 'bg-orange-50 hover:bg-orange-100',
+      border: 'border-orange-200',
+      icon: 'text-orange-600',
+      text: 'text-orange-900',
+      value: 'text-orange-700'
+    },
+    emerald: {
+      bg: 'bg-emerald-50 hover:bg-emerald-100',
+      border: 'border-emerald-200',
+      icon: 'text-emerald-600',
+      text: 'text-emerald-900',
+      value: 'text-emerald-700'
+    }
   };
 
-  const iconColorClasses = {
-    green: disabled ? 'text-gray-400' : 'text-green-600',
-    blue: disabled ? 'text-gray-400' : 'text-blue-600',
-    orange: disabled ? 'text-gray-400' : 'text-orange-600',
-    red: disabled ? 'text-gray-400' : 'text-red-600',
-    purple: disabled ? 'text-gray-400' : 'text-purple-600',
-    yellow: disabled ? 'text-gray-400' : 'text-yellow-600',
-    teal: disabled ? 'text-gray-400' : 'text-teal-600',
-    emerald: disabled ? 'text-gray-400' : 'text-emerald-600',
-  };
-
-  if (disabled && value === 0) {
-    return (
-      <Card className={`opacity-50 cursor-not-allowed border-gray-200 bg-gray-50 ${className}`}>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-3 py-2 sm:px-4 sm:py-3">
-          <CardTitle className="text-xs sm:text-sm font-medium text-gray-400">
-            {titleAm}
-          </CardTitle>
-          <div className="flex items-center space-x-2">
-            <div className="text-gray-400 w-4 h-4 sm:w-5 sm:h-5">
-              {icon}
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="px-3 py-2 sm:px-4 sm:py-3">
-          <div className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-400">
-            {formatValue(value)}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  const classes = colorClasses[color];
 
   return (
     <Card 
       className={`
-        cursor-pointer 
-        transition-all 
-        duration-300 
-        ease-in-out 
-        transform
-        hover:shadow-xl 
-        hover:scale-105 
-        active:scale-95 
-        border-2
-        ${colorClasses[color as keyof typeof colorClasses]}
+        ${classes.border} ${onClick && !disabled ? classes.bg : 'bg-white'} 
+        transition-all duration-300 
+        ${onClick && !disabled ? 'cursor-pointer hover:scale-105 active:scale-95 hover:shadow-md' : ''}
+        ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
         touch-manipulation
-        min-h-[120px] sm:min-h-[140px] lg:min-h-[160px]
-        ${className}
       `}
-      onClick={handleClick}
+      onClick={onClick && !disabled ? onClick : undefined}
     >
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-3 py-2 sm:px-4 sm:py-3">
-        <CardTitle className={`text-xs sm:text-sm font-medium transition-colors duration-200 ${
-          disabled ? 'text-gray-400' : 'text-gray-600 group-hover:text-green-700'
-        }`}>
-          {titleAm}
-        </CardTitle>
-        <div className="flex items-center space-x-2">
-          <div className={`transition-colors duration-200 w-4 h-4 sm:w-5 sm:h-5 ${
-            iconColorClasses[color as keyof typeof iconColorClasses]
-          }`}>
+      <CardContent className="p-2 sm:p-3 lg:p-4">
+        <div className="flex items-center justify-between">
+          <div className="flex-1 min-w-0">
+            <p className={`text-xs sm:text-sm font-medium ${classes.text} truncate mb-1`}>
+              {getTitle()}
+            </p>
+            <div className="flex items-baseline space-x-1 sm:space-x-2">
+              <p className={`text-lg sm:text-xl lg:text-2xl font-bold ${classes.value} leading-none`}>
+                {typeof value === 'number' ? value.toLocaleString() : value}
+              </p>
+              {trend && (
+                <span className={`text-xs ${trend.isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                  {trend.isPositive ? '↗️' : '↘️'} {Math.abs(trend.value)}%
+                </span>
+              )}
+            </div>
+          </div>
+          <div className={`${classes.icon} flex-shrink-0 ml-2 sm:ml-3`}>
             {icon}
           </div>
-          {!disabled && (
-            <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 group-hover:text-green-600 transition-all duration-200 transform group-hover:translate-x-1" />
-          )}
         </div>
-      </CardHeader>
-      <CardContent className="px-3 py-2 sm:px-4 sm:py-3 space-y-2">
-        <div className={`text-xl sm:text-2xl lg:text-3xl font-bold transition-colors duration-200 ${
-          disabled ? 'text-gray-400' : 'text-gray-900 group-hover:text-green-800'
-        }`}>
-          {formatValue(value)}
-        </div>
-        {badge && !disabled && (
-          <Badge className={`text-xs transition-colors duration-200 ${
-            color === 'green' ? 'bg-green-100 text-green-800' :
-            color === 'blue' ? 'bg-blue-100 text-blue-800' :
-            color === 'orange' || color === 'red' ? 'bg-orange-100 text-orange-800' :
-            color === 'purple' ? 'bg-purple-100 text-purple-800' :
-            color === 'yellow' ? 'bg-yellow-100 text-yellow-800' :
-            color === 'teal' ? 'bg-teal-100 text-teal-800' :
-            'bg-emerald-100 text-emerald-800'
-          }`}>
-            {badgeAm || badge}
-          </Badge>
-        )}
       </CardContent>
     </Card>
   );
