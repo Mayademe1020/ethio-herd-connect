@@ -9,19 +9,21 @@ import { X, Plus, Phone, Trash2, Users, Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
+interface StaffPermissions {
+  view_records: boolean;
+  update_health: boolean;
+  register_animals: boolean;
+  manage_market: boolean;
+  view_reports: boolean;
+}
+
 interface StaffMember {
   id: string;
   phone: string;
   name: string;
   role: string;
   status: 'active' | 'pending' | 'inactive';
-  permissions: {
-    view_records: boolean;
-    update_health: boolean;
-    register_animals: boolean;
-    manage_market: boolean;
-    view_reports: boolean;
-  };
+  permissions: StaffPermissions;
   created_at: string;
 }
 
@@ -42,7 +44,7 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({
     phone: '',
     role: 'assistant'
   });
-  const [newPermissions, setNewPermissions] = useState({
+  const [newPermissions, setNewPermissions] = useState<StaffPermissions>({
     view_records: true,
     update_health: true,
     register_animals: false,
@@ -66,22 +68,50 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({
 
       if (error) throw error;
 
-      // Transform data to match our interface
-      const transformedData: StaffMember[] = (data || []).map(item => ({
-        id: item.id,
-        phone: item.assistant_user_id, // Using this as phone for now
-        name: `Staff Member ${item.id.slice(0, 8)}`, // Generate name from ID
-        role: 'assistant',
-        status: item.status as 'active' | 'pending' | 'inactive',
-        permissions: item.permissions || {
-          view_records: true,
-          update_health: true,
-          register_animals: false,
-          manage_market: false,
-          view_reports: false
-        },
-        created_at: item.created_at
-      }));
+      // Transform data to match our interface with proper type handling
+      const transformedData: StaffMember[] = (data || []).map(item => {
+        // Safely parse permissions with fallback
+        let permissions: StaffPermissions;
+        try {
+          if (typeof item.permissions === 'object' && item.permissions !== null) {
+            permissions = {
+              view_records: Boolean((item.permissions as any).view_records ?? true),
+              update_health: Boolean((item.permissions as any).update_health ?? true),
+              register_animals: Boolean((item.permissions as any).register_animals ?? false),
+              manage_market: Boolean((item.permissions as any).manage_market ?? false),
+              view_reports: Boolean((item.permissions as any).view_reports ?? false)
+            };
+          } else {
+            // Default permissions if none exist
+            permissions = {
+              view_records: true,
+              update_health: true,
+              register_animals: false,
+              manage_market: false,
+              view_reports: false
+            };
+          }
+        } catch {
+          // Fallback permissions
+          permissions = {
+            view_records: true,
+            update_health: true,
+            register_animals: false,
+            manage_market: false,
+            view_reports: false
+          };
+        }
+
+        return {
+          id: item.id,
+          phone: item.assistant_user_id, // Using this as phone for now
+          name: `Staff Member ${item.id.slice(0, 8)}`, // Generate name from ID
+          role: 'assistant',
+          status: item.status as 'active' | 'pending' | 'inactive',
+          permissions,
+          created_at: item.created_at
+        };
+      });
 
       setStaffMembers(transformedData);
     } catch (error) {
@@ -297,9 +327,7 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({
                     {language === 'am' ? 'ሰራተኛ ጨምር' : 'Add Staff'}
                   </Button>
                   <Button variant="outline" onClick={() => setShowAddForm(false)}>
-                    {language ===
-
- 'am' ? 'ሰርዝ' : 'Cancel'}
+                    {language === 'am' ? 'ሰርዝ' : 'Cancel'}
                   </Button>
                 </div>
               </CardContent>
