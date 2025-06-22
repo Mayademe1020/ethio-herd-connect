@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -142,12 +141,12 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({
 
       const { error } = await supabase
         .from('farm_assistants')
-        .insert([{
+        .insert({
           farm_owner_id: user.id,
           assistant_user_id: newStaff.phone, // Using phone as identifier
-          permissions: newPermissions,
+          permissions: newPermissions as any, // Cast to Json type
           status: 'active'
-        }]);
+        });
 
       if (error) throw error;
 
