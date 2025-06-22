@@ -10,6 +10,8 @@ import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { useToast } from '@/hooks/use-toast';
 import { DatePicker } from './DatePicker';
 import { breedsByType } from '@/utils/breedData';
+import { AnimalIdDisplay } from '@/components/AnimalIdDisplay';
+import { generateAnimalId, validateInput, sanitizeInput } from '@/utils/animalIdGenerator';
 
 interface PoultryGroupFormProps {
   language: 'am' | 'en';
@@ -33,6 +35,7 @@ export const PoultryGroupForm: React.FC<PoultryGroupFormProps> = ({
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [farmProfile, setFarmProfile] = useState<any>(null);
+  const [generatedGroupId, setGeneratedGroupId] = useState<string>('');
   
   const { addToQueue, isOnline } = useOfflineSync();
   const { toast } = useToast();
@@ -40,6 +43,13 @@ export const PoultryGroupForm: React.FC<PoultryGroupFormProps> = ({
   React.useEffect(() => {
     fetchFarmProfile();
   }, []);
+
+  React.useEffect(() => {
+    if (farmProfile) {
+      const newId = generateAnimalId('poultry', farmProfile.farm_prefix || 'FARM');
+      setGeneratedGroupId(newId.replace('POU-', 'GRP-'));
+    }
+  }, [farmProfile]);
 
   const fetchFarmProfile = async () => {
     try {
@@ -53,34 +63,15 @@ export const PoultryGroupForm: React.FC<PoultryGroupFormProps> = ({
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.groupName.trim()) {
+    if (!validateInput(formData.groupName, 'name')) {
       newErrors.groupName = language === 'am' ? 'የቡድን ስም ያስፈልጋል' : 'Group name is required';
     }
-    if (!formData.totalCount || parseInt(formData.totalCount) <= 0) {
-      newErrors.totalCount = language === 'am' ? 'ትክክለኛ ቁጥር ያስገቡ' : 'Please enter a valid count';
+    if (!formData.totalCount || !validateInput(formData.totalCount, 'count')) {
+      newErrors.totalCount = language === 'am' ? 'ትክክለኛ ቁጥር ያስገቡ (1-10000)' : 'Please enter a valid count (1-10000)';
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
-
-  const generateGroupCode = async (userId: string): Promise<string> => {
-    const farmPrefix = farmProfile?.farm_prefix || 'FARM';
-    
-    try {
-      const { data, error } = await supabase.rpc('generate_poultry_group_code', {
-        p_user_id: userId,
-        p_farm_prefix: farmPrefix
-      });
-
-      if (error) throw error;
-      return data;
-    } catch (error) {
-      console.error('Error generating group code:', error);
-      const randomNum = Math.floor(Math.random() * 100).toString().padStart(2, '0');
-      const dateCode = new Date().toISOString().slice(2, 10).replace(/-/g, '');
-      return `${farmPrefix}-POULTRY-GRP${randomNum}-${dateCode}`;
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -94,19 +85,18 @@ export const PoultryGroupForm: React.FC<PoultryGroupFormProps> = ({
       const user = (await supabase.auth.getUser()).data.user;
       if (!user) throw new Error('User not authenticated');
 
-      const groupCode = await generateGroupCode(user.id);
-      const finalBreed = formData.breed === 'other' ? formData.customBreed : formData.breed;
+      const finalBreed = formData.breed === 'other' ? sanitizeInput(formData.customBreed) : formData.breed;
       const totalCount = parseInt(formData.totalCount);
 
       const groupData = {
         user_id: user.id,
-        group_code: groupCode,
-        group_name: formData.groupName,
+        group_code: generatedGroupId,
+        group_name: sanitizeInput(formData.groupName),
         breed: finalBreed || null,
         total_count: totalCount,
         current_count: totalCount,
         batch_date: batchDate?.toISOString().split('T')[0],
-        notes: formData.notes || null
+        notes: sanitizeInput(formData.notes) || null
       };
 
       if (isOnline) {
@@ -116,8 +106,8 @@ export const PoultryGroupForm: React.FC<PoultryGroupFormProps> = ({
         toast({
           title: language === 'am' ? 'ተሳክቷል' : 'Success',
           description: language === 'am' 
-            ? `${formData.groupName} (${groupCode}) ተመዝግቧል` 
-            : `${formData.groupName} (${groupCode}) registered successfully`
+            ? `${formData.groupName} (${generatedGroupId}) ተመዝግቧል` 
+            : `${formData.groupName} (${generatedGroupId}) registered successfully`
         });
       } else {
         addToQueue('poultry_group', groupData);
@@ -142,37 +132,52 @@ export const PoultryGroupForm: React.FC<PoultryGroupFormProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="flex items-center space-x-2">
-            <Users className="w-5 h-5" />
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
+      <Card className="w-full max-w-lg max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+        <CardHeader className="flex flex-row items-center justify-between pb-2 sm:pb-4">
+          <CardTitle className="text-sm sm:text-base lg:text-lg flex items-center space-x-1 sm:space-x-2">
+            <Users className="w-4 h-4 sm:w-5 sm:h-5" />
             <span>{language === 'am' ? 'የዶሮ ቡድን ምዝገባ' : 'Register Poultry Group'}</span>
           </CardTitle>
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="w-4 h-4" />
+          <Button variant="ghost" size="sm" onClick={onClose} className="h-6 w-6 sm:h-8 sm:w-8 p-0">
+            <X className="w-3 h-3 sm:w-4 sm:h-4" />
           </Button>
         </CardHeader>
         
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <CardContent className="px-3 sm:px-6 space-y-3 sm:space-y-4">
+          {/* Generated Group ID Preview */}
+          {generatedGroupId && (
+            <div className="bg-green-50 p-2 sm:p-3 rounded-lg">
+              <label className="text-xs sm:text-sm font-medium text-green-800 mb-1 sm:mb-2 block">
+                {language === 'am' ? 'የቡድን መለያ' : 'Group ID'}
+              </label>
+              <AnimalIdDisplay 
+                animalId={generatedGroupId} 
+                showCopy={true}
+                size="sm"
+              />
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
             {/* Group Name */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
+            <div className="space-y-1 sm:space-y-2">
+              <label className="text-xs sm:text-sm font-medium">
                 {language === 'am' ? 'የቡድን ስም' : 'Group Name'} *
               </label>
               <Input
                 value={formData.groupName}
                 onChange={(e) => setFormData(prev => ({ ...prev, groupName: e.target.value }))}
                 placeholder={language === 'am' ? 'ምሳሌ: የመጀመሪያ ቡድን' : 'Example: Batch 1'}
+                className="h-8 sm:h-10 text-xs sm:text-sm"
               />
-              {errors.groupName && <p className="text-sm text-red-600">{errors.groupName}</p>}
+              {errors.groupName && <p className="text-xs text-red-600">{errors.groupName}</p>}
             </div>
 
             {/* Batch Date */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium flex items-center space-x-2">
-                <Calendar className="w-4 h-4" />
+            <div className="space-y-1 sm:space-y-2">
+              <label className="text-xs sm:text-sm font-medium flex items-center space-x-1 sm:space-x-2">
+                <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
                 <span>{language === 'am' ? 'የቡድን ቀን' : 'Batch Date'}</span>
               </label>
               <DatePicker
@@ -184,12 +189,12 @@ export const PoultryGroupForm: React.FC<PoultryGroupFormProps> = ({
             </div>
 
             {/* Breed */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
+            <div className="space-y-1 sm:space-y-2">
+              <label className="text-xs sm:text-sm font-medium">
                 {language === 'am' ? 'ዝርያ' : 'Breed'}
               </label>
               <Select value={formData.breed} onValueChange={(value) => setFormData(prev => ({ ...prev, breed: value }))}>
-                <SelectTrigger>
+                <SelectTrigger className="h-8 sm:h-10 text-xs sm:text-sm">
                   <SelectValue placeholder={language === 'am' ? 'ዝርያ ይምረጡ' : 'Select breed'} />
                 </SelectTrigger>
                 <SelectContent>
@@ -209,14 +214,14 @@ export const PoultryGroupForm: React.FC<PoultryGroupFormProps> = ({
                   value={formData.customBreed}
                   onChange={(e) => setFormData(prev => ({ ...prev, customBreed: e.target.value }))}
                   placeholder={language === 'am' ? 'ዝርያ ይጻፉ' : 'Enter breed name'}
-                  className="mt-2"
+                  className="mt-1 sm:mt-2 h-8 sm:h-10 text-xs sm:text-sm"
                 />
               )}
             </div>
 
             {/* Total Count */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
+            <div className="space-y-1 sm:space-y-2">
+              <label className="text-xs sm:text-sm font-medium">
                 {language === 'am' ? 'ጠቅላላ ቁጥር' : 'Total Count'} *
               </label>
               <Input
@@ -225,28 +230,31 @@ export const PoultryGroupForm: React.FC<PoultryGroupFormProps> = ({
                 onChange={(e) => setFormData(prev => ({ ...prev, totalCount: e.target.value }))}
                 placeholder={language === 'am' ? 'የዶሮዎች ቁጥር' : 'Number of birds'}
                 min="1"
+                max="10000"
+                className="h-8 sm:h-10 text-xs sm:text-sm"
               />
-              {errors.totalCount && <p className="text-sm text-red-600">{errors.totalCount}</p>}
+              {errors.totalCount && <p className="text-xs text-red-600">{errors.totalCount}</p>}
             </div>
 
             {/* Notes */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
+            <div className="space-y-1 sm:space-y-2">
+              <label className="text-xs sm:text-sm font-medium">
                 {language === 'am' ? 'ማስታወሻ' : 'Notes'}
               </label>
               <Input
                 value={formData.notes}
                 onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                 placeholder={language === 'am' ? 'ተጨማሪ መረጃ' : 'Additional notes'}
+                className="h-8 sm:h-10 text-xs sm:text-sm"
               />
             </div>
 
             {/* Submit Button */}
-            <div className="flex space-x-3 pt-4">
+            <div className="flex space-x-2 sm:space-x-3 pt-2 sm:pt-4">
               <Button
                 type="submit"
                 disabled={loading}
-                className="flex-1 bg-green-600 hover:bg-green-700"
+                className="flex-1 bg-green-600 hover:bg-green-700 h-8 sm:h-10 text-xs sm:text-sm"
               >
                 {loading ? (
                   language === 'am' ? 'እየተመዘገበ...' : 'Registering...'
@@ -254,7 +262,12 @@ export const PoultryGroupForm: React.FC<PoultryGroupFormProps> = ({
                   language === 'am' ? 'ቡድን ይመዝግቡ' : 'Register Group'
                 )}
               </Button>
-              <Button type="button" variant="outline" onClick={onClose}>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={onClose}
+                className="h-8 sm:h-10 text-xs sm:text-sm px-3 sm:px-4"
+              >
                 {language === 'am' ? 'ሰርዝ' : 'Cancel'}
               </Button>
             </div>
