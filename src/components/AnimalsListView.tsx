@@ -60,16 +60,16 @@ export const AnimalsListView = ({
 
   if (animals.length === 0) {
     return (
-      <Card className="text-center py-12">
-        <CardContent>
-          <div className="text-gray-500 mb-4">
+      <Card className="text-center py-8 sm:py-12 mx-2 sm:mx-0">
+        <CardContent className="px-3 sm:px-6">
+          <div className="text-gray-500 mb-3 sm:mb-4 text-sm sm:text-base">
             {language === 'am' ? 'ምንም እንስሳ አልተገኘም' : 'No animals found'}
           </div>
           <Button
             onClick={onShowRegistrationForm}
-            className="bg-green-600 hover:bg-green-700"
+            className="bg-green-600 hover:bg-green-700 h-9 sm:h-10 text-xs sm:text-sm px-3 sm:px-4"
           >
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
             {language === 'am' ? 'የመጀመሪያ እንስሳዎን ይመዝግቡ' : 'Register Your First Animal'}
           </Button>
         </CardContent>
@@ -80,7 +80,7 @@ export const AnimalsListView = ({
   if (viewMode === 'card') {
     return (
       <>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 px-2 sm:px-0">
           {animals.map((animal) => (
             <ModernAnimalCard
               key={animal.id}
@@ -120,16 +120,18 @@ export const AnimalsListView = ({
 
   return (
     <>
-      <AnimalTableView
-        animals={animals}
-        language={language}
-        onEdit={onEdit}
-        onDelete={onDelete}
-        onVaccinate={onVaccinate}
-        onTrack={onTrack}
-        onSell={onSell}
-        onAnimalClick={handleAnimalClick}
-      />
+      <div className="px-2 sm:px-0">
+        <AnimalTableView
+          animals={animals}
+          language={language}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onVaccinate={onVaccinate}
+          onTrack={onTrack}
+          onSell={onSell}
+          onAnimalClick={handleAnimalClick}
+        />
+      </div>
       
       {/* Animal Detail Modal */}
       {selectedAnimal && (

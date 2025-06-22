@@ -43,8 +43,8 @@ export const BottomNavigation = ({ language }: BottomNavigationProps) => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
-      <div className="flex justify-around items-center h-16 px-1">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-area-pb">
+      <div className="flex justify-around items-center h-14 sm:h-16 px-1 sm:px-2">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
@@ -53,14 +53,14 @@ export const BottomNavigation = ({ language }: BottomNavigationProps) => {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex flex-col items-center justify-center flex-1 py-2 px-1 rounded-lg transition-colors ${
+              className={`flex flex-col items-center justify-center flex-1 py-1.5 sm:py-2 px-0.5 sm:px-1 rounded-lg transition-colors touch-manipulation ${
                 isActive
                   ? 'text-green-600 bg-green-50'
-                  : 'text-gray-500 hover:text-green-600'
+                  : 'text-gray-500 hover:text-green-600 active:text-green-600'
               }`}
             >
-              <Icon className="w-4 h-4 mb-1" />
-              <span className="text-xs font-medium truncate">{item.label}</span>
+              <Icon className="w-4 h-4 sm:w-5 sm:h-5 mb-0.5 sm:mb-1" />
+              <span className="text-[10px] sm:text-xs font-medium truncate leading-tight">{item.label}</span>
             </Link>
           );
         })}

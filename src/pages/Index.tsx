@@ -34,17 +34,17 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-24">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-20 sm:pb-24">
       <EnhancedHeader />
       <OfflineIndicator language={language} />
       
-      <main className="container mx-auto px-4 py-6 space-y-8">
+      <main className="container mx-auto px-2 sm:px-4 lg:px-6 py-3 sm:py-6 space-y-4 sm:space-y-6 lg:space-y-8">
         {/* Welcome Section */}
-        <div className="text-center mb-6">
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
+        <div className="text-center mb-3 sm:mb-6">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-1 sm:mb-2">
             {language === 'am' ? 'MyLivestock ዳሽቦርድ' : 'MyLivestock Dashboard'}
           </h1>
-          <p className="text-gray-600">
+          <p className="text-xs sm:text-sm lg:text-base text-gray-600 px-2">
             {language === 'am' 
               ? 'የእርስዎ እንስሳዎች እና ግብርና አስተዳደር ማእከል'
               : 'Your livestock and farm management center'
@@ -56,21 +56,21 @@ const Index = () => {
         <InteractiveDashboard language={language} stats={dashboardStats} />
 
         {/* Quick Actions with Staff Management */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           <div className="lg:col-span-2">
             <QuickActions language={language} onActionComplete={handleActionComplete} />
           </div>
           
           {/* Staff Management Card */}
           <Card className="border-green-100">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg font-semibold text-gray-800 flex items-center space-x-2">
-                <Users className="w-5 h-5 text-green-600" />
+            <CardHeader className="pb-2 sm:pb-3">
+              <CardTitle className="text-sm sm:text-base lg:text-lg font-semibold text-gray-800 flex items-center space-x-1 sm:space-x-2">
+                <Users className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-green-600" />
                 <span>{language === 'am' ? 'የሰራተኞች አስተዳደር' : 'Staff Management'}</span>
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-sm text-gray-600 mb-4">
+            <CardContent className="space-y-2 sm:space-y-3">
+              <p className="text-xs sm:text-sm text-gray-600">
                 {language === 'am' 
                   ? 'የእርሻ ሰራተኞችን ያክሉ እና ያስተዳድሩ'
                   : 'Add and manage farm staff members'
@@ -78,9 +78,9 @@ const Index = () => {
               </p>
               <Button
                 onClick={() => setShowStaffManagement(true)}
-                className="w-full bg-green-600 hover:bg-green-700"
+                className="w-full bg-green-600 hover:bg-green-700 text-xs sm:text-sm h-8 sm:h-10"
               >
-                <Users className="w-4 h-4 mr-2" />
+                <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
                 {language === 'am' ? 'ሰራተኞችን አስተዳድር' : 'Manage Staff'}
               </Button>
             </CardContent>
@@ -89,8 +89,8 @@ const Index = () => {
 
         {/* Recent Activity */}
         <Card className="border-green-100">
-          <CardHeader>
-            <CardTitle className="text-xl font-semibold text-gray-800">
+          <CardHeader className="pb-2 sm:pb-4">
+            <CardTitle className="text-base sm:text-lg lg:text-xl font-semibold text-gray-800">
               {language === 'am' ? '📊 የቅርብ ጊዜ እንቅስቃሴዎች' : '📊 Recent Activity'}
             </CardTitle>
           </CardHeader>
