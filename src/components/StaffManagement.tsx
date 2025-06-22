@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -73,12 +74,13 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({
         let permissions: StaffPermissions;
         try {
           if (typeof item.permissions === 'object' && item.permissions !== null) {
+            const permissionsObj = item.permissions as Record<string, any>;
             permissions = {
-              view_records: Boolean((item.permissions as any).view_records ?? true),
-              update_health: Boolean((item.permissions as any).update_health ?? true),
-              register_animals: Boolean((item.permissions as any).register_animals ?? false),
-              manage_market: Boolean((item.permissions as any).manage_market ?? false),
-              view_reports: Boolean((item.permissions as any).view_reports ?? false)
+              view_records: Boolean(permissionsObj.view_records ?? true),
+              update_health: Boolean(permissionsObj.update_health ?? true),
+              register_animals: Boolean(permissionsObj.register_animals ?? false),
+              manage_market: Boolean(permissionsObj.manage_market ?? false),
+              view_reports: Boolean(permissionsObj.view_reports ?? false)
             };
           } else {
             // Default permissions if none exist
@@ -139,12 +141,21 @@ export const StaffManagement: React.FC<StaffManagementProps> = ({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
 
+      // Convert permissions to a plain object that matches Json type
+      const permissionsData = {
+        view_records: newPermissions.view_records,
+        update_health: newPermissions.update_health,
+        register_animals: newPermissions.register_animals,
+        manage_market: newPermissions.manage_market,
+        view_reports: newPermissions.view_reports
+      };
+
       const { error } = await supabase
         .from('farm_assistants')
         .insert({
           farm_owner_id: user.id,
           assistant_user_id: newStaff.phone, // Using phone as identifier
-          permissions: newPermissions as any, // Cast to Json type
+          permissions: permissionsData,
           status: 'active'
         });
 
