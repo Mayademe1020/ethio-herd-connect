@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Language } from '@/types';
 
 interface InteractiveSummaryCardProps {
   title: string;
@@ -10,7 +11,7 @@ interface InteractiveSummaryCardProps {
   value: string | number;
   icon: React.ReactNode;
   color: 'blue' | 'green' | 'yellow' | 'red' | 'purple' | 'orange' | 'emerald';
-  language: 'am' | 'en' | 'or' | 'sw';
+  language: Language;
   onClick?: () => void;
   disabled?: boolean;
   trend?: {

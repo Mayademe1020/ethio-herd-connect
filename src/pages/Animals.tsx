@@ -48,18 +48,28 @@ const Animals = () => {
       if (error) {
         console.error('Error fetching animals:', error);
         toast({
-          title: language === 'am' ? 'ስህተት' : 'Error',
-          description: language === 'am' ? 'እንስሳትን መጫን አልተሳካም' : 'Failed to load animals',
+          title: language === 'am' ? 'ስህተት' : 
+                language === 'or' ? 'Dogoggora' :
+                language === 'sw' ? 'Hitilafu' : 'Error',
+          description: language === 'am' ? 'እንስሳትን መጫን አልተሳካም' : 
+                      language === 'or' ? 'Horii fe\'uun hin milkoofne' :
+                      language === 'sw' ? 'Imeshindwa kupakia wanyama' :
+                      'Failed to load animals',
           variant: 'destructive'
         });
       } else {
-        setAnimals(data);
+        setAnimals(data || []);
       }
     } catch (error) {
       console.error('Error fetching animals:', error);
       toast({
-        title: language === 'am' ? 'ስህተት' : 'Error',
-        description: language === 'am' ? 'እንስሳትን መጫን አልተሳካም' : 'Failed to load animals',
+        title: language === 'am' ? 'ስህተት' : 
+              language === 'or' ? 'Dogoggora' :
+              language === 'sw' ? 'Hitilafu' : 'Error',
+        description: language === 'am' ? 'እንስሳትን መጫን አልተሳካም' : 
+                    language === 'or' ? 'Horii fe\'uun hin milkoofne' :
+                    language === 'sw' ? 'Imeshindwa kupakia wanyama' :
+                    'Failed to load animals',
         variant: 'destructive'
       });
     }
@@ -70,18 +80,26 @@ const Animals = () => {
   };
 
   const handleBulkImport = () => {
-    // Implement bulk import logic here
     toast({
-      title: language === 'am' ? 'በቅርቡ ይመጣል' : 'Coming Soon',
-      description: language === 'am' ? 'ይህ ባህሪ በቅርቡ ይመጣል' : 'This feature is coming soon'
+      title: language === 'am' ? 'በቅርቡ ይመጣል' : 
+            language === 'or' ? 'Yeroo dhiyootti dhufa' :
+            language === 'sw' ? 'Inakuja Hivi Karibuni' : 'Coming Soon',
+      description: language === 'am' ? 'ይህ ባህሪ በቅርቡ ይመጣል' : 
+                  language === 'or' ? 'Amaloomi kun yeroo dhiyootti dhufa' :
+                  language === 'sw' ? 'Kipengele hiki kinakuja hivi karibuni' :
+                  'This feature is coming soon'
     });
   };
 
   const handleExport = () => {
-    // Implement export logic here
     toast({
-      title: language === 'am' ? 'በቅርቡ ይመጣል' : 'Coming Soon',
-      description: language === 'am' ? 'ይህ ባህሪ በቅርቡ ይመጣል' : 'This feature is coming soon'
+      title: language === 'am' ? 'በቅርቡ ይመጣል' : 
+            language === 'or' ? 'Yeroo dhiyootti dhufa' :
+            language === 'sw' ? 'Inakuja Hivi Karibuni' : 'Coming Soon',
+      description: language === 'am' ? 'ይህ ባህሪ በቅርቡ ይመጣል' : 
+                  language === 'or' ? 'Amaloomi kun yeroo dhiyootti dhufa' :
+                  language === 'sw' ? 'Kipengele hiki kinakuja hivi karibuni' :
+                  'This feature is coming soon'
     });
   };
 
@@ -90,19 +108,28 @@ const Animals = () => {
   };
 
   const handleEditAnimal = (animal: AnimalData) => {
-    // Implement edit animal logic here
     console.log('Edit animal:', animal);
     toast({
-      title: language === 'am' ? 'በቅርቡ ይመጣል' : 'Coming Soon',
-      description: language === 'am' ? 'ይህ ባህሪ በቅርቡ ይመጣል' : 'This feature is coming soon'
+      title: language === 'am' ? 'በቅርቡ ይመጣል' : 
+            language === 'or' ? 'Yeroo dhiyootti dhufa' :
+            language === 'sw' ? 'Inakuja Hivi Karibuni' : 'Coming Soon',
+      description: language === 'am' ? 'ይህ ባህሪ በቅርቡ ይመጣል' : 
+                  language === 'or' ? 'Amaloomi kun yeroo dhiyootti dhufa' :
+                  language === 'sw' ? 'Kipengele hiki kinakuja hivi karibuni' :
+                  'This feature is coming soon'
     });
   };
 
   const handleDeleteAnimal = async (animalId: string) => {
     if (!isOnline) {
       toast({
-        title: language === 'am' ? 'ስህተት' : 'Error',
-        description: language === 'am' ? 'እንስሳትን ከመስመር ውጭ መሰረዝ አይቻልም' : 'Cannot delete animals offline',
+        title: language === 'am' ? 'ስህተት' : 
+              language === 'or' ? 'Dogoggora' :
+              language === 'sw' ? 'Hitilafu' : 'Error',
+        description: language === 'am' ? 'እንስሳትን ከመስመር ውጭ መሰረዝ አይቻልም' : 
+                    language === 'or' ? 'Horii yeroo interneetii hin jirre haquu hin danda\'amu' :
+                    language === 'sw' ? 'Haiwezi kufuta wanyama wakati huna mtandao' :
+                    'Cannot delete animals offline',
         variant: 'destructive'
       });
       return;
@@ -117,22 +144,37 @@ const Animals = () => {
       if (error) {
         console.error('Error deleting animal:', error);
         toast({
-          title: language === 'am' ? 'ስህተት' : 'Error',
-          description: language === 'am' ? 'እንስሳትን መሰረዝ አልተሳካም' : 'Failed to delete animal',
+          title: language === 'am' ? 'ስህተት' : 
+                language === 'or' ? 'Dogoggora' :
+                language === 'sw' ? 'Hitilafu' : 'Error',
+          description: language === 'am' ? 'እንስሳትን መሰረዝ አልተሳካም' : 
+                      language === 'or' ? 'Horii haquun hin milkoofne' :
+                      language === 'sw' ? 'Imeshindwa kufuta mnyama' :
+                      'Failed to delete animal',
           variant: 'destructive'
         });
       } else {
         fetchAnimals();
         toast({
-          title: language === 'am' ? 'ተሳክቷል' : 'Success',
-          description: language === 'am' ? 'እንስሳ በተሳካ ሁኔታ ተሰርዟል' : 'Animal deleted successfully'
+          title: language === 'am' ? 'ተሳክቷል' : 
+                language === 'or' ? 'Milkaa\'e' :
+                language === 'sw' ? 'Imefanikiwa' : 'Success',
+          description: language === 'am' ? 'እንስሳ በተሳካ ሁኔታ ተሰርዟል' : 
+                      language === 'or' ? 'Horiin milkaa\'inaan haqame' :
+                      language === 'sw' ? 'Mnyama amefutwa kwa ufanisi' :
+                      'Animal deleted successfully'
         });
       }
     } catch (error) {
       console.error('Error deleting animal:', error);
       toast({
-        title: language === 'am' ? 'ስህተት' : 'Error',
-        description: language === 'am' ? 'እንስሳትን መሰረዝ አልተሳካም' : 'Failed to delete animal',
+        title: language === 'am' ? 'ስህተት' : 
+              language === 'or' ? 'Dogoggora' :
+              language === 'sw' ? 'Hitilafu' : 'Error',
+        description: language === 'am' ? 'እንስሳትን መሰረዝ አልተሳካም' : 
+                    language === 'or' ? 'Horii haquun hin milkoofne' :
+                    language === 'sw' ? 'Imeshindwa kufuta mnyama' :
+                    'Failed to delete animal',
         variant: 'destructive'
       });
     }
@@ -144,20 +186,28 @@ const Animals = () => {
   };
 
   const handleTrack = (animal: AnimalData) => {
-    // Implement track animal logic here
     console.log('Track animal:', animal);
     toast({
-      title: language === 'am' ? 'በቅርቡ ይመጣል' : 'Coming Soon',
-      description: language === 'am' ? 'ይህ ባህሪ በቅርቡ ይመጣል' : 'This feature is coming soon'
+      title: language === 'am' ? 'በቅርቡ ይመጣል' : 
+            language === 'or' ? 'Yeroo dhiyootti dhufa' :
+            language === 'sw' ? 'Inakuja Hivi Karibuni' : 'Coming Soon',
+      description: language === 'am' ? 'ይህ ባህሪ በቅርቡ ይመጣል' : 
+                  language === 'or' ? 'Amaloomi kun yeroo dhiyootti dhufa' :
+                  language === 'sw' ? 'Kipengele hiki kinakuja hivi karibuni' :
+                  'This feature is coming soon'
     });
   };
 
   const handleSell = (animal: AnimalData) => {
-    // Implement sell animal logic here
     console.log('Sell animal:', animal);
     toast({
-      title: language === 'am' ? 'በቅርቡ ይመጣል' : 'Coming Soon',
-      description: language === 'am' ? 'ይህ ባህሪ በቅርቡ ይመጣል' : 'This feature is coming soon'
+      title: language === 'am' ? 'በቅርቡ ይመጣል' : 
+            language === 'or' ? 'Yeroo dhiyootti dhufa' :
+            language === 'sw' ? 'Inakuja Hivi Karibuni' : 'Coming Soon',
+      description: language === 'am' ? 'ይህ ባህሪ በቅርቡ ይመጣል' : 
+                  language === 'or' ? 'Amaloomi kun yeroo dhiyootti dhufa' :
+                  language === 'sw' ? 'Kipengele hiki kinakuja hivi karibuni' :
+                  'This feature is coming soon'
     });
   };
 
@@ -239,20 +289,10 @@ const Animals = () => {
         {/* Page Title */}
         <div className="text-center px-2">
           <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-800 mb-1 sm:mb-2">
-            🐄 {language === 'am' ? 'የእንስሳዎች አስተዳደር' : 
-                language === 'or' ? 'Bulchiinsa Horii' :
-                language === 'sw' ? 'Usimamizi wa Wanyamapori' : 
-                'Animals Management'}
+            🐄 {t.title}
           </h1>
           <p className="text-gray-600 text-xs sm:text-sm lg:text-base">
-            {language === 'am' 
-              ? 'እንስሳዎችዎን ይመዝግቡ እና ያስተዳድሩ'
-              : language === 'or'
-              ? 'Horii keessan galmeessaa fi bulchaa'
-              : language === 'sw'
-              ? 'Sajili na dhibiti wanyamapori wako'
-              : 'Register and manage your animals'
-            }
+            {t.subtitle}
           </p>
         </div>
 
@@ -263,12 +303,7 @@ const Animals = () => {
             className="h-12 sm:h-14 lg:h-16 flex flex-col space-y-1 bg-green-600 hover:bg-green-700 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
           >
             <Plus className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
-            <span className="font-medium text-center leading-tight">
-              {language === 'am' ? 'እንስሳ ይጨምሩ' : 
-               language === 'or' ? 'Horii Dabaluu' :
-               language === 'sw' ? 'Ongeza Mnyama' :
-               'Add Animal'}
-            </span>
+            <span className="font-medium text-center leading-tight">{t.addAnimal}</span>
           </Button>
 
           <Button 
@@ -277,12 +312,7 @@ const Animals = () => {
             className="h-12 sm:h-14 lg:h-16 flex flex-col space-y-1 border-blue-200 hover:bg-blue-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
           >
             <Upload className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-500" />
-            <span className="font-medium text-center leading-tight">
-              {language === 'am' ? 'ጅምላ አስመጣ' : 
-               language === 'or' ? 'Baay\'ee Galchuu' :
-               language === 'sw' ? 'Ingiza Wingi' :
-               'Bulk Import'}
-            </span>
+            <span className="font-medium text-center leading-tight">{t.bulkImport}</span>
           </Button>
           
           <Button 
@@ -291,12 +321,7 @@ const Animals = () => {
             className="h-12 sm:h-14 lg:h-16 flex flex-col space-y-1 border-purple-200 hover:bg-purple-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
           >
             <Filter className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-purple-500" />
-            <span className="font-medium text-center leading-tight">
-              {language === 'am' ? 'ማጣሪያ' : 
-               language === 'or' ? 'Calaqqisiisu' :
-               language === 'sw' ? 'Chuja' :
-               'Filter'}
-            </span>
+            <span className="font-medium text-center leading-tight">{t.filter}</span>
           </Button>
 
           <Button 
@@ -305,12 +330,7 @@ const Animals = () => {
             className="h-12 sm:h-14 lg:h-16 flex flex-col space-y-1 border-green-200 hover:bg-green-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
           >
             <Download className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-green-500" />
-            <span className="font-medium text-center leading-tight">
-              {language === 'am' ? 'ወደ ውጭ አውጣ' : 
-               language === 'or' ? 'Gadi Baasuu' :
-               language === 'sw' ? 'Hamisha' :
-               'Export'}
-            </span>
+            <span className="font-medium text-center leading-tight">{t.export}</span>
           </Button>
         </div>
 
@@ -365,12 +385,7 @@ const Animals = () => {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between space-y-2 sm:space-y-0 sm:space-x-3">
           <div className="flex-1 max-w-md">
             <Input
-              placeholder={
-                language === 'am' ? 'እንስሳዎችን ይፈልጉ...' :
-                language === 'or' ? 'Horii barbaadi...' :
-                language === 'sw' ? 'Tafuta wanyama...' :
-                'Search animals...'
-              }
+              placeholder={t.searchAnimals}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="h-8 sm:h-9 lg:h-10 text-xs sm:text-sm"
