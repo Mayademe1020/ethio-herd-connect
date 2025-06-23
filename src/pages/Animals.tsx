@@ -1,8 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Upload, Filter, Download, Users, Heart, AlertTriangle, Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { useToast } from '@/hooks/use-toast';
@@ -11,10 +10,12 @@ import { AnimalsListView } from '@/components/AnimalsListView';
 import { EnhancedHeader } from '@/components/EnhancedHeader';
 import { BottomNavigation } from '@/components/BottomNavigation';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
-import { InteractiveSummaryCard } from '@/components/InteractiveSummaryCard';
 import { VaccinationForm } from '@/components/VaccinationForm';
 import { AnimalsFilters } from '@/components/AnimalsFilters';
 import { ViewModeToggle } from '@/components/ViewModeToggle';
+import { AnimalsPageHeader } from '@/components/AnimalsPageHeader';
+import { AnimalsQuickActions } from '@/components/AnimalsQuickActions';
+import { AnimalsSummaryCards } from '@/components/AnimalsSummaryCards';
 import { AnimalData, transformAnimalData, Language } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -225,62 +226,10 @@ const Animals = () => {
     return (nameMatch || codeMatch) && typeMatch && breedMatch && healthStatusMatch;
   });
 
-  const translations = {
-    am: {
-      title: 'የእንስሳዎች አስተዳደር',
-      subtitle: 'እንስሳዎችዎን ይመዝግቡ እና ያስተዳድሩ',
-      addAnimal: 'እንስሳ ይጨምሩ',
-      bulkImport: 'ጅምላ አስመጣ',
-      filter: 'ማጣሪያ',
-      export: 'ወደ ውጭ አውጣ',
-      totalAnimals: 'ጠቅላላ እንስሳት',
-      healthy: 'ጤናማ',
-      needAttention: 'ትኩረት ያስፈልጋል',
-      verified: 'የተረጋገጠ',
-      searchAnimals: 'እንስሳዎችን ይፈልጉ...'
-    },
-    en: {
-      title: 'Animals Management',
-      subtitle: 'Register and manage your animals',
-      addAnimal: 'Add Animal',
-      bulkImport: 'Bulk Import',
-      filter: 'Filter',
-      export: 'Export',
-      totalAnimals: 'Total Animals',
-      healthy: 'Healthy',
-      needAttention: 'Need Attention',
-      verified: 'Verified',
-      searchAnimals: 'Search animals...'
-    },
-    or: {
-      title: 'Bulchiinsa Horii',
-      subtitle: 'Horii keessan galmeessaa fi bulchaa',
-      addAnimal: 'Horii Dabaluu',
-      bulkImport: 'Baay\'ee Galchuu',
-      filter: 'Calaqqisiisu',
-      export: 'Gadi Baasuu',
-      totalAnimals: 'Horii Hundaa',
-      healthy: 'Fayyaa',
-      needAttention: 'Xalayaa Barbaada',
-      verified: 'Mirkaneeffame',
-      searchAnimals: 'Horii barbaadi...'
-    },
-    sw: {
-      title: 'Usimamizi wa Wanyamapori',
-      subtitle: 'Sajili na dhibiti wanyamapori wako',
-      addAnimal: 'Ongeza Mnyama',
-      bulkImport: 'Ingiza Wingi',
-      filter: 'Chuja',
-      export: 'Hamisha',
-      totalAnimals: 'Jumla ya Wanyama',
-      healthy: 'Wenye Afya',
-      needAttention: 'Inahitaji Uangalifu',
-      verified: 'Imethibitishwa',
-      searchAnimals: 'Tafuta wanyama...'
-    }
-  };
-
-  const t = translations[language];
+  const searchPlaceholder = language === 'am' ? 'እንስሳዎችን ይፈልጉ...' : 
+                          language === 'or' ? 'Horii barbaadi...' :
+                          language === 'sw' ? 'Tafuta wanyama...' :
+                          'Search animals...';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-16 sm:pb-20 lg:pb-24">
@@ -289,105 +238,25 @@ const Animals = () => {
       
       <main className="container mx-auto px-2 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6 space-y-3 sm:space-y-4 lg:space-y-6">
         {/* Page Title */}
-        <div className="text-center px-2">
-          <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-800 mb-1 sm:mb-2">
-            🐄 {t.title}
-          </h1>
-          <p className="text-gray-600 text-xs sm:text-sm lg:text-base">
-            {t.subtitle}
-          </p>
-        </div>
+        <AnimalsPageHeader language={language} />
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
-          <Button 
-            onClick={handleAddAnimal}
-            className="h-12 sm:h-14 lg:h-16 flex flex-col space-y-1 bg-green-600 hover:bg-green-700 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
-          >
-            <Plus className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
-            <span className="font-medium text-center leading-tight">{t.addAnimal}</span>
-          </Button>
-
-          <Button 
-            variant="outline" 
-            onClick={handleBulkImport}
-            className="h-12 sm:h-14 lg:h-16 flex flex-col space-y-1 border-blue-200 hover:bg-blue-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
-          >
-            <Upload className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-500" />
-            <span className="font-medium text-center leading-tight">{t.bulkImport}</span>
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            onClick={() => setShowFilters(!showFilters)}
-            className="h-12 sm:h-14 lg:h-16 flex flex-col space-y-1 border-purple-200 hover:bg-purple-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
-          >
-            <Filter className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-purple-500" />
-            <span className="font-medium text-center leading-tight">{t.filter}</span>
-          </Button>
-
-          <Button 
-            variant="outline" 
-            onClick={handleExport}
-            className="h-12 sm:h-14 lg:h-16 flex flex-col space-y-1 border-green-200 hover:bg-green-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
-          >
-            <Download className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-green-500" />
-            <span className="font-medium text-center leading-tight">{t.export}</span>
-          </Button>
-        </div>
+        <AnimalsQuickActions
+          language={language}
+          onAddAnimal={handleAddAnimal}
+          onBulkImport={handleBulkImport}
+          onToggleFilters={() => setShowFilters(!showFilters)}
+          onExport={handleExport}
+        />
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
-          <InteractiveSummaryCard
-            title="Total Animals"
-            titleAm="ጠቅላላ እንስሳት"
-            titleOr="Horii Hundaa"
-            titleSw="Jumla ya Wanyama"
-            value={animals.length}
-            icon={<Users className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
-            color="blue"
-            language={language}
-          />
-          
-          <InteractiveSummaryCard
-            title="Healthy"
-            titleAm="ጤናማ"
-            titleOr="Fayyaa"
-            titleSw="Wenye Afya"
-            value={animals.filter(a => a.health_status === 'healthy').length}
-            icon={<Heart className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
-            color="green"
-            language={language}
-          />
-
-          <InteractiveSummaryCard
-            title="Need Attention"
-            titleAm="ትኩረት ያስፈልጋል"
-            titleOr="Xalayaa Barbaada"
-            titleSw="Inahitaji Uangalifu"
-            value={animals.filter(a => a.health_status === 'attention').length}
-            icon={<AlertTriangle className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
-            color="yellow"
-            language={language}
-          />
-
-          <InteractiveSummaryCard
-            title="Verified"
-            titleAm="የተረጋገጠ"
-            titleOr="Mirkaneeffame"
-            titleSw="Imethibitishwa"
-            value={animals.filter(a => a.is_vet_verified).length}
-            icon={<Shield className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
-            color="purple"
-            language={language}
-          />
-        </div>
+        <AnimalsSummaryCards animals={animals} language={language} />
 
         {/* Search and View Toggle */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between space-y-2 sm:space-y-0 sm:space-x-3">
           <div className="flex-1 max-w-md">
             <Input
-              placeholder={t.searchAnimals}
+              placeholder={searchPlaceholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="h-8 sm:h-9 lg:h-10 text-xs sm:text-sm"
