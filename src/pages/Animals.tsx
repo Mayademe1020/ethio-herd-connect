@@ -15,7 +15,7 @@ import { InteractiveSummaryCard } from '@/components/InteractiveSummaryCard';
 import { VaccinationForm } from '@/components/VaccinationForm';
 import { AnimalsFilters } from '@/components/AnimalsFilters';
 import { ViewModeToggle } from '@/components/ViewModeToggle';
-import { AnimalData } from '@/types';
+import { AnimalData, transformAnimalData, Language } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const Animals = () => {
@@ -58,12 +58,8 @@ const Animals = () => {
           variant: 'destructive'
         });
       } else {
-        // Transform the data to match our AnimalData interface
-        const transformedData = (data || []).map(animal => ({
-          ...animal,
-          updated_at: animal.updated_at || animal.created_at,
-          user_id: animal.user_id || 'current-user-id' // fallback for existing data
-        }));
+        // Transform the data using our helper function
+        const transformedData = (data || []).map(transformAnimalData);
         setAnimals(transformedData);
       }
     } catch (error) {

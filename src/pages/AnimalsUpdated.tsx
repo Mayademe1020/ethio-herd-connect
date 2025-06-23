@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
@@ -13,7 +12,7 @@ import { AnimalsFilters } from '@/components/AnimalsFilters';
 import { ViewModeToggle } from '@/components/ViewModeToggle';
 import { AnimalsListView } from '@/components/AnimalsListView';
 import { AdvancedSearchFilters } from '@/components/AdvancedSearchFilters';
-import { AnimalData } from '@/types';
+import { AnimalData, transformAnimalData } from '@/types';
 
 export const AnimalsUpdated = () => {
   const { language } = useLanguage();
@@ -56,13 +55,8 @@ export const AnimalsUpdated = () => {
 
       if (error) throw error;
       
-      // Transform the data to match our AnimalData interface
-      const transformedData = (data || []).map(animal => ({
-        ...animal,
-        updated_at: animal.updated_at || animal.created_at,
-        user_id: animal.user_id || 'current-user-id' // fallback for existing data
-      }));
-      
+      // Transform the data using our helper function
+      const transformedData = (data || []).map(transformAnimalData);
       setAnimals(transformedData);
     } catch (error) {
       console.error('Error fetching animals:', error);
@@ -231,7 +225,7 @@ export const AnimalsUpdated = () => {
             onClick={() => setShowRegistrationForm(true)}
             className="bg-green-600 hover:bg-green-700 h-8 sm:h-10 text-xs sm:text-sm px-2 sm:px-4"
           >
-            <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+            <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
             {language === 'am' ? 'እንስሳ ጨምር' : 'Add Animal'}
           </Button>
         </div>

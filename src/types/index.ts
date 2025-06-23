@@ -55,3 +55,13 @@ export interface User {
   location?: string;
   created_at: string;
 }
+
+// Helper function to transform database data to our AnimalData interface
+export const transformAnimalData = (dbAnimal: any): AnimalData => {
+  return {
+    ...dbAnimal,
+    health_status: dbAnimal.health_status || 'healthy',
+    updated_at: dbAnimal.updated_at || dbAnimal.created_at,
+    user_id: dbAnimal.user_id || 'current-user-id'
+  };
+};
