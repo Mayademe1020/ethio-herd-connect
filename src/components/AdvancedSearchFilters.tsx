@@ -131,10 +131,11 @@ export const AdvancedSearchFilters = ({
   };
 
   const handleRangeChange = (rangeKey: string, type: 'min' | 'max' | 'from' | 'to', value: string) => {
+    const currentRange = filters[rangeKey as keyof typeof filters];
     const newFilters = {
       ...filters,
       [rangeKey]: {
-        ...filters[rangeKey as keyof typeof filters],
+        ...(typeof currentRange === 'object' && currentRange !== null ? currentRange : {}),
         [type]: value
       }
     };

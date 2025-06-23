@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +25,11 @@ interface MarketListing {
   photo: string;
   isFeatured: boolean;
   isFavorite: boolean;
+  contact_method?: string;
+  contact_value?: string;
+  is_vet_verified?: boolean;
+  photos?: string[];
+  created_at?: string;
 }
 
 const mockListings: MarketListing[] = [
@@ -37,6 +43,11 @@ const mockListings: MarketListing[] = [
     photo: '/images/cow1.jpg',
     isFeatured: true,
     isFavorite: false,
+    contact_method: 'phone',
+    contact_value: '+251911234567',
+    is_vet_verified: true,
+    photos: ['/images/cow1.jpg'],
+    created_at: '2024-01-15'
   },
   {
     id: '2',
@@ -48,6 +59,11 @@ const mockListings: MarketListing[] = [
     photo: '/images/goat1.jpg',
     isFeatured: false,
     isFavorite: true,
+    contact_method: 'phone',
+    contact_value: '+251922345678',
+    is_vet_verified: false,
+    photos: ['/images/goat1.jpg'],
+    created_at: '2024-01-14'
   },
   {
     id: '3',
@@ -59,6 +75,11 @@ const mockListings: MarketListing[] = [
     photo: '/images/chicken1.jpg',
     isFeatured: false,
     isFavorite: false,
+    contact_method: 'phone',
+    contact_value: '+251933456789',
+    is_vet_verified: true,
+    photos: ['/images/chicken1.jpg'],
+    created_at: '2024-01-13'
   },
   {
     id: '4',
@@ -70,6 +91,11 @@ const mockListings: MarketListing[] = [
     photo: '/images/sheep1.jpg',
     isFeatured: true,
     isFavorite: true,
+    contact_method: 'phone',
+    contact_value: '+251944567890',
+    is_vet_verified: true,
+    photos: ['/images/sheep1.jpg'],
+    created_at: '2024-01-12'
   },
 ];
 
@@ -80,6 +106,7 @@ const Market = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({});
+  const [filterCount, setFilterCount] = useState(0);
   const [showListingForm, setShowListingForm] = useState(false);
   const [selectedListing, setSelectedListing] = useState<MarketListing | null>(null);
 
@@ -91,12 +118,27 @@ const Market = () => {
     alert(`Added ${listing.title} to favorites`);
   };
 
-  const handleListingSubmit = (listing: MarketListing) => {
+  const handleListingSubmit = (listing: any) => {
     alert(`Listing submitted: ${listing.title}`);
+    setShowListingForm(false);
   };
 
   const handleEditListing = (listing: MarketListing) => {
     alert(`Editing listing: ${listing.title}`);
+  };
+
+  const handleFiltersChange = (newFilters: any) => {
+    setFilters(newFilters);
+    // Count active filters
+    const activeFilters = Object.values(newFilters).filter(value => 
+      value && value !== 'all' && value !== ''
+    ).length;
+    setFilterCount(activeFilters);
+  };
+
+  const handleClearFilters = () => {
+    setFilters({});
+    setFilterCount(0);
   };
 
   const filteredListings = mockListings.filter((listing) => {
@@ -314,16 +356,14 @@ const Market = () => {
 
         {/* Advanced Filters */}
         {showFilters && (
-          <Card className="border-orange-100">
-            <CardContent className="p-3 sm:p-4 lg:p-6">
-              <AdvancedSearchFilters
-                filters={filters}
-                onFiltersChange={setFilters}
-                language={language}
-                context="market"
-              />
-            </CardContent>
-          </Card>
+          <AdvancedSearchFilters
+            language={language}
+            onFiltersChange={handleFiltersChange}
+            onClearFilters={handleClearFilters}
+            filterCount={filterCount}
+            resultCount={filteredListings.length}
+            context="market"
+          />
         )}
 
         {/* Market Listings */}
