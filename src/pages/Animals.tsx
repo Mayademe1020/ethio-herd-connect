@@ -58,7 +58,13 @@ const Animals = () => {
           variant: 'destructive'
         });
       } else {
-        setAnimals(data || []);
+        // Transform the data to match our AnimalData interface
+        const transformedData = (data || []).map(animal => ({
+          ...animal,
+          updated_at: animal.updated_at || animal.created_at,
+          user_id: animal.user_id || 'current-user-id' // fallback for existing data
+        }));
+        setAnimals(transformedData);
       }
     } catch (error) {
       console.error('Error fetching animals:', error);
@@ -126,7 +132,7 @@ const Animals = () => {
         title: language === 'am' ? 'ስህተት' : 
               language === 'or' ? 'Dogoggora' :
               language === 'sw' ? 'Hitilafu' : 'Error',
-        description: language === 'am' ? 'እንስሳትን ከመስመር ውጭ መሰረዝ አይቻልም' : 
+        description: language === 'am' ? 'እንስሳትን ከመስመር ውጪ መሰረዝ አይቻልም' : 
                     language === 'or' ? 'Horii yeroo interneetii hin jirre haquu hin danda\'amu' :
                     language === 'sw' ? 'Haiwezi kufuta wanyama wakati huna mtandao' :
                     'Cannot delete animals offline',

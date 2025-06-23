@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { VaccinationForm } from '@/components/VaccinationForm';
 import { IllnessReportForm } from '@/components/IllnessReportForm';
@@ -259,55 +258,73 @@ const Health = () => {
           <InteractiveSummaryCard
             title="Vaccinations"
             titleAm="ክትባቶች"
+            titleOr="Tallaa"
+            titleSw="Chanjo"
             value={healthStats.totalVaccinations}
             icon={<Syringe className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
             color="green"
+            language={language}
             onClick={() => handleDetailViewClick('vaccinations')}
           />
           
           <InteractiveSummaryCard
             title="Scheduled"
             titleAm="መርሐ ግብር"
+            titleOr="Sagantaa"
+            titleSw="Iliyopangwa"
             value={healthStats.scheduledTasks}
             icon={<Calendar className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
             color="orange"
+            language={language}
             onClick={() => handleDetailViewClick('scheduled')}
           />
 
           <InteractiveSummaryCard
             title="Healthy"
             titleAm="ጤናማ"
+            titleOr="Fayyaa"
+            titleSw="Wenye Afya"
             value={healthStats.healthyAnimals}
             icon={<Activity className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
             color="emerald"
+            language={language}
             onClick={() => handleDetailViewClick('healthy')}
           />
           
           <InteractiveSummaryCard
             title="Need Attention"
             titleAm="ትኩረት ያስፈልጋል"
+            titleOr="Xalayaa Barbaada"
+            titleSw="Inahitaji Uangalifu"
             value={healthStats.needAttention}
             icon={<AlertTriangle className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
             color="yellow"
+            language={language}
             onClick={() => handleDetailViewClick('attention')}
           />
 
           <InteractiveSummaryCard
             title="Overdue Vaccines"
             titleAm="ያለፉ ክትባቶች"
+            titleOr="Tallaa Darbee"
+            titleSw="Chanjo Zilizochelewa"
             value={healthStats.overdueVaccinations}
             icon={<AlertTriangle className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
             color="red"
+            language={language}
             onClick={() => handleDetailViewClick('overdue')}
             disabled={healthStats.overdueVaccinations === 0}
           />
 
           <InteractiveSummaryCard
             title="Upcoming Checkups"
-            titleAm="ቀሪ ምርመራዎች"
+            titleAm="ቀሪ ምርመራቦች"
+            titleOr="Qorannoo Dhufu"
+            titleSw="Uchunguzi Unaokuja"
             value={healthStats.upcomingCheckups}
             icon={<Calendar className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
             color="blue"
+            language={language}
             onClick={() => handleDetailViewClick('checkups')}
           />
         </div>

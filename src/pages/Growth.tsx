@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { WeightEntryForm } from '@/components/WeightEntryForm';
@@ -169,72 +170,96 @@ const Growth = () => {
           <InteractiveSummaryCard
             title="Total Animals"
             titleAm="ጠቅላላ እንስሳ"
+            titleOr="Horii Hundaa"
+            titleSw="Jumla ya Wanyama"
             value={growthStats.totalAnimals}
             icon={<Users className="w-4 h-4 sm:w-5 sm:h-5" />}
             color="blue"
+            language={language}
             onClick={() => handleDetailViewClick('total')}
           />
           
           <InteractiveSummaryCard
             title="Tracked"
             titleAm="ተከታትለው"
+            titleOr="Hordofame"
+            titleSw="Zinazofuatiliwa"
             value={growthStats.trackedAnimals}
             icon={<Target className="w-4 h-4 sm:w-5 sm:h-5" />}
             color="green"
+            language={language}
             onClick={() => handleDetailViewClick('tracked')}
           />
           
           <InteractiveSummaryCard
             title="Avg Weight"
             titleAm="አማካኝ ክብደት"
+            titleOr="Ulfaatina Giddugaleessa"
+            titleSw="Uzito wa Wastani"
             value={`${growthStats.averageWeight}kg`}
             icon={<Scale className="w-4 h-4 sm:w-5 sm:h-5" />}
             color="purple"
+            language={language}
             onClick={() => handleDetailViewClick('average')}
           />
           
           <InteractiveSummaryCard
             title="Total Weight"
             titleAm="ጠቅላላ ክብደት"
+            titleOr="Ulfaatina Hundaa"
+            titleSw="Jumla ya Uzito"
             value={`${growthStats.totalWeight}kg`}
             icon={<Scale className="w-4 h-4 sm:w-5 sm:h-5" />}
-            color="teal"
+            color="blue"
+            language={language}
             onClick={() => handleDetailViewClick('total')}
           />
           
           <InteractiveSummaryCard
             title="Growing"
             titleAm="እያደጉ"
+            titleOr="Gudachaa Jiran"
+            titleSw="Wanaokua"
             value={growthStats.improvingGrowth}
             icon={<TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />}
             color="emerald"
+            language={language}
             onClick={() => handleDetailViewClick('growing')}
           />
           
           <InteractiveSummaryCard
             title="Upcoming"
             titleAm="ቀሪ ክትትል"
+            titleOr="Hordofi Dhufu"
+            titleSw="Zinazokuja"
             value={growthStats.upcomingWeighings}
             icon={<Calendar className="w-4 h-4 sm:w-5 sm:h-5" />}
             color="orange"
+            language={language}
             onClick={() => handleDetailViewClick('upcoming')}
           />
 
           <InteractiveSummaryCard
             title="On Target"
             titleAm="በዒላማ ላይ"
+            titleOr="Galma Irratti"
+            titleSw="Kwenye Lengo"
             value={growthStats.onTarget}
             icon={<Target className="w-4 h-4 sm:w-5 sm:h-5" />}
-            color="indigo"
+            color="blue"
+            language={language}
             onClick={() => handleDetailViewClick('targets')}
           />
 
           <InteractiveSummaryCard
             title="Weekly Gain"
             titleAm="ሳምንታዊ ጭማሪ"
+            titleOr="Dabalata Torbanaa"
+            titleSw="Ongezeko la Kila Wiki"
             value={`${growthStats.averageWeeklyGain}kg`}
             icon={<TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />}
-            color="pink"
+            color="green"
+            language={language}
             onClick={() => handleDetailViewClick('gains')}
           />
         </div>

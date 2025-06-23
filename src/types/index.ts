@@ -9,13 +9,16 @@ export interface AnimalData {
   weight?: number;
   health_status: 'healthy' | 'sick' | 'attention' | 'critical';
   is_vet_verified: boolean;
-  owner_id: string;
   created_at: string;
   updated_at: string;
+  user_id: string;
   gender?: 'male' | 'female';
   color?: string;
   parent_id?: string;
   notes?: string;
+  age?: number;
+  last_vaccination?: string;
+  photo_url?: string;
   vaccination_records?: VaccinationRecord[];
   weight_records?: WeightRecord[];
 }

@@ -13,23 +13,7 @@ import { AnimalsFilters } from '@/components/AnimalsFilters';
 import { ViewModeToggle } from '@/components/ViewModeToggle';
 import { AnimalsListView } from '@/components/AnimalsListView';
 import { AdvancedSearchFilters } from '@/components/AdvancedSearchFilters';
-
-interface AnimalData {
-  id: string;
-  name: string;
-  animal_code: string;
-  type: string;
-  breed?: string;
-  age?: number;
-  weight?: number;
-  photo_url?: string;
-  health_status: 'healthy' | 'attention' | 'sick';
-  healthStatus: 'healthy' | 'attention' | 'sick';
-  last_vaccination?: string;
-  is_vet_verified: boolean;
-  created_at: string;
-  tracker_id?: string;
-}
+import { AnimalData } from '@/types';
 
 export const AnimalsUpdated = () => {
   const { language } = useLanguage();
@@ -73,11 +57,11 @@ export const AnimalsUpdated = () => {
       if (error) throw error;
       
       // Transform the data to match our AnimalData interface
-      const transformedData = data?.map(animal => ({
+      const transformedData = (data || []).map(animal => ({
         ...animal,
-        health_status: (animal.health_status || 'healthy') as 'healthy' | 'attention' | 'sick',
-        healthStatus: (animal.health_status || 'healthy') as 'healthy' | 'attention' | 'sick'
-      })) || [];
+        updated_at: animal.updated_at || animal.created_at,
+        user_id: animal.user_id || 'current-user-id' // fallback for existing data
+      }));
       
       setAnimals(transformedData);
     } catch (error) {
@@ -116,7 +100,7 @@ export const AnimalsUpdated = () => {
       
       if (activeFilters.ageRange) {
         const age = animal.age || 0;
-        matchesAdvanced = matchesAdvanced && age >= activeFilters.ageRange[0] && age <= activeFilters.ageRange[1];
+        matchesAdvanced = matchesAdvanced && age >= activeFilters.ageRange[0] && age <= activeFilters.age[1];
       }
       
       if (activeFilters.weightRange) {
@@ -272,6 +256,7 @@ export const AnimalsUpdated = () => {
             <ViewModeToggle
               viewMode={viewMode}
               onViewModeChange={setViewMode}
+              language={language}
             />
           </div>
 
