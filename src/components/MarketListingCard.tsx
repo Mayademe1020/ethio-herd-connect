@@ -1,158 +1,153 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Phone, MessageSquare, Calendar, Weight, Star } from 'lucide-react';
+import { Heart, MapPin, Phone, Star } from 'lucide-react';
+import { Language } from '@/types';
 
 interface MarketListing {
   id: string;
   title: string;
-  description?: string;
+  category: string;
   price: number;
-  weight?: number;
-  age?: number;
   location: string;
-  contact_method: 'phone' | 'telegram' | 'sms';
-  contact_value: string;
-  is_vet_verified: boolean;
-  photos: string[];
-  created_at: string;
+  description: string;
+  photo: string;
+  isFeatured: boolean;
+  isFavorite: boolean;
+  contact_method?: string;
+  contact_value?: string;
+  is_vet_verified?: boolean;
+  photos?: string[];
+  created_at?: string;
 }
 
 interface MarketListingCardProps {
   listing: MarketListing;
-  language: 'am' | 'en';
-  onContact: (contactMethod: string, contactValue: string) => void;
-  onViewDetails: (listing: MarketListing) => void;
+  language: Language;
+  onContact: (listing: MarketListing) => void;
+  onFavorite: (listing: MarketListing) => void;
+  onClick: (listing: MarketListing) => void;
 }
 
-export const MarketListingCard: React.FC<MarketListingCardProps> = ({
+export const MarketListingCard = ({
   listing,
   language,
   onContact,
-  onViewDetails
-}) => {
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US').format(price);
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString(language === 'am' ? 'am-ET' : 'en-US');
-  };
-
-  const getContactIcon = () => {
-    switch (listing.contact_method) {
-      case 'telegram':
-        return <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4" />;
-      case 'sms':
-        return <MessageSquare className="w-3 h-3 sm:w-4 sm:h-4" />;
-      default:
-        return <Phone className="w-3 h-3 sm:w-4 sm:h-4" />;
+  onFavorite,
+  onClick
+}: MarketListingCardProps) => {
+  const translations = {
+    am: {
+      contact: 'አገናኝ',
+      featured: 'የተመረጠ',
+      verified: 'የተረጋገጠ'
+    },
+    en: {
+      contact: 'Contact',
+      featured: 'Featured',
+      verified: 'Verified'
+    },
+    or: {
+      contact: 'Qunnamuu',
+      featured: 'Filatamaa',
+      verified: 'Mirkaneeffame'
+    },
+    sw: {
+      contact: 'Wasiliana',
+      featured: 'Iliyoangaziwa',
+      verified: 'Imethibitishwa'
     }
   };
 
+  const t = translations[language];
+
   return (
-    <Card className="hover:shadow-lg transition-shadow duration-300 mx-2 sm:mx-0">
-      <CardContent className="p-0">
-        {/* Image Section */}
-        <div className="relative">
-          {listing.photos && listing.photos.length > 0 ? (
+    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer">
+      <div onClick={() => onClick(listing)}>
+        {/* Image */}
+        <div className="relative h-32 sm:h-40 bg-gray-200">
+          {listing.photo ? (
             <img
-              src={listing.photos[0]}
+              src={listing.photo}
               alt={listing.title}
-              className="w-full h-32 sm:h-40 lg:h-48 object-cover rounded-t-lg"
+              className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-32 sm:h-40 lg:h-48 bg-gray-200 rounded-t-lg flex items-center justify-center">
-              <span className="text-2xl sm:text-3xl lg:text-4xl">🐄</span>
+            <div className="w-full h-full flex items-center justify-center text-4xl">
+              🐄
             </div>
           )}
           
-          {listing.photos && listing.photos.length > 1 && (
-            <Badge className="absolute top-1 sm:top-2 left-1 sm:left-2 bg-black bg-opacity-70 text-white text-[10px] sm:text-xs px-1 sm:px-2 py-0.5 sm:py-1">
-              +{listing.photos.length - 1} {language === 'am' ? 'ፎቶዎች' : 'more'}
-            </Badge>
-          )}
-          
-          {listing.is_vet_verified && (
-            <Badge className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-green-100 text-green-800 text-[10px] sm:text-xs px-1 sm:px-2 py-0.5 sm:py-1">
-              <Star className="w-2 h-2 sm:w-3 sm:h-3 mr-0.5 sm:mr-1" />
-              {language === 'am' ? 'ዶክተር ማረጋገጫ' : 'Vet Verified'}
-            </Badge>
-          )}
-        </div>
-
-        {/* Content Section */}
-        <div className="p-2 sm:p-3 lg:p-4 space-y-2 sm:space-y-3">
-          {/* Title and Price */}
-          <div className="flex justify-between items-start">
-            <h3 className="font-semibold text-sm sm:text-base lg:text-lg line-clamp-2 flex-1 mr-2">
-              {listing.title}
-            </h3>
-            <div className="text-right">
-              <p className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600">
-                ₹{formatPrice(listing.price)}
-              </p>
-            </div>
+          {/* Badges */}
+          <div className="absolute top-2 left-2 space-y-1">
+            {listing.isFeatured && (
+              <Badge className="bg-orange-500 text-white text-xs">
+                <Star className="w-3 h-3 mr-1" />
+                {t.featured}
+              </Badge>
+            )}
+            {listing.is_vet_verified && (
+              <Badge className="bg-green-500 text-white text-xs">
+                {t.verified}
+              </Badge>
+            )}
           </div>
 
-          {/* Description */}
-          {listing.description && (
-            <p className="text-gray-600 text-xs sm:text-sm line-clamp-2">
-              {listing.description}
-            </p>
-          )}
+          {/* Favorite Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onFavorite(listing);
+            }}
+            className="absolute top-2 right-2 p-1.5 bg-white/80 rounded-full hover:bg-white transition-colors"
+          >
+            <Heart
+              className={`w-4 h-4 ${
+                listing.isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600'
+              }`}
+            />
+          </button>
+        </div>
 
-          {/* Details */}
-          <div className="flex flex-wrap gap-1 sm:gap-2">
-            {listing.weight && (
-              <Badge variant="outline" className="flex items-center space-x-0.5 sm:space-x-1 text-[10px] sm:text-xs px-1 sm:px-2 py-0.5 sm:py-1">
-                <Weight className="w-2 h-2 sm:w-3 sm:h-3" />
-                <span>{listing.weight}kg</span>
-              </Badge>
-            )}
-            {listing.age && (
-              <Badge variant="outline" className="flex items-center space-x-0.5 sm:space-x-1 text-[10px] sm:text-xs px-1 sm:px-2 py-0.5 sm:py-1">
-                <Calendar className="w-2 h-2 sm:w-3 sm:h-3" />
-                <span>{listing.age} {language === 'am' ? 'ዓመት' : 'years'}</span>
-              </Badge>
-            )}
+        <CardContent className="p-3 sm:p-4">
+          {/* Title and Price */}
+          <div className="mb-2">
+            <h3 className="font-semibold text-sm sm:text-base text-gray-900 mb-1 line-clamp-2">
+              {listing.title}
+            </h3>
+            <p className="text-lg sm:text-xl font-bold text-green-600">
+              {listing.price.toLocaleString()} ETB
+            </p>
           </div>
 
           {/* Location */}
-          <div className="flex items-center space-x-1 sm:space-x-2 text-gray-600">
-            <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
+          <div className="flex items-center text-gray-600 mb-2">
+            <MapPin className="w-3 h-3 mr-1" />
             <span className="text-xs sm:text-sm">{listing.location}</span>
           </div>
 
-          {/* Posted Date */}
-          <p className="text-[10px] sm:text-xs text-gray-500">
-            {language === 'am' ? 'የተለጠፈ' : 'Posted'}: {formatDate(listing.created_at)}
+          {/* Description */}
+          <p className="text-xs sm:text-sm text-gray-600 line-clamp-2 mb-3">
+            {listing.description}
           </p>
+        </CardContent>
+      </div>
 
-          {/* Action Buttons */}
-          <div className="flex space-x-1 sm:space-x-2 pt-1 sm:pt-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onViewDetails(listing)}
-              className="flex-1 text-xs sm:text-sm h-7 sm:h-8 lg:h-9 px-2 sm:px-3"
-            >
-              {language === 'am' ? 'ዝርዝር ይመልከቱ' : 'View Details'}
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => onContact(listing.contact_method, listing.contact_value)}
-              className="bg-green-600 hover:bg-green-700 flex items-center space-x-0.5 sm:space-x-1 text-xs sm:text-sm h-7 sm:h-8 lg:h-9 px-2 sm:px-3"
-            >
-              {getContactIcon()}
-              <span>{language === 'am' ? 'ያነጋግሩ' : 'Contact'}</span>
-            </Button>
-          </div>
-        </div>
-      </CardContent>
+      {/* Contact Button */}
+      <div className="px-3 sm:px-4 pb-3 sm:pb-4">
+        <Button
+          onClick={(e) => {
+            e.stopPropagation();
+            onContact(listing);
+          }}
+          className="w-full h-8 sm:h-9 bg-blue-600 hover:bg-blue-700 text-xs sm:text-sm"
+        >
+          <Phone className="w-3 h-3 mr-1 sm:mr-2" />
+          {t.contact}
+        </Button>
+      </div>
     </Card>
   );
 };

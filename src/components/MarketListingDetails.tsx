@@ -1,253 +1,193 @@
 
 import React from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { X, MapPin, Phone, MessageSquare, Calendar, Weight, Star, Camera } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { MapPin, Phone, Mail, Star, Shield, Calendar, Edit } from 'lucide-react';
+import { Language } from '@/types';
 
 interface MarketListing {
   id: string;
   title: string;
-  description?: string;
+  category: string;
   price: number;
-  weight?: number;
-  age?: number;
   location: string;
-  contact_method: 'phone' | 'telegram' | 'sms';
-  contact_value: string;
-  is_vet_verified: boolean;
-  photos: string[];
-  created_at: string;
-  animal?: {
-    photo_url?: string;
-    name?: string;
-    breed?: string;
-    type?: string;
-  };
+  description: string;
+  photo: string;
+  isFeatured: boolean;
+  isFavorite: boolean;
+  contact_method?: string;
+  contact_value?: string;
+  is_vet_verified?: boolean;
+  photos?: string[];
+  created_at?: string;
 }
 
 interface MarketListingDetailsProps {
   listing: MarketListing;
-  language: 'am' | 'en';
+  language: Language;
   onClose: () => void;
-  onContact: (contactMethod: string, contactValue: string) => void;
+  onContact: (listing: MarketListing) => void;
+  onEdit?: (listing: MarketListing) => void;
 }
 
-export const MarketListingDetails: React.FC<MarketListingDetailsProps> = ({
+export const MarketListingDetails = ({
   listing,
   language,
   onClose,
-  onContact
-}) => {
-  const [currentPhotoIndex, setCurrentPhotoIndex] = React.useState(0);
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US').format(price);
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString(language === 'am' ? 'am-ET' : 'en-US');
-  };
-
-  const getContactIcon = () => {
-    switch (listing.contact_method) {
-      case 'telegram':
-        return <MessageSquare className="w-4 h-4" />;
-      case 'sms':
-        return <MessageSquare className="w-4 h-4" />;
-      default:
-        return <Phone className="w-4 h-4" />;
+  onContact,
+  onEdit
+}: MarketListingDetailsProps) => {
+  const translations = {
+    am: {
+      contact: 'አገናኝ',
+      edit: 'አርትዕ',
+      featured: 'የተመረጠ',
+      verified: 'የተረጋገጠ',
+      description: 'መግለጫ',
+      price: 'ዋጋ',
+      location: 'አካባቢ',
+      contactSeller: 'ሻጩን አገናኝ',
+      postedOn: 'የተለጠፈበት ቀን'
+    },
+    en: {
+      contact: 'Contact',
+      edit: 'Edit',
+      featured: 'Featured',
+      verified: 'Verified',
+      description: 'Description',
+      price: 'Price',
+      location: 'Location',
+      contactSeller: 'Contact Seller',
+      postedOn: 'Posted on'
+    },
+    or: {
+      contact: 'Qunnamuu',
+      edit: 'Gulaaluu',
+      featured: 'Filatamaa',
+      verified: 'Mirkaneeffame',
+      description: 'Ibsa',
+      price: 'Gatii',
+      location: 'Bakka',
+      contactSeller: 'Gurgurtaa Qunnamuu',
+      postedOn: 'Kaayyeffame'
+    },
+    sw: {
+      contact: 'Wasiliana',
+      edit: 'Hariri',
+      featured: 'Iliyoangaziwa',
+      verified: 'Imethibitishwa',
+      description: 'Maelezo',
+      price: 'Bei',
+      location: 'Mahali',
+      contactSeller: 'Wasiliana na Muuzaji',
+      postedOn: 'Imechapishwa'
     }
   };
 
-  const getContactLabel = () => {
-    switch (listing.contact_method) {
-      case 'telegram':
-        return 'Telegram';
-      case 'sms':
-        return 'SMS';
-      default:
-        return language === 'am' ? 'ስልክ' : 'Phone';
-    }
-  };
-
-  // Combine listing photos with animal photo
-  const allPhotos = [
-    ...(listing.photos || []),
-    ...(listing.animal?.photo_url ? [listing.animal.photo_url] : [])
-  ];
+  const t = translations[language];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-xl">{listing.title}</CardTitle>
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="w-4 h-4" />
-          </Button>
-        </CardHeader>
-        
-        <CardContent className="space-y-6">
-          {/* Photo Gallery */}
-          {allPhotos && allPhotos.length > 0 && (
-            <div className="space-y-3">
-              <div className="relative">
-                <img
-                  src={allPhotos[currentPhotoIndex]}
-                  alt={`${listing.title} - ${currentPhotoIndex + 1}`}
-                  className="w-full h-64 object-cover rounded-lg"
-                  onError={(e) => {
-                    e.currentTarget.src = '/placeholder.svg';
-                  }}
-                />
-                
-                {listing.is_vet_verified && (
-                  <Badge className="absolute top-3 right-3 bg-green-100 text-green-800">
-                    <Star className="w-3 h-3 mr-1" />
-                    {language === 'am' ? 'ዶክተር ማረጋገጫ' : 'Vet Verified'}
-                  </Badge>
-                )}
-              </div>
-              
-              {allPhotos.length > 1 && (
-                <div className="flex space-x-2 overflow-x-auto">
-                  {allPhotos.map((photo, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentPhotoIndex(index)}
-                      className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 ${
-                        currentPhotoIndex === index ? 'border-green-500' : 'border-gray-200'
-                      }`}
-                    >
-                      <img
-                        src={photo}
-                        alt={`Thumbnail ${index + 1}`}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.src = '/placeholder.svg';
-                        }}
-                      />
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+    <Dialog open={true} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-lg sm:text-xl">{listing.title}</DialogTitle>
+        </DialogHeader>
 
-          {!allPhotos || allPhotos.length === 0 && (
-            <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-              <div className="text-center">
-                <Camera className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                <p className="text-gray-500">
-                  {language === 'am' ? 'ምንም ፎቶ የለም' : 'No photos available'}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Animal Details */}
-          {listing.animal && (
-            <div className="bg-green-50 p-4 rounded-lg">
-              <h3 className="font-semibold text-green-800 mb-2">
-                {language === 'am' ? 'የእንስሳ መረጃ' : 'Animal Information'}
-              </h3>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                {listing.animal.name && (
-                  <div>
-                    <span className="text-gray-600">{language === 'am' ? 'ስም:' : 'Name:'}</span>
-                    <span className="ml-2 font-medium">{listing.animal.name}</span>
-                  </div>
-                )}
-                {listing.animal.type && (
-                  <div>
-                    <span className="text-gray-600">{language === 'am' ? 'አይነት:' : 'Type:'}</span>
-                    <span className="ml-2 font-medium capitalize">{listing.animal.type}</span>
-                  </div>
-                )}
-                {listing.animal.breed && (
-                  <div>
-                    <span className="text-gray-600">{language === 'am' ? 'ዝርያ:' : 'Breed:'}</span>
-                    <span className="ml-2 font-medium">{listing.animal.breed}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Price */}
-          <div className="text-center">
-            <p className="text-3xl font-bold text-green-600">
-              ₹{formatPrice(listing.price)}
-            </p>
-          </div>
-
-          {/* Details */}
-          <div className="grid grid-cols-2 gap-4">
-            {listing.weight && (
-              <div className="flex items-center space-x-2">
-                <Weight className="w-5 h-5 text-gray-500" />
-                <div>
-                  <p className="text-sm text-gray-600">
-                    {language === 'am' ? 'ክብደት' : 'Weight'}
-                  </p>
-                  <p className="font-medium">{listing.weight}kg</p>
-                </div>
+        <div className="space-y-4 sm:space-y-6">
+          {/* Image */}
+          <div className="relative h-48 sm:h-64 bg-gray-200 rounded-lg overflow-hidden">
+            {listing.photo ? (
+              <img
+                src={listing.photo}
+                alt={listing.title}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-6xl">
+                🐄
               </div>
             )}
             
-            {listing.age && (
+            {/* Badges */}
+            <div className="absolute top-3 left-3 space-y-2">
+              {listing.isFeatured && (
+                <Badge className="bg-orange-500 text-white">
+                  <Star className="w-3 h-3 mr-1" />
+                  {t.featured}
+                </Badge>
+              )}
+              {listing.is_vet_verified && (
+                <Badge className="bg-green-500 text-white">
+                  <Shield className="w-3 h-3 mr-1" />
+                  {t.verified}
+                </Badge>
+              )}
+            </div>
+          </div>
+
+          {/* Price */}
+          <div className="text-center">
+            <p className="text-2xl sm:text-3xl font-bold text-green-600">
+              {listing.price.toLocaleString()} ETB
+            </p>
+          </div>
+
+          <Separator />
+
+          {/* Details */}
+          <div className="space-y-4">
+            {/* Location */}
+            <div className="flex items-center space-x-2">
+              <MapPin className="w-4 h-4 text-gray-500" />
+              <span className="text-sm sm:text-base">{listing.location}</span>
+            </div>
+
+            {/* Posted Date */}
+            {listing.created_at && (
               <div className="flex items-center space-x-2">
-                <Calendar className="w-5 h-5 text-gray-500" />
-                <div>
-                  <p className="text-sm text-gray-600">
-                    {language === 'am' ? 'እድሜ' : 'Age'}
-                  </p>
-                  <p className="font-medium">{listing.age} {language === 'am' ? 'ዓመት' : 'years'}</p>
-                </div>
+                <Calendar className="w-4 h-4 text-gray-500" />
+                <span className="text-sm text-gray-600">
+                  {t.postedOn} {new Date(listing.created_at).toLocaleDateString()}
+                </span>
               </div>
             )}
-          </div>
 
-          {/* Description */}
-          {listing.description && (
+            {/* Description */}
             <div>
-              <h3 className="font-semibold mb-2">
-                {language === 'am' ? 'መግለጫ' : 'Description'}
-              </h3>
-              <p className="text-gray-700 leading-relaxed">{listing.description}</p>
-            </div>
-          )}
-
-          {/* Location */}
-          <div className="flex items-center space-x-2">
-            <MapPin className="w-5 h-5 text-gray-500" />
-            <div>
-              <p className="text-sm text-gray-600">
-                {language === 'am' ? 'አካባቢ' : 'Location'}
+              <h3 className="font-semibold mb-2 text-sm sm:text-base">{t.description}</h3>
+              <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
+                {listing.description}
               </p>
-              <p className="font-medium">{listing.location}</p>
             </div>
           </div>
 
-          {/* Posted Date */}
-          <div className="text-center text-sm text-gray-500">
-            {language === 'am' ? 'የተለጠፈ' : 'Posted'}: {formatDate(listing.created_at)}
-          </div>
+          <Separator />
 
-          {/* Contact Button */}
-          <Button
-            onClick={() => onContact(listing.contact_method, listing.contact_value)}
-            className="w-full bg-green-600 hover:bg-green-700 flex items-center justify-center space-x-2 py-3"
-            size="lg"
-          >
-            {getContactIcon()}
-            <span>
-              {language === 'am' ? 'በ' : 'Contact via'} {getContactLabel()}
-            </span>
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+            <Button
+              onClick={() => onContact(listing)}
+              className="flex-1 bg-blue-600 hover:bg-blue-700"
+            >
+              <Phone className="w-4 h-4 mr-2" />
+              {t.contactSeller}
+            </Button>
+            
+            {onEdit && (
+              <Button
+                variant="outline"
+                onClick={() => onEdit(listing)}
+                className="flex-1"
+              >
+                <Edit className="w-4 h-4 mr-2" />
+                {t.edit}
+              </Button>
+            )}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };

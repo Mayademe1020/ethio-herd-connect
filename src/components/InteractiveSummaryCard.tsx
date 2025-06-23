@@ -1,11 +1,12 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 import { Language } from '@/types';
 
 interface InteractiveSummaryCardProps {
   title: string;
-  titleAm?: string;
+  titleAm: string;
   titleOr?: string;
   titleSw?: string;
   value: string | number;
@@ -14,13 +15,9 @@ interface InteractiveSummaryCardProps {
   language: Language;
   onClick?: () => void;
   disabled?: boolean;
-  trend?: {
-    value: number;
-    isPositive: boolean;
-  };
 }
 
-export const InteractiveSummaryCard: React.FC<InteractiveSummaryCardProps> = ({
+export const InteractiveSummaryCard = ({
   title,
   titleAm,
   titleOr,
@@ -30,13 +27,12 @@ export const InteractiveSummaryCard: React.FC<InteractiveSummaryCardProps> = ({
   color,
   language,
   onClick,
-  disabled = false,
-  trend
-}) => {
+  disabled = false
+}: InteractiveSummaryCardProps) => {
   const getTitle = () => {
     switch (language) {
       case 'am':
-        return titleAm || title;
+        return titleAm;
       case 'or':
         return titleOr || title;
       case 'sw':
@@ -47,89 +43,50 @@ export const InteractiveSummaryCard: React.FC<InteractiveSummaryCardProps> = ({
   };
 
   const colorClasses = {
-    blue: {
-      bg: 'bg-blue-50 hover:bg-blue-100',
-      border: 'border-blue-200',
-      icon: 'text-blue-600',
-      text: 'text-blue-900',
-      value: 'text-blue-700'
-    },
-    green: {
-      bg: 'bg-green-50 hover:bg-green-100',
-      border: 'border-green-200',
-      icon: 'text-green-600',
-      text: 'text-green-900',
-      value: 'text-green-700'
-    },
-    yellow: {
-      bg: 'bg-yellow-50 hover:bg-yellow-100',
-      border: 'border-yellow-200',
-      icon: 'text-yellow-600',
-      text: 'text-yellow-900',
-      value: 'text-yellow-700'
-    },
-    red: {
-      bg: 'bg-red-50 hover:bg-red-100',
-      border: 'border-red-200',
-      icon: 'text-red-600',
-      text: 'text-red-900',
-      value: 'text-red-700'
-    },
-    purple: {
-      bg: 'bg-purple-50 hover:bg-purple-100',
-      border: 'border-purple-200',
-      icon: 'text-purple-600',
-      text: 'text-purple-900',
-      value: 'text-purple-700'
-    },
-    orange: {
-      bg: 'bg-orange-50 hover:bg-orange-100',
-      border: 'border-orange-200',
-      icon: 'text-orange-600',
-      text: 'text-orange-900',
-      value: 'text-orange-700'
-    },
-    emerald: {
-      bg: 'bg-emerald-50 hover:bg-emerald-100',
-      border: 'border-emerald-200',
-      icon: 'text-emerald-600',
-      text: 'text-emerald-900',
-      value: 'text-emerald-700'
-    }
+    blue: 'bg-blue-500 text-white',
+    green: 'bg-green-500 text-white',
+    yellow: 'bg-yellow-500 text-white',
+    red: 'bg-red-500 text-white',
+    purple: 'bg-purple-500 text-white',
+    orange: 'bg-orange-500 text-white',
+    emerald: 'bg-emerald-500 text-white'
   };
 
-  const classes = colorClasses[color];
+  const hoverClasses = {
+    blue: 'hover:bg-blue-600',
+    green: 'hover:bg-green-600',
+    yellow: 'hover:bg-yellow-600',
+    red: 'hover:bg-red-600',
+    purple: 'hover:bg-purple-600',
+    orange: 'hover:bg-orange-600',
+    emerald: 'hover:bg-emerald-600'
+  };
 
   return (
     <Card 
-      className={`
-        ${classes.border} ${onClick && !disabled ? classes.bg : 'bg-white'} 
-        transition-all duration-300 
-        ${onClick && !disabled ? 'cursor-pointer hover:scale-105 active:scale-95 hover:shadow-md' : ''}
-        ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
-        touch-manipulation
-      `}
-      onClick={onClick && !disabled ? onClick : undefined}
+      className={cn(
+        "transition-all duration-300 cursor-pointer",
+        onClick && !disabled && "hover:scale-105 active:scale-95 hover:shadow-lg",
+        disabled && "opacity-50 cursor-not-allowed"
+      )}
+      onClick={!disabled ? onClick : undefined}
     >
-      <CardContent className="p-2 sm:p-3 lg:p-4">
-        <div className="flex items-center justify-between">
+      <CardContent className="p-3 sm:p-4 lg:p-6">
+        <div className="flex items-center space-x-2 sm:space-x-3">
+          <div className={cn(
+            "flex-shrink-0 p-2 sm:p-3 rounded-lg transition-colors",
+            colorClasses[color],
+            onClick && !disabled && hoverClasses[color]
+          )}>
+            {icon}
+          </div>
           <div className="flex-1 min-w-0">
-            <p className={`text-xs sm:text-sm font-medium ${classes.text} truncate mb-1`}>
+            <p className="text-xs sm:text-sm font-medium text-gray-600 truncate mb-1">
               {getTitle()}
             </p>
-            <div className="flex items-baseline space-x-1 sm:space-x-2">
-              <p className={`text-lg sm:text-xl lg:text-2xl font-bold ${classes.value} leading-none`}>
-                {typeof value === 'number' ? value.toLocaleString() : value}
-              </p>
-              {trend && (
-                <span className={`text-xs ${trend.isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                  {trend.isPositive ? '↗️' : '↘️'} {Math.abs(trend.value)}%
-                </span>
-              )}
-            </div>
-          </div>
-          <div className={`${classes.icon} flex-shrink-0 ml-2 sm:ml-3`}>
-            {icon}
+            <p className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
+              {value}
+            </p>
           </div>
         </div>
       </CardContent>
