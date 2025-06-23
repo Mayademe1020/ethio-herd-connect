@@ -1,89 +1,97 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, Upload, Filter, Download } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Plus, Search, Filter, Download } from 'lucide-react';
 import { Language } from '@/types';
 
 interface AnimalsQuickActionsProps {
   language: Language;
-  onAddAnimal: () => void;
-  onBulkImport: () => void;
-  onToggleFilters: () => void;
-  onExport: () => void;
+  onShowRegistrationForm: () => void;
 }
 
-export const AnimalsQuickActions = ({
-  language,
-  onAddAnimal,
-  onBulkImport,
-  onToggleFilters,
-  onExport
+export const AnimalsQuickActions = ({ 
+  language, 
+  onShowRegistrationForm 
 }: AnimalsQuickActionsProps) => {
   const translations = {
     am: {
-      addAnimal: 'እንስሳ ይጨምሩ',
-      bulkImport: 'ጅምላ አስመጣ',
-      filter: 'ማጣሪያ',
-      export: 'ወደ ውጭ አውጣ'
+      quickActions: 'ፈጣን ተግባራት',
+      addAnimal: 'እንስሳ ጨምር',
+      bulkImport: 'በብዛት አስመጣ',
+      exportData: 'መረጃ ላክ',
+      advancedSearch: 'የላቀ ፍለጋ'
     },
     en: {
+      quickActions: 'Quick Actions',
       addAnimal: 'Add Animal',
       bulkImport: 'Bulk Import',
-      filter: 'Filter',
-      export: 'Export'
+      exportData: 'Export Data',
+      advancedSearch: 'Advanced Search'
     },
     or: {
+      quickActions: 'Hojiiwwan Saffisaa',
       addAnimal: 'Horii Dabaluu',
       bulkImport: 'Baay\'ee Galchuu',
-      filter: 'Calaqqisiisu',
-      export: 'Gadi Baasuu'
+      exportData: 'Deetaa Erguu',
+      advancedSearch: 'Barbaacha Olaanaa'
     },
     sw: {
+      quickActions: 'Vitendo vya Haraka',
       addAnimal: 'Ongeza Mnyama',
       bulkImport: 'Ingiza Wingi',
-      filter: 'Chuja',
-      export: 'Hamisha'
+      exportData: 'Hamisha Data',
+      advancedSearch: 'Utafutaji wa Hali ya Juu'
     }
   };
 
   const t = translations[language];
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
-      <Button 
-        onClick={onAddAnimal}
-        className="h-12 sm:h-14 lg:h-16 flex flex-col space-y-1 bg-green-600 hover:bg-green-700 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
-      >
-        <Plus className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
-        <span className="font-medium text-center leading-tight">{t.addAnimal}</span>
-      </Button>
-
-      <Button 
-        variant="outline" 
-        onClick={onBulkImport}
-        className="h-12 sm:h-14 lg:h-16 flex flex-col space-y-1 border-blue-200 hover:bg-blue-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
-      >
-        <Upload className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-500" />
-        <span className="font-medium text-center leading-tight">{t.bulkImport}</span>
-      </Button>
-      
-      <Button 
-        variant="outline" 
-        onClick={onToggleFilters}
-        className="h-12 sm:h-14 lg:h-16 flex flex-col space-y-1 border-purple-200 hover:bg-purple-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
-      >
-        <Filter className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-purple-500" />
-        <span className="font-medium text-center leading-tight">{t.filter}</span>
-      </Button>
-
-      <Button 
-        variant="outline" 
-        onClick={onExport}
-        className="h-12 sm:h-14 lg:h-16 flex flex-col space-y-1 border-green-200 hover:bg-green-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
-      >
-        <Download className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-green-500" />
-        <span className="font-medium text-center leading-tight">{t.export}</span>
-      </Button>
-    </div>
+    <Card className="border-green-100">
+      <CardContent className="p-3 sm:p-4">
+        <h3 className="font-semibold text-sm sm:text-base mb-3 text-gray-800">
+          {t.quickActions}
+        </h3>
+        
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+          <Button
+            onClick={onShowRegistrationForm}
+            className="bg-green-600 hover:bg-green-700 h-8 sm:h-9 text-xs sm:text-sm"
+            size="sm"
+          >
+            <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+            {t.addAnimal}
+          </Button>
+          
+          <Button
+            variant="outline"
+            className="border-green-200 text-green-700 hover:bg-green-50 h-8 sm:h-9 text-xs sm:text-sm"
+            size="sm"
+          >
+            <Search className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+            {t.advancedSearch}
+          </Button>
+          
+          <Button
+            variant="outline"
+            className="border-blue-200 text-blue-700 hover:bg-blue-50 h-8 sm:h-9 text-xs sm:text-sm"
+            size="sm"
+          >
+            <Filter className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+            {t.bulkImport}
+          </Button>
+          
+          <Button
+            variant="outline"
+            className="border-purple-200 text-purple-700 hover:bg-purple-50 h-8 sm:h-9 text-xs sm:text-sm"
+            size="sm"
+          >
+            <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+            {t.exportData}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
