@@ -10,39 +10,47 @@ interface ViewModeToggleProps {
   language: Language;
 }
 
-export const ViewModeToggle: React.FC<ViewModeToggleProps> = ({
-  viewMode,
-  onViewModeChange,
-  language
-}) => {
+export const ViewModeToggle = ({ viewMode, onViewModeChange, language }: ViewModeToggleProps) => {
   const translations = {
-    am: { card: 'ካርድ', table: 'ሰንጠረዥ' },
-    en: { card: 'Card', table: 'Table' },
-    or: { card: 'Kaardii', table: 'Gabatee' },
-    sw: { card: 'Kadi', table: 'Jedwali' }
+    am: {
+      cardView: 'ካርድ እይታ',
+      tableView: 'ሰንጠረዥ እይታ'
+    },
+    en: {
+      cardView: 'Card View',
+      tableView: 'Table View'
+    },
+    or: {
+      cardView: 'Mul\'ata Kaardii',
+      tableView: 'Mul\'ata Gabatee'
+    },
+    sw: {
+      cardView: 'Mwongozo wa Kadi',
+      tableView: 'Mwongozo wa Jedwali'
+    }
   };
 
   const t = translations[language];
 
   return (
-    <div className="flex items-center space-x-1 sm:space-x-2">
+    <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
       <Button
-        variant={viewMode === 'card' ? 'default' : 'outline'}
+        variant={viewMode === 'card' ? 'default' : 'ghost'}
         size="sm"
         onClick={() => onViewModeChange('card')}
-        className="h-7 sm:h-8 lg:h-9 px-2 sm:px-3 text-xs sm:text-sm transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation"
+        className="h-8 px-3 text-xs"
+        title={t.cardView}
       >
-        <Grid className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-        <span className="hidden sm:inline">{t.card}</span>
+        <Grid className="w-4 h-4" />
       </Button>
       <Button
-        variant={viewMode === 'table' ? 'default' : 'outline'}
+        variant={viewMode === 'table' ? 'default' : 'ghost'}
         size="sm"
         onClick={() => onViewModeChange('table')}
-        className="h-7 sm:h-8 lg:h-9 px-2 sm:px-3 text-xs sm:text-sm transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation"
+        className="h-8 px-3 text-xs"
+        title={t.tableView}
       >
-        <List className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-        <span className="hidden sm:inline">{t.table}</span>
+        <List className="w-4 h-4" />
       </Button>
     </div>
   );

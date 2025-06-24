@@ -1,58 +1,58 @@
 
-import { Wifi, WifiOff, CloudOff, RefreshCw } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { useOfflineSync } from '@/hooks/useOfflineSync';
+import React from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Wifi, WifiOff } from 'lucide-react';
+import { Language } from '@/types';
 
 interface OfflineIndicatorProps {
-  language: 'am' | 'en';
+  language: Language;
 }
 
 export const OfflineIndicator = ({ language }: OfflineIndicatorProps) => {
-  const { isOnline, pendingSync, syncAll } = useOfflineSync();
+  const [isOnline, setIsOnline] = React.useState(navigator.onLine);
 
-  if (isOnline && pendingSync.length === 0) {
-    return null;
-  }
+  React.useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  const translations = {
+    am: {
+      offline: 'ከመስመር ውጭ - መረጃዎች በአካባቢያዊ ይቀመጣሉ',
+      online: 'በመስመር ላይ'
+    },
+    en: {
+      offline: 'Offline - Data will be saved locally',
+      online: 'Online'
+    },
+    or: {
+      offline: 'Toora interneetii - Daataan naannoodhaan kuufama',
+      online: 'Interneetii irratti'
+    },
+    sw: {
+      offline: 'Nje ya mtandao - Data itahifadhiwa kimtandao',
+      online: 'Mtandaoni'
+    }
+  };
+
+  const t = translations[language];
+
+  if (isOnline) return null;
 
   return (
-    <div className="fixed top-20 left-4 right-4 z-40">
-      <div className="bg-white border border-orange-200 rounded-lg p-3 shadow-lg">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            {isOnline ? (
-              <>
-                <CloudOff className="w-4 h-4 text-orange-500" />
-                <span className="text-sm font-medium text-orange-800">
-                  {language === 'am' 
-                    ? `${pendingSync.length} ያልተሰምሩ ለውጦች`
-                    : `${pendingSync.length} pending changes`
-                  }
-                </span>
-              </>
-            ) : (
-              <>
-                <WifiOff className="w-4 h-4 text-red-500" />
-                <span className="text-sm font-medium text-red-800">
-                  {language === 'am' ? 'ኦፍላይን ሁኔታ' : 'Offline Mode'}
-                </span>
-              </>
-            )}
-          </div>
-
-          {isOnline && pendingSync.length > 0 && (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={syncAll}
-              className="text-xs border-orange-300 text-orange-700 hover:bg-orange-50"
-            >
-              <RefreshCw className="w-3 h-3 mr-1" />
-              {language === 'am' ? 'ሰምር' : 'Sync'}
-            </Button>
-          )}
-        </div>
-      </div>
-    </div>
+    <Alert className="m-2 border-orange-200 bg-orange-50">
+      <WifiOff className="h-4 w-4 text-orange-600" />
+      <AlertDescription className="text-orange-800">
+        {t.offline}
+      </AlertDescription>
+    </Alert>
   );
 };

@@ -1,96 +1,105 @@
 
-import React, { useState } from 'react';
-import { Wifi, WifiOff, CloudOff, RefreshCw, X, CheckCircle, Clock, AlertCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { useOfflineSync } from '@/hooks/useOfflineSync';
+import React from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Wifi, WifiOff, RefreshCw, AlertCircle } from 'lucide-react';
+import { Language } from '@/types';
 
 interface EnhancedOfflineIndicatorProps {
-  language: 'am' | 'en';
+  language: Language;
+  pendingSync?: number;
 }
 
-export const EnhancedOfflineIndicator = ({ language }: EnhancedOfflineIndicatorProps) => {
-  const { isOnline, pendingSync, syncAll, syncing } = useOfflineSync();
-  const [dismissed, setDismissed] = useState(false);
+export const EnhancedOfflineIndicator = ({ language, pendingSync = 0 }: EnhancedOfflineIndicatorProps) => {
+  const [isOnline, setIsOnline] = React.useState(navigator.onLine);
+  const [showSyncAnimation, setShowSyncAnimation] = React.useState(false);
 
-  if (dismissed && isOnline && pendingSync.length === 0) {
-    return null;
-  }
+  React.useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      if (pendingSync > 0) {
+        setShowSyncAnimation(true);
+        setTimeout(() => setShowSyncAnimation(false), 3000);
+      }
+    };
+    const handleOffline = () => setIsOnline(false);
 
-  const getSyncStatusIcon = () => {
-    if (syncing) return <RefreshCw className="w-4 h-4 text-blue-500 animate-spin" />;
-    if (!isOnline) return <WifiOff className="w-4 h-4 text-red-500" />;
-    if (pendingSync.length > 0) return <Clock className="w-4 h-4 text-orange-500" />;
-    return <CheckCircle className="w-4 h-4 text-green-500" />;
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [pendingSync]);
+
+  const translations = {
+    am: {
+      offline: 'ከመስመር ውጭ',
+      online: 'በመስመር ላይ',
+      syncing: 'በማመሳሰል ላይ',
+      pendingItems: 'በመጠባበቅ ላይ ያሉ',
+      willSyncWhenOnline: 'በመስመር ላይ ሲመለስ ይመሳሰላል'
+    },
+    en: {
+      offline: 'Offline',
+      online: 'Online',
+      syncing: 'Syncing',
+      pendingItems: 'pending items',
+      willSyncWhenOnline: 'Will sync when online'
+    },
+    or: {
+      offline: 'Toora interneetii',
+      online: 'Interneetii irratti',
+      syncing: 'Walsimsiisuudhaan',
+      pendingItems: 'wantoota eegaman',
+      willSyncWhenOnline: 'Interneetii yeroo deebi\'u walsimsifama'
+    },
+    sw: {
+      offline: 'Nje ya mtandao',
+      online: 'Mtandaoni',
+      syncing: 'Inasawazisha',
+      pendingItems: 'vipengee vinavyosubiri',
+      willSyncWhenOnline: 'Itasawazishwa wakati wa mtandaoni'
+    }
   };
 
-  const getSyncStatusText = () => {
-    if (syncing) {
-      return language === 'am' ? 'እየተሰመራመረ...' : 'Syncing...';
-    }
-    if (!isOnline) {
-      return language === 'am' ? 'ኦፍላይን ሁኔታ' : 'Offline Mode';
-    }
-    if (pendingSync.length > 0) {
-      return language === 'am' 
-        ? `${pendingSync.length} ያልተሰምሩ ለውጦች`
-        : `${pendingSync.length} pending changes`;
-    }
-    return language === 'am' ? 'ሁሉም ተሰምሯል' : 'All synced';
-  };
+  const t = translations[language];
 
-  const getSyncStatusColor = () => {
-    if (syncing) return 'border-blue-200 bg-blue-50';
-    if (!isOnline) return 'border-red-200 bg-red-50';
-    if (pendingSync.length > 0) return 'border-orange-200 bg-orange-50';
-    return 'border-green-200 bg-green-50';
-  };
+  if (isOnline && pendingSync === 0) return null;
 
   return (
-    <div className="fixed top-20 left-4 right-4 z-40">
-      <Card className={`p-3 shadow-lg transition-all duration-300 ${getSyncStatusColor()}`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            {getSyncStatusIcon()}
-            <div>
-              <div className="text-sm font-medium text-gray-800">
-                {getSyncStatusText()}
-              </div>
-              {pendingSync.length > 0 && (
-                <div className="text-xs text-gray-600">
-                  {language === 'am' 
-                    ? 'በመስመር ላይ ሲሆኑ ይመጣል' 
-                    : 'Will sync when online'
-                  }
-                </div>
-              )}
-            </div>
-          </div>
-
+    <Alert className={`m-2 ${isOnline ? 'border-blue-200 bg-blue-50' : 'border-orange-200 bg-orange-50'}`}>
+      <div className="flex items-center space-x-2">
+        {showSyncAnimation ? (
+          <RefreshCw className="h-4 w-4 text-blue-600 animate-spin" />
+        ) : isOnline ? (
+          <Wifi className="h-4 w-4 text-blue-600" />
+        ) : (
+          <WifiOff className="h-4 w-4 text-orange-600" />
+        )}
+        
+        <AlertDescription className={isOnline ? 'text-blue-800' : 'text-orange-800'}>
           <div className="flex items-center space-x-2">
-            {isOnline && pendingSync.length > 0 && !syncing && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={syncAll}
-                className="text-xs border-orange-300 text-orange-700 hover:bg-orange-100"
-              >
-                <RefreshCw className="w-3 h-3 mr-1" />
-                {language === 'am' ? 'ሰምር' : 'Sync'}
-              </Button>
-            )}
+            <span>
+              {showSyncAnimation ? t.syncing : isOnline ? t.online : t.offline}
+            </span>
             
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setDismissed(true)}
-              className="text-gray-500 hover:text-gray-700 p-1"
-            >
-              <X className="w-4 h-4" />
-            </Button>
+            {pendingSync > 0 && (
+              <>
+                <Badge variant="secondary" className="text-xs">
+                  {pendingSync} {t.pendingItems}
+                </Badge>
+                {!isOnline && (
+                  <span className="text-xs opacity-80">
+                    {t.willSyncWhenOnline}
+                  </span>
+                )}
+              </>
+            )}
           </div>
-        </div>
-      </Card>
-    </div>
+        </AlertDescription>
+      </div>
+    </Alert>
   );
 };

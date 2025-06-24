@@ -2,152 +2,167 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Home, Heart, TrendingUp, ShoppingCart, Baby, Users, X } from 'lucide-react';
+import { Plus, Syringe, TrendingUp, ShoppingCart, AlertTriangle, Users } from 'lucide-react';
 import { AnimalRegistrationForm } from './AnimalRegistrationForm';
-import { CalfRegistrationForm } from './CalfRegistrationForm';
-import { PoultryGroupForm } from './PoultryGroupForm';
+import { VaccinationForm } from './VaccinationForm';
+import { WeightEntryForm } from './WeightEntryForm';
+import { IllnessReportForm } from './IllnessReportForm';
+import { MarketListingForm } from './MarketListingForm';
+import { Language } from '@/types';
 
 interface QuickActionsProps {
-  language: 'am' | 'en';
+  language: Language;
   onActionComplete?: () => void;
 }
 
-export const QuickActions: React.FC<QuickActionsProps> = ({ language, onActionComplete }) => {
-  const [showAnimalForm, setShowAnimalForm] = useState(false);
-  const [showCalfForm, setShowCalfForm] = useState(false);
-  const [showPoultryForm, setShowPoultryForm] = useState(false);
+export const QuickActions = ({ language, onActionComplete }: QuickActionsProps) => {
+  const [showRegistrationForm, setShowRegistrationForm] = useState(false);
+  const [showVaccinationForm, setShowVaccinationForm] = useState(false);
+  const [showWeightForm, setShowWeightForm] = useState(false);
+  const [showIllnessForm, setShowIllnessForm] = useState(false);
+  const [showMarketForm, setShowMarketForm] = useState(false);
 
-  const actions = [
-    {
-      id: 'register-animal',
-      title: language === 'am' ? 'እንስሳ ምዝገባ' : 'Register Animal',
-      icon: <Home className="w-4 h-4 sm:w-5 sm:h-5" />,
-      action: () => setShowAnimalForm(true),
-      color: 'bg-green-600 hover:bg-green-700'
+  const translations = {
+    am: {
+      quickActions: 'ፈጣን እርምጃዎች',
+      addAnimal: 'እንስሳ ጨምር',
+      recordVaccination: 'ክትባት መዝግብ',
+      trackGrowth: 'እድገት ክትትል',
+      reportIllness: 'ጤንነት ችግር ሪፖርት',
+      sellAnimal: 'በገበያ አስመዝግብ'
     },
-    {
-      id: 'register-calf',
-      title: language === 'am' ? 'ጥጃ ምዝገባ' : 'Register Calf',
-      icon: <Baby className="w-4 h-4 sm:w-5 sm:h-5" />,
-      action: () => setShowCalfForm(true),
-      color: 'bg-blue-600 hover:bg-blue-700'
+    en: {
+      quickActions: 'Quick Actions',
+      addAnimal: 'Add Animal',
+      recordVaccination: 'Record Vaccination',
+      trackGrowth: 'Track Growth',
+      reportIllness: 'Report Illness',
+      sellAnimal: 'List for Sale'
     },
-    {
-      id: 'poultry-group',
-      title: language === 'am' ? 'የዶሮ ቡድን' : 'Poultry Group',
-      icon: <Users className="w-4 h-4 sm:w-5 sm:h-5" />,
-      action: () => setShowPoultryForm(true),
-      color: 'bg-orange-600 hover:bg-orange-700'
+    or: {
+      quickActions: 'Tarkaanfii Saffisaa',
+      addAnimal: 'Horii Dabaluu',
+      recordVaccination: 'Tallaa Galmeessuu',
+      trackGrowth: 'Guddina Hordofuu',
+      reportIllness: 'Dhukkuba Gabaasuu',
+      sellAnimal: 'Gurgurtaaf Tarreessuu'
+    },
+    sw: {
+      quickActions: 'Vitendo vya Haraka',
+      addAnimal: 'Ongeza Mnyama',
+      recordVaccination: 'Rekodi Chanjo',
+      trackGrowth: 'Fuatilia Ukuaji',
+      reportIllness: 'Ripoti Ugonjwa',
+      sellAnimal: 'Orodhesha kwa Mauzo'
     }
-  ];
+  };
 
-  const handleActionComplete = () => {
+  const t = translations[language];
+
+  const handleFormClose = () => {
+    setShowRegistrationForm(false);
+    setShowVaccinationForm(false);
+    setShowWeightForm(false);
+    setShowIllnessForm(false);
+    setShowMarketForm(false);
     onActionComplete?.();
-    setShowAnimalForm(false);
-    setShowCalfForm(false);
-    setShowPoultryForm(false);
   };
 
   return (
     <>
-      <Card className="animate-slideInUp animation-delay-300">
-        <CardHeader className="pb-3 sm:pb-6">
-          <CardTitle className="text-base sm:text-lg font-semibold text-gray-800 flex items-center space-x-2">
-            <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
-            <span>{language === 'am' ? 'ፈጣን እርምጃዎች' : 'Quick Actions'}</span>
+      <Card className="border-green-100">
+        <CardHeader className="pb-2 sm:pb-3">
+          <CardTitle className="text-sm sm:text-base lg:text-lg font-semibold text-gray-800">
+            ⚡ {t.quickActions}
           </CardTitle>
         </CardHeader>
-        <CardContent className="pt-0">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
-            {actions.map((action, index) => (
-              <Button
-                key={action.id}
-                onClick={action.action}
-                className={`
-                  ${action.color} 
-                  text-white 
-                  transition-all 
-                  duration-300 
-                  hover:scale-105 
-                  hover:shadow-lg 
-                  active:scale-95 
-                  flex 
-                  items-center 
-                  space-x-2 
-                  animate-slideInUp
-                  h-12 sm:h-auto
-                  text-xs sm:text-sm
-                  px-3 sm:px-4
-                  py-2 sm:py-3
-                `}
-                style={{ animationDelay: `${0.4 + index * 0.1}s` }}
-              >
-                {action.icon}
-                <span className="font-medium">{action.title}</span>
-              </Button>
-            ))}
+        <CardContent className="space-y-2 sm:space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
+            <Button
+              onClick={() => setShowRegistrationForm(true)}
+              className="bg-green-600 hover:bg-green-700 h-10 sm:h-12 text-xs sm:text-sm justify-start"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              {t.addAnimal}
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => setShowVaccinationForm(true)}
+              className="border-blue-200 text-blue-700 hover:bg-blue-50 h-10 sm:h-12 text-xs sm:text-sm justify-start"
+            >
+              <Syringe className="w-4 h-4 mr-2" />
+              {t.recordVaccination}
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => setShowWeightForm(true)}
+              className="border-purple-200 text-purple-700 hover:bg-purple-50 h-10 sm:h-12 text-xs sm:text-sm justify-start"
+            >
+              <TrendingUp className="w-4 h-4 mr-2" />
+              {t.trackGrowth}
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => setShowIllnessForm(true)}
+              className="border-red-200 text-red-700 hover:bg-red-50 h-10 sm:h-12 text-xs sm:text-sm justify-start"
+            >
+              <AlertTriangle className="w-4 h-4 mr-2" />
+              {t.reportIllness}
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => setShowMarketForm(true)}
+              className="border-orange-200 text-orange-700 hover:bg-orange-50 h-10 sm:h-12 text-xs sm:text-sm justify-start"
+            >
+              <ShoppingCart className="w-4 h-4 mr-2" />
+              {t.sellAnimal}
+            </Button>
           </div>
         </CardContent>
       </Card>
 
-      {showAnimalForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
-          <div className="relative w-full max-w-4xl max-h-[95vh] overflow-hidden">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowAnimalForm(false)}
-              className="absolute top-2 right-2 z-10 bg-white/90 hover:bg-white shadow-sm"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-            <AnimalRegistrationForm
-              language={language}
-              onClose={() => setShowAnimalForm(false)}
-              onSuccess={handleActionComplete}
-            />
-          </div>
-        </div>
+      {/* Forms */}
+      {showRegistrationForm && (
+        <AnimalRegistrationForm
+          language={language}
+          onClose={handleFormClose}
+          onSubmit={handleFormClose}
+        />
       )}
 
-      {showCalfForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
-          <div className="relative w-full max-w-4xl max-h-[95vh] overflow-hidden">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowCalfForm(false)}
-              className="absolute top-2 right-2 z-10 bg-white/90 hover:bg-white shadow-sm"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-            <CalfRegistrationForm
-              language={language}
-              onClose={() => setShowCalfForm(false)}
-              onSuccess={handleActionComplete}
-            />
-          </div>
-        </div>
+      {showVaccinationForm && (
+        <VaccinationForm
+          language={language}
+          onClose={handleFormClose}
+        />
       )}
 
-      {showPoultryForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4 z-50">
-          <div className="relative w-full max-w-4xl max-h-[95vh] overflow-hidden">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowPoultryForm(false)}
-              className="absolute top-2 right-2 z-10 bg-white/90 hover:bg-white shadow-sm"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-            <PoultryGroupForm
-              language={language}
-              onClose={() => setShowPoultryForm(false)}
-              onSuccess={handleActionComplete}
-            />
-          </div>
-        </div>
+      {showWeightForm && (
+        <WeightEntryForm
+          language={language}
+          onClose={handleFormClose}
+          onWeightAdded={handleFormClose}
+        />
+      )}
+
+      {showIllnessForm && (
+        <IllnessReportForm
+          language={language}
+          onClose={handleFormClose}
+          onSubmit={handleFormClose}
+        />
+      )}
+
+      {showMarketForm && (
+        <MarketListingForm
+          language={language}
+          onClose={handleFormClose}
+          onSuccess={handleFormClose}
+        />
       )}
     </>
   );

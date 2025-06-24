@@ -1,86 +1,138 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Calendar, Users, Syringe, TrendingUp, ShoppingCart, AlertTriangle } from 'lucide-react';
+import { Language } from '@/types';
 
 interface RecentActivityProps {
-  language: 'am' | 'en';
+  language: Language;
 }
 
 export const RecentActivity = ({ language }: RecentActivityProps) => {
-  const activities = [
-    {
-      icon: '💉',
-      titleAm: 'ቤሳ - ክትባት ተሰጥቷል',
-      titleEn: 'Livestock - Vaccinated',
-      timeAm: '2 ሰዓት በፊት',
-      timeEn: '2 hours ago',
-      status: 'completed'
+  const translations = {
+    am: {
+      recentActivity: 'የቅርብ ጊዜ እንቅስቃሴዎች',
+      today: 'ዛሬ',
+      yesterday: 'ትናንት',
+      daysAgo: 'ቀናት በፊት',
+      vaccinated: 'ክትባት ተደርጓል',
+      weightRecorded: 'ክብደት ተመዝግቧል',
+      animalAdded: 'እንስሳ ተጨምሯል',
+      healthIssue: 'የጤንነት ችግር ተዘግቧል',
+      marketListed: 'በገበያ ተዘርዝሯል'
     },
-    {
-      icon: '📊',
-      titleAm: 'የዶሮ እንቁላል ምርት - 45 እንቁላሎች',
-      titleEn: 'Egg Production - 45 eggs',
-      timeAm: '5 ሰዓት በፊት',
-      timeEn: '5 hours ago',
-      status: 'recorded'
+    en: {
+      recentActivity: 'Recent Activity',
+      today: 'Today',
+      yesterday: 'Yesterday',
+      daysAgo: 'days ago',
+      vaccinated: 'Vaccinated',
+      weightRecorded: 'Weight recorded',
+      animalAdded: 'Animal added',
+      healthIssue: 'Health issue reported',
+      marketListed: 'Listed for sale'
     },
-    {
-      icon: '🐄',
-      titleAm: 'አዲስ ላም ተመዝግቧል - ሞላ',
-      titleEn: 'New Cow Registered - Mola',
-      timeAm: '1 ቀን በፊት',
-      timeEn: '1 day ago',
-      status: 'new'
+    or: {
+      recentActivity: 'Sochiiwwan Dhiyeenyaa',
+      today: 'Har\'a',
+      yesterday: 'Kaleessa',
+      daysAgo: 'guyyoota dura',
+      vaccinated: 'Tallaa\'e',
+      weightRecorded: 'Ulfaatinni galmeeffame',
+      animalAdded: 'Horiin dabalame',
+      healthIssue: 'Rakkoon fayyaa gabaafame',
+      marketListed: 'Gurgurtaaf tarreeffame'
     },
-    {
-      icon: '🛒',
-      titleAm: 'ላም ለሽያጭ ተለጥፏል',
-      titleEn: 'Cow Posted for Sale',
-      timeAm: '2 ቀን በፊት',
-      timeEn: '2 days ago',
-      status: 'pending'
-    }
-  ];
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed': return 'bg-green-100 text-green-800';
-      case 'recorded': return 'bg-blue-100 text-blue-800';
-      case 'new': return 'bg-purple-100 text-purple-800';
-      case 'pending': return 'bg-orange-100 text-orange-800';
-      default: return 'bg-gray-100 text-gray-800';
+    sw: {
+      recentActivity: 'Shughuli za Hivi Karibuni',
+      today: 'Leo',
+      yesterday: 'Jana',
+      daysAgo: 'siku zilizopita',
+      vaccinated: 'Amepata chanjo',
+      weightRecorded: 'Uzito umepokelewa',
+      animalAdded: 'Mnyama ameongezwa',
+      healthIssue: 'Tatizo la afya limeripotiwa',
+      marketListed: 'Imeorodheshwa kwa mauzo'
     }
   };
 
+  const t = translations[language];
+
+  const activities = [
+    {
+      id: 1,
+      type: 'vaccination',
+      animal: 'ሞላ (Cow-001)',
+      action: t.vaccinated,
+      time: t.today,
+      icon: Syringe,
+      color: 'text-green-600 bg-green-100'
+    },
+    {
+      id: 2,
+      type: 'weight',
+      animal: 'አበባ (Goat-002)', 
+      action: t.weightRecorded,
+      time: t.yesterday,
+      icon: TrendingUp,
+      color: 'text-blue-600 bg-blue-100'
+    },
+    {
+      id: 3,
+      type: 'registration',
+      animal: 'ገብሬ (Sheep-003)',
+      action: t.animalAdded,
+      time: `2 ${t.daysAgo}`,
+      icon: Users,
+      color: 'text-purple-600 bg-purple-100'
+    },
+    {
+      id: 4,
+      type: 'health',
+      animal: 'ፋሲል (Cattle-004)',
+      action: t.healthIssue,
+      time: `3 ${t.daysAgo}`,
+      icon: AlertTriangle,
+      color: 'text-red-600 bg-red-100'
+    },
+    {
+      id: 5,
+      type: 'market',
+      animal: 'ሄለን (Goat-005)',
+      action: t.marketListed,
+      time: `5 ${t.daysAgo}`,
+      icon: ShoppingCart,
+      color: 'text-orange-600 bg-orange-100'
+    }
+  ];
+
   return (
-    <Card className="border-green-100">
-      <CardHeader>
-        <CardTitle className="text-lg text-gray-800">
-          {language === 'am' ? 'የቅርብ ጊዜ እንቅስቃሴዎች' : 'Recent Activity'}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {activities.map((activity, index) => (
-            <div key={index} className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
-              <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                <span className="text-lg">{activity.icon}</span>
+    <div className="space-y-3">
+      {activities.map((activity) => (
+        <Card key={activity.id} className="border-gray-100 hover:shadow-md transition-shadow">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center space-x-3">
+              <div className={`p-2 rounded-full ${activity.color}`}>
+                <activity.icon className="w-4 h-4" />
               </div>
-              <div className="flex-1">
-                <p className="font-medium text-gray-900">
-                  {language === 'am' ? activity.titleAm : activity.titleEn}
-                </p>
-                <p className="text-sm text-gray-500">
-                  {language === 'am' ? activity.timeAm : activity.timeEn}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium text-gray-900 truncate">
+                    {activity.animal}
+                  </p>
+                  <Badge variant="outline" className="text-xs">
+                    {activity.time}
+                  </Badge>
+                </div>
+                <p className="text-xs text-gray-600 mt-1">
+                  {activity.action}
                 </p>
               </div>
-              <Badge className={getStatusColor(activity.status)}>
-                {activity.status}
-              </Badge>
             </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
 };
