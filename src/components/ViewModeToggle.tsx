@@ -25,8 +25,8 @@ export const ViewModeToggle = ({
       tableView: 'Table View'
     },
     or: {
-      cardView: 'Mul'akkaa Kaardii',
-      tableView: 'Mul'akkaa Gabatee'
+      cardView: "Mul'akkaa Kaardii",
+      tableView: "Mul'akkaa Gabatee"
     },
     sw: {
       cardView: 'Mwongozo wa Kadi',
