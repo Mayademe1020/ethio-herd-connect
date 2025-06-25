@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { VaccinationForm } from '@/components/VaccinationForm';
 import { IllnessReportForm } from '@/components/IllnessReportForm';
@@ -38,6 +39,11 @@ const Health = () => {
 
   const handleDetailViewClick = (cardType: string) => {
     setSelectedDetailView(cardType);
+  };
+
+  const handleIllnessReportSubmit = (data: any) => {
+    console.log('Illness report submitted:', data);
+    // Handle illness report submission logic here
   };
 
   const DetailView = ({ type }: { type: string }) => {
@@ -413,7 +419,8 @@ const Health = () => {
       {showIllnessForm && (
         <IllnessReportForm 
           language={language} 
-          onClose={() => setShowIllnessForm(false)} 
+          onClose={() => setShowIllnessForm(false)}
+          onSubmit={handleIllnessReportSubmit}
         />
       )}
 

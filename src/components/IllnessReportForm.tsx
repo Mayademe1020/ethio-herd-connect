@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,9 +11,9 @@ import { Language, AnimalData } from '@/types';
 
 interface IllnessReportFormProps {
   language: Language;
-  animal: AnimalData;
+  animal?: AnimalData;
   onClose: () => void;
-  onSubmit: (data: any) => void;
+  onSubmit?: (data: any) => void;
 }
 
 export const IllnessReportForm = ({ 
@@ -22,7 +23,8 @@ export const IllnessReportForm = ({
   onSubmit 
 }: IllnessReportFormProps) => {
   const [formData, setFormData] = useState({
-    animalId: animal.id,
+    animalId: animal?.id || '',
+    animalCode: animal?.animal_code || '',
     symptoms: '',
     severity: 'attention' as 'attention' | 'sick' | 'critical',
     notes: ''
@@ -32,6 +34,7 @@ export const IllnessReportForm = ({
     am: {
       title: 'ህመም ሪፖርት',
       animal: 'እንስሳ',
+      animalCode: 'የእንስሳ መምለያ',
       symptoms: 'በሽታ መለያዎች',
       severity: 'ክብደት',
       attention: 'ትኩረት',
@@ -44,6 +47,7 @@ export const IllnessReportForm = ({
     en: {
       title: 'Illness Report',
       animal: 'Animal',
+      animalCode: 'Animal Code',
       symptoms: 'Symptoms',
       severity: 'Severity',
       attention: 'Needs Attention',
@@ -56,6 +60,7 @@ export const IllnessReportForm = ({
     or: {
       title: 'Gabaasa Dhukkubaa',
       animal: 'Horii',
+      animalCode: 'Lakkoofsa Horii',
       symptoms: 'Mallattoo Dhukkubaa',
       severity: 'Cimina',
       attention: 'Xiyyeeffannoo Barbaada',
@@ -68,6 +73,7 @@ export const IllnessReportForm = ({
     sw: {
       title: 'Ripoti ya Ugonjwa',
       animal: 'Mnyama',
+      animalCode: 'Nambari ya Mnyama',
       symptoms: 'Dalili',
       severity: 'Kiwango',
       attention: 'Anahitaji Umakini',
@@ -83,7 +89,9 @@ export const IllnessReportForm = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    if (onSubmit) {
+      onSubmit(formData);
+    }
     onClose();
   };
 
@@ -106,10 +114,24 @@ export const IllnessReportForm = ({
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-600">{t.animal}</p>
-              <p className="font-medium">{animal.name} ({animal.animal_code})</p>
-            </div>
+            {animal && (
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <p className="text-sm text-gray-600">{t.animal}</p>
+                <p className="font-medium">{animal.name} ({animal.animal_code})</p>
+              </div>
+            )}
+
+            {!animal && (
+              <div className="space-y-2">
+                <Label htmlFor="animalCode">{t.animalCode}</Label>
+                <Input
+                  id="animalCode"
+                  value={formData.animalCode}
+                  onChange={(e) => setFormData(prev => ({ ...prev, animalCode: e.target.value }))}
+                  required
+                />
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="symptoms">{t.symptoms}</Label>

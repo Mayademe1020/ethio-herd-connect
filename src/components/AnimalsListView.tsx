@@ -1,9 +1,10 @@
 
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { ModernAnimalCard } from '@/components/ModernAnimalCard';
 import { AnimalTableView } from '@/components/AnimalTableView';
-import { AnimalData, Language } from '@/types';
+import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
+import { Language, AnimalData } from '@/types';
 
 interface AnimalsListViewProps {
   animals: AnimalData[];
@@ -30,28 +31,20 @@ export const AnimalsListView = ({
 }: AnimalsListViewProps) => {
   const translations = {
     am: {
-      noAnimalsTitle: 'ምንም እንስሳ አልተመዘገበም',
-      noAnimalsSubtitle: 'የመጀመሪያዎን እንስሳ ለመመዝገብ ከዚህ ጀምር',
-      noAnimalsFound: 'ምንም እንስሳ አልተገኘም',
-      tryDifferentSearch: 'የተለየ ፍለጋ ይሞክሩ'
+      noAnimals: 'እንስሳት አልተገኙም',
+      addFirst: 'የመጀመሪያ እንስሳዎን ያክሉ'
     },
     en: {
-      noAnimalsTitle: 'No animals registered',
-      noAnimalsSubtitle: 'Get started by registering your first animal',
-      noAnimalsFound: 'No animals found',
-      tryDifferentSearch: 'Try a different search'
+      noAnimals: 'No animals found',
+      addFirst: 'Add your first animal'
     },
     or: {
-      noAnimalsTitle: 'Horiin tokkollee hin galmaa\'ine',
-      noAnimalsSubtitle: 'Horii jalqabaa galmeessuun jalqabi',
-      noAnimalsFound: 'Horiin tokkollee hin argamne',
-      tryDifferentSearch: 'Barbaacha biraa yaali'
+      noAnimals: 'Horii hin argamne',
+      addFirst: 'Horii jalqabaa kee dabaluu'
     },
     sw: {
-      noAnimalsTitle: 'Hakuna mnyama aliyesajiliwa',
-      noAnimalsSubtitle: 'Anza kwa kusajili mnyama wako wa kwanza',
-      noAnimalsFound: 'Hakuna mnyama aliyepatikana',
-      tryDifferentSearch: 'Jaribu utafutaji mwingine'
+      noAnimals: 'Hakuna wanyama waliopatikana',
+      addFirst: 'Ongeza mnyama wako wa kwanza'
     }
   };
 
@@ -59,17 +52,13 @@ export const AnimalsListView = ({
 
   if (animals.length === 0) {
     return (
-      <Card className="text-center py-8 sm:py-12 mx-2 sm:mx-0">
-        <CardContent className="px-3 sm:px-6">
-          <div className="text-4xl sm:text-6xl mb-3 sm:mb-4">🐄</div>
-          <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2">
-            {t.noAnimalsTitle}
-          </h3>
-          <p className="text-gray-600 mb-4 sm:mb-6 text-sm sm:text-base">
-            {t.noAnimalsSubtitle}
-          </p>
-        </CardContent>
-      </Card>
+      <div className="text-center py-12">
+        <p className="text-gray-500 mb-4">{t.noAnimals}</p>
+        <Button onClick={onShowRegistrationForm} className="bg-green-600 hover:bg-green-700">
+          <Plus className="w-4 h-4 mr-2" />
+          {t.addFirst}
+        </Button>
+      </div>
     );
   }
 
@@ -88,7 +77,7 @@ export const AnimalsListView = ({
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {animals.map((animal) => (
         <ModernAnimalCard
           key={animal.id}
