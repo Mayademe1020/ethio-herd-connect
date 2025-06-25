@@ -105,7 +105,7 @@ export const InteractiveDashboard = ({ language, stats }: InteractiveDashboardPr
         titleSw="Chanjo Zinazokuja"
         value={stats.upcomingVaccinations}
         icon={<Shield className="w-4 h-4 sm:w-5 sm:h-5" />}
-        color="indigo"
+        color="blue"
         language={language}
       />
     </div>

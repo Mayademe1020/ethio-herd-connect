@@ -1,169 +1,137 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Syringe, TrendingUp, ShoppingCart, AlertTriangle, Users } from 'lucide-react';
-import { AnimalRegistrationForm } from './AnimalRegistrationForm';
-import { VaccinationForm } from './VaccinationForm';
-import { WeightEntryForm } from './WeightEntryForm';
-import { IllnessReportForm } from './IllnessReportForm';
-import { MarketListingForm } from './MarketListingForm';
+import { Plus, Syringe, TrendingUp, ShoppingCart, FileText, Users } from 'lucide-react';
 import { Language } from '@/types';
 
 interface QuickActionsProps {
   language: Language;
-  onActionComplete?: () => void;
+  onActionComplete: () => void;
 }
 
 export const QuickActions = ({ language, onActionComplete }: QuickActionsProps) => {
-  const [showRegistrationForm, setShowRegistrationForm] = useState(false);
-  const [showVaccinationForm, setShowVaccinationForm] = useState(false);
-  const [showWeightForm, setShowWeightForm] = useState(false);
-  const [showIllnessForm, setShowIllnessForm] = useState(false);
-  const [showMarketForm, setShowMarketForm] = useState(false);
-
   const translations = {
     am: {
-      quickActions: 'ፈጣን እርምጃዎች',
+      title: 'ፈጣን እርምጃዎች',
       addAnimal: 'እንስሳ ጨምር',
-      recordVaccination: 'ክትባት መዝግብ',
-      trackGrowth: 'እድገት ክትትል',
-      reportIllness: 'ጤንነት ችግር ሪፖርት',
-      sellAnimal: 'በገበያ አስመዝግብ'
+      vaccinate: 'ክትባት',
+      recordWeight: 'ክብደት መዝግብ',
+      sellAnimal: 'እንስሳ ሽጥ',
+      generateReport: 'ሪፖርት ፍጠር',
+      manageStaff: 'ሰራተኞች'
     },
     en: {
-      quickActions: 'Quick Actions',
+      title: 'Quick Actions',
       addAnimal: 'Add Animal',
-      recordVaccination: 'Record Vaccination',
-      trackGrowth: 'Track Growth',
-      reportIllness: 'Report Illness',
-      sellAnimal: 'List for Sale'
+      vaccinate: 'Vaccinate',
+      recordWeight: 'Record Weight',
+      sellAnimal: 'Sell Animal',
+      generateReport: 'Generate Report',
+      manageStaff: 'Manage Staff'
     },
     or: {
-      quickActions: 'Tarkaanfii Saffisaa',
+      title: 'Gocha Saffisaa',
       addAnimal: 'Horii Dabaluu',
-      recordVaccination: 'Tallaa Galmeessuu',
-      trackGrowth: 'Guddina Hordofuu',
-      reportIllness: 'Dhukkuba Gabaasuu',
-      sellAnimal: 'Gurgurtaaf Tarreessuu'
+      vaccinate: 'Tallaa Kennuu',
+      recordWeight: 'Ulfaatina Galmeessuu',
+      sellAnimal: 'Horii Gurguruu',
+      generateReport: 'Gabaasa Uumuu',
+      manageStaff: 'Hojjettota Bulchuu'
     },
     sw: {
-      quickActions: 'Vitendo vya Haraka',
+      title: 'Vitendo vya Haraka',
       addAnimal: 'Ongeza Mnyama',
-      recordVaccination: 'Rekodi Chanjo',
-      trackGrowth: 'Fuatilia Ukuaji',
-      reportIllness: 'Ripoti Ugonjwa',
-      sellAnimal: 'Orodhesha kwa Mauzo'
+      vaccinate: 'Chanjo',
+      recordWeight: 'Rekodi Uzito',
+      sellAnimal: 'Uza Mnyama',
+      generateReport: 'Tengeneza Ripoti',
+      manageStaff: 'Simamia Wafanyakazi'
     }
   };
 
   const t = translations[language];
 
-  const handleFormClose = () => {
-    setShowRegistrationForm(false);
-    setShowVaccinationForm(false);
-    setShowWeightForm(false);
-    setShowIllnessForm(false);
-    setShowMarketForm(false);
-    onActionComplete?.();
+  const handleAction = (action: string) => {
+    console.log(`Quick action: ${action}`);
+    onActionComplete();
   };
 
   return (
-    <>
-      <Card className="border-green-100">
-        <CardHeader className="pb-2 sm:pb-3">
-          <CardTitle className="text-sm sm:text-base lg:text-lg font-semibold text-gray-800">
-            ⚡ {t.quickActions}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2 sm:space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
-            <Button
-              onClick={() => setShowRegistrationForm(true)}
-              className="bg-green-600 hover:bg-green-700 h-10 sm:h-12 text-xs sm:text-sm justify-start"
-            >
-              <Plus className="w-4 h-4 mr-2" />
+    <Card className="border-green-100">
+      <CardHeader className="pb-2 sm:pb-3">
+        <CardTitle className="text-sm sm:text-base lg:text-lg font-semibold text-gray-800">
+          ⚡ {t.title}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+          <Button
+            onClick={() => handleAction('add-animal')}
+            className="h-16 sm:h-20 flex flex-col space-y-1 sm:space-y-2 bg-green-600 hover:bg-green-700 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
+          >
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="font-medium text-center leading-tight">
               {t.addAnimal}
-            </Button>
+            </span>
+          </Button>
 
-            <Button
-              variant="outline"
-              onClick={() => setShowVaccinationForm(true)}
-              className="border-blue-200 text-blue-700 hover:bg-blue-50 h-10 sm:h-12 text-xs sm:text-sm justify-start"
-            >
-              <Syringe className="w-4 h-4 mr-2" />
-              {t.recordVaccination}
-            </Button>
+          <Button
+            onClick={() => handleAction('vaccinate')}
+            variant="outline"
+            className="h-16 sm:h-20 flex flex-col space-y-1 sm:space-y-2 border-blue-200 hover:bg-blue-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
+          >
+            <Syringe className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
+            <span className="font-medium text-center leading-tight">
+              {t.vaccinate}
+            </span>
+          </Button>
 
-            <Button
-              variant="outline"
-              onClick={() => setShowWeightForm(true)}
-              className="border-purple-200 text-purple-700 hover:bg-purple-50 h-10 sm:h-12 text-xs sm:text-sm justify-start"
-            >
-              <TrendingUp className="w-4 h-4 mr-2" />
-              {t.trackGrowth}
-            </Button>
+          <Button
+            onClick={() => handleAction('record-weight')}
+            variant="outline"
+            className="h-16 sm:h-20 flex flex-col space-y-1 sm:space-y-2 border-purple-200 hover:bg-purple-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
+          >
+            <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500" />
+            <span className="font-medium text-center leading-tight">
+              {t.recordWeight}
+            </span>
+          </Button>
 
-            <Button
-              variant="outline"
-              onClick={() => setShowIllnessForm(true)}
-              className="border-red-200 text-red-700 hover:bg-red-50 h-10 sm:h-12 text-xs sm:text-sm justify-start"
-            >
-              <AlertTriangle className="w-4 h-4 mr-2" />
-              {t.reportIllness}
-            </Button>
-
-            <Button
-              variant="outline"
-              onClick={() => setShowMarketForm(true)}
-              className="border-orange-200 text-orange-700 hover:bg-orange-50 h-10 sm:h-12 text-xs sm:text-sm justify-start"
-            >
-              <ShoppingCart className="w-4 h-4 mr-2" />
+          <Button
+            onClick={() => handleAction('sell-animal')}
+            variant="outline"
+            className="h-16 sm:h-20 flex flex-col space-y-1 sm:space-y-2 border-orange-200 hover:bg-orange-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
+          >
+            <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" />
+            <span className="font-medium text-center leading-tight">
               {t.sellAnimal}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+            </span>
+          </Button>
 
-      {/* Forms */}
-      {showRegistrationForm && (
-        <AnimalRegistrationForm
-          language={language}
-          onClose={handleFormClose}
-          onSubmit={handleFormClose}
-        />
-      )}
+          <Button
+            onClick={() => handleAction('generate-report')}
+            variant="outline"
+            className="h-16 sm:h-20 flex flex-col space-y-1 sm:space-y-2 border-indigo-200 hover:bg-indigo-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
+          >
+            <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-500" />
+            <span className="font-medium text-center leading-tight">
+              {t.generateReport}
+            </span>
+          </Button>
 
-      {showVaccinationForm && (
-        <VaccinationForm
-          language={language}
-          onClose={handleFormClose}
-        />
-      )}
-
-      {showWeightForm && (
-        <WeightEntryForm
-          language={language}
-          onClose={handleFormClose}
-          onWeightAdded={handleFormClose}
-        />
-      )}
-
-      {showIllnessForm && (
-        <IllnessReportForm
-          language={language}
-          onClose={handleFormClose}
-          onSubmit={handleFormClose}
-        />
-      )}
-
-      {showMarketForm && (
-        <MarketListingForm
-          language={language}
-          onClose={handleFormClose}
-          onSuccess={handleFormClose}
-        />
-      )}
-    </>
+          <Button
+            onClick={() => handleAction('manage-staff')}
+            variant="outline"
+            className="h-16 sm:h-20 flex flex-col space-y-1 sm:space-y-2 border-gray-200 hover:bg-gray-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
+          >
+            <Users className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
+            <span className="font-medium text-center leading-tight">
+              {t.manageStaff}
+            </span>
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 };

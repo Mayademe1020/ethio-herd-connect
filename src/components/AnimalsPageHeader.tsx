@@ -9,31 +9,31 @@ interface AnimalsPageHeaderProps {
 export const AnimalsPageHeader = ({ language }: AnimalsPageHeaderProps) => {
   const translations = {
     am: {
-      title: 'የእንስሳዎች አስተዳደር',
-      subtitle: 'እንስሳዎችዎን ይመዝግቡ እና ያስተዳድሩ'
+      title: 'እንስሳቶቼ',
+      subtitle: 'የእንስሳቶችዎን መዝገብ ያስተዳድሩ'
     },
     en: {
-      title: 'Animals Management',
-      subtitle: 'Register and manage your animals'
+      title: 'My Animals',
+      subtitle: 'Manage your livestock records'
     },
     or: {
-      title: 'Bulchiinsa Horii',
-      subtitle: 'Horii keessan galmeessaa fi bulchaa'
+      title: 'Horii Koo',
+      subtitle: 'Galmee horii keessanii bulchaa'
     },
     sw: {
-      title: 'Usimamizi wa Wanyamapori',
-      subtitle: 'Sajili na dhibiti wanyamapori wako'
+      title: 'Wanyama Wangu',
+      subtitle: 'Simamia rekodi za mifugo yako'
     }
   };
 
   const t = translations[language];
 
   return (
-    <div className="text-center px-2">
-      <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-800 mb-1 sm:mb-2">
+    <div className="text-center mb-4 sm:mb-6">
+      <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-2">
         🐄 {t.title}
       </h1>
-      <p className="text-gray-600 text-xs sm:text-sm lg:text-base">
+      <p className="text-sm sm:text-base text-gray-600">
         {t.subtitle}
       </p>
     </div>
