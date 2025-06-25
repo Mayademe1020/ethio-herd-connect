@@ -1,11 +1,11 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, TrendingUp, Scale, Calendar, Target } from 'lucide-react';
 import { GrowthChart } from '@/components/GrowthChart';
+import { Language } from '@/types';
 
 interface GrowthDetailViewProps {
-  language: 'am' | 'en';
+  language: Language;
   type: string;
   onBack: () => void;
 }
@@ -26,13 +26,25 @@ export const GrowthDetailView = ({ language, type, onBack }: GrowthDetailViewPro
   const getTitle = () => {
     switch (type) {
       case 'total':
-        return language === 'am' ? 'ጠቅላላ እንስሳት' : 'All Animals Growth';
+        return language === 'am' ? 'ጠቅላላ እንስሳት' : 
+               language === 'or' ? 'Horii Hundaa' :
+               language === 'sw' ? 'Jumla ya Wanyama' :
+               'All Animals Growth';
       case 'growing':
-        return language === 'am' ? 'እያደጉ ያሉ' : 'Growing Animals';
+        return language === 'am' ? 'እያደጉ ያሉ' : 
+               language === 'or' ? 'Gudachaa Jiran' :
+               language === 'sw' ? 'Wanaokua' :
+               'Growing Animals';
       case 'targets':
-        return language === 'am' ? 'የክብደት ዒላማዎች' : 'Weight Targets';
+        return language === 'am' ? 'የክብደት ዒላማዎች' : 
+               language === 'or' ? 'Galmoota Ulfaatinaa' :
+               language === 'sw' ? 'Malengo ya Uzito' :
+               'Weight Targets';
       default:
-        return language === 'am' ? 'የእድገት ዝርዝር' : 'Growth Details';
+        return language === 'am' ? 'የእድገት ዝርዝር' : 
+               language === 'or' ? 'Bal\'ina Guddina' :
+               language === 'sw' ? 'Maelezo ya Ukuaji' :
+               'Growth Details';
     }
   };
 
@@ -53,10 +65,16 @@ export const GrowthDetailView = ({ language, type, onBack }: GrowthDetailViewPro
                 <div>
                   <h4 className="font-medium text-lg">{animal.name}</h4>
                   <p className="text-sm text-gray-600">
-                    {language === 'am' ? 'የአሁን ክብደት:' : 'Current Weight:'} {animal.currentWeight}kg
+                    {language === 'am' ? 'የአሁን ክብደት:' : 
+                     language === 'or' ? 'Ulfaatina Ammaa:' :
+                     language === 'sw' ? 'Uzito wa Sasa:' :
+                     'Current Weight:'} {animal.currentWeight}kg
                   </p>
                   <p className="text-xs text-gray-500">
-                    {language === 'am' ? 'መጨረሻ ተመዝኗል:' : 'Last weighed:'} {animal.lastWeighed}
+                    {language === 'am' ? 'መጨረሻ ተመዝኗል:' : 
+                     language === 'or' ? 'Dhumaa Safarame:' :
+                     language === 'sw' ? 'Ilipimwa Mwisho:' :
+                     'Last weighed:'} {animal.lastWeighed}
                   </p>
                 </div>
               </div>
@@ -66,7 +84,10 @@ export const GrowthDetailView = ({ language, type, onBack }: GrowthDetailViewPro
                   <span className="font-medium">+{animal.currentWeight - animal.lastWeight}kg</span>
                 </div>
                 <p className="text-xs text-gray-500">
-                  {language === 'am' ? 'ማሻሻያ' : 'Growth'}
+                  {language === 'am' ? 'ማሻሻያ' : 
+                   language === 'or' ? 'Guddina' :
+                   language === 'sw' ? 'Ukuaji' :
+                   'Growth'}
                 </p>
               </div>
             </div>
@@ -76,7 +97,10 @@ export const GrowthDetailView = ({ language, type, onBack }: GrowthDetailViewPro
       
       <div className="mt-6">
         <h3 className="text-lg font-semibold mb-4">
-          {language === 'am' ? 'የእድገት ቻርቶች' : 'Growth Charts'}
+          {language === 'am' ? 'የእድገት ቻርቶች' : 
+           language === 'or' ? 'Chaartii Guddina' :
+           language === 'sw' ? 'Chati za Ukuaji' :
+           'Growth Charts'}
         </h3>
         <div className="space-y-6">
           {mockGrowthData.animals.filter(a => a.trend === 'up').map((animal) => (
@@ -111,13 +135,19 @@ export const GrowthDetailView = ({ language, type, onBack }: GrowthDetailViewPro
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">
-                    {language === 'am' ? 'ክብደት:' : 'Weight:'}
+                    {language === 'am' ? 'ክብደት:' : 
+                     language === 'or' ? 'Ulfaatina:' :
+                     language === 'sw' ? 'Uzito:' :
+                     'Weight:'}
                   </span>
                   <span className="font-medium">{animal.currentWeight}kg</span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">
-                    {language === 'am' ? 'አዝማሚያ:' : 'Trend:'}
+                    {language === 'am' ? 'አዝማሚያ:' : 
+                     language === 'or' ? 'Adeemsa:' :
+                     language === 'sw' ? 'Mwelekeo:' :
+                     'Trend:'}
                   </span>
                   <div className={`flex items-center space-x-1 ${
                     animal.trend === 'up' ? 'text-green-600' : 'text-gray-500'
@@ -125,8 +155,14 @@ export const GrowthDetailView = ({ language, type, onBack }: GrowthDetailViewPro
                     <TrendingUp className={`w-4 h-4 ${animal.trend === 'stable' ? 'rotate-90' : ''}`} />
                     <span className="text-xs font-medium">
                       {animal.trend === 'up' 
-                        ? (language === 'am' ? 'እያደገ' : 'Growing')
-                        : (language === 'am' ? 'የተረጋጋ' : 'Stable')
+                        ? (language === 'am' ? 'እያደገ' : 
+                           language === 'or' ? 'Gudachaa' :
+                           language === 'sw' ? 'Inakua' :
+                           'Growing')
+                        : (language === 'am' ? 'የተረጋጋ' : 
+                           language === 'or' ? 'Tasgabbii' :
+                           language === 'sw' ? 'Imara' :
+                           'Stable')
                       }
                     </span>
                   </div>
@@ -139,12 +175,18 @@ export const GrowthDetailView = ({ language, type, onBack }: GrowthDetailViewPro
       
       <div className="mt-8">
         <h3 className="text-lg font-semibold mb-4">
-          {language === 'am' ? 'የቡድን እድገት ቻርት' : 'Group Growth Chart'}
+          {language === 'am' ? 'የቡድን እድገት ቻርት' : 
+           language === 'or' ? 'Chaartii Guddina Garee' :
+           language === 'sw' ? 'Chati ya Ukuaji wa Kundi' :
+           'Group Growth Chart'}
         </h3>
         <GrowthChart 
           language={language}
           animalId="group"
-          animalName={language === 'am' ? 'ቡድን እይታ' : 'Group View'}
+          animalName={language === 'am' ? 'ቡድን እይታ' : 
+                     language === 'or' ? 'Mul\'ata Garee' :
+                     language === 'sw' ? 'Mwongozo wa Kundi' :
+                     'Group View'}
         />
       </div>
     </div>
@@ -170,7 +212,10 @@ export const GrowthDetailView = ({ language, type, onBack }: GrowthDetailViewPro
                     {target.currentWeight}kg → {target.targetWeight}kg
                   </p>
                   <p className="text-xs text-gray-500">
-                    {language === 'am' ? 'ቀነ-ገደብ:' : 'Deadline:'} {target.deadline}
+                    {language === 'am' ? 'ቀነ-ገደብ:' : 
+                     language === 'or' ? 'Yeroo Dhumaa:' :
+                     language === 'sw' ? 'Muda wa Mwisho:' :
+                     'Deadline:'} {target.deadline}
                   </p>
                 </div>
               </div>
@@ -179,7 +224,10 @@ export const GrowthDetailView = ({ language, type, onBack }: GrowthDetailViewPro
                   {Math.round((target.currentWeight / target.targetWeight) * 100)}%
                 </div>
                 <p className="text-xs text-gray-500">
-                  {language === 'am' ? 'ተጠናቋል' : 'Complete'}
+                  {language === 'am' ? 'ተጠናቋል' : 
+                   language === 'or' ? 'Xumurame' :
+                   language === 'sw' ? 'Imekamilika' :
+                   'Complete'}
                 </p>
               </div>
             </div>
@@ -218,7 +266,10 @@ export const GrowthDetailView = ({ language, type, onBack }: GrowthDetailViewPro
           className="hover-scale transition-all duration-200"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          {language === 'am' ? 'ተመለስ' : 'Back'}
+          {language === 'am' ? 'ተመለስ' : 
+           language === 'or' ? 'Deebi\'i' :
+           language === 'sw' ? 'Rudi' :
+           'Back'}
         </Button>
         <h2 className="text-xl font-semibold">{getTitle()}</h2>
       </div>

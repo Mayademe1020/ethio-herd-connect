@@ -1,229 +1,236 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { X, Home, User, Phone, MapPin } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { X, Save, MapPin, User, Phone, Mail } from 'lucide-react';
+import { Language } from '@/types';
 
 interface FarmSetupFormProps {
-  language: 'am' | 'en';
+  language: Language;
   onClose: () => void;
-  onSuccess?: () => void;
+  editMode?: boolean;
 }
 
-export const FarmSetupForm: React.FC<FarmSetupFormProps> = ({
-  language,
-  onClose,
-  onSuccess
-}) => {
+export const FarmSetupForm = ({ language, onClose, editMode = false }: FarmSetupFormProps) => {
   const [formData, setFormData] = useState({
     farmName: '',
-    farmPrefix: '',
     ownerName: '',
+    phone: '',
+    email: '',
     location: '',
-    phone: ''
+    farmType: '',
+    description: ''
   });
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  
-  const { toast } = useToast();
-  const { user } = useAuth();
 
-  const generatePrefix = (farmName: string): string => {
-    // Take first 3 consonants from farm name, fallback to first 3 chars
-    const consonants = farmName.toUpperCase().replace(/[AEIOU\s]/g, '');
-    return consonants.length >= 3 ? consonants.slice(0, 3) : farmName.toUpperCase().slice(0, 3);
+  const translations = {
+    am: {
+      title: editMode ? 'መረጃ አርትዕ' : 'የእርሻ ማዋቀር',
+      farmName: 'የእርሻ ስም',
+      ownerName: 'የባለቤት ስም',
+      phone: 'ስልክ ቁጥር',
+      email: 'ኢሜይል',
+      location: 'አድራሻ',
+      farmType: 'የእርሻ ዓይነት',
+      description: 'መግለጫ',
+      save: 'አስቀምጥ',
+      cancel: 'ሰርዝ',
+      cattle: 'ከብቶች',
+      goats: 'ፍየሎች',
+      sheep: 'በጎች',
+      poultry: 'ዶሮዎች',
+      mixed: 'የተደቀላቀለ'
+    },
+    en: {
+      title: editMode ? 'Edit Information' : 'Farm Setup',
+      farmName: 'Farm Name',
+      ownerName: 'Owner Name',
+      phone: 'Phone Number',
+      email: 'Email',
+      location: 'Location',
+      farmType: 'Farm Type',
+      description: 'Description',
+      save: 'Save',
+      cancel: 'Cancel',
+      cattle: 'Cattle',
+      goats: 'Goats',
+      sheep: 'Sheep',
+      poultry: 'Poultry',
+      mixed: 'Mixed'
+    },
+    or: {
+      title: editMode ? 'Odeeffannoo Fooyyessuu' : 'Qormaata Qonnaa',
+      farmName: 'Maqaa Qonnaa',
+      ownerName: 'Maqaa Abbaa',
+      phone: 'Lakkoofsa Bilbilaa',
+      email: 'Imeelii',
+      location: 'Bakka',
+      farmType: 'Gosa Qonnaa',
+      description: 'Ibsa',
+      save: 'Olkaa\'i',
+      cancel: 'Dhiisi',
+      cattle: 'Loon',
+      goats: 'Re\'ee',
+      sheep: 'Hoolaa',
+      poultry: 'Lukuu',
+      mixed: 'Walitti Makame'
+    },
+    sw: {
+      title: editMode ? 'Hariri Taarifa' : 'Usanidi wa Shamba',
+      farmName: 'Jina la Shamba',
+      ownerName: 'Jina la Mmiliki',
+      phone: 'Nambari ya Simu',
+      email: 'Barua pepe',
+      location: 'Mahali',
+      farmType: 'Aina ya Shamba',
+      description: 'Maelezo',
+      save: 'Hifadhi',
+      cancel: 'Ghairi',
+      cattle: 'Ng\'ombe',
+      goats: 'Mbuzi',
+      sheep: 'Kondoo',
+      poultry: 'Kuku',
+      mixed: 'Mchanganyiko'
+    }
   };
 
-  const handleFarmNameChange = (value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      farmName: value,
-      farmPrefix: generatePrefix(value)
-    }));
-  };
+  const t = translations[language];
 
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.farmName.trim()) {
-      newErrors.farmName = language === 'am' ? 'የእርሻ ስም ያስፈልጋል' : 'Farm name is required';
-    }
-    if (!formData.farmPrefix.trim() || formData.farmPrefix.length < 2) {
-      newErrors.farmPrefix = language === 'am' ? 'ቢያንስ 2 ቁምፊ ያለው ቅድመ-ቅጥያ ያስፈልጋል' : 'Prefix must be at least 2 characters';
-    }
-    if (!formData.ownerName.trim()) {
-      newErrors.ownerName = language === 'am' ? 'ባለቤት ስም ያስፈልጋል' : 'Owner name is required';
-    }
-    if (!formData.location.trim()) {
-      newErrors.location = language === 'am' ? 'አካባቢ ያስፈልጋል' : 'Location is required';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!validateForm()) return;
+    console.log('Farm setup data:', formData);
+    onClose();
+  };
 
-    if (!user) {
-      toast({
-        title: language === 'am' ? 'ስህተት' : 'Error',
-        description: language === 'am' ? 'እባክዎ በመጀመሪያ ይግቡ' : 'Please sign in first',
-        variant: 'destructive'
-      });
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const { error } = await supabase
-        .from('farm_profiles')
-        .upsert([{
-          user_id: user.id,
-          farm_name: formData.farmName,
-          farm_prefix: formData.farmPrefix.toUpperCase(),
-          owner_name: formData.ownerName,
-          location: formData.location,
-          phone: formData.phone || null
-        }], {
-          onConflict: 'user_id'
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: language === 'am' ? 'ተሳክቷል' : 'Success',
-        description: language === 'am' ? 'የእርሻ መረጃ ተቀምጧል' : 'Farm profile saved successfully'
-      });
-
-      onSuccess?.();
-      onClose();
-    } catch (error) {
-      console.error('Error saving farm profile:', error);
-      toast({
-        title: language === 'am' ? 'ስህተት' : 'Error',
-        description: language === 'am' ? 'የእርሻ መረጃ ማስቀመጥ አልተሳካም' : 'Failed to save farm profile',
-        variant: 'destructive'
-      });
-    } finally {
-      setLoading(false);
-    }
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-lg">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="flex items-center space-x-2">
-            <Home className="w-5 h-5" />
-            <span>{language === 'am' ? 'የእርሻ መረጃ' : 'Farm Profile'}</span>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+          <CardTitle className="text-xl font-bold flex items-center space-x-2">
+            <MapPin className="w-5 h-5 text-green-600" />
+            <span>{t.title}</span>
           </CardTitle>
           <Button variant="ghost" size="sm" onClick={onClose}>
             <X className="w-4 h-4" />
           </Button>
         </CardHeader>
-        
+
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Farm Name */}
             <div className="space-y-2">
-              <label className="text-sm font-medium flex items-center space-x-2">
-                <Home className="w-4 h-4" />
-                <span>{language === 'am' ? 'የእርሻ ስም' : 'Farm Name'} *</span>
-              </label>
+              <Label htmlFor="farmName" className="flex items-center space-x-2">
+                <MapPin className="w-4 h-4 text-gray-600" />
+                <span>{t.farmName}</span>
+              </Label>
               <Input
+                id="farmName"
                 value={formData.farmName}
-                onChange={(e) => handleFarmNameChange(e.target.value)}
-                placeholder={language === 'am' ? 'ምሳሌ: ሃበሻ እርሻ' : 'Example: Habesha Farm'}
+                onChange={(e) => handleInputChange('farmName', e.target.value)}
+                placeholder={t.farmName}
               />
-              {errors.farmName && <p className="text-sm text-red-600">{errors.farmName}</p>}
-            </div>
-
-            {/* Farm Prefix */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                {language === 'am' ? 'የእንስሳ ኮድ ቅድመ-ቅጥያ' : 'Animal Code Prefix'} *
-              </label>
-              <Input
-                value={formData.farmPrefix}
-                onChange={(e) => setFormData(prev => ({ ...prev, farmPrefix: e.target.value.toUpperCase() }))}
-                placeholder="HAB"
-                maxLength={5}
-                className="uppercase"
-              />
-              <p className="text-xs text-gray-500">
-                {language === 'am' 
-                  ? 'የእንስሳ ኮዶች እንደ HAB-COW-001-240615 ይመስላሉ'
-                  : 'Animal codes will look like HAB-COW-001-240615'
-                }
-              </p>
-              {errors.farmPrefix && <p className="text-sm text-red-600">{errors.farmPrefix}</p>}
             </div>
 
             {/* Owner Name */}
             <div className="space-y-2">
-              <label className="text-sm font-medium flex items-center space-x-2">
-                <User className="w-4 h-4" />
-                <span>{language === 'am' ? 'ባለቤት ስም' : 'Owner Name'} *</span>
-              </label>
+              <Label htmlFor="ownerName" className="flex items-center space-x-2">
+                <User className="w-4 h-4 text-gray-600" />
+                <span>{t.ownerName}</span>
+              </Label>
               <Input
+                id="ownerName"
                 value={formData.ownerName}
-                onChange={(e) => setFormData(prev => ({ ...prev, ownerName: e.target.value }))}
-                placeholder={language === 'am' ? 'ሙሉ ስም' : 'Full name'}
+                onChange={(e) => handleInputChange('ownerName', e.target.value)}
+                placeholder={t.ownerName}
               />
-              {errors.ownerName && <p className="text-sm text-red-600">{errors.ownerName}</p>}
+            </div>
+
+            {/* Contact Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="phone" className="flex items-center space-x-2">
+                  <Phone className="w-4 h-4 text-gray-600" />
+                  <span>{t.phone}</span>
+                </Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  placeholder={t.phone}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email" className="flex items-center space-x-2">
+                  <Mail className="w-4 h-4 text-gray-600" />
+                  <span>{t.email}</span>
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  placeholder={t.email}
+                />
+              </div>
             </div>
 
             {/* Location */}
             <div className="space-y-2">
-              <label className="text-sm font-medium flex items-center space-x-2">
-                <MapPin className="w-4 h-4" />
-                <span>{language === 'am' ? 'አካባቢ' : 'Location'} *</span>
-              </label>
+              <Label htmlFor="location">{t.location}</Label>
               <Input
+                id="location"
                 value={formData.location}
-                onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                placeholder={language === 'am' ? 'ከተማ፣ ክልል' : 'City, Region'}
+                onChange={(e) => handleInputChange('location', e.target.value)}
+                placeholder={t.location}
               />
-              {errors.location && <p className="text-sm text-red-600">{errors.location}</p>}
             </div>
 
-            {/* Phone */}
+            {/* Farm Type */}
             <div className="space-y-2">
-              <label className="text-sm font-medium flex items-center space-x-2">
-                <Phone className="w-4 h-4" />
-                <span>{language === 'am' ? 'ስልክ ቁጥር' : 'Phone Number'}</span>
-              </label>
-              <Input
-                value={formData.phone}
-                onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                placeholder="+251912345678"
-                type="tel"
+              <Label htmlFor="farmType">{t.farmType}</Label>
+              <Select value={formData.farmType} onValueChange={(value) => handleInputChange('farmType', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder={t.farmType} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cattle">{t.cattle}</SelectItem>
+                  <SelectItem value="goats">{t.goats}</SelectItem>
+                  <SelectItem value="sheep">{t.sheep}</SelectItem>
+                  <SelectItem value="poultry">{t.poultry}</SelectItem>
+                  <SelectItem value="mixed">{t.mixed}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Description */}
+            <div className="space-y-2">
+              <Label htmlFor="description">{t.description}</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                placeholder={t.description}
+                rows={3}
               />
             </div>
 
-            {/* Submit Button */}
+            {/* Action Buttons */}
             <div className="flex space-x-3 pt-4">
-              <Button
-                type="submit"
-                disabled={loading}
-                className="flex-1 bg-green-600 hover:bg-green-700"
-              >
-                {loading ? (
-                  language === 'am' ? 'እየተቀመጠ...' : 'Saving...'
-                ) : (
-                  language === 'am' ? 'ይቀምጡ' : 'Save Profile'
-                )}
+              <Button type="submit" className="flex-1 bg-green-600 hover:bg-green-700">
+                <Save className="w-4 h-4 mr-2" />
+                {t.save}
               </Button>
-              <Button type="button" variant="outline" onClick={onClose}>
-                {language === 'am' ? 'ሰርዝ' : 'Cancel'}
+              <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+                {t.cancel}
               </Button>
             </div>
           </form>
