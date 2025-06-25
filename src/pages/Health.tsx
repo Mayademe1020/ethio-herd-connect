@@ -1,433 +1,213 @@
 
-import { useState } from 'react';
-import { VaccinationForm } from '@/components/VaccinationForm';
-import { IllnessReportForm } from '@/components/IllnessReportForm';
-import { HealthReminderSystem } from '@/components/HealthReminderSystem';
-import { InteractiveSummaryCard } from '@/components/InteractiveSummaryCard';
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Plus, Stethoscope, Calendar, TrendingUp, AlertTriangle } from 'lucide-react';
 import { EnhancedHeader } from '@/components/EnhancedHeader';
 import { BottomNavigation } from '@/components/BottomNavigation';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
+import { InteractiveSummaryCard } from '@/components/InteractiveSummaryCard';
+import { HealthReminderSystem } from '@/components/HealthReminderSystem';
 import { HealthSubmissionForm } from '@/components/HealthSubmissionForm';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent } from '@/components/ui/card';
-import { Syringe, AlertTriangle, Calendar, Activity, TrendingUp, Bell, ArrowLeft, Stethoscope } from 'lucide-react';
+import { VaccinationForm } from '@/components/VaccinationForm';
+import { IllnessReportForm } from '@/components/IllnessReportForm';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const Health = () => {
   const { language } = useLanguage();
+  const [showHealthSubmissionForm, setShowHealthSubmissionForm] = useState(false);
   const [showVaccinationForm, setShowVaccinationForm] = useState(false);
   const [showIllnessForm, setShowIllnessForm] = useState(false);
-  const [showHealthSubmission, setShowHealthSubmission] = useState(false);
-  const [vaccinationMode, setVaccinationMode] = useState<'single' | 'bulk'>('bulk');
-  const [selectedDetailView, setSelectedDetailView] = useState<string | null>(null);
 
-  // Mock data - in real app this would come from storage/API
+  const translations = {
+    am: {
+      title: 'የጤንነት አስተዳደር',
+      subtitle: 'የእንስሳቶችዎን ጤንነት ይከታተሉ እና ያስተዳድሩ',
+      addVaccination: 'ክትባት ጨምር',
+      reportIllness: 'ህመም ሪፖርት',
+      requestSupport: 'ድጋፍ ጠይቅ',
+      viewRecords: 'መዝገቦችን ይመልከቱ'
+    },
+    en: {
+      title: 'Health Management',
+      subtitle: 'Monitor and manage your animals\' health',
+      addVaccination: 'Add Vaccination',
+      reportIllness: 'Report Illness',
+      requestSupport: 'Request Support',
+      viewRecords: 'View Records'
+    },
+    or: {
+      title: 'Bulchiinsa Fayyaa',
+      subtitle: 'Fayyaa horii keessanii hordofuu fi bulchuu',
+      addVaccination: 'Walaloo Dabaluu',
+      reportIllness: 'Dhukkuba Gabaasuu',
+      requestSupport: 'Gargaarsa Gaafachuu',
+      viewRecords: 'Galmee Ilaaluu'
+    },
+    sw: {
+      title: 'Usimamizi wa Afya',
+      subtitle: 'Fuatilia na simamia afya ya wanyama wako',
+      addVaccination: 'Ongeza Chanjo',
+      reportIllness: 'Ripoti Ugonjwa',
+      requestSupport: 'Omba Msaada',
+      viewRecords: 'Ona Rekodi'
+    }
+  };
+
+  const t = translations[language];
+
+  // Mock health statistics
   const healthStats = {
-    totalVaccinations: 12,
-    scheduledTasks: 3,
-    healthyAnimals: 8,
-    needAttention: 2,
-    overdueVaccinations: 0,
-    upcomingCheckups: 2
+    totalAnimals: 24,
+    healthyAnimals: 20,
+    sickAnimals: 2,
+    needsAttention: 2,
+    vaccinatedAnimals: 22,
+    upcomingVaccinations: 5,
+    recentVaccinations: 8,
+    healthChecksDue: 3
   };
-
-  const handleVaccinationClick = (mode: 'single' | 'bulk') => {
-    setVaccinationMode(mode);
-    setShowVaccinationForm(true);
-  };
-
-  const handleDetailViewClick = (cardType: string) => {
-    setSelectedDetailView(cardType);
-  };
-
-  const handleIllnessReportSubmit = (data: any) => {
-    console.log('Illness report submitted:', data);
-    // Handle illness report submission logic here
-  };
-
-  const DetailView = ({ type }: { type: string }) => {
-    const getDetailContent = () => {
-      switch (type) {
-        case 'vaccinations':
-          return (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">
-                {language === 'am' ? 'የክትባት ዝርዝር' : 'Vaccination Records'}
-              </h3>
-              <div className="space-y-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="p-4 border border-gray-200 rounded-lg">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-medium">
-                          {language === 'am' ? `እንስሳ ${i}` : `Animal ${i}`}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          {language === 'am' ? 'ክትባት ዓይነት: FMD' : 'Vaccine: FMD'}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {language === 'am' ? '2 ቀናት በፊት' : '2 days ago'}
-                        </p>
-                      </div>
-                      <div className="text-green-600">
-                        <Syringe className="w-5 h-5" />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        case 'scheduled':
-          return (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">
-                {language === 'am' ? 'የተመደቡ ስራዎች' : 'Scheduled Tasks'}
-              </h3>
-              <div className="space-y-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="p-4 border border-orange-200 rounded-lg bg-orange-50">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-medium">
-                          {language === 'am' ? `የክትባት ቀጠሮ ${i}` : `Vaccination Schedule ${i}`}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          {language === 'am' ? 'በ 3 ቀናት ውስጥ' : 'In 3 days'}
-                        </p>
-                      </div>
-                      <Calendar className="w-5 h-5 text-orange-600" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        case 'healthy':
-          return (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">
-                {language === 'am' ? 'ጤናማ እንስሳት' : 'Healthy Animals'}
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="p-4 border border-green-200 rounded-lg bg-green-50">
-                    <div className="flex items-center space-x-3">
-                      <Activity className="w-8 h-8 text-green-600" />
-                      <div>
-                        <p className="font-medium">
-                          {language === 'am' ? `እንስሳ ${i}` : `Animal ${i}`}
-                        </p>
-                        <p className="text-sm text-green-600">
-                          {language === 'am' ? 'ጤናማ' : 'Healthy'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        case 'attention':
-          return (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">
-                {language === 'am' ? 'ትኩረት የሚፈልጉ እንስሳት' : 'Animals Needing Attention'}
-              </h3>
-              <div className="space-y-3">
-                {[1, 2].map((i) => (
-                  <div key={i} className="p-4 border border-yellow-200 rounded-lg bg-yellow-50">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-medium">
-                          {language === 'am' ? `እንስሳ ${i}` : `Animal ${i}`}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          {language === 'am' ? 'ምልክቶች: ብርድ' : 'Symptoms: Cold'}
-                        </p>
-                        <p className="text-sm text-yellow-600">
-                          {language === 'am' ? 'ትኩረት ያስፈልጋል' : 'Needs attention'}
-                        </p>
-                      </div>
-                      <AlertTriangle className="w-5 h-5 text-yellow-600" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        default:
-          return <div>No data available</div>;
-      }
-    };
-
-    return (
-      <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200">
-        <div className="flex items-center justify-between mb-4">
-          <Button 
-            variant="ghost" 
-            onClick={() => setSelectedDetailView(null)}
-            className="mb-4"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            {language === 'am' ? 'ተመለስ' : 'Back'}
-          </Button>
-        </div>
-        {getDetailContent()}
-      </div>
-    );
-  };
-
-  if (selectedDetailView) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-20">
-        <EnhancedHeader />
-        <OfflineIndicator language={language} />
-        
-        <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
-          <DetailView type={selectedDetailView} />
-        </main>
-
-        <BottomNavigation language={language} />
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-teal-50 pb-16 sm:pb-20 lg:pb-24">
       <EnhancedHeader />
       <OfflineIndicator language={language} />
       
-      <main className="container mx-auto px-2 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6">
+      <main className="container mx-auto px-2 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6 space-y-3 sm:space-y-4 lg:space-y-6">
         {/* Page Title */}
         <div className="text-center px-2">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-800 mb-2">
-            💉 {language === 'am' ? 'የጤንነት አስተዳደር' : 'Health Management'}
+          <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-800 mb-1 sm:mb-2">
+            🏥 {t.title}
           </h1>
-          <p className="text-gray-600 text-sm sm:text-base">
-            {language === 'am' 
-              ? 'ክትባቶችን እና ህክምናዎችን ይከታተሉ'
-              : 'Track vaccinations and treatments'
-            }
+          <p className="text-gray-600 text-xs sm:text-sm lg:text-base">
+            {t.subtitle}
           </p>
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
           <Button 
-            className="h-16 sm:h-20 flex flex-col space-y-1 sm:space-y-2 bg-blue-600 hover:bg-blue-700 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
-            onClick={() => handleVaccinationClick('bulk')}
+            onClick={() => setShowVaccinationForm(true)}
+            className="h-12 sm:h-14 lg:h-16 flex flex-col space-y-1 bg-green-600 hover:bg-green-700 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
           >
-            <Syringe className="w-4 h-4 sm:w-6 sm:h-6" />
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
             <span className="font-medium text-center leading-tight">
-              {language === 'am' ? 'ጅምላ ክትባት' : 'Bulk Vaccination'}
+              {t.addVaccination}
             </span>
           </Button>
 
           <Button 
             variant="outline" 
-            className="h-16 sm:h-20 flex flex-col space-y-1 sm:space-y-2 border-blue-200 hover:bg-blue-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
-            onClick={() => handleVaccinationClick('single')}
+            onClick={() => setShowIllnessForm(true)}
+            className="h-12 sm:h-14 lg:h-16 flex flex-col space-y-1 border-red-200 hover:bg-red-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
           >
-            <Syringe className="w-4 h-4 sm:w-6 sm:h-6 text-blue-500" />
+            <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-red-500" />
             <span className="font-medium text-center leading-tight">
-              {language === 'am' ? 'ነጠላ ክትባት' : 'Single Vaccination'}
+              {t.reportIllness}
             </span>
           </Button>
           
           <Button 
             variant="outline" 
-            className="h-16 sm:h-20 flex flex-col space-y-1 sm:space-y-2 border-red-200 hover:bg-red-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
-            onClick={() => setShowIllnessForm(true)}
+            onClick={() => setShowHealthSubmissionForm(true)}
+            className="h-12 sm:h-14 lg:h-16 flex flex-col space-y-1 border-blue-200 hover:bg-blue-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
           >
-            <AlertTriangle className="w-4 h-4 sm:w-6 sm:h-6 text-red-500" />
+            <Stethoscope className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-500" />
             <span className="font-medium text-center leading-tight">
-              {language === 'am' ? 'በሽታ ሪፖርት' : 'Report Illness'}
+              {t.requestSupport}
             </span>
           </Button>
 
           <Button 
             variant="outline" 
-            className="h-16 sm:h-20 flex flex-col space-y-1 sm:space-y-2 border-green-200 hover:bg-green-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
-            onClick={() => setShowHealthSubmission(true)}
+            className="h-12 sm:h-14 lg:h-16 flex flex-col space-y-1 border-purple-200 hover:bg-purple-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
           >
-            <Stethoscope className="w-4 h-4 sm:w-6 sm:h-6 text-green-500" />
+            <Calendar className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-purple-500" />
             <span className="font-medium text-center leading-tight">
-              {language === 'am' ? 'የዓይነ ሐኪም ድጋፍ' : 'Vet Support'}
+              {t.viewRecords}
             </span>
           </Button>
         </div>
 
-        {/* Interactive Health Overview - Responsive Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2 sm:gap-3 lg:gap-4">
+        {/* Health Statistics */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
           <InteractiveSummaryCard
-            title="Vaccinations"
-            titleAm="ክትባቶች"
-            titleOr="Tallaa"
-            titleSw="Chanjo"
-            value={healthStats.totalVaccinations}
-            icon={<Syringe className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
-            color="green"
+            title="Total Animals"
+            titleAm="ጠቅላላ እንስሳት"
+            titleOr="Horii Hundaa"
+            titleSw="Jumla ya Wanyama"
+            value={healthStats.totalAnimals}
+            icon={<TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
+            color="blue"
             language={language}
-            onClick={() => handleDetailViewClick('vaccinations')}
           />
           
-          <InteractiveSummaryCard
-            title="Scheduled"
-            titleAm="መርሐ ግብር"
-            titleOr="Sagantaa"
-            titleSw="Iliyopangwa"
-            value={healthStats.scheduledTasks}
-            icon={<Calendar className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
-            color="orange"
-            language={language}
-            onClick={() => handleDetailViewClick('scheduled')}
-          />
-
           <InteractiveSummaryCard
             title="Healthy"
             titleAm="ጤናማ"
             titleOr="Fayyaa"
             titleSw="Wenye Afya"
             value={healthStats.healthyAnimals}
-            icon={<Activity className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
-            color="emerald"
+            icon={<TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
+            color="green"
             language={language}
-            onClick={() => handleDetailViewClick('healthy')}
-          />
-          
-          <InteractiveSummaryCard
-            title="Need Attention"
-            titleAm="ትኩረት ያስፈልጋል"
-            titleOr="Xalayaa Barbaada"
-            titleSw="Inahitaji Uangalifu"
-            value={healthStats.needAttention}
-            icon={<AlertTriangle className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
-            color="yellow"
-            language={language}
-            onClick={() => handleDetailViewClick('attention')}
           />
 
           <InteractiveSummaryCard
-            title="Overdue Vaccines"
-            titleAm="ያለፉ ክትባቶች"
-            titleOr="Tallaa Darbee"
-            titleSw="Chanjo Zilizochelewa"
-            value={healthStats.overdueVaccinations}
+            title="Sick"
+            titleAm="ታሞ"
+            titleOr="Dhukkuba"
+            titleSw="Wagonjwa"
+            value={healthStats.sickAnimals}
             icon={<AlertTriangle className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
             color="red"
             language={language}
-            onClick={() => handleDetailViewClick('overdue')}
-            disabled={healthStats.overdueVaccinations === 0}
           />
 
           <InteractiveSummaryCard
-            title="Upcoming Checkups"
-            titleAm="ቀሪ ምርመራቦች"
-            titleOr="Qorannoo Dhufu"
-            titleSw="Uchunguzi Unaokuja"
-            value={healthStats.upcomingCheckups}
-            icon={<Calendar className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
-            color="blue"
+            title="Needs Attention"
+            titleAm="ትኩረት ያስፈልጋል"
+            titleOr="Xiyyeeffannaa Barbaada"
+            titleSw="Wanahitaji Umakini"
+            value={healthStats.needsAttention}
+            icon={<AlertTriangle className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
+            color="orange"
             language={language}
-            onClick={() => handleDetailViewClick('checkups')}
           />
         </div>
 
-        {/* Tabs for different sections */}
-        <Tabs defaultValue="reminders" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="reminders" className="flex items-center space-x-2 transition-all duration-200 text-xs sm:text-sm">
-              <Bell className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span>{language === 'am' ? 'አስታወሾች' : 'Reminders'}</span>
-            </TabsTrigger>
-            <TabsTrigger value="history" className="flex items-center space-x-2 transition-all duration-200 text-xs sm:text-sm">
-              <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
-              <span>{language === 'am' ? 'ታሪክ' : 'History'}</span>
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="reminders" className="mt-4 sm:mt-6">
-            <HealthReminderSystem language={language} />
-          </TabsContent>
-          
-          <TabsContent value="history" className="mt-4 sm:mt-6">
-            {/* Recent Health Records */}
-            <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-green-100">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-purple-600" />
-                {language === 'am' ? 'የቅርብ ጊዜ መዝገቦች' : 'Recent Health Records'}
-              </h3>
-              
-              {/* Mock recent records */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <Syringe className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-800 text-sm sm:text-base">
-                        {language === 'am' ? 'ክትባት - አበባ, ገብሬ' : 'Vaccination - Abeba, Gebre'}
-                      </p>
-                      <p className="text-xs sm:text-sm text-gray-600">
-                        {language === 'am' ? '2 ቀናት በፊት' : '2 days ago'}
-                      </p>
-                    </div>
-                  </div>
-                  <Button size="sm" variant="ghost" className="text-xs hover:bg-blue-50">
-                    {language === 'am' ? 'ዝርዝር' : 'Details'}
-                  </Button>
-                </div>
-
-                <div className="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-6 h-6 sm:w-8 sm:h-8 bg-red-100 rounded-full flex items-center justify-center">
-                      <AlertTriangle className="w-3 h-3 sm:w-4 sm:h-4 text-red-600" />
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-800 text-sm sm:text-base">
-                        {language === 'am' ? 'በሽታ ሪፖርት - ሞላ' : 'Illness Report - Mola'}
-                      </p>
-                      <p className="text-xs sm:text-sm text-gray-600">
-                        {language === 'am' ? '1 ሳምንት በፊት' : '1 week ago'}
-                      </p>
-                    </div>
-                  </div>
-                  <Button size="sm" variant="ghost" className="text-xs hover:bg-red-50">
-                    {language === 'am' ? 'ዝርዝር' : 'Details'}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
+        {/* Health Reminder System */}
+        <HealthReminderSystem language={language} />
       </main>
 
       <BottomNavigation language={language} />
 
-      {/* Forms and Modals */}
-      {showVaccinationForm && (
-        <VaccinationForm 
-          language={language} 
-          mode={vaccinationMode}
-          onClose={() => setShowVaccinationForm(false)} 
-        />
-      )}
-      
-      {showIllnessForm && (
-        <IllnessReportForm 
-          language={language} 
-          onClose={() => setShowIllnessForm(false)}
-          onSubmit={handleIllnessReportSubmit}
+      {/* Health Submission Form */}
+      {showHealthSubmissionForm && (
+        <HealthSubmissionForm
+          language={language}
+          onClose={() => setShowHealthSubmissionForm(false)}
         />
       )}
 
-      {showHealthSubmission && (
-        <HealthSubmissionForm 
-          language={language} 
-          onClose={() => setShowHealthSubmission(false)} 
+      {/* Vaccination Form */}
+      {showVaccinationForm && (
+        <VaccinationForm
+          language={language}
+          mode="single"
+          onClose={() => setShowVaccinationForm(false)}
+        />
+      )}
+
+      {/* Illness Report Form */}
+      {showIllnessForm && (
+        <IllnessReportForm
+          language={language}
+          onClose={() => setShowIllnessForm(false)}
+          onSubmit={(data) => {
+            console.log('Illness report submitted:', data);
+            setShowIllnessForm(false);
+          }}
         />
       )}
     </div>

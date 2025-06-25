@@ -10,30 +10,30 @@ export const AnimalsPageHeader = ({ language }: AnimalsPageHeaderProps) => {
   const translations = {
     am: {
       title: 'እንስሳቶቼ',
-      subtitle: 'የእንስሳቶችዎን መዝገብ ያስተዳድሩ'
+      subtitle: 'የእርስዎን እንስሳቶች ያስተዳድሩ እና ይከታተሉ'
     },
     en: {
       title: 'My Animals',
-      subtitle: 'Manage your livestock records'
+      subtitle: 'Manage and monitor your livestock'
     },
     or: {
       title: 'Horii Koo',
-      subtitle: 'Galmee horii keessanii bulchaa'
+      subtitle: 'Horii keessan bulchuu fi hordofuu'
     },
     sw: {
       title: 'Wanyama Wangu',
-      subtitle: 'Simamia rekodi za mifugo yako'
+      subtitle: 'Simamia na ufuatilie mifugo wako'
     }
   };
 
   const t = translations[language];
 
   return (
-    <div className="text-center mb-4 sm:mb-6">
-      <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-2">
+    <div className="text-center mb-6">
+      <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-2">
         🐄 {t.title}
       </h1>
-      <p className="text-sm sm:text-base text-gray-600">
+      <p className="text-gray-600">
         {t.subtitle}
       </p>
     </div>

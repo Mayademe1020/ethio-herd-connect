@@ -8,11 +8,11 @@ import { Language } from '@/types';
 interface AnimalsFiltersProps {
   language: Language;
   searchQuery: string;
-  onSearchChange: (value: string) => void;
+  onSearchChange: (query: string) => void;
   typeFilter: string;
-  onTypeFilterChange: (value: string) => void;
+  onTypeFilterChange: (type: string) => void;
   healthFilter: string;
-  onHealthFilterChange: (value: string) => void;
+  onHealthFilterChange: (health: string) => void;
 }
 
 export const AnimalsFilters = ({
@@ -26,17 +26,17 @@ export const AnimalsFilters = ({
 }: AnimalsFiltersProps) => {
   const translations = {
     am: {
-      search: 'ይፈልጉ...',
-      allTypes: 'ሁሉም አይነቶች',
+      search: 'ፈልግ...',
+      allTypes: 'ሁሉም ዓይነቶች',
       cattle: 'ከብት',
       goat: 'ፍየል',
       sheep: 'በግ',
       poultry: 'ዶሮ',
       allHealth: 'ሁሉም ጤንነት',
       healthy: 'ጤናማ',
-      sick: 'ህሙም',
-      attention: 'ትኩረት ያስፈልገዋል',
-      critical: 'ጣዳፊ'
+      sick: 'ታሞ',
+      attention: 'ትኩረት ያስፈልጋል',
+      critical: 'ወሳኝ'
     },
     en: {
       search: 'Search...',
@@ -53,16 +53,16 @@ export const AnimalsFilters = ({
     },
     or: {
       search: 'Barbaadi...',
-      allTypes: 'Gosootan Hundaa',
+      allTypes: 'Gosaalee Hundaa',
       cattle: 'Loon',
       goat: 'Re\'ee',
       sheep: 'Hoolaa',
       poultry: 'Lukku',
       allHealth: 'Fayyaa Hundaa',
       healthy: 'Fayyaa',
-      sick: 'Dhukkubsaa',
-      attention: 'Xiyyeeffannoo Barbaada',
-      critical: 'Baay\'ee Hamaa'
+      sick: 'Dhukkuba',
+      attention: 'Xiyyeeffannaa Barbaada',
+      critical: 'Murteessaa'
     },
     sw: {
       search: 'Tafuta...',
@@ -74,7 +74,7 @@ export const AnimalsFilters = ({
       allHealth: 'Afya Zote',
       healthy: 'Mzuri',
       sick: 'Mgonjwa',
-      attention: 'Anahitaji Umakini',
+      attention: 'Inahitaji Umakini',
       critical: 'Hatari'
     }
   };
@@ -82,44 +82,42 @@ export const AnimalsFilters = ({
   const t = translations[language];
 
   return (
-    <div className="space-y-3 sm:space-y-4">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
         <Input
           placeholder={t.search}
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-10 h-8 sm:h-9 lg:h-10 text-xs sm:text-sm"
+          className="pl-10"
         />
       </div>
-      
-      <div className="grid grid-cols-2 gap-2 sm:gap-3">
-        <Select value={typeFilter} onValueChange={onTypeFilterChange}>
-          <SelectTrigger className="h-8 sm:h-9 lg:h-10 text-xs sm:text-sm">
-            <SelectValue placeholder={t.allTypes} />
-          </SelectTrigger>
-          <SelectContent className="bg-white border shadow-lg z-50">
-            <SelectItem value="all">{t.allTypes}</SelectItem>
-            <SelectItem value="cattle">{t.cattle}</SelectItem>
-            <SelectItem value="goat">{t.goat}</SelectItem>
-            <SelectItem value="sheep">{t.sheep}</SelectItem>
-            <SelectItem value="poultry">{t.poultry}</SelectItem>
-          </SelectContent>
-        </Select>
 
-        <Select value={healthFilter} onValueChange={onHealthFilterChange}>
-          <SelectTrigger className="h-8 sm:h-9 lg:h-10 text-xs sm:text-sm">
-            <SelectValue placeholder={t.allHealth} />
-          </SelectTrigger>
-          <SelectContent className="bg-white border shadow-lg z-50">
-            <SelectItem value="all">{t.allHealth}</SelectItem>
-            <SelectItem value="healthy">{t.healthy}</SelectItem>
-            <SelectItem value="sick">{t.sick}</SelectItem>
-            <SelectItem value="attention">{t.attention}</SelectItem>
-            <SelectItem value="critical">{t.critical}</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      <Select value={typeFilter} onValueChange={onTypeFilterChange}>
+        <SelectTrigger>
+          <SelectValue placeholder={t.allTypes} />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">{t.allTypes}</SelectItem>
+          <SelectItem value="cattle">{t.cattle}</SelectItem>
+          <SelectItem value="goat">{t.goat}</SelectItem>
+          <SelectItem value="sheep">{t.sheep}</SelectItem>
+          <SelectItem value="poultry">{t.poultry}</SelectItem>
+        </SelectContent>
+      </Select>
+
+      <Select value={healthFilter} onValueChange={onHealthFilterChange}>
+        <SelectTrigger>
+          <SelectValue placeholder={t.allHealth} />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">{t.allHealth}</SelectItem>
+          <SelectItem value="healthy">{t.healthy}</SelectItem>
+          <SelectItem value="sick">{t.sick}</SelectItem>
+          <SelectItem value="attention">{t.attention}</SelectItem>
+          <SelectItem value="critical">{t.critical}</SelectItem>
+        </SelectContent>
+      </Select>
     </div>
   );
 };

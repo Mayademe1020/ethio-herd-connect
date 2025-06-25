@@ -1,9 +1,10 @@
 
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, Weight, TrendingUp, MoreVertical } from 'lucide-react';
-import { AnimalData, Language } from '@/types';
+import { Badge } from '@/components/ui/badge';
+import { Edit, Trash2, Syringe, TrendingUp, ShoppingCart, Calendar, Scale } from 'lucide-react';
+import { Language, AnimalData } from '@/types';
 
 interface ModernAnimalCardProps {
   animal: AnimalData;
@@ -15,186 +16,156 @@ interface ModernAnimalCardProps {
   onSell: (animal: AnimalData) => void;
 }
 
-export const ModernAnimalCard = ({ 
-  animal, 
-  language, 
+export const ModernAnimalCard = ({
+  animal,
+  language,
   onEdit,
   onDelete,
   onVaccinate,
   onTrack,
   onSell
 }: ModernAnimalCardProps) => {
-  const getStatusColor = (status: string) => {
+  const translations = {
+    am: {
+      healthy: 'ጤናማ',
+      sick: 'ታሞ',
+      attention: 'ትኩረት ያስፈልጋል',
+      critical: 'ወሳኝ',
+      edit: 'ቀይር',
+      delete: 'ሰርዝ',
+      vaccinate: 'ክትባት',
+      track: 'ክትትል',
+      sell: 'ሽጥ',
+      weight: 'ክብደት',
+      age: 'እድሜ',
+      lastVaccination: 'የመጨረሻ ክትባት',
+      verified: 'የተረጋገጠ'
+    },
+    en: {
+      healthy: 'Healthy',
+      sick: 'Sick',
+      attention: 'Needs Attention',
+      critical: 'Critical',
+      edit: 'Edit',
+      delete: 'Delete',
+      vaccinate: 'Vaccinate',
+      track: 'Track',
+      sell: 'Sell',
+      weight: 'Weight',
+      age: 'Age',
+      lastVaccination: 'Last Vaccination',
+      verified: 'Verified'
+    },
+    or: {
+      healthy: 'Fayyaa',
+      sick: 'Dhukkuba',
+      attention: 'Xiyyeeffannaa Barbaada',
+      critical: 'Murteessaa',
+      edit: 'Jijjiiri',
+      delete: 'Haqi',
+      vaccinate: 'Walaloo',
+      track: 'Hordofi',
+      sell: 'Gurguri',
+      weight: 'Ulfaatina',
+      age: 'Umurii',
+      lastVaccination: 'Walaloo Dhumaa',
+      verified: 'Mirkaneeffame'
+    },
+    sw: {
+      healthy: 'Mzuri',
+      sick: 'Mgonjwa',
+      attention: 'Inahitaji Umakini',
+      critical: 'Hatari',
+      edit: 'Hariri',
+      delete: 'Futa',
+      vaccinate: 'Chanjo',
+      track: 'Fuatilia',
+      sell: 'Uza',
+      weight: 'Uzito',
+      age: 'Umri',
+      lastVaccination: 'Chanjo ya Mwisho',
+      verified: 'Imethibitishwa'
+    }
+  };
+
+  const t = translations[language];
+
+  const getHealthBadgeColor = (status: string) => {
     switch (status) {
       case 'healthy': return 'bg-green-100 text-green-800';
-      case 'attention': return 'bg-yellow-100 text-yellow-800';
       case 'sick': return 'bg-red-100 text-red-800';
+      case 'attention': return 'bg-yellow-100 text-yellow-800';
       case 'critical': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const getStatusEmoji = (status: string) => {
-    switch (status) {
-      case 'healthy': return '💚';
-      case 'attention': return '⚠️';
-      case 'sick': return '🚨';
-      case 'critical': return '🚨';
-      default: return '❓';
-    }
-  };
-
-  const getTypeEmoji = (type: string) => {
-    switch (type) {
-      case 'cattle': return '🐄';
-      case 'poultry': return '🐔';
-      case 'goat': return '🐐';
-      case 'sheep': return '🐑';
-      default: return '🐾';
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    const translations = {
-      am: {
-        healthy: 'ጤናማ',
-        attention: 'ትኩረት',
-        sick: 'ህመም',
-        critical: 'አደገኛ'
-      },
-      en: {
-        healthy: 'Healthy',
-        attention: 'Attention',
-        sick: 'Sick',
-        critical: 'Critical'
-      },
-      or: {
-        healthy: 'Fayyaa',
-        attention: 'Xalayaa',
-        sick: 'Dhukkubsaa',
-        critical: 'Hamaa'
-      },
-      sw: {
-        healthy: 'Mzuri',
-        attention: 'Uangalifu',
-        sick: 'Mgonjwa',
-        critical: 'Hatari'
-      }
-    };
-    
-    return translations[language][status as keyof typeof translations[typeof language]] || status;
-  };
-
-  const age = animal.age ? `${animal.age}` : 'Unknown age';
-  const ageUnit = language === 'am' ? 'ዓመት' : 
-                  language === 'or' ? 'waggaa' :
-                  language === 'sw' ? 'miaka' : 'years';
-
   return (
-    <Card 
-      className="hover:shadow-lg transition-all duration-300 hover:scale-[1.02] cursor-pointer border-green-100"
-      onClick={() => onEdit(animal)}
-    >
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-2xl">
-              {getTypeEmoji(animal.type)}
-            </div>
-            <div>
-              <h3 className="font-bold text-gray-900">{animal.name}</h3>
-              <p className="text-sm text-gray-600">
-                {animal.breed || 'Unknown breed'} • {age} {ageUnit}
-              </p>
-            </div>
+    <Card className="hover:shadow-lg transition-shadow">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg font-semibold">{animal.name}</CardTitle>
+          <Badge className={getHealthBadgeColor(animal.health_status)}>
+            {t[animal.health_status as keyof typeof t] || animal.health_status}
+          </Badge>
+        </div>
+        <p className="text-sm text-gray-600">{animal.animal_code}</p>
+      </CardHeader>
+      
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <p className="text-gray-500">{animal.type} • {animal.breed}</p>
           </div>
-          
-          <div className="flex items-center space-x-2">
-            <Badge className={getStatusColor(animal.health_status)}>
-              {getStatusEmoji(animal.health_status)}
-              {getStatusText(animal.health_status)}
+          {animal.is_vet_verified && (
+            <Badge variant="outline" className="text-xs">
+              ✓ {t.verified}
             </Badge>
-            <Button variant="ghost" size="sm">
-              <MoreVertical className="w-4 h-4" />
-            </Button>
-          </div>
+          )}
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          <div className="text-center p-2 bg-blue-50 rounded-lg">
-            <Weight className="w-4 h-4 mx-auto text-blue-600 mb-1" />
-            <p className="text-xs text-gray-600">
-              {language === 'am' ? 'ክብደት' : 
-               language === 'or' ? 'Ulfaatina' :
-               language === 'sw' ? 'Uzito' : 'Weight'}
-            </p>
-            <p className="text-sm font-bold text-gray-900">{animal.weight || 'N/A'}kg</p>
-          </div>
-          <div className="text-center p-2 bg-purple-50 rounded-lg">
-            <Calendar className="w-4 h-4 mx-auto text-purple-600 mb-1" />
-            <p className="text-xs text-gray-600">
-              {language === 'am' ? 'ክትባት' : 
-               language === 'or' ? 'Tallaa' :
-               language === 'sw' ? 'Chanjo' : 'Vaccine'}
-            </p>
-            <p className="text-sm font-bold text-gray-900">
-              {animal.last_vaccination || (language === 'am' ? 'ያለም' : 
-                                          language === 'or' ? 'Hin jiru' :
-                                          language === 'sw' ? 'Hakuna' : 'None')}
-            </p>
-          </div>
-          <div className="text-center p-2 bg-green-50 rounded-lg">
-            <TrendingUp className="w-4 h-4 mx-auto text-green-600 mb-1" />
-            <p className="text-xs text-gray-600">
-              {language === 'am' ? 'እድገት' : 
-               language === 'or' ? 'Guddina' :
-               language === 'sw' ? 'Ukuaji' : 'Growth'}
-            </p>
-            <p className="text-sm font-bold text-gray-900">+12%</p>
-          </div>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          {animal.weight && (
+            <div className="flex items-center space-x-1">
+              <Scale className="w-4 h-4 text-gray-400" />
+              <span>{animal.weight}kg</span>
+            </div>
+          )}
+          
+          {animal.age && (
+            <div className="flex items-center space-x-1">
+              <Calendar className="w-4 h-4 text-gray-400" />
+              <span>{animal.age}y</span>
+            </div>
+          )}
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex space-x-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="flex-1 text-xs"
-            onClick={(e) => {
-              e.stopPropagation();
-              onVaccinate(animal);
-            }}
-          >
-            💉 {language === 'am' ? 'ክትባት' : 
-                language === 'or' ? 'Tallaa' :
-                language === 'sw' ? 'Chanjo' : 'Vaccine'}
+        {animal.last_vaccination && (
+          <div className="text-sm text-gray-600">
+            <span className="font-medium">{t.lastVaccination}:</span> {animal.last_vaccination}
+          </div>
+        )}
+
+        <div className="flex flex-wrap gap-2 pt-2">
+          <Button variant="outline" size="sm" onClick={() => onEdit(animal)}>
+            <Edit className="w-4 h-4 mr-1" />
+            {t.edit}
           </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="flex-1 text-xs"
-            onClick={(e) => {
-              e.stopPropagation();
-              onTrack(animal);
-            }}
-          >
-            📊 {language === 'am' ? 'ክትትል' : 
-                language === 'or' ? 'Hordofu' :
-                language === 'sw' ? 'Fuatilia' : 'Track'}
+          <Button variant="outline" size="sm" onClick={() => onVaccinate(animal)}>
+            <Syringe className="w-4 h-4 mr-1" />
+            {t.vaccinate}
           </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="flex-1 text-xs"
-            onClick={(e) => {
-              e.stopPropagation();
-              onSell(animal);
-            }}
-          >
-            💰 {language === 'am' ? 'ሽያጭ' : 
-                language === 'or' ? 'Gurgurtaa' :
-                language === 'sw' ? 'Uza' : 'Sell'}
+          <Button variant="outline" size="sm" onClick={() => onTrack(animal)}>
+            <TrendingUp className="w-4 h-4 mr-1" />
+            {t.track}
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => onSell(animal)}>
+            <ShoppingCart className="w-4 h-4 mr-1" />
+            {t.sell}
+          </Button>
+          <Button variant="destructive" size="sm" onClick={() => onDelete(animal.id)}>
+            <Trash2 className="w-4 h-4 mr-1" />
+            {t.delete}
           </Button>
         </div>
       </CardContent>
