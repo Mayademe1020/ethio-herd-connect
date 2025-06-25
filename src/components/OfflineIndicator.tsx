@@ -1,7 +1,6 @@
 
-import React from 'react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Wifi, WifiOff } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { WifiOff, Wifi } from 'lucide-react';
 import { Language } from '@/types';
 
 interface OfflineIndicatorProps {
@@ -9,9 +8,9 @@ interface OfflineIndicatorProps {
 }
 
 export const OfflineIndicator = ({ language }: OfflineIndicatorProps) => {
-  const [isOnline, setIsOnline] = React.useState(navigator.onLine);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 
@@ -26,20 +25,20 @@ export const OfflineIndicator = ({ language }: OfflineIndicatorProps) => {
 
   const translations = {
     am: {
-      offline: 'ከመስመር ውጭ - መረጃዎች በአካባቢያዊ ይቀመጣሉ',
+      offline: 'ከመስመር ውጭ',
       online: 'በመስመር ላይ'
     },
     en: {
-      offline: 'Offline - Data will be saved locally',
+      offline: 'Offline',
       online: 'Online'
     },
     or: {
-      offline: 'Toora interneetii - Daataan naannoodhaan kuufama',
-      online: 'Interneetii irratti'
+      offline: 'Interneetii Ala',
+      online: 'Interneetii Keessa'
     },
     sw: {
-      offline: 'Nje ya mtandao - Data itahifadhiwa kimtandao',
-      online: 'Mtandaoni'
+      offline: 'Nje ya Mtandao',
+      online: 'Kwenye Mtandao'
     }
   };
 
@@ -48,11 +47,9 @@ export const OfflineIndicator = ({ language }: OfflineIndicatorProps) => {
   if (isOnline) return null;
 
   return (
-    <Alert className="m-2 border-orange-200 bg-orange-50">
-      <WifiOff className="h-4 w-4 text-orange-600" />
-      <AlertDescription className="text-orange-800">
-        {t.offline}
-      </AlertDescription>
-    </Alert>
+    <div className="bg-red-500 text-white px-4 py-2 text-center text-sm flex items-center justify-center space-x-2">
+      <WifiOff className="w-4 h-4" />
+      <span>{t.offline}</span>
+    </div>
   );
 };

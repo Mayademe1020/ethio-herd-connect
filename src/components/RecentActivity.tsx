@@ -1,8 +1,7 @@
 
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { Calendar, Users, Syringe, TrendingUp, ShoppingCart, AlertTriangle } from 'lucide-react';
+import { Clock, Syringe, Scale, Heart } from 'lucide-react';
 import { Language } from '@/types';
 
 interface RecentActivityProps {
@@ -12,48 +11,24 @@ interface RecentActivityProps {
 export const RecentActivity = ({ language }: RecentActivityProps) => {
   const translations = {
     am: {
-      recentActivity: 'የቅርብ ጊዜ እንቅስቃሴዎች',
-      today: 'ዛሬ',
-      yesterday: 'ትናንት',
-      daysAgo: 'ቀናት በፊት',
-      vaccinated: 'ክትባት ተደርጓል',
+      vaccinationRecorded: 'ክትባት ተመዝግቧል',
       weightRecorded: 'ክብደት ተመዝግቧል',
-      animalAdded: 'እንስሳ ተጨምሯል',
-      healthIssue: 'የጤንነት ችግር ተዘግቧል',
-      marketListed: 'በገበያ ተዘርዝሯል'
+      healthCheckCompleted: 'የጤንነት ምርመራ ተጠናቅቋል'
     },
     en: {
-      recentActivity: 'Recent Activity',
-      today: 'Today',
-      yesterday: 'Yesterday',
-      daysAgo: 'days ago',
-      vaccinated: 'Vaccinated',
+      vaccinationRecorded: 'Vaccination recorded',
       weightRecorded: 'Weight recorded',
-      animalAdded: 'Animal added',
-      healthIssue: 'Health issue reported',
-      marketListed: 'Listed for sale'
+      healthCheckCompleted: 'Health check completed'
     },
     or: {
-      recentActivity: 'Sochiiwwan Dhiyeenyaa',
-      today: 'Har\'a',
-      yesterday: 'Kaleessa',
-      daysAgo: 'guyyoota dura',
-      vaccinated: 'Tallaa\'e',
-      weightRecorded: 'Ulfaatinni galmeeffame',
-      animalAdded: 'Horiin dabalame',
-      healthIssue: 'Rakkoon fayyaa gabaafame',
-      marketListed: 'Gurgurtaaf tarreeffame'
+      vaccinationRecorded: 'Walaloo galmeeffame',
+      weightRecorded: 'Ulfaatina galmeeffame',
+      healthCheckCompleted: 'Qorannoo fayyaa xumurame'
     },
     sw: {
-      recentActivity: 'Shughuli za Hivi Karibuni',
-      today: 'Leo',
-      yesterday: 'Jana',
-      daysAgo: 'siku zilizopita',
-      vaccinated: 'Amepata chanjo',
-      weightRecorded: 'Uzito umepokelewa',
-      animalAdded: 'Mnyama ameongezwa',
-      healthIssue: 'Tatizo la afya limeripotiwa',
-      marketListed: 'Imeorodheshwa kwa mauzo'
+      vaccinationRecorded: 'Chanjo imeandikwa',
+      weightRecorded: 'Uzito umeandikwa',
+      healthCheckCompleted: 'Uchunguzi wa afya umekamilika'
     }
   };
 
@@ -61,78 +36,58 @@ export const RecentActivity = ({ language }: RecentActivityProps) => {
 
   const activities = [
     {
-      id: 1,
+      id: '1',
       type: 'vaccination',
-      animal: 'ሞላ (Cow-001)',
-      action: t.vaccinated,
-      time: t.today,
+      animal: 'Bessie',
+      action: t.vaccinationRecorded,
+      time: '2 hours ago',
       icon: Syringe,
-      color: 'text-green-600 bg-green-100'
+      color: 'blue'
     },
     {
-      id: 2,
+      id: '2',
       type: 'weight',
-      animal: 'አበባ (Goat-002)', 
+      animal: 'Billy',
       action: t.weightRecorded,
-      time: t.yesterday,
-      icon: TrendingUp,
-      color: 'text-blue-600 bg-blue-100'
+      time: '4 hours ago',
+      icon: Scale,
+      color: 'green'
     },
     {
-      id: 3,
-      type: 'registration',
-      animal: 'ገብሬ (Sheep-003)',
-      action: t.animalAdded,
-      time: `2 ${t.daysAgo}`,
-      icon: Users,
-      color: 'text-purple-600 bg-purple-100'
-    },
-    {
-      id: 4,
+      id: '3',
       type: 'health',
-      animal: 'ፋሲል (Cattle-004)',
-      action: t.healthIssue,
-      time: `3 ${t.daysAgo}`,
-      icon: AlertTriangle,
-      color: 'text-red-600 bg-red-100'
-    },
-    {
-      id: 5,
-      type: 'market',
-      animal: 'ሄለን (Goat-005)',
-      action: t.marketListed,
-      time: `5 ${t.daysAgo}`,
-      icon: ShoppingCart,
-      color: 'text-orange-600 bg-orange-100'
+      animal: 'Molly',
+      action: t.healthCheckCompleted,
+      time: '1 day ago',
+      icon: Heart,
+      color: 'red'
     }
   ];
 
   return (
     <div className="space-y-3">
-      {activities.map((activity) => (
-        <Card key={activity.id} className="border-gray-100 hover:shadow-md transition-shadow">
-          <CardContent className="p-3 sm:p-4">
-            <div className="flex items-center space-x-3">
-              <div className={`p-2 rounded-full ${activity.color}`}>
-                <activity.icon className="w-4 h-4" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-gray-900 truncate">
-                    {activity.animal}
-                  </p>
-                  <Badge variant="outline" className="text-xs">
-                    {activity.time}
-                  </Badge>
-                </div>
-                <p className="text-xs text-gray-600 mt-1">
+      {activities.map((activity) => {
+        const Icon = activity.icon;
+        return (
+          <div key={activity.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+            <div className={`p-2 rounded-full bg-${activity.color}-100`}>
+              <Icon className={`w-4 h-4 text-${activity.color}-600`} />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center space-x-2">
+                <span className="font-medium text-gray-900">{activity.animal}</span>
+                <Badge variant="outline" className="text-xs">
                   {activity.action}
-                </p>
+                </Badge>
+              </div>
+              <div className="flex items-center space-x-1 text-xs text-gray-500 mt-1">
+                <Clock className="w-3 h-3" />
+                <span>{activity.time}</span>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      ))}
+          </div>
+        );
+      })}
     </div>
   );
 };

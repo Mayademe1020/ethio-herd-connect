@@ -1,70 +1,81 @@
 
-import { Home, Users, Heart, TrendingUp, ShoppingCart, User } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import React from 'react';
+import { Home, Heart, TrendingUp, ShoppingCart, User } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Language } from '@/types';
 
 interface BottomNavigationProps {
-  language: 'am' | 'en';
+  language: Language;
 }
 
 export const BottomNavigation = ({ language }: BottomNavigationProps) => {
+  const navigate = useNavigate();
   const location = useLocation();
 
+  const translations = {
+    am: {
+      home: 'ቤት',
+      health: 'ጤንነት',
+      growth: 'እድገት',
+      market: 'ገበያ',
+      profile: 'መግለጫ'
+    },
+    en: {
+      home: 'Home',
+      health: 'Health',
+      growth: 'Growth',
+      market: 'Market',
+      profile: 'Profile'
+    },
+    or: {
+      home: 'Mana',
+      health: 'Fayyaa',
+      growth: 'Guddina',
+      market: 'Gabaa',
+      profile: 'Ibsa'
+    },
+    sw: {
+      home: 'Nyumbani',
+      health: 'Afya',
+      growth: 'Ukuaji',
+      market: 'Soko',
+      profile: 'Wasifu'
+    }
+  };
+
+  const t = translations[language];
+
   const navItems = [
-    {
-      path: '/',
-      icon: Home,
-      label: language === 'am' ? 'ቤት' : 'Home',
-    },
-    {
-      path: '/animals',
-      icon: Users,
-      label: language === 'am' ? 'እንስሳት' : 'Animals',
-    },
-    {
-      path: '/health',
-      icon: Heart,
-      label: language === 'am' ? 'ጤንነት' : 'Health',
-    },
-    {
-      path: '/growth',
-      icon: TrendingUp,
-      label: language === 'am' ? 'እድገት' : 'Growth',
-    },
-    {
-      path: '/market',
-      icon: ShoppingCart,
-      label: language === 'am' ? 'ገበያ' : 'Market',
-    },
-    {
-      path: '/profile',
-      icon: User,
-      label: language === 'am' ? 'መግለጫ' : 'Profile',
-    },
+    { path: '/', label: t.home, icon: Home },
+    { path: '/health', label: t.health, icon: Heart },
+    { path: '/growth', label: t.growth, icon: TrendingUp },
+    { path: '/market', label: t.market, icon: ShoppingCart },
+    { path: '/profile', label: t.profile, icon: User }
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-area-pb">
-      <div className="flex justify-around items-center h-14 sm:h-16 px-1 sm:px-2">
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-50">
+      <div className="flex justify-around items-center max-w-md mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
           
           return (
-            <Link
+            <button
               key={item.path}
-              to={item.path}
-              className={`flex flex-col items-center justify-center flex-1 py-1.5 sm:py-2 px-0.5 sm:px-1 rounded-lg transition-colors touch-manipulation ${
+              onClick={() => navigate(item.path)}
+              className={`flex flex-col items-center space-y-1 py-1 px-2 rounded-lg transition-colors ${
                 isActive
                   ? 'text-green-600 bg-green-50'
-                  : 'text-gray-500 hover:text-green-600 active:text-green-600'
+                  : 'text-gray-600 hover:text-green-600 hover:bg-green-50'
               }`}
             >
-              <Icon className="w-4 h-4 sm:w-5 sm:h-5 mb-0.5 sm:mb-1" />
-              <span className="text-[10px] sm:text-xs font-medium truncate leading-tight">{item.label}</span>
-            </Link>
+              <Icon className="w-5 h-5" />
+              <span className="text-xs font-medium">{item.label}</span>
+            </button>
           );
         })}
       </div>
-    </nav>
+    </div>
   );
 };
