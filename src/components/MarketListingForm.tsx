@@ -2,76 +2,86 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { X, Upload } from 'lucide-react';
+import { X, ShoppingCart } from 'lucide-react';
 import { Language } from '@/types';
 
 interface MarketListingFormProps {
   language: Language;
   onClose: () => void;
-  onSuccess: () => void;
+  onSubmit?: (listing: any) => void;
+  onSuccess?: () => void;
 }
 
-export const MarketListingForm = ({ language, onClose, onSuccess }: MarketListingFormProps) => {
+export const MarketListingForm = ({ language, onClose, onSubmit, onSuccess }: MarketListingFormProps) => {
   const [formData, setFormData] = useState({
     title: '',
-    description: '',
+    category: '',
     price: '',
     location: '',
-    category: '',
+    description: '',
     contactMethod: 'phone',
     contactValue: ''
   });
 
   const translations = {
     am: {
-      title: 'አዲስ ዝርዝር ጨምር',
-      animalTitle: 'የእንስሳ ርዕስ',
-      description: 'መግለጫ',
-      price: 'ዋጋ (ብር)',
-      location: 'አካባቢ',
+      title: 'ወደ ገበያ አስቀምጥ',
+      listingTitle: 'ርዕስ',
       category: 'ምድብ',
+      price: 'ዋጋ',
+      location: 'አካባቢ',
+      description: 'መግለጫ',
       contactMethod: 'የመገናኛ መንገድ',
-      contactValue: 'የመገናኛ መረጃ',
-      submit: 'ዝርዝር ያስተዋውቁ',
-      cancel: 'ይቅር'
+      phone: 'ስልክ',
+      email: 'ኢሜይል',
+      contactValue: 'የመገናኛ ዝርዝር',
+      submit: 'አስቀምጥ',
+      cancel: 'ሰርዝ'
     },
     en: {
-      title: 'Add New Listing',
-      animalTitle: 'Animal Title',
-      description: 'Description',
-      price: 'Price (ETB)',
-      location: 'Location',
+      title: 'Create Market Listing',
+      listingTitle: 'Title',
       category: 'Category',
+      price: 'Price',
+      location: 'Location',
+      description: 'Description',
       contactMethod: 'Contact Method',
-      contactValue: 'Contact Information',
-      submit: 'Submit Listing',
+      phone: 'Phone',
+      email: 'Email',
+      contactValue: 'Contact Details',
+      submit: 'Create Listing',
       cancel: 'Cancel'
     },
     or: {
-      title: 'Tarree Haaraa Dabaluu',
-      animalTitle: 'Mata duree Horii',
-      description: 'Ibsa',
-      price: 'Gatii (Birr)',
-      location: 'Bakka',
+      title: 'Gabaa Irratti Kaa\'uu',
+      listingTitle: 'Mata Duree',
       category: 'Akaakuu',
+      price: 'Gatii',
+      location: 'Bakka',
+      description: 'Ibsa',
       contactMethod: 'Mala Qunnamtii',
-      contactValue: 'Odeeffannoo Qunnamtii',
-      submit: 'Tarree Dhiheessi',
-      cancel: 'Haqi'
+      phone: 'Bilbila',
+      email: 'Imeelii',
+      contactValue: 'Ibsa Qunnamtii',
+      submit: 'Kaa\'i',
+      cancel: 'Dhiisi'
     },
     sw: {
-      title: 'Ongeza Orodha Mpya',
-      animalTitle: 'Kichwa cha Mnyama',
-      description: 'Maelezo',
-      price: 'Bei (ETB)',
+      title: 'Tengeneza Tangazo la Soko',
+      listingTitle: 'Kichwa',
+      category: 'Jamii',
+      price: 'Bei',
       location: 'Mahali',
-      category: 'Kategoria',
+      description: 'Maelezo',
       contactMethod: 'Njia ya Mawasiliano',
-      contactValue: 'Taarifa za Mawasiliano',
-      submit: 'Wasilisha Orodha',
+      phone: 'Simu',
+      email: 'Barua pepe',
+      contactValue: 'Maelezo ya Mawasiliano',
+      submit: 'Tengeneza',
       cancel: 'Ghairi'
     }
   };
@@ -80,62 +90,131 @@ export const MarketListingForm = ({ language, onClose, onSuccess }: MarketListin
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    onSuccess();
+    const listingData = {
+      ...formData,
+      price: parseFloat(formData.price)
+    };
+    
+    if (onSubmit) {
+      onSubmit(listingData);
+    }
+    
+    if (onSuccess) {
+      onSuccess();
+    }
+    
+    onClose();
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <Card className="w-full max-w-md max-h-[90vh] overflow-y-auto">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg font-semibold">{t.title}</CardTitle>
-          <Button variant="ghost" size="sm" onClick={onClose}>
+          <CardTitle className="text-lg font-semibold flex items-center space-x-2">
+            <ShoppingCart className="w-5 h-5 text-orange-600" />
+            <span>{t.title}</span>
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="h-8 w-8 p-0"
+          >
             <X className="w-4 h-4" />
           </Button>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.animalTitle}</label>
+            <div className="space-y-2">
+              <Label htmlFor="title">{t.listingTitle}</Label>
               <Input
+                id="title"
                 value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                 required
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.description}</label>
-              <Textarea
-                rows={3}
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              />
+            <div className="space-y-2">
+              <Label htmlFor="category">{t.category}</Label>
+              <Select
+                value={formData.category}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={t.category} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cattle">🐄 Cattle</SelectItem>
+                  <SelectItem value="goat">🐐 Goat</SelectItem>
+                  <SelectItem value="sheep">🐑 Sheep</SelectItem>
+                  <SelectItem value="poultry">🐔 Poultry</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.price}</label>
+            <div className="space-y-2">
+              <Label htmlFor="price">{t.price} (ETB)</Label>
               <Input
+                id="price"
                 type="number"
                 value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
                 required
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.location}</label>
+            <div className="space-y-2">
+              <Label htmlFor="location">{t.location}</Label>
               <Input
+                id="location"
                 value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
               />
             </div>
 
-            <div className="flex space-x-2">
-              <Button type="submit" className="flex-1">
+            <div className="space-y-2">
+              <Label htmlFor="description">{t.description}</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="contactMethod">{t.contactMethod}</Label>
+              <Select
+                value={formData.contactMethod}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, contactMethod: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="phone">{t.phone}</SelectItem>
+                  <SelectItem value="email">{t.email}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="contactValue">{t.contactValue}</Label>
+              <Input
+                id="contactValue"
+                type={formData.contactMethod === 'email' ? 'email' : 'tel'}
+                value={formData.contactValue}
+                onChange={(e) => setFormData(prev => ({ ...prev, contactValue: e.target.value }))}
+                required
+              />
+            </div>
+
+            <div className="flex space-x-3 pt-4">
+              <Button type="submit" className="flex-1 bg-orange-600 hover:bg-orange-700">
                 {t.submit}
               </Button>
-              <Button type="button" variant="outline" onClick={onClose}>
+              <Button type="button" variant="outline" onClick={onClose} className="flex-1">
                 {t.cancel}
               </Button>
             </div>

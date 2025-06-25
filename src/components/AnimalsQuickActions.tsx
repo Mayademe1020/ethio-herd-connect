@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Plus, Search, Filter, Download } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Plus, Upload, Download, Filter } from 'lucide-react';
 import { Language } from '@/types';
 
 interface AnimalsQuickActionsProps {
@@ -10,38 +10,35 @@ interface AnimalsQuickActionsProps {
   onShowRegistrationForm: () => void;
 }
 
-export const AnimalsQuickActions = ({ 
-  language, 
-  onShowRegistrationForm 
-}: AnimalsQuickActionsProps) => {
+export const AnimalsQuickActions = ({ language, onShowRegistrationForm }: AnimalsQuickActionsProps) => {
   const translations = {
     am: {
-      quickActions: 'ፈጣን ተግባራት',
+      quickActions: 'ፈጣን እርምጃዎች',
       addAnimal: 'እንስሳ ጨምር',
-      bulkImport: 'በብዛት አስመጣ',
+      importData: 'መረጃ አምጣ',
       exportData: 'መረጃ ላክ',
-      advancedSearch: 'የላቀ ፍለጋ'
+      advancedFilter: 'የላቀ ማጣሪያ'
     },
     en: {
       quickActions: 'Quick Actions',
       addAnimal: 'Add Animal',
-      bulkImport: 'Bulk Import',
+      importData: 'Import Data',
       exportData: 'Export Data',
-      advancedSearch: 'Advanced Search'
+      advancedFilter: 'Advanced Filter'
     },
     or: {
-      quickActions: 'Hojiiwwan Saffisaa',
+      quickActions: 'Gochaalee Saffisaa',
       addAnimal: 'Horii Dabaluu',
-      bulkImport: 'Baay\'ee Galchuu',
-      exportData: 'Deetaa Erguu',
-      advancedSearch: 'Barbaacha Olaanaa'
+      importData: 'Daataa Galchuu',
+      exportData: 'Daataa Baasuu',
+      advancedFilter: 'Calaqqisiisa Olaanaa'
     },
     sw: {
       quickActions: 'Vitendo vya Haraka',
       addAnimal: 'Ongeza Mnyama',
-      bulkImport: 'Ingiza Wingi',
+      importData: 'Leta Data',
       exportData: 'Hamisha Data',
-      advancedSearch: 'Utafutaji wa Hali ya Juu'
+      advancedFilter: 'Kichuja cha Hali ya Juu'
     }
   };
 
@@ -49,46 +46,51 @@ export const AnimalsQuickActions = ({
 
   return (
     <Card className="border-green-100">
-      <CardContent className="p-3 sm:p-4">
-        <h3 className="font-semibold text-sm sm:text-base mb-3 text-gray-800">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-base sm:text-lg font-semibold text-gray-800">
           {t.quickActions}
-        </h3>
-        
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
           <Button
             onClick={onShowRegistrationForm}
-            className="bg-green-600 hover:bg-green-700 h-8 sm:h-9 text-xs sm:text-sm"
-            size="sm"
+            className="h-12 sm:h-16 flex flex-col space-y-1 bg-green-600 hover:bg-green-700"
           >
-            <Plus className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-            {t.addAnimal}
+            <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="text-xs sm:text-sm font-medium text-center leading-tight">
+              {t.addAnimal}
+            </span>
           </Button>
-          
+
           <Button
             variant="outline"
-            className="border-green-200 text-green-700 hover:bg-green-50 h-8 sm:h-9 text-xs sm:text-sm"
-            size="sm"
+            className="h-12 sm:h-16 flex flex-col space-y-1 border-blue-200 hover:bg-blue-50"
           >
-            <Search className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-            {t.advancedSearch}
+            <Upload className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />
+            <span className="text-xs sm:text-sm font-medium text-center leading-tight">
+              {t.importData}
+            </span>
           </Button>
-          
+
           <Button
             variant="outline"
-            className="border-blue-200 text-blue-700 hover:bg-blue-50 h-8 sm:h-9 text-xs sm:text-sm"
-            size="sm"
+            className="h-12 sm:h-16 flex flex-col space-y-1 border-purple-200 hover:bg-purple-50"
           >
-            <Filter className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-            {t.bulkImport}
+            <Download className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500" />
+            <span className="text-xs sm:text-sm font-medium text-center leading-tight">
+              {t.exportData}
+            </span>
           </Button>
-          
+
           <Button
             variant="outline"
-            className="border-purple-200 text-purple-700 hover:bg-purple-50 h-8 sm:h-9 text-xs sm:text-sm"
-            size="sm"
+            className="h-12 sm:h-16 flex flex-col space-y-1 border-orange-200 hover:bg-orange-50"
           >
-            <Download className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-            {t.exportData}
+            <Filter className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" />
+            <span className="text-xs sm:text-sm font-medium text-center leading-tight">
+              {t.advancedFilter}
+            </span>
           </Button>
         </div>
       </CardContent>

@@ -1,35 +1,29 @@
 
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { TrendingUp, Heart, AlertTriangle, Shield, Calendar, Plus } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Users, Heart, AlertTriangle, Target, Syringe, Plus } from 'lucide-react';
 import { Language } from '@/types';
-
-interface SummaryData {
-  totalAnimals: number;
-  healthyAnimals: number;
-  sickAnimals: number;
-  needsAttention: number;
-  vaccinatedAnimals: number;
-  recentlyAdded: number;
-}
 
 interface AnimalsSummaryCardsProps {
   language: Language;
-  summaryData: SummaryData;
+  summaryData: {
+    totalAnimals: number;
+    healthyAnimals: number;
+    sickAnimals: number;
+    needsAttention: number;
+    vaccinatedAnimals: number;
+    recentlyAdded: number;
+  };
 }
 
-export const AnimalsSummaryCards = ({ 
-  language, 
-  summaryData 
-}: AnimalsSummaryCardsProps) => {
+export const AnimalsSummaryCards = ({ language, summaryData }: AnimalsSummaryCardsProps) => {
   const translations = {
     am: {
       totalAnimals: 'ጠቅላላ እንስሳት',
       healthyAnimals: 'ጤናማ እንስሳት',
       sickAnimals: 'ህሙማን እንስሳት',
-      needsAttention: 'ትኩረት የሚያስፈልጋቸው',
-      vaccinatedAnimals: 'የተከተቡ እንስሳት',
+      needsAttention: 'ትኩረት የሚፈልጉ',
+      vaccinatedAnimals: 'የተከተበ እንስሳት',
       recentlyAdded: 'በቅርቡ የተጨመሩ'
     },
     en: {
@@ -41,98 +35,110 @@ export const AnimalsSummaryCards = ({
       recentlyAdded: 'Recently Added'
     },
     or: {
-      totalAnimals: 'Horii Guutuu',
+      totalAnimals: 'Horii Hundaa',
       healthyAnimals: 'Horii Fayyaa',
       sickAnimals: 'Horii Dhukkubsaa',
-      needsAttention: 'Xiyyeeffannaa Barbaadan',
-      vaccinatedAnimals: 'Horii Tallaa\'an',
-      recentlyAdded: 'Yeroo Dhiyoo Dabalaman'
+      needsAttention: 'Xiyyeeffannoo Barbaadan',
+      vaccinatedAnimals: 'Horii Tallaan Godhaman',
+      recentlyAdded: 'Yeroo Dhiyootti Dabalaman'
     },
     sw: {
-      totalAnimals: 'Jumla ya Wanyamapori',
-      healthyAnimals: 'Wanyamapori Wenye Afya',
-      sickAnimals: 'Wanyamapori Wagonjwa',
-      needsAttention: 'Wanahitaji Uangalifu',
-      vaccinatedAnimals: 'Wanyamapori Waliopata Chanjo',
+      totalAnimals: 'Jumla ya Wanyama',
+      healthyAnimals: 'Wanyama Wenye Afya',
+      sickAnimals: 'Wanyama Wagonjwa',
+      needsAttention: 'Wanahitaji Umakini',
+      vaccinatedAnimals: 'Wanyama Waliopewa Chanjo',
       recentlyAdded: 'Walioongezwa Hivi Karibuni'
     }
   };
 
   const t = translations[language];
 
-  const cards = [
-    {
-      title: t.totalAnimals,
-      value: summaryData.totalAnimals,
-      icon: TrendingUp,
-      color: 'bg-blue-50 text-blue-600',
-      bgColor: 'bg-blue-100'
-    },
-    {
-      title: t.healthyAnimals,
-      value: summaryData.healthyAnimals,
-      icon: Heart,
-      color: 'bg-green-50 text-green-600',
-      bgColor: 'bg-green-100'
-    },
-    {
-      title: t.sickAnimals,
-      value: summaryData.sickAnimals,
-      icon: AlertTriangle,
-      color: 'bg-red-50 text-red-600',
-      bgColor: 'bg-red-100'
-    },
-    {
-      title: t.needsAttention,
-      value: summaryData.needsAttention,
-      icon: AlertTriangle,
-      color: 'bg-yellow-50 text-yellow-600',
-      bgColor: 'bg-yellow-100'
-    },
-    {
-      title: t.vaccinatedAnimals,
-      value: summaryData.vaccinatedAnimals,
-      icon: Shield,
-      color: 'bg-purple-50 text-purple-600',
-      bgColor: 'bg-purple-100'
-    },
-    {
-      title: t.recentlyAdded,
-      value: summaryData.recentlyAdded,
-      icon: Plus,
-      color: 'bg-indigo-50 text-indigo-600',
-      bgColor: 'bg-indigo-100'
-    }
-  ];
-
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-      {cards.map((card, index) => (
-        <Card key={index} className="border-gray-100 hover:shadow-md transition-shadow">
-          <CardContent className="p-3 sm:p-4">
-            <div className="flex items-center space-x-2">
-              <div className={`p-1.5 sm:p-2 rounded-lg ${card.bgColor}`}>
-                <card.icon className={`w-3 h-3 sm:w-4 sm:h-4 ${card.color.split(' ')[1]}`} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs sm:text-sm text-gray-600 truncate">
-                  {card.title}
-                </p>
-                <div className="flex items-center space-x-1">
-                  <p className="text-lg sm:text-xl font-bold text-gray-900">
-                    {card.value}
-                  </p>
-                  {card.value > 0 && (
-                    <Badge variant="secondary" className="text-xs px-1">
-                      +
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+      <Card className="border-blue-100">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-xs sm:text-sm font-medium text-gray-600 flex items-center space-x-1">
+            <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span>{t.totalAnimals}</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="text-lg sm:text-2xl font-bold text-blue-600">
+            {summaryData.totalAnimals}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-green-100">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-xs sm:text-sm font-medium text-gray-600 flex items-center space-x-1">
+            <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span>{t.healthyAnimals}</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="text-lg sm:text-2xl font-bold text-green-600">
+            {summaryData.healthyAnimals}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-red-100">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-xs sm:text-sm font-medium text-gray-600 flex items-center space-x-1">
+            <AlertTriangle className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span>{t.sickAnimals}</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="text-lg sm:text-2xl font-bold text-red-600">
+            {summaryData.sickAnimals}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-orange-100">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-xs sm:text-sm font-medium text-gray-600 flex items-center space-x-1">
+            <Target className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span>{t.needsAttention}</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="text-lg sm:text-2xl font-bold text-orange-600">
+            {summaryData.needsAttention}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-purple-100">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-xs sm:text-sm font-medium text-gray-600 flex items-center space-x-1">
+            <Syringe className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span>{t.vaccinatedAnimals}</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="text-lg sm:text-2xl font-bold text-purple-600">
+            {summaryData.vaccinatedAnimals}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-teal-100">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-xs sm:text-sm font-medium text-gray-600 flex items-center space-x-1">
+            <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
+            <span>{t.recentlyAdded}</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="text-lg sm:text-2xl font-bold text-teal-600">
+            {summaryData.recentlyAdded}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
