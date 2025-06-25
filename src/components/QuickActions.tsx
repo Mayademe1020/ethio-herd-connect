@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, Syringe, TrendingUp, ShoppingCart } from 'lucide-react';
 import { Language } from '@/types';
+import { useNavigate } from 'react-router-dom';
 
 interface QuickActionsProps {
   language: Language;
@@ -11,6 +12,8 @@ interface QuickActionsProps {
 }
 
 export const QuickActions = ({ language, onActionComplete }: QuickActionsProps) => {
+  const navigate = useNavigate();
+  
   const translations = {
     am: {
       title: 'ፈጣን እርምጃዎች',
@@ -44,6 +47,26 @@ export const QuickActions = ({ language, onActionComplete }: QuickActionsProps) 
 
   const t = translations[language];
 
+  const handleAddAnimal = () => {
+    navigate('/animals');
+    onActionComplete();
+  };
+
+  const handleVaccinate = () => {
+    navigate('/health');
+    onActionComplete();
+  };
+
+  const handleRecordWeight = () => {
+    navigate('/growth');
+    onActionComplete();
+  };
+
+  const handleSellAnimal = () => {
+    navigate('/market');
+    onActionComplete();
+  };
+
   return (
     <Card className="border-green-100">
       <CardHeader className="pb-3">
@@ -54,7 +77,7 @@ export const QuickActions = ({ language, onActionComplete }: QuickActionsProps) 
       <CardContent className="grid grid-cols-2 gap-3">
         <Button
           className="h-16 flex flex-col space-y-1 bg-green-600 hover:bg-green-700"
-          onClick={onActionComplete}
+          onClick={handleAddAnimal}
         >
           <Plus className="w-5 h-5" />
           <span className="text-xs font-medium text-center">{t.addAnimal}</span>
@@ -63,7 +86,7 @@ export const QuickActions = ({ language, onActionComplete }: QuickActionsProps) 
         <Button
           variant="outline"
           className="h-16 flex flex-col space-y-1 border-blue-200 hover:bg-blue-50"
-          onClick={onActionComplete}
+          onClick={handleVaccinate}
         >
           <Syringe className="w-5 h-5 text-blue-600" />
           <span className="text-xs font-medium text-center">{t.vaccinate}</span>
@@ -72,7 +95,7 @@ export const QuickActions = ({ language, onActionComplete }: QuickActionsProps) 
         <Button
           variant="outline"
           className="h-16 flex flex-col space-y-1 border-purple-200 hover:bg-purple-50"
-          onClick={onActionComplete}
+          onClick={handleRecordWeight}
         >
           <TrendingUp className="w-5 h-5 text-purple-600" />
           <span className="text-xs font-medium text-center">{t.recordWeight}</span>
@@ -81,7 +104,7 @@ export const QuickActions = ({ language, onActionComplete }: QuickActionsProps) 
         <Button
           variant="outline"
           className="h-16 flex flex-col space-y-1 border-orange-200 hover:bg-orange-50"
-          onClick={onActionComplete}
+          onClick={handleSellAnimal}
         >
           <ShoppingCart className="w-5 h-5 text-orange-600" />
           <span className="text-xs font-medium text-center">{t.sellAnimal}</span>
