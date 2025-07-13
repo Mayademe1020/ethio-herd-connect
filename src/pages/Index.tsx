@@ -1,5 +1,6 @@
 
 import { EnhancedHeader } from '@/components/EnhancedHeader';
+import { Header } from '@/components/Header';
 import { BottomNavigation } from '@/components/BottomNavigation';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { InteractiveDashboard } from '@/components/InteractiveDashboard';
@@ -29,75 +30,110 @@ const Index = () => {
   };
 
   const handleActionComplete = () => {
-    // Refresh data after action completion
     console.log('Action completed, refreshing data...');
+  };
+
+  const handleShowStaffManagement = () => {
+    console.log('Opening Staff Management');
+    setShowStaffManagement(true);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-20 sm:pb-24">
-      <EnhancedHeader />
+      <Header />
       <OfflineIndicator language={language} />
       
-      <main className="container mx-auto px-2 sm:px-4 lg:px-6 py-3 sm:py-6 space-y-4 sm:space-y-6 lg:space-y-8">
+      <main className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 lg:space-y-8 max-w-7xl">
         {/* Welcome Section */}
-        <div className="text-center mb-3 sm:mb-6">
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-1 sm:mb-2">
-            {language === 'am' ? 'MyLivestock ዳሽቦርድ' : 'MyLivestock Dashboard'}
+        <div className="text-center mb-4 sm:mb-6">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-800 mb-2">
+            {language === 'am' ? 'MyLivestock ዳሽቦርድ' : 
+             language === 'or' ? 'Daashboordii MyLivestock' :
+             language === 'sw' ? 'Dashibodi ya MyLivestock' :
+             'MyLivestock Dashboard'}
           </h1>
-          <p className="text-xs sm:text-sm lg:text-base text-gray-600 px-2">
+          <p className="text-sm sm:text-base lg:text-lg text-gray-600 px-4 max-w-2xl mx-auto">
             {language === 'am' 
               ? 'የእርስዎ እንስሳዎች እና ግብርና አስተዳደር ማእከል'
+              : language === 'or'
+              ? 'Horii fi qonnaa keessanii bulchiinsa gaafa'
+              : language === 'sw'
+              ? 'Kituo chako cha usimamizi wa mifugo na kilimo'
               : 'Your livestock and farm management center'
             }
           </p>
         </div>
 
         {/* Interactive Dashboard Cards */}
-        <InteractiveDashboard language={language} stats={dashboardStats} />
+        <div className="mb-6 sm:mb-8">
+          <InteractiveDashboard language={language} stats={dashboardStats} />
+        </div>
 
-        {/* Quick Actions with Staff Management */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
-          <div className="lg:col-span-2">
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+          {/* Quick Actions - Takes more space on larger screens */}
+          <div className="lg:col-span-2 xl:col-span-2">
             <QuickActions language={language} onActionComplete={handleActionComplete} />
           </div>
           
           {/* Staff Management Card */}
-          <Card className="border-green-100">
-            <CardHeader className="pb-2 sm:pb-3">
-              <CardTitle className="text-sm sm:text-base lg:text-lg font-semibold text-gray-800 flex items-center space-x-1 sm:space-x-2">
-                <Users className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-green-600" />
-                <span>{language === 'am' ? 'የሰራተኞች አስተዳደር' : 'Staff Management'}</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 sm:space-y-3">
-              <p className="text-xs sm:text-sm text-gray-600">
-                {language === 'am' 
-                  ? 'የእርሻ ሰራተኞችን ያክሉ እና ያስተዳድሩ'
-                  : 'Add and manage farm staff members'
-                }
-              </p>
-              <Button
-                onClick={() => setShowStaffManagement(true)}
-                className="w-full bg-green-600 hover:bg-green-700 text-xs sm:text-sm h-8 sm:h-10"
-              >
-                <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                {language === 'am' ? 'ሰራተኞችን አስተዳድር' : 'Manage Staff'}
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
+          <div className="lg:col-span-1 xl:col-span-1">
+            <Card className="border-green-100 hover:shadow-md transition-shadow h-full">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm sm:text-base lg:text-lg font-semibold text-gray-800 flex items-center space-x-2">
+                  <Users className="w-4 h-4 sm:w-5 sm:h-5 text-green-600 flex-shrink-0" />
+                  <span className="truncate">
+                    {language === 'am' ? 'የሰራተኞች አስተዳደር' : 
+                     language === 'or' ? 'Bulchiinsa Hojjettootaa' :
+                     language === 'sw' ? 'Usimamizi wa Wafanyakazi' :
+                     'Staff Management'}
+                  </span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                  {language === 'am' 
+                    ? 'የእርሻ ሰራተኞችን ያክሉ እና ያስተዳድሩ'
+                    : language === 'or'
+                    ? 'Hojjettoo qonnaa dabaluu fi bulchuu'
+                    : language === 'sw'
+                    ? 'Ongeza na usimamie wafanyakazi wa shamba'
+                    : 'Add and manage farm staff members'
+                  }
+                </p>
+                <Button
+                  onClick={handleShowStaffManagement}
+                  className="w-full bg-green-600 hover:bg-green-700 text-sm h-10 sm:h-12 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation"
+                >
+                  <Users className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="truncate">
+                    {language === 'am' ? 'ሰራተኞችን አስተዳድር' : 
+                     language === 'or' ? 'Hojjettoo Bulchuu' :
+                     language === 'sw' ? 'Usimamie Wafanyakazi' :
+                     'Manage Staff'}
+                  </span>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
 
-        {/* Recent Activity */}
-        <Card className="border-green-100">
-          <CardHeader className="pb-2 sm:pb-4">
-            <CardTitle className="text-base sm:text-lg lg:text-xl font-semibold text-gray-800">
-              {language === 'am' ? '📊 የቅርብ ጊዜ እንቅስቃሴዎች' : '📊 Recent Activity'}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <RecentActivity language={language} />
-          </CardContent>
-        </Card>
+          {/* Recent Activity - Spans remaining space */}
+          <div className="lg:col-span-3 xl:col-span-1">
+            <Card className="border-green-100 hover:shadow-md transition-shadow h-full">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm sm:text-base lg:text-lg font-semibold text-gray-800">
+                  {language === 'am' ? '📊 የቅርብ ጊዜ እንቅስቃሴዎች' : 
+                   language === 'or' ? '📊 Sochiiwwan Yeroo Dhiyoo' :
+                   language === 'sw' ? '📊 Shughuli za Hivi Karibuni' :
+                   '📊 Recent Activity'}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <RecentActivity language={language} />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </main>
 
       <BottomNavigation language={language} />

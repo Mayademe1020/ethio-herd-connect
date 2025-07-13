@@ -48,66 +48,70 @@ export const QuickActions = ({ language, onActionComplete }: QuickActionsProps) 
   const t = translations[language];
 
   const handleAddAnimal = () => {
+    console.log('Navigating to Animals page');
     navigate('/animals');
     onActionComplete();
   };
 
   const handleVaccinate = () => {
+    console.log('Navigating to Health page');
     navigate('/health');
     onActionComplete();
   };
 
   const handleRecordWeight = () => {
+    console.log('Navigating to Growth page');
     navigate('/growth');
     onActionComplete();
   };
 
   const handleSellAnimal = () => {
+    console.log('Navigating to Market page');
     navigate('/market');
     onActionComplete();
   };
 
   return (
-    <Card className="border-green-100">
+    <Card className="border-green-100 hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-semibold text-gray-800">
+        <CardTitle className="text-base sm:text-lg font-semibold text-gray-800">
           {t.title}
         </CardTitle>
       </CardHeader>
       <CardContent className="grid grid-cols-2 gap-3">
         <Button
-          className="h-16 flex flex-col space-y-1 bg-green-600 hover:bg-green-700"
+          className="h-16 sm:h-20 flex flex-col space-y-1 bg-green-600 hover:bg-green-700 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation"
           onClick={handleAddAnimal}
         >
-          <Plus className="w-5 h-5" />
-          <span className="text-xs font-medium text-center">{t.addAnimal}</span>
+          <Plus className="w-5 h-5 sm:w-6 sm:h-6" />
+          <span className="text-xs sm:text-sm font-medium text-center leading-tight">{t.addAnimal}</span>
         </Button>
 
         <Button
           variant="outline"
-          className="h-16 flex flex-col space-y-1 border-blue-200 hover:bg-blue-50"
+          className="h-16 sm:h-20 flex flex-col space-y-1 border-blue-200 hover:bg-blue-50 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation"
           onClick={handleVaccinate}
         >
-          <Syringe className="w-5 h-5 text-blue-600" />
-          <span className="text-xs font-medium text-center">{t.vaccinate}</span>
+          <Syringe className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
+          <span className="text-xs sm:text-sm font-medium text-center leading-tight">{t.vaccinate}</span>
         </Button>
 
         <Button
           variant="outline"
-          className="h-16 flex flex-col space-y-1 border-purple-200 hover:bg-purple-50"
+          className="h-16 sm:h-20 flex flex-col space-y-1 border-purple-200 hover:bg-purple-50 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation"
           onClick={handleRecordWeight}
         >
-          <TrendingUp className="w-5 h-5 text-purple-600" />
-          <span className="text-xs font-medium text-center">{t.recordWeight}</span>
+          <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
+          <span className="text-xs sm:text-sm font-medium text-center leading-tight">{t.recordWeight}</span>
         </Button>
 
         <Button
           variant="outline"
-          className="h-16 flex flex-col space-y-1 border-orange-200 hover:bg-orange-50"
+          className="h-16 sm:h-20 flex flex-col space-y-1 border-orange-200 hover:bg-orange-50 transition-all duration-200 hover:scale-105 active:scale-95 touch-manipulation"
           onClick={handleSellAnimal}
         >
-          <ShoppingCart className="w-5 h-5 text-orange-600" />
-          <span className="text-xs font-medium text-center">{t.sellAnimal}</span>
+          <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" />
+          <span className="text-xs sm:text-sm font-medium text-center leading-tight">{t.sellAnimal}</span>
         </Button>
       </CardContent>
     </Card>
