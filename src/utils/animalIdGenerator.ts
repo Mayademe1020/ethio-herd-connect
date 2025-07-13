@@ -8,9 +8,10 @@ export interface AnimalIdComponents {
   farmPrefix?: string;
 }
 
-// Type codes for different animal types
+// Type codes for different animal types - Updated to separate cow and ox
 export const ANIMAL_TYPE_CODES = {
-  cattle: 'COW',
+  cow: 'COW',
+  ox: 'OX',
   poultry: 'POU', 
   goat: 'GOT',
   sheep: 'SHP'
@@ -21,6 +22,46 @@ export const generateAnimalId = (animalType: string, farmPrefix: string = 'FARM'
   const typeCode = ANIMAL_TYPE_CODES[animalType as keyof typeof ANIMAL_TYPE_CODES] || 'ANM';
   const sequence = Math.floor(Math.random() * 999) + 1;
   const sequenceStr = sequence.toString().padStart(3, '0');
+  
+  // Generate date suffix in YYMMDD format
+  const now = new Date();
+  const year = now.getFullYear().toString().slice(-2);
+  const month = (now.getMonth() + 1).toString().padStart(2, '0');
+  const day = now.getDate().toString().padStart(2, '0');
+  const dateStr = `${year}${month}${day}`;
+  
+  return `${farmPrefix}-${typeCode}-${sequenceStr}-${dateStr}`;
+};
+
+// Generate continuous animal number based on existing records
+export const generateContinuousAnimalNumber = async (
+  animalType: string, 
+  farmPrefix: string = 'FARM',
+  existingAnimals: any[] = []
+): Promise<string> => {
+  const typeCode = ANIMAL_TYPE_CODES[animalType as keyof typeof ANIMAL_TYPE_CODES] || 'ANM';
+  
+  // Filter animals of the same type and farm
+  const sameTypeAnimals = existingAnimals.filter(animal => 
+    animal.animal_code && 
+    animal.animal_code.startsWith(`${farmPrefix}-${typeCode}-`)
+  );
+  
+  // Extract sequence numbers from existing animals
+  const existingNumbers = sameTypeAnimals
+    .map(animal => {
+      const parts = animal.animal_code.split('-');
+      if (parts.length >= 3) {
+        const sequenceStr = parts[2];
+        return parseInt(sequenceStr, 10);
+      }
+      return 0;
+    })
+    .filter(num => !isNaN(num));
+  
+  // Get the next sequential number
+  const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
+  const sequenceStr = nextNumber.toString().padStart(3, '0');
   
   // Generate date suffix in YYMMDD format
   const now = new Date();
@@ -47,7 +88,7 @@ export const parseAnimalId = (animalId: string): AnimalIdComponents | null => {
 
 // Validate Animal ID format
 export const validateAnimalId = (animalId: string): boolean => {
-  const regex = /^[A-Z0-9]+-[A-Z]{3}-\d{3}-\d{6}$/;
+  const regex = /^[A-Z0-9]+-[A-Z]{2,3}-\d{3}-\d{6}$/;
   return regex.test(animalId);
 };
 
