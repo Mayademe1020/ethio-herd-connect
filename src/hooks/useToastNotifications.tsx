@@ -8,7 +8,8 @@ export const useToastNotifications = () => {
     toast({
       title,
       description,
-      variant: 'default'
+      variant: 'default',
+      className: 'border-green-200 bg-green-50 text-green-900',
     });
   };
 
@@ -16,12 +17,32 @@ export const useToastNotifications = () => {
     toast({
       title,
       description,
-      variant: 'destructive'
+      variant: 'destructive',
+    });
+  };
+
+  const showInfo = (title: string, description?: string) => {
+    toast({
+      title,
+      description,
+      variant: 'default',
+      className: 'border-blue-200 bg-blue-50 text-blue-900',
+    });
+  };
+
+  const showWarning = (title: string, description?: string) => {
+    toast({
+      title,
+      description,
+      variant: 'default',
+      className: 'border-yellow-200 bg-yellow-50 text-yellow-900',
     });
   };
 
   return {
     showSuccess,
-    showError
+    showError,
+    showInfo,
+    showWarning
   };
 };
