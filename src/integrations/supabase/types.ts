@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_security: {
+        Row: {
+          account_locked_until: string | null
+          created_at: string
+          failed_login_attempts: number
+          id: string
+          last_failed_login: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_locked_until?: string | null
+          created_at?: string
+          failed_login_attempts?: number
+          id?: string
+          last_failed_login?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_locked_until?: string | null
+          created_at?: string
+          failed_login_attempts?: number
+          id?: string
+          last_failed_login?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       animals: {
         Row: {
           age: number | null
@@ -78,6 +108,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          ip_address: unknown | null
+          new_values: Json | null
+          old_values: Json | null
+          record_id: string | null
+          table_name: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          new_values?: Json | null
+          old_values?: Json | null
+          record_id?: string | null
+          table_name?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       farm_assistants: {
         Row: {
