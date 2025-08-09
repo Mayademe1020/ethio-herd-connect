@@ -7,474 +7,327 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, ArrowRight, Camera, Check, AlertCircle, Cow, MapPin } from 'lucide-react';
-import { Language } from '@/types';
-import { useToastNotifications } from '@/hooks/useToastNotifications';
+import { X, ArrowLeft, ArrowRight, User, Heart, Calendar, Beef } from 'lucide-react';
+import { Language, AnimalData } from '@/types';
 
 interface EnhancedAnimalRegistrationFormProps {
   language: Language;
   onClose: () => void;
-  onSubmit?: (data: any) => void;
+  onSuccess: () => void;
+  editAnimal?: AnimalData;
 }
-
-interface FormData {
-  // Step 1: Basic Info
-  name: string;
-  type: string;
-  breed: string;
-  
-  // Step 2: Physical Details
-  age: string;
-  weight: string;
-  color: string;
-  markings: string;
-  
-  // Step 3: Health & Origin
-  healthStatus: string;
-  vaccinationStatus: string;
-  origin: string;
-  purchasePrice: string;
-  
-  // Step 4: Documentation
-  photo: File | null;
-  certificates: string[];
-}
-
-const STEPS = 4;
 
 export const EnhancedAnimalRegistrationForm = ({ 
   language, 
   onClose, 
-  onSubmit 
+  onSuccess, 
+  editAnimal 
 }: EnhancedAnimalRegistrationFormProps) => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState<FormData>({
-    name: '',
-    type: '',
-    breed: '',
-    age: '',
-    weight: '',
-    color: '',
-    markings: '',
-    healthStatus: 'healthy',
-    vaccinationStatus: 'up_to_date',
-    origin: '',
-    purchasePrice: '',
-    photo: null,
-    certificates: []
+  const [formData, setFormData] = useState({
+    name: editAnimal?.name || '',
+    species: editAnimal?.species || '',
+    breed: editAnimal?.breed || '',
+    birthDate: editAnimal?.birth_date || '',
+    gender: editAnimal?.gender || '',
+    color: editAnimal?.color || '',
+    weight: editAnimal?.weight?.toString() || '',
+    healthStatus: editAnimal?.health_status || 'healthy',
+    notes: editAnimal?.notes || ''
   });
-  const { showSuccess, showError } = useToastNotifications();
 
   const translations = {
     am: {
-      title: 'አዲስ እንስሳ ምዝገባ',
-      step1: 'መሰረታዊ መረጃ',
-      step2: 'አካላዊ ዝርዝር',
-      step3: 'ጤንነት እና መነሻ',
-      step4: 'ሰነዶች',
-      name: 'ስም',
-      type: 'አይነት',
-      breed: 'ዝርያ',
-      age: 'እድሜ',
-      weight: 'ክብደት',
-      color: 'ቀለም',
-      markings: 'ምልክቶች',
-      healthStatus: 'የጤንነት ሁኔታ',
-      vaccinationStatus: 'የክትባት ሁኔታ',
-      origin: 'መነሻ',
-      purchasePrice: 'የግዢ ዋጋ',
-      photo: 'ፎቶ',
+      title: editAnimal ? 'እንስሳ አርም' : 'አዲስ እንስሳ መዝግብ',
+      step1: 'መሠረታዊ መረጃ',
+      step2: 'አካላዊ ባህሪያት',
+      step3: 'የጤና መረጃ',
+      progress: 'እድገት',
       next: 'ቀጣይ',
-      previous: 'ቀዳሚ',
-      finish: 'ፈጽም',
+      previous: 'ቀደም',
+      submit: editAnimal ? 'አዘምን' : 'መዝግብ',
       cancel: 'ሰርዝ',
-      cattle: 'ከብት',
-      goat: 'ፍየል',
-      sheep: 'በግ',
+      name: 'ስም',
+      species: 'ዝርያ',
+      breed: 'ዘር',
+      birthDate: 'የተወለደበት ቀን',
+      gender: 'ጾታ',
+      color: 'ቀለም',
+      weight: 'ክብደት (ኪግ)',
+      healthStatus: 'የጤና ሁኔታ',
+      notes: 'ማስታወሻ',
+      male: 'ወንድ',
+      female: 'ሴት',
       healthy: 'ጤናማ',
-      sick: 'ታምሞ',
-      upToDate: 'ወቅታዊ',
-      overdue: 'ዘግይቶ',
-      red: 'ቀይ',
-      brown: 'ቡናማ',
-      black: 'ጥቁር',
-      white: 'ነጭ',
-      mixed: 'ድብልቅ'
+      sick: 'ህሙም',
+      attention: 'ትኩረት ያስፈልገዋል'
     },
     en: {
-      title: 'New Animal Registration',
+      title: editAnimal ? 'Edit Animal' : 'Register New Animal',
       step1: 'Basic Information',
-      step2: 'Physical Details',
-      step3: 'Health & Origin',
-      step4: 'Documentation',
-      name: 'Name',
-      type: 'Type',
-      breed: 'Breed',
-      age: 'Age',
-      weight: 'Weight',
-      color: 'Color',
-      markings: 'Markings',
-      healthStatus: 'Health Status',
-      vaccinationStatus: 'Vaccination Status',
-      origin: 'Origin',
-      purchasePrice: 'Purchase Price',
-      photo: 'Photo',
+      step2: 'Physical Characteristics',
+      step3: 'Health Information',
+      progress: 'Progress',
       next: 'Next',
       previous: 'Previous',
-      finish: 'Finish',
+      submit: editAnimal ? 'Update' : 'Register',
       cancel: 'Cancel',
-      cattle: 'Cattle',
-      goat: 'Goat',
-      sheep: 'Sheep',
+      name: 'Name',
+      species: 'Species',
+      breed: 'Breed',
+      birthDate: 'Birth Date',
+      gender: 'Gender',
+      color: 'Color',
+      weight: 'Weight (kg)',
+      healthStatus: 'Health Status',
+      notes: 'Notes',
+      male: 'Male',
+      female: 'Female',
       healthy: 'Healthy',
       sick: 'Sick',
-      upToDate: 'Up to Date',
-      overdue: 'Overdue',
-      red: 'Red',
-      brown: 'Brown',
-      black: 'Black',
-      white: 'White',
-      mixed: 'Mixed'
+      attention: 'Needs Attention'
     },
     or: {
-      title: 'Galmeessa Horii Haaraa',
+      title: editAnimal ? 'Horii Sirreessuu' : 'Horii Haaraa Galmeessuu',
       step1: 'Odeeffannoo Bu\'uuraa',
-      step2: 'Ibsa Qaamaa',
-      step3: 'Fayyaa fi Ka\'umsa',
-      step4: 'Ragaalee',
-      name: 'Maqaa',
-      type: 'Gosa',
-      breed: 'Sanyii',
-      age: 'Umurii',
-      weight: 'Ulfaatina',
-      color: 'Halluu',
-      markings: 'Mallattoolee',
-      healthStatus: 'Haala Fayyaa',
-      vaccinationStatus: 'Haala Walaloo',
-      origin: 'Ka\'umsa',
-      purchasePrice: 'Gatii Bitaa',
-      photo: 'Suuraa',
-      next: 'Itti Aanu',
-      previous: 'Dura',
-      finish: 'Xumuri',
+      step2: 'Amala Qaamaa',
+      step3: 'Odeeffannoo Fayyaa',
+      progress: 'Adeemsa',
+      next: 'Itti Aansuuf',
+      previous: 'Duraanii',
+      submit: editAnimal ? 'Haaromsi' : 'Galmeessi',
       cancel: 'Dhiisi',
-      cattle: 'Loon',
-      goat: 'Re\'ee',
-      sheep: 'Hoolaa',
-      healthy: 'Fayya',
-      sick: 'Dhukkuba',
-      upToDate: 'Haaromfame',
-      overdue: 'Turee',
-      red: 'Diimaa',
-      brown: 'Magariisa',
-      black: 'Gurraacha',
-      white: 'Adii',
-      mixed: 'Makame'
+      name: 'Maqaa',
+      species: 'Gosa',
+      breed: 'Sanyii',
+      birthDate: 'Guyyaa Dhaloota',
+      gender: 'Saala',
+      color: 'Halluu',
+      weight: 'Ulfaatina (kg)',
+      healthStatus: 'Haala Fayyaa',
+      notes: 'Yaadannoo',
+      male: 'Dhiira',
+      female: 'Dhalaa',
+      healthy: 'Fayyaa',
+      sick: 'Dhukkubsaa',
+      attention: 'Xiyyeeffannoo Barbaada'
     },
     sw: {
-      title: 'Usajili wa Mnyama Mpya',
-      step1: 'Maelezo ya Kimsingi',
-      step2: 'Maelezo ya Kimwili',
-      step3: 'Afya na Asili',
-      step4: 'Hati',
-      name: 'Jina',
-      type: 'Aina',
-      breed: 'Kizazi',
-      age: 'Umri',
-      weight: 'Uzito',
-      color: 'Rangi',
-      markings: 'Alama',
-      healthStatus: 'Hali ya Afya',
-      vaccinationStatus: 'Hali ya Chanjo',
-      origin: 'Asili',
-      purchasePrice: 'Bei ya Ununuzi',
-      photo: 'Picha',
+      title: editAnimal ? 'Hariri Mnyama' : 'Sajili Mnyama Mpya',
+      step1: 'Taarifa za Msingi',
+      step2: 'Sifa za Kimwili',
+      step3: 'Taarifa za Afya',
+      progress: 'Maendeleo',
       next: 'Ifuatayo',
       previous: 'Iliyotangulia',
-      finish: 'Maliza',
+      submit: editAnimal ? 'Sasisha' : 'Sajili',
       cancel: 'Ghairi',
-      cattle: 'Ng\'ombe',
-      goat: 'Mbuzi',
-      sheep: 'Kondoo',
+      name: 'Jina',
+      species: 'Aina',
+      breed: 'Aina',
+      birthDate: 'Tarehe ya Kuzaliwa',
+      gender: 'Jinsia',
+      color: 'Rangi',
+      weight: 'Uzito (kg)',
+      healthStatus: 'Hali ya Afya',
+      notes: 'Maelezo',
+      male: 'Dume',
+      female: 'Jike',
       healthy: 'Mzuri',
       sick: 'Mgonjwa',
-      upToDate: 'Sasa Hivi',
-      overdue: 'Umechelewa',
-      red: 'Nyekundu',
-      brown: 'Kahawia',
-      black: 'Nyeusi',
-      white: 'Nyeupe',
-      mixed: 'Mchanganyiko'
+      attention: 'Anahitaji Umakini'
     }
   };
 
   const t = translations[language];
 
   const ethiopianBreeds = {
-    cattle: ['ቦራ (Bora)', 'ሆላንድ-ፍሪሲያን (Holstein-Friesian)', 'ኮንቺኒ (Kenchini)', 'ፎግራ (Fogera)', 'አርሲ (Arsi)', 'ደናቃ (Danakil)'],
-    goat: ['አርሲ-ባሌ (Arsi-Bale)', 'አፋር (Afar)', 'ቦር (Boer)', 'ሽሮ (Shiro)', 'ወላይታ (Wolaita)', 'አዲሎ (Adilo)'],
-    sheep: ['መንዝ (Menz)', 'ሃሪ (Horro)', 'አፋር (Afar)', 'ባርጋ (Barga)', 'አርሲ-ባሌ (Arsi-Bale)', 'ቦራ (Bora)']
+    cattle: ['Boran', 'Horro', 'Arsi', 'Danakil', 'Fogera', 'Sheko'],
+    sheep: ['Blackhead Somali', 'Afar', 'Menz', 'Horro', 'Arsi-Bale'],
+    goat: ['Boer', 'Arsi-Bale', 'Afar', 'Keffa', 'Long-eared Somali'],
+    poultry: ['Rhode Island Red', 'Leghorn', 'Local/Indigenous']
   };
 
-  const updateFormData = (field: keyof FormData, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const totalSteps = 3;
+  const progress = (currentStep / totalSteps) * 100;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    console.log('Form submitted:', formData);
+    onSuccess();
+    onClose();
   };
 
-  const validateStep = (step: number): boolean => {
-    switch (step) {
-      case 1:
-        return formData.name.trim() !== '' && formData.type !== '' && formData.breed !== '';
-      case 2:
-        return formData.age !== '' && formData.weight !== '';
-      case 3:
-        return formData.healthStatus !== '' && formData.vaccinationStatus !== '';
-      case 4:
-        return true; // Optional step
-      default:
-        return true;
-    }
-  };
-
-  const nextStep = () => {
-    if (validateStep(currentStep)) {
-      setCurrentStep(prev => Math.min(prev + 1, STEPS));
-    } else {
-      showError(
-        language === 'am' ? 'እባክዎ የግዴታ መስኮች ይሙሉ' :
-        language === 'or' ? 'Maaloo dirqalee guuti' :
-        language === 'sw' ? 'Tafadhali jaza sehemu zinazohitajika' :
-        'Please fill in required fields'
-      );
-    }
-  };
-
-  const prevStep = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 1));
-  };
-
-  const handleSubmit = () => {
-    if (validateStep(currentStep)) {
-      if (onSubmit) {
-        onSubmit(formData);
-      }
-      showSuccess(
-        language === 'am' ? 'እንስሳ በተሳካ ሁኔታ ተመዝግቧል!' :
-        language === 'or' ? 'Horii milkaa\'inaan galmeeffame!' :
-        language === 'sw' ? 'Mnyama amejisajili kwa ufanisi!' :
-        'Animal registered successfully!'
-      );
-      onClose();
-    }
-  };
-
-  const renderStep = () => {
+  const renderStepContent = () => {
     switch (currentStep) {
       case 1:
         return (
           <div className="space-y-4">
-            <div className="grid gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-sm font-medium text-ethiopia-green-800 flex items-center">
-                  <Cow className="w-4 h-4 mr-2" />
-                  {t.name} *
-                </Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => updateFormData('name', e.target.value)}
-                  placeholder={language === 'am' ? 'ለምሳሌ: ማርታ' : 'e.g: Marta'}
-                  className="border-ethiopia-gold-200 focus:border-ethiopia-green-500"
-                />
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-ethiopia-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <User className="w-8 h-8 text-ethiopia-green-600" />
               </div>
+              <h3 className="text-lg font-semibold text-gray-800">{t.step1}</h3>
+            </div>
 
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-ethiopia-green-800">{t.type} *</Label>
-                <Select value={formData.type} onValueChange={(value) => updateFormData('type', value)}>
-                  <SelectTrigger className="border-ethiopia-gold-200 focus:border-ethiopia-green-500">
-                    <SelectValue placeholder={t.type} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="cattle">🐄 {t.cattle}</SelectItem>
-                    <SelectItem value="goat">🐐 {t.goat}</SelectItem>
-                    <SelectItem value="sheep">🐑 {t.sheep}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="name">{t.name}</Label>
+              <Input
+                id="name"
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                className="border-ethiopia-green-200 focus:border-ethiopia-green-500"
+                required
+              />
+            </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="species">{t.species}</Label>
+              <Select
+                value={formData.species}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, species: value, breed: '' }))}
+              >
+                <SelectTrigger className="border-ethiopia-green-200">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cattle">
+                    {language === 'am' ? 'ከብት' : language === 'or' ? 'Loon' : language === 'sw' ? 'Ng\'ombe' : 'Cattle'}
+                  </SelectItem>
+                  <SelectItem value="sheep">
+                    {language === 'am' ? 'በግ' : language === 'or' ? 'Hoolaa' : language === 'sw' ? 'Kondoo' : 'Sheep'}
+                  </SelectItem>
+                  <SelectItem value="goat">
+                    {language === 'am' ? 'ፍየል' : language === 'or' ? 'Re\'ee' : language === 'sw' ? 'Mbuzi' : 'Goat'}
+                  </SelectItem>
+                  <SelectItem value="poultry">
+                    {language === 'am' ? 'ዶሮ' : language === 'or' ? 'Lukku' : language === 'sw' ? 'Kuku' : 'Poultry'}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {formData.species && (
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-ethiopia-green-800">{t.breed} *</Label>
-                <Select 
-                  value={formData.breed} 
-                  onValueChange={(value) => updateFormData('breed', value)}
-                  disabled={!formData.type}
+                <Label htmlFor="breed">{t.breed}</Label>
+                <Select
+                  value={formData.breed}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, breed: value }))}
                 >
-                  <SelectTrigger className="border-ethiopia-gold-200 focus:border-ethiopia-green-500">
-                    <SelectValue placeholder={t.breed} />
+                  <SelectTrigger className="border-ethiopia-green-200">
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {formData.type && ethiopianBreeds[formData.type as keyof typeof ethiopianBreeds]?.map((breed) => (
-                      <SelectItem key={breed} value={breed}>{breed}</SelectItem>
+                    {ethiopianBreeds[formData.species as keyof typeof ethiopianBreeds]?.map((breed) => (
+                      <SelectItem key={breed} value={breed}>
+                        {breed}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-            </div>
+            )}
           </div>
         );
 
       case 2:
         return (
           <div className="space-y-4">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-ethiopia-gold-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Beef className="w-8 h-8 text-ethiopia-gold-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-800">{t.step2}</h3>
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-ethiopia-green-800">{t.age} * ({language === 'am' ? 'በወር' : 'months'})</Label>
-                <Input
-                  type="number"
-                  value={formData.age}
-                  onChange={(e) => updateFormData('age', e.target.value)}
-                  placeholder="12"
-                  className="border-ethiopia-gold-200 focus:border-ethiopia-green-500"
-                />
+                <Label htmlFor="gender">{t.gender}</Label>
+                <Select
+                  value={formData.gender}
+                  onValueChange={(value) => setFormData(prev => ({ ...prev, gender: value }))}
+                >
+                  <SelectTrigger className="border-ethiopia-green-200">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">{t.male}</SelectItem>
+                    <SelectItem value="female">{t.female}</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
+
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-ethiopia-green-800">{t.weight} * (kg)</Label>
+                <Label htmlFor="birthDate">{t.birthDate}</Label>
                 <Input
-                  type="number"
-                  value={formData.weight}
-                  onChange={(e) => updateFormData('weight', e.target.value)}
-                  placeholder="250"
-                  className="border-ethiopia-gold-200 focus:border-ethiopia-green-500"
+                  id="birthDate"
+                  type="date"
+                  value={formData.birthDate}
+                  onChange={(e) => setFormData(prev => ({ ...prev, birthDate: e.target.value }))}
+                  className="border-ethiopia-green-200 focus:border-ethiopia-green-500"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-ethiopia-green-800">{t.color}</Label>
-              <Select value={formData.color} onValueChange={(value) => updateFormData('color', value)}>
-                <SelectTrigger className="border-ethiopia-gold-200 focus:border-ethiopia-green-500">
-                  <SelectValue placeholder={t.color} />
+              <Label htmlFor="color">{t.color}</Label>
+              <Input
+                id="color"
+                value={formData.color}
+                onChange={(e) => setFormData(prev => ({ ...prev, color: e.target.value }))}
+                className="border-ethiopia-green-200 focus:border-ethiopia-green-500"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="weight">{t.weight}</Label>
+              <Input
+                id="weight"
+                type="number"
+                value={formData.weight}
+                onChange={(e) => setFormData(prev => ({ ...prev, weight: e.target.value }))}
+                className="border-ethiopia-green-200 focus:border-ethiopia-green-500"
+              />
+            </div>
+          </div>
+        );
+
+      case 3:
+        return (
+          <div className="space-y-4">
+            <div className="text-center mb-6">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Heart className="w-8 h-8 text-red-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-800">{t.step3}</h3>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="healthStatus">{t.healthStatus}</Label>
+              <Select
+                value={formData.healthStatus}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, healthStatus: value }))}
+              >
+                <SelectTrigger className="border-ethiopia-green-200">
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="red">{t.red}</SelectItem>
-                  <SelectItem value="brown">{t.brown}</SelectItem>
-                  <SelectItem value="black">{t.black}</SelectItem>
-                  <SelectItem value="white">{t.white}</SelectItem>
-                  <SelectItem value="mixed">{t.mixed}</SelectItem>
+                  <SelectItem value="healthy">{t.healthy}</SelectItem>
+                  <SelectItem value="attention">{t.attention}</SelectItem>
+                  <SelectItem value="sick">{t.sick}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-ethiopia-green-800">{t.markings}</Label>
-              <Input
-                value={formData.markings}
-                onChange={(e) => updateFormData('markings', e.target.value)}
-                placeholder={language === 'am' ? 'ልዩ ምልክቶች...' : 'Special markings...'}
-                className="border-ethiopia-gold-200 focus:border-ethiopia-green-500"
+              <Label htmlFor="notes">{t.notes}</Label>
+              <textarea
+                id="notes"
+                value={formData.notes}
+                onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                className="w-full p-3 border border-ethiopia-green-200 rounded-lg focus:border-ethiopia-green-500 focus:outline-none resize-none"
+                rows={4}
               />
-            </div>
-          </div>
-        );
-
-      case 3:
-        return (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-ethiopia-green-800">{t.healthStatus} *</Label>
-                <Select value={formData.healthStatus} onValueChange={(value) => updateFormData('healthStatus', value)}>
-                  <SelectTrigger className="border-ethiopia-gold-200 focus:border-ethiopia-green-500">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="healthy">✅ {t.healthy}</SelectItem>
-                    <SelectItem value="sick">⚠️ {t.sick}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-ethiopia-green-800">{t.vaccinationStatus} *</Label>
-                <Select value={formData.vaccinationStatus} onValueChange={(value) => updateFormData('vaccinationStatus', value)}>
-                  <SelectTrigger className="border-ethiopia-gold-200 focus:border-ethiopia-green-500">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="up_to_date">✅ {t.upToDate}</SelectItem>
-                    <SelectItem value="overdue">⚠️ {t.overdue}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-ethiopia-green-800 flex items-center">
-                <MapPin className="w-4 h-4 mr-2" />
-                {t.origin}
-              </Label>
-              <Input
-                value={formData.origin}
-                onChange={(e) => updateFormData('origin', e.target.value)}
-                placeholder={language === 'am' ? 'ከየት ተገዝቷል?' : 'Where was it purchased?'}
-                className="border-ethiopia-gold-200 focus:border-ethiopia-green-500"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-ethiopia-green-800">{t.purchasePrice} (ETB)</Label>
-              <Input
-                type="number"
-                value={formData.purchasePrice}
-                onChange={(e) => updateFormData('purchasePrice', e.target.value)}
-                placeholder="15000"
-                className="border-ethiopia-gold-200 focus:border-ethiopia-green-500"
-              />
-            </div>
-          </div>
-        );
-
-      case 4:
-        return (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium text-ethiopia-green-800 flex items-center">
-                <Camera className="w-4 h-4 mr-2" />
-                {t.photo}
-              </Label>
-              <div className="border-2 border-dashed border-ethiopia-gold-300 rounded-lg p-6 text-center hover:border-ethiopia-green-400 transition-colors">
-                <Camera className="w-12 h-12 mx-auto mb-4 text-ethiopia-gold-600" />
-                <p className="text-sm text-gray-600">
-                  {language === 'am' ? 'ፎቶ ለመጨመር እዚህ ይንኩ' : 'Click here to add photo'}
-                </p>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => updateFormData('photo', e.target.files?.[0] || null)}
-                />
-              </div>
-            </div>
-
-            <div className="bg-ethiopia-gold-50 border border-ethiopia-gold-200 rounded-lg p-4">
-              <div className="flex items-start space-x-3">
-                <AlertCircle className="w-5 h-5 text-ethiopia-gold-600 flex-shrink-0 mt-0.5" />
-                <div className="text-sm">
-                  <p className="font-medium text-ethiopia-gold-800 mb-1">
-                    {language === 'am' ? 'ጠቃሚ ምክር' : 
-                     language === 'or' ? 'Yaada Barbaachisaa' :
-                     language === 'sw' ? 'Kidokezo Muhimu' : 'Important Tip'}
-                  </p>
-                  <p className="text-ethiopia-gold-700">
-                    {language === 'am' 
-                      ? 'ግልጽ እና ጥራት ያለው ፎቶ ለወደፊት መታወቂያ እና የሕክምና ክትትል ያግዛል።'
-                      : language === 'or'
-                      ? 'Suuraan ifa fi qulqulluu ta\'e gargaarsa eenyummaa fi hordoffii yaalaa dhufuuf.'
-                      : language === 'sw'
-                      ? 'Picha wazi na ya ubora itasaidia katika utambulisho na ufuatiliaji wa matibabu.'
-                      : 'A clear, quality photo helps with future identification and medical tracking.'
-                    }
-                  </p>
-                </div>
-              </div>
             </div>
           </div>
         );
@@ -484,87 +337,81 @@ export const EnhancedAnimalRegistrationForm = ({
     }
   };
 
-  const getStepTitle = (step: number) => {
-    switch (step) {
-      case 1: return t.step1;
-      case 2: return t.step2;
-      case 3: return t.step3;
-      case 4: return t.step4;
-      default: return '';
-    }
-  };
-
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white">
-        <CardHeader className="bg-gradient-to-r from-ethiopia-green-600 to-ethiopia-green-700 text-white rounded-t-lg">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-lg font-semibold flex items-center space-x-2">
-              <Cow className="w-5 h-5" />
-              <span>{t.title}</span>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        <CardHeader className="flex flex-row items-center justify-between border-b border-ethiopia-green-100">
+          <div className="flex-1">
+            <CardTitle className="text-xl font-bold text-ethiopia-green-800 mb-2">
+              {t.title}
             </CardTitle>
-            <Badge variant="secondary" className="bg-white/20 text-white">
-              {currentStep}/{STEPS}
-            </Badge>
-          </div>
-          <div className="mt-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">{getStepTitle(currentStep)}</span>
-              <span className="text-sm">{Math.round((currentStep / STEPS) * 100)}%</span>
+            <div className="flex items-center space-x-4">
+              <div className="flex-1">
+                <div className="flex justify-between text-sm text-gray-600 mb-1">
+                  <span>{t.progress}</span>
+                  <span>{Math.round(progress)}%</span>
+                </div>
+                <Progress value={progress} className="h-2" />
+              </div>
+              <Badge variant="outline" className="text-ethiopia-green-600 border-ethiopia-green-200">
+                {currentStep}/{totalSteps}
+              </Badge>
             </div>
-            <Progress 
-              value={(currentStep / STEPS) * 100} 
-              className="h-2 bg-white/20"
-            />
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="ml-4 h-8 w-8 p-0"
+          >
+            <X className="w-4 h-4" />
+          </Button>
         </CardHeader>
 
         <CardContent className="p-6">
-          {renderStep()}
+          <form onSubmit={handleSubmit}>
+            {renderStepContent()}
 
-          <div className="flex justify-between mt-8 pt-6 border-t">
-            <div className="flex space-x-3">
-              {currentStep > 1 && (
-                <Button
-                  variant="outline"
-                  onClick={prevStep}
-                  className="border-ethiopia-green-200 text-ethiopia-green-700 hover:bg-ethiopia-green-50"
-                >
-                  <ArrowLeft className="w-4 h-4 mr-2" />
-                  {t.previous}
-                </Button>
-              )}
-            </div>
-
-            <div className="flex space-x-3">
+            <div className="flex justify-between mt-8 pt-6 border-t border-gray-200">
               <Button
+                type="button"
                 variant="outline"
+                onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
+                disabled={currentStep === 1}
+                className="flex items-center space-x-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>{t.previous}</span>
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
                 onClick={onClose}
-                className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                className="text-gray-600 hover:text-gray-800"
               >
                 {t.cancel}
               </Button>
 
-              {currentStep < STEPS ? (
+              {currentStep === totalSteps ? (
                 <Button
-                  onClick={nextStep}
+                  type="submit"
                   className="bg-ethiopia-green-600 hover:bg-ethiopia-green-700 text-white"
-                  disabled={!validateStep(currentStep)}
                 >
-                  {t.next}
-                  <ArrowRight className="w-4 h-4 ml-2" />
+                  {t.submit}
                 </Button>
               ) : (
                 <Button
-                  onClick={handleSubmit}
-                  className="bg-ethiopia-green-600 hover:bg-ethiopia-green-700 text-white"
+                  type="button"
+                  onClick={() => setCurrentStep(prev => Math.min(totalSteps, prev + 1))}
+                  className="bg-ethiopia-green-600 hover:bg-ethiopia-green-700 text-white flex items-center space-x-2"
                 >
-                  <Check className="w-4 h-4 mr-2" />
-                  {t.finish}
+                  <span>{t.next}</span>
+                  <ArrowRight className="w-4 h-4" />
                 </Button>
               )}
             </div>
-          </div>
+          </form>
         </CardContent>
       </Card>
     </div>
