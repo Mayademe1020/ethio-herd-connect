@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,13 +25,13 @@ export const EnhancedAnimalRegistrationForm = ({
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     name: editAnimal?.name || '',
-    species: editAnimal?.species || '',
+    type: editAnimal?.type || '',
     breed: editAnimal?.breed || '',
     birthDate: editAnimal?.birth_date || '',
     gender: editAnimal?.gender || '',
     color: editAnimal?.color || '',
     weight: editAnimal?.weight?.toString() || '',
-    healthStatus: editAnimal?.health_status || 'healthy',
+    healthStatus: editAnimal?.health_status || 'healthy' as 'healthy' | 'sick' | 'attention' | 'critical',
     notes: editAnimal?.notes || ''
   });
 
@@ -182,10 +181,10 @@ export const EnhancedAnimalRegistrationForm = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="species">{t.species}</Label>
+              <Label htmlFor="type">{t.species}</Label>
               <Select
-                value={formData.species}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, species: value, breed: '' }))}
+                value={formData.type}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, type: value, breed: '' }))}
               >
                 <SelectTrigger className="border-ethiopia-green-200">
                   <SelectValue />
@@ -207,7 +206,7 @@ export const EnhancedAnimalRegistrationForm = ({
               </Select>
             </div>
 
-            {formData.species && (
+            {formData.type && (
               <div className="space-y-2">
                 <Label htmlFor="breed">{t.breed}</Label>
                 <Select
@@ -218,7 +217,7 @@ export const EnhancedAnimalRegistrationForm = ({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {ethiopianBreeds[formData.species as keyof typeof ethiopianBreeds]?.map((breed) => (
+                    {ethiopianBreeds[formData.type as keyof typeof ethiopianBreeds]?.map((breed) => (
                       <SelectItem key={breed} value={breed}>
                         {breed}
                       </SelectItem>
@@ -306,7 +305,9 @@ export const EnhancedAnimalRegistrationForm = ({
               <Label htmlFor="healthStatus">{t.healthStatus}</Label>
               <Select
                 value={formData.healthStatus}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, healthStatus: value }))}
+                onValueChange={(value: 'healthy' | 'sick' | 'attention' | 'critical') => 
+                  setFormData(prev => ({ ...prev, healthStatus: value }))
+                }
               >
                 <SelectTrigger className="border-ethiopia-green-200">
                   <SelectValue />
