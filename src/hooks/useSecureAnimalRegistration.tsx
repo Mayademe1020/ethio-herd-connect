@@ -1,9 +1,8 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToastNotifications } from '@/hooks/useToastNotifications';
 import { useAuth } from '@/contexts/AuthContext';
-import { validateAndSanitizeText, validateEmail } from '@/utils/inputValidation';
+import { validateAndSanitizeText, validateEmail, validateInput, sanitizeInput } from '@/utils/inputValidation';
 
 export const useSecureAnimalRegistration = () => {
   const [loading, setLoading] = useState(false);
@@ -139,13 +138,13 @@ export const useSecureAnimalRegistration = () => {
         throw new Error('Animal not found or you do not have permission to update it');
       }
 
-      // Sanitize update data with proper fallbacks
+      // Sanitize update data with safe property access
       const sanitizedData = {
         ...updateData,
         name: updateData.name ? sanitizeInput(updateData.name) : currentAnimal.name,
         breed: updateData.breed ? sanitizeInput(updateData.breed) : currentAnimal.breed,
-        color: updateData.color ? sanitizeInput(updateData.color) : (currentAnimal.color || null),
-        notes: updateData.notes ? sanitizeInput(updateData.notes) : (currentAnimal.notes || null),
+        color: updateData.color ? sanitizeInput(updateData.color) : (currentAnimal as any).color || null,
+        notes: updateData.notes ? sanitizeInput(updateData.notes) : (currentAnimal as any).notes || null,
         updated_at: new Date().toISOString()
       };
 
