@@ -214,6 +214,92 @@ export type Database = {
         }
         Relationships: []
       }
+      feed_inventory: {
+        Row: {
+          cost_per_kg: number | null
+          created_at: string | null
+          expiry_date: string | null
+          feed_type: string
+          id: string
+          purchase_date: string | null
+          quantity_kg: number
+          supplier: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cost_per_kg?: number | null
+          created_at?: string | null
+          expiry_date?: string | null
+          feed_type: string
+          id?: string
+          purchase_date?: string | null
+          quantity_kg: number
+          supplier?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cost_per_kg?: number | null
+          created_at?: string | null
+          expiry_date?: string | null
+          feed_type?: string
+          id?: string
+          purchase_date?: string | null
+          quantity_kg?: number
+          supplier?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      financial_records: {
+        Row: {
+          amount: number
+          animal_id: string | null
+          category: string
+          created_at: string | null
+          description: string | null
+          id: string
+          transaction_date: string
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          animal_id?: string | null
+          category: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          transaction_date?: string
+          type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          animal_id?: string | null
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          transaction_date?: string
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_records_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: false
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       growth_records: {
         Row: {
           animal_id: string | null
@@ -404,6 +490,92 @@ export type Database = {
           updated_at?: string
           user_id?: string
           weight?: number | null
+        }
+        Relationships: []
+      }
+      milk_production: {
+        Row: {
+          animal_id: string | null
+          created_at: string | null
+          evening_yield: number | null
+          fat_content: number | null
+          id: string
+          morning_yield: number | null
+          notes: string | null
+          production_date: string
+          quality_grade: string | null
+          total_yield: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          animal_id?: string | null
+          created_at?: string | null
+          evening_yield?: number | null
+          fat_content?: number | null
+          id?: string
+          morning_yield?: number | null
+          notes?: string | null
+          production_date?: string
+          quality_grade?: string | null
+          total_yield?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          animal_id?: string | null
+          created_at?: string | null
+          evening_yield?: number | null
+          fat_content?: number | null
+          id?: string
+          morning_yield?: number | null
+          notes?: string | null
+          production_date?: string
+          quality_grade?: string | null
+          total_yield?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "milk_production_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: false
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          action_url: string | null
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          title: string
+          type: string | null
+          user_id: string
+        }
+        Insert: {
+          action_url?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          title: string
+          type?: string | null
+          user_id: string
+        }
+        Update: {
+          action_url?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          title?: string
+          type?: string | null
+          user_id?: string
         }
         Relationships: []
       }
