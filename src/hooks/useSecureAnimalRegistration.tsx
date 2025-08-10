@@ -127,7 +127,7 @@ export const useSecureAnimalRegistration = () => {
     setLoading(true);
     
     try {
-      // Get current animal data for audit log
+      // Get current animal data for audit log - select all fields we need
       const { data: currentAnimal } = await supabase
         .from('animals')
         .select('*')
@@ -139,7 +139,7 @@ export const useSecureAnimalRegistration = () => {
         throw new Error('Animal not found or you do not have permission to update it');
       }
 
-      // Sanitize update data
+      // Sanitize update data with proper fallbacks
       const sanitizedData = {
         ...updateData,
         name: updateData.name ? sanitizeInput(updateData.name) : currentAnimal.name,
