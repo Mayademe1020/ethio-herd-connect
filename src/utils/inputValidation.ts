@@ -1,4 +1,3 @@
-
 // Comprehensive input validation utilities for security
 
 export const validateAndSanitizeText = (input: string, maxLength: number = 1000): string => {
@@ -137,4 +136,26 @@ export const validateFileSize = (
   }
   
   return { isValid: true };
+};
+
+export const validateInput = (input: string, fieldName: string): boolean => {
+  if (!input || input.trim().length === 0) {
+    return false;
+  }
+  
+  if (input.length > 100) {
+    return false;
+  }
+  
+  return true;
+};
+
+export const sanitizeInput = (input: string): string => {
+  if (!input) return '';
+  
+  return input
+    .replace(/<[^>]*>/g, '') // Remove HTML tags
+    .replace(/[<>\"'&]/g, '') // Remove potentially harmful characters
+    .trim()
+    .substring(0, 1000); // Limit length
 };

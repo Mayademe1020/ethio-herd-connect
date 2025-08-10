@@ -3,12 +3,23 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToastNotifications } from '@/hooks/useToastNotifications';
 import { useAuth } from '@/contexts/AuthContext';
-import { validateInput, sanitizeInput } from '@/utils/inputValidation';
+import { validateAndSanitizeText, validateEmail } from '@/utils/inputValidation';
 
 export const useSecureAnimalRegistration = () => {
   const [loading, setLoading] = useState(false);
   const { showSuccess, showError } = useToastNotifications();
   const { user } = useAuth();
+
+  const validateInput = (input: string, fieldName: string): boolean => {
+    if (!input || input.trim().length === 0) {
+      return false;
+    }
+    return input.length <= 100;
+  };
+
+  const sanitizeInput = (input: string): string => {
+    return validateAndSanitizeText(input);
+  };
 
   const registerAnimal = async (animalData: {
     name: string;
@@ -133,8 +144,8 @@ export const useSecureAnimalRegistration = () => {
         ...updateData,
         name: updateData.name ? sanitizeInput(updateData.name) : currentAnimal.name,
         breed: updateData.breed ? sanitizeInput(updateData.breed) : currentAnimal.breed,
-        color: updateData.color ? sanitizeInput(updateData.color) : currentAnimal.color,
-        notes: updateData.notes ? sanitizeInput(updateData.notes) : currentAnimal.notes,
+        color: updateData.color ? sanitizeInput(updateData.color) : (currentAnimal.color || null),
+        notes: updateData.notes ? sanitizeInput(updateData.notes) : (currentAnimal.notes || null),
         updated_at: new Date().toISOString()
       };
 

@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { X, Search } from 'lucide-react';
-import { AnimalData, Language } from '@/types';
+import { AnimalData, Language, transformAnimalData } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { AnimalIdDisplay } from './AnimalIdDisplay';
@@ -103,7 +103,10 @@ export const AnimalSelectorModal = ({
         .order('name');
 
       if (error) throw error;
-      setAnimals(data || []);
+      
+      // Transform database data to match our AnimalData interface
+      const transformedAnimals = (data || []).map(transformAnimalData);
+      setAnimals(transformedAnimals);
     } catch (error) {
       console.error('Error fetching animals:', error);
       toast({
