@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +9,8 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { X, ArrowLeft, ArrowRight, User, Heart, Calendar, Beef } from 'lucide-react';
 import { Language, AnimalData } from '@/types';
+import { useSecureAnimalRegistration } from '@/hooks/useSecureAnimalRegistration';
+import { AnimalPhotoUpload } from './AnimalPhotoUpload';
 
 interface EnhancedAnimalRegistrationFormProps {
   language: Language;
@@ -32,8 +35,11 @@ export const EnhancedAnimalRegistrationForm = ({
     color: editAnimal?.color || '',
     weight: editAnimal?.weight?.toString() || '',
     healthStatus: editAnimal?.health_status || 'healthy' as 'healthy' | 'sick' | 'attention' | 'critical',
-    notes: editAnimal?.notes || ''
+    notes: editAnimal?.notes || '',
+    photoUrl: editAnimal?.photo_url || ''
   });
+
+  const { registerAnimal, updateAnimal, loading } = useSecureAnimalRegistration();
 
   const translations = {
     am: {
@@ -150,11 +156,37 @@ export const EnhancedAnimalRegistrationForm = ({
   const totalSteps = 3;
   const progress = (currentStep / totalSteps) * 100;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handlePhotoChange = (file: File | null, url: string) => {
+    setFormData(prev => ({ ...prev, photoUrl: url }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    onSuccess();
-    onClose();
+    
+    const animalData = {
+      name: formData.name,
+      type: formData.type,
+      breed: formData.breed,
+      birth_date: formData.birthDate || undefined,
+      gender: formData.gender || undefined,
+      color: formData.color || undefined,
+      weight: formData.weight ? parseFloat(formData.weight) : undefined,
+      health_status: formData.healthStatus,
+      notes: formData.notes || undefined,
+      photo_url: formData.photoUrl || undefined
+    };
+
+    let result;
+    if (editAnimal) {
+      result = await updateAnimal(editAnimal.id, animalData);
+    } else {
+      result = await registerAnimal(animalData);
+    }
+
+    if (!result.error) {
+      onSuccess();
+      onClose();
+    }
   };
 
   const renderStepContent = () => {
@@ -283,11 +315,19 @@ export const EnhancedAnimalRegistrationForm = ({
               <Input
                 id="weight"
                 type="number"
+                step="0.1"
                 value={formData.weight}
                 onChange={(e) => setFormData(prev => ({ ...prev, weight: e.target.value }))}
                 className="border-ethiopia-green-200 focus:border-ethiopia-green-500"
               />
             </div>
+
+            <AnimalPhotoUpload
+              language={language as 'am' | 'en'}
+              currentPhoto={formData.photoUrl}
+              onPhotoChange={handlePhotoChange}
+              disabled={loading}
+            />
           </div>
         );
 
@@ -398,8 +438,9 @@ export const EnhancedAnimalRegistrationForm = ({
                 <Button
                   type="submit"
                   className="bg-ethiopia-green-600 hover:bg-ethiopia-green-700 text-white"
+                  disabled={loading}
                 >
-                  {t.submit}
+                  {loading ? 'Processing...' : t.submit}
                 </Button>
               ) : (
                 <Button
