@@ -13,6 +13,7 @@ import { MarketListingCard } from '@/components/MarketListingCard';
 import { MarketListingForm } from '@/components/MarketListingForm';
 import { MarketListingDetails } from '@/components/MarketListingDetails';
 import { AdvancedSearchFilters } from '@/components/AdvancedSearchFilters';
+import { InterestExpressionDialog } from '@/components/InterestExpressionDialog';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface MarketListing {
@@ -30,6 +31,7 @@ interface MarketListing {
   is_vet_verified?: boolean;
   photos?: string[];
   created_at?: string;
+  user_id: string;
 }
 
 const mockListings: MarketListing[] = [
@@ -47,7 +49,8 @@ const mockListings: MarketListing[] = [
     contact_value: '+251911234567',
     is_vet_verified: true,
     photos: ['/images/cow1.jpg'],
-    created_at: '2024-01-15'
+    created_at: '2024-01-15',
+    user_id: 'seller-1'
   },
   {
     id: '2',
@@ -63,7 +66,8 @@ const mockListings: MarketListing[] = [
     contact_value: '+251922345678',
     is_vet_verified: false,
     photos: ['/images/goat1.jpg'],
-    created_at: '2024-01-14'
+    created_at: '2024-01-14',
+    user_id: 'seller-2'
   },
   {
     id: '3',
@@ -79,7 +83,8 @@ const mockListings: MarketListing[] = [
     contact_value: '+251933456789',
     is_vet_verified: true,
     photos: ['/images/chicken1.jpg'],
-    created_at: '2024-01-13'
+    created_at: '2024-01-13',
+    user_id: 'seller-3'
   },
   {
     id: '4',
@@ -95,7 +100,8 @@ const mockListings: MarketListing[] = [
     contact_value: '+251944567890',
     is_vet_verified: true,
     photos: ['/images/sheep1.jpg'],
-    created_at: '2024-01-12'
+    created_at: '2024-01-12',
+    user_id: 'seller-4'
   },
 ];
 
@@ -109,9 +115,12 @@ const Market = () => {
   const [filterCount, setFilterCount] = useState(0);
   const [showListingForm, setShowListingForm] = useState(false);
   const [selectedListing, setSelectedListing] = useState<MarketListing | null>(null);
+  const [showInterestDialog, setShowInterestDialog] = useState(false);
+  const [interestListing, setInterestListing] = useState<MarketListing | null>(null);
 
   const handleContact = (listing: MarketListing) => {
-    alert(`Contact seller for ${listing.title}`);
+    setInterestListing(listing);
+    setShowInterestDialog(true);
   };
 
   const handleFavorite = (listing: MarketListing) => {
@@ -414,6 +423,19 @@ const Market = () => {
           onClose={() => setSelectedListing(null)}
           onContact={handleContact}
           onEdit={handleEditListing}
+        />
+      )}
+
+      {/* Interest Expression Dialog */}
+      {interestListing && (
+        <InterestExpressionDialog
+          isOpen={showInterestDialog}
+          onClose={() => {
+            setShowInterestDialog(false);
+            setInterestListing(null);
+          }}
+          listing={interestListing}
+          language={language}
         />
       )}
     </div>

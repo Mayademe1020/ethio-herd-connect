@@ -148,6 +148,47 @@ export type Database = {
         }
         Relationships: []
       }
+      buyer_interests: {
+        Row: {
+          buyer_user_id: string
+          created_at: string | null
+          id: string
+          listing_id: string
+          message: string | null
+          seller_user_id: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          buyer_user_id: string
+          created_at?: string | null
+          id?: string
+          listing_id: string
+          message?: string | null
+          seller_user_id: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          buyer_user_id?: string
+          created_at?: string | null
+          id?: string
+          listing_id?: string
+          message?: string | null
+          seller_user_id?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buyer_interests_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "market_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       farm_assistants: {
         Row: {
           assistant_user_id: string
@@ -656,6 +697,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_view_contact_info: {
+        Args: { listing_user_id: string; listing_id: string }
+        Returns: boolean
+      }
       generate_animal_code: {
         Args: {
           p_user_id: string

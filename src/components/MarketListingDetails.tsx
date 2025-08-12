@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { X, Phone, Mail, MapPin, Shield, Edit } from 'lucide-react';
+import { X, MessageSquare, Mail, MapPin, Shield, Edit } from 'lucide-react';
 import { Language } from '@/types';
 
 interface MarketListingDetailsProps {
@@ -34,7 +34,7 @@ export const MarketListingDetails = ({
 }: MarketListingDetailsProps) => {
   const translations = {
     am: {
-      contact: 'ያነጋግሩ',
+      contact: 'ፍላጎት ያሳዩ',
       edit: 'ይቀይሩ',
       verified: 'የተረጋገጠ',
       price: 'ዋጋ',
@@ -42,7 +42,7 @@ export const MarketListingDetails = ({
       description: 'መግለጫ'
     },
     en: {
-      contact: 'Contact Seller',
+      contact: 'Express Interest',
       edit: 'Edit Listing',
       verified: 'Vet Verified',
       price: 'Price',
@@ -50,7 +50,7 @@ export const MarketListingDetails = ({
       description: 'Description'
     },
     or: {
-      contact: 'Gurgurtaa Qunnamuu',
+      contact: 'Fedhii Ibsi',
       edit: 'Tarree Jijjiiruu',
       verified: 'Doktoora Beeitii Mirkaneeffame',
       price: 'Gatii',
@@ -58,7 +58,7 @@ export const MarketListingDetails = ({
       description: 'Ibsa'
     },
     sw: {
-      contact: 'Wasiliana na Muuzaji',
+      contact: 'Onyesha Hamu',
       edit: 'Hariri Orodha',
       verified: 'Imethibitishwa na Daktari',
       price: 'Bei',
@@ -111,10 +111,10 @@ export const MarketListingDetails = ({
           
           <div className="flex space-x-2 pt-4">
             <Button 
-              className="flex-1"
+              className="flex-1 bg-orange-600 hover:bg-orange-700 transition-all duration-200 hover:scale-105 active:scale-95"
               onClick={() => onContact(listing)}
             >
-              <Phone className="w-4 h-4 mr-2" />
+              <MessageSquare className="w-4 h-4 mr-2" />
               {t.contact}
             </Button>
             

@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Heart, MapPin, Phone, Shield } from 'lucide-react';
+import { Heart, MapPin, MessageSquare, Shield } from 'lucide-react';
 import { Language } from '@/types';
 
 interface MarketListingCardProps {
@@ -34,22 +34,22 @@ export const MarketListingCard = ({
 }: MarketListingCardProps) => {
   const translations = {
     am: {
-      contact: 'ያነጋግሩ',
+      contact: 'ፍላጎት ያሳዩ',
       favorite: 'ወደ ተወዳጅ ጨምር',
       verified: 'የተረጋገጠ'
     },
     en: {
-      contact: 'Contact',
+      contact: 'Show Interest',
       favorite: 'Add to Favorites',
       verified: 'Verified'
     },
     or: {
-      contact: 'Qunnamtii',
+      contact: 'Fedhii Agarsiisi',
       favorite: 'Gara Jaallattootatti Dabaluu',
       verified: 'Mirkaneeffame'
     },
     sw: {
-      contact: 'Wasiliana',
+      contact: 'Onyesha Hamu',
       favorite: 'Ongeza kwenye Vipendwa',
       verified: 'Imethibitishwa'
     }
@@ -99,13 +99,13 @@ export const MarketListingCard = ({
           <div className="flex space-x-2 pt-2">
             <Button 
               size="sm" 
-              className="flex-1 text-xs"
+              className="flex-1 text-xs bg-orange-600 hover:bg-orange-700 transition-all duration-200 hover:scale-105 active:scale-95"
               onClick={(e) => {
                 e.stopPropagation();
                 onContact(listing);
               }}
             >
-              <Phone className="w-3 h-3 mr-1" />
+              <MessageSquare className="w-3 h-3 mr-1" />
               {t.contact}
             </Button>
             
