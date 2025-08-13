@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -10,103 +10,25 @@ import { BottomNavigation } from '@/components/BottomNavigation';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { InteractiveSummaryCard } from '@/components/InteractiveSummaryCard';
 import { MarketListingCard } from '@/components/MarketListingCard';
+import { PublicMarketListingCard } from '@/components/PublicMarketListingCard';
 import { MarketListingForm } from '@/components/MarketListingForm';
 import { MarketListingDetails } from '@/components/MarketListingDetails';
 import { AdvancedSearchFilters } from '@/components/AdvancedSearchFilters';
 import { InterestExpressionDialog } from '@/components/InterestExpressionDialog';
+import { AuthGateModal } from '@/components/AuthGateModal';
 import { useLanguage } from '@/contexts/LanguageContext';
-
-interface MarketListing {
-  id: string;
-  title: string;
-  category: string;
-  price: number;
-  location: string;
-  description: string;
-  photo: string;
-  isFeatured: boolean;
-  isFavorite: boolean;
-  contact_method?: string;
-  contact_value?: string;
-  is_vet_verified?: boolean;
-  photos?: string[];
-  created_at?: string;
-  user_id: string;
-}
-
-const mockListings: MarketListing[] = [
-  {
-    id: '1',
-    title: 'Healthy Cow for Sale',
-    category: 'cattle',
-    price: 12000,
-    location: 'Addis Ababa',
-    description: 'High-yield dairy cow, vaccinated and healthy.',
-    photo: '/images/cow1.jpg',
-    isFeatured: true,
-    isFavorite: false,
-    contact_method: 'phone',
-    contact_value: '+251911234567',
-    is_vet_verified: true,
-    photos: ['/images/cow1.jpg'],
-    created_at: '2024-01-15',
-    user_id: 'seller-1'
-  },
-  {
-    id: '2',
-    title: ' Boer Goats - Excellent Breed',
-    category: 'goat',
-    price: 3500,
-    location: 'Adama',
-    description: 'Purebred Boer goats, ideal for breeding.',
-    photo: '/images/goat1.jpg',
-    isFeatured: false,
-    isFavorite: true,
-    contact_method: 'phone',
-    contact_value: '+251922345678',
-    is_vet_verified: false,
-    photos: ['/images/goat1.jpg'],
-    created_at: '2024-01-14',
-    user_id: 'seller-2'
-  },
-  {
-    id: '3',
-    title: 'Free-Range Chickens',
-    category: 'poultry',
-    price: 450,
-    location: 'Bishoftu',
-    description: 'Healthy free-range chickens, great for eggs.',
-    photo: '/images/chicken1.jpg',
-    isFeatured: false,
-    isFavorite: false,
-    contact_method: 'phone',
-    contact_value: '+251933456789',
-    is_vet_verified: true,
-    photos: ['/images/chicken1.jpg'],
-    created_at: '2024-01-13',
-    user_id: 'seller-3'
-  },
-  {
-    id: '4',
-    title: 'Dorper Sheep for Sale',
-    category: 'sheep',
-    price: 5000,
-    location: 'Debre Birhan',
-    description: 'High-quality Dorper sheep, excellent meat.',
-    photo: '/images/sheep1.jpg',
-    isFeatured: true,
-    isFavorite: true,
-    contact_method: 'phone',
-    contact_value: '+251944567890',
-    is_vet_verified: true,
-    photos: ['/images/sheep1.jpg'],
-    created_at: '2024-01-12',
-    user_id: 'seller-4'
-  },
-];
+import { useAuth } from '@/contexts/AuthContext';
+import { usePublicMarketplace } from '@/hooks/usePublicMarketplace';
+import { useViewTracking } from '@/hooks/useViewTracking';
+import { useNavigate } from 'react-router-dom';
 
 const Market = () => {
   const { language } = useLanguage();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { listings, loading } = usePublicMarketplace();
+  const { trackView, viewCount, shouldShowAuthGate } = useViewTracking();
+  
   const [viewMode, setViewMode] = useState<'browse' | 'myListings'>('browse');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -114,17 +36,45 @@ const Market = () => {
   const [filters, setFilters] = useState({});
   const [filterCount, setFilterCount] = useState(0);
   const [showListingForm, setShowListingForm] = useState(false);
-  const [selectedListing, setSelectedListing] = useState<MarketListing | null>(null);
+  const [selectedListing, setSelectedListing] = useState<any>(null);
   const [showInterestDialog, setShowInterestDialog] = useState(false);
-  const [interestListing, setInterestListing] = useState<MarketListing | null>(null);
+  const [interestListing, setInterestListing] = useState<any>(null);
+  const [showAuthGate, setShowAuthGate] = useState(false);
 
-  const handleContact = (listing: MarketListing) => {
+  const handleContact = (listing: any) => {
+    if (!user) {
+      setShowAuthGate(true);
+      return;
+    }
     setInterestListing(listing);
     setShowInterestDialog(true);
   };
 
-  const handleFavorite = (listing: MarketListing) => {
+  const handleFavorite = (listing: any) => {
+    if (!user) {
+      setShowAuthGate(true);
+      return;
+    }
     alert(`Added ${listing.title} to favorites`);
+  };
+
+  const handleListingClick = (listing: any) => {
+    if (!user && shouldShowAuthGate()) {
+      setShowAuthGate(true);
+      return;
+    }
+    
+    trackView(listing.id);
+    setSelectedListing(listing);
+  };
+
+  const handleLoginPrompt = () => {
+    setShowAuthGate(true);
+  };
+
+  const handleLogin = () => {
+    setShowAuthGate(false);
+    navigate('/auth');
   };
 
   const handleListingSubmit = (listing: any) => {
@@ -132,13 +82,12 @@ const Market = () => {
     setShowListingForm(false);
   };
 
-  const handleEditListing = (listing: MarketListing) => {
+  const handleEditListing = (listing: any) => {
     alert(`Editing listing: ${listing.title}`);
   };
 
   const handleFiltersChange = (newFilters: any) => {
     setFilters(newFilters);
-    // Count active filters
     const activeFilters = Object.values(newFilters).filter(value => 
       value && value !== 'all' && value !== ''
     ).length;
@@ -150,10 +99,11 @@ const Market = () => {
     setFilterCount(0);
   };
 
-  const filteredListings = mockListings.filter((listing) => {
+  const filteredListings = listings.filter((listing) => {
     const searchRegex = new RegExp(searchTerm, 'i');
-    const categoryMatch = selectedCategory === 'all' || listing.category === selectedCategory;
-    const searchTermMatch = searchRegex.test(listing.title) || searchRegex.test(listing.description);
+    const categoryMatch = selectedCategory === 'all' || true; // For now, show all
+    const searchTermMatch = searchRegex.test(listing.title) || 
+                           (listing.description && searchRegex.test(listing.description));
     return categoryMatch && searchTermMatch;
   });
 
@@ -168,10 +118,7 @@ const Market = () => {
       filter: 'ማጣሪያ',
       search: 'ይፈልጉ',
       allCategories: 'ሁሉም ምድቦች',
-      priceRange: 'የዋጋ ክልል',
-      location: 'አካባቢ',
-      featured: 'የተመረጡ',
-      recent: 'የቅርብ ጊዜ'
+      loginRequired: 'ለመሸጥ ይግቡ'
     },
     en: {
       title: 'Marketplace',
@@ -183,10 +130,7 @@ const Market = () => {
       filter: 'Filter',
       search: 'Search',
       allCategories: 'All Categories',
-      priceRange: 'Price Range',
-      location: 'Location',
-      featured: 'Featured',
-      recent: 'Recent'
+      loginRequired: 'Log in to sell'
     },
     or: {
       title: 'Gabaa',
@@ -198,10 +142,7 @@ const Market = () => {
       filter: 'Calaqqisiisi',
       search: 'Barbaadi',
       allCategories: 'Akaakuu Hundaa',
-      priceRange: 'Gatii Daangaa',
-      location: 'Bakka',
-      featured: 'Filatamoo',
-      recent: 'Dhiyoo'
+      loginRequired: 'Gurguruuf seeni'
     },
     sw: {
       title: 'Soko',
@@ -213,10 +154,7 @@ const Market = () => {
       filter: 'Chuja',
       search: 'Tafuta',
       allCategories: 'Kategoria Zote',
-      priceRange: 'Kiwango cha Bei',
-      location: 'Mahali',
-      featured: 'Zilizoangaziwa',
-      recent: 'Za Hivi Karibuni'
+      loginRequired: 'Ingia kuuza'
     }
   };
 
@@ -241,12 +179,13 @@ const Market = () => {
         {/* Quick Actions */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
           <Button 
-            onClick={() => setShowListingForm(true)}
+            onClick={() => user ? setShowListingForm(true) : setShowAuthGate(true)}
             className="h-12 sm:h-14 lg:h-16 flex flex-col space-y-1 bg-orange-600 hover:bg-orange-700 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
+            disabled={!user}
           >
             <Plus className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
             <span className="font-medium text-center leading-tight">
-              {t.sell}
+              {user ? t.sell : t.loginRequired}
             </span>
           </Button>
 
@@ -261,16 +200,18 @@ const Market = () => {
             </span>
           </Button>
           
-          <Button 
-            variant="outline" 
-            onClick={() => setViewMode('myListings')}
-            className="h-12 sm:h-14 lg:h-16 flex flex-col space-y-1 border-blue-200 hover:bg-blue-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
-          >
-            <List className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-500" />
-            <span className="font-medium text-center leading-tight">
-              {t.myListings}
-            </span>
-          </Button>
+          {user && (
+            <Button 
+              variant="outline" 
+              onClick={() => setViewMode('myListings')}
+              className="h-12 sm:h-14 lg:h-16 flex flex-col space-y-1 border-blue-200 hover:bg-blue-50 transition-all duration-300 hover:scale-105 active:scale-95 touch-manipulation text-xs sm:text-sm"
+            >
+              <List className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-blue-500" />
+              <span className="font-medium text-center leading-tight">
+                {t.myListings}
+              </span>
+            </Button>
+          )}
 
           <Button 
             variant="outline" 
@@ -284,52 +225,54 @@ const Market = () => {
           </Button>
         </div>
 
-        {/* Market Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
-          <InteractiveSummaryCard
-            title="Active Listings"
-            titleAm="ንቁ ዝርዝሮች"
-            titleOr="Tarreewwan Ka\'aan"
-            titleSw="Orodha Zinazofanya Kazi"
-            value={mockListings.length}
-            icon={<ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
-            color="orange"
-            language={language}
-          />
-          
-          <InteractiveSummaryCard
-            title="Sold This Week"
-            titleAm="በዚህ ሳምንት የተሸጡ"
-            titleOr="Torban Kana Gurguraman"
-            titleSw="Ziliouzwa Wiki Hii"
-            value={12}
-            icon={<TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
-            color="green"
-            language={language}
-          />
+        {/* Market Stats - Only show if authenticated */}
+        {user && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
+            <InteractiveSummaryCard
+              title="Active Listings"
+              titleAm="ንቁ ዝርዝሮች"
+              titleOr="Tarreewwan Ka\'aan"
+              titleSw="Orodha Zinazofanya Kazi"
+              value={listings.length}
+              icon={<ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
+              color="orange"
+              language={language}
+            />
+            
+            <InteractiveSummaryCard
+              title="Sold This Week"
+              titleAm="በዚህ ሳምንት የተሸጡ"
+              titleOr="Torban Kana Gurguraman"
+              titleSw="Ziliouzwa Wiki Hii"
+              value={12}
+              icon={<TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
+              color="green"
+              language={language}
+            />
 
-          <InteractiveSummaryCard
-            title="Average Price"
-            titleAm="አማካይ ዋጋ"
-            titleOr="Gatii Giddugaleessa"
-            titleSw="Bei ya Wastani"
-            value="15,000 ETB"
-            icon={<DollarSign className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
-            color="blue"
-            language={language}
-          />
+            <InteractiveSummaryCard
+              title="Average Price"
+              titleAm="አማካይ ዋጋ"
+              titleOr="Gatii Giddugaleessa"
+              titleSw="Bei ya Wastani"
+              value="15,000 ETB"
+              icon={<DollarSign className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
+              color="blue"
+              language={language}
+            />
 
-          <InteractiveSummaryCard
-            title="My Sales"
-            titleAm="የእኔ ሽያጭ"
-            titleOr="Gurgurtaa Koo"
-            titleSw="Mauzo Yangu"
-            value="5"
-            icon={<User className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
-            color="purple"
-            language={language}
-          />
-        </div>
+            <InteractiveSummaryCard
+              title="My Sales"
+              titleAm="የእኔ ሽያጭ"
+              titleOr="Gurgurtaa Koo"
+              titleSw="Mauzo Yangu"
+              value="5"
+              icon={<User className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
+              color="purple"
+              language={language}
+            />
+          </div>
+        )}
 
         {/* Search Bar */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3">
@@ -378,19 +321,19 @@ const Market = () => {
         {/* Market Listings */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
           {filteredListings.map((listing) => (
-            <MarketListingCard
+            <PublicMarketListingCard
               key={listing.id}
               listing={listing}
               language={language}
-              onContact={handleContact}
-              onFavorite={handleFavorite}
-              onClick={() => setSelectedListing(listing)}
+              isAuthenticated={!!user}
+              onLoginPrompt={handleLoginPrompt}
+              onViewDetails={() => handleListingClick(listing)}
             />
           ))}
         </div>
 
-        {/* Load More */}
-        {filteredListings.length === 0 && (
+        {/* No Listings Found */}
+        {filteredListings.length === 0 && !loading && (
           <Card className="text-center py-8 sm:py-12 mx-2 sm:mx-0">
             <CardContent className="px-3 sm:px-6">
               <div className="text-gray-500 mb-3 sm:mb-4 text-sm sm:text-base">
@@ -406,8 +349,17 @@ const Market = () => {
 
       <BottomNavigation language={language} />
 
-      {/* Listing Form */}
-      {showListingForm && (
+      {/* Auth Gate Modal */}
+      <AuthGateModal
+        isOpen={showAuthGate}
+        onClose={() => setShowAuthGate(false)}
+        onLogin={handleLogin}
+        viewCount={viewCount}
+        language={language}
+      />
+
+      {/* Listing Form - Only for authenticated users */}
+      {user && showListingForm && (
         <MarketListingForm
           language={language}
           onClose={() => setShowListingForm(false)}
@@ -427,7 +379,7 @@ const Market = () => {
       )}
 
       {/* Interest Expression Dialog */}
-      {interestListing && (
+      {user && interestListing && (
         <InterestExpressionDialog
           isOpen={showInterestDialog}
           onClose={() => {

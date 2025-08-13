@@ -187,6 +187,13 @@ export type Database = {
             referencedRelation: "market_listings"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "buyer_interests_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_market_listings"
+            referencedColumns: ["id"]
+          },
         ]
       }
       farm_assistants: {
@@ -477,6 +484,33 @@ export type Database = {
         }
         Relationships: []
       }
+      listing_views: {
+        Row: {
+          id: string
+          ip_address: unknown | null
+          listing_id: string
+          session_id: string
+          user_agent: string | null
+          viewed_at: string | null
+        }
+        Insert: {
+          id?: string
+          ip_address?: unknown | null
+          listing_id: string
+          session_id: string
+          user_agent?: string | null
+          viewed_at?: string | null
+        }
+        Update: {
+          id?: string
+          ip_address?: unknown | null
+          listing_id?: string
+          session_id?: string
+          user_agent?: string | null
+          viewed_at?: string | null
+        }
+        Relationships: []
+      }
       market_listings: {
         Row: {
           age: number | null
@@ -694,7 +728,63 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_market_listings: {
+        Row: {
+          age: number | null
+          animal_id: string | null
+          contact_method: string | null
+          contact_value: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          is_vet_verified: boolean | null
+          location: string | null
+          photos: string[] | null
+          price: number | null
+          status: string | null
+          title: string | null
+          updated_at: string | null
+          user_id: string | null
+          weight: number | null
+        }
+        Insert: {
+          age?: number | null
+          animal_id?: string | null
+          contact_method?: never
+          contact_value?: never
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          is_vet_verified?: boolean | null
+          location?: string | null
+          photos?: string[] | null
+          price?: never
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: never
+          weight?: number | null
+        }
+        Update: {
+          age?: number | null
+          animal_id?: string | null
+          contact_method?: never
+          contact_value?: never
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          is_vet_verified?: boolean | null
+          location?: string | null
+          photos?: string[] | null
+          price?: never
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: never
+          weight?: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       can_view_contact_info: {
