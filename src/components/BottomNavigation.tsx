@@ -1,81 +1,94 @@
-
 import React from 'react';
-import { Home, Heart, TrendingUp, ShoppingCart, User } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Language } from '@/types';
+import { Home, Heart, ShoppingCart, BarChart3, Milk } from 'lucide-react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { cn } from '@/lib/utils';
 
 interface BottomNavigationProps {
-  language: Language;
+  language: 'am' | 'en' | 'or' | 'sw';
 }
 
-export const BottomNavigation = ({ language }: BottomNavigationProps) => {
-  const navigate = useNavigate();
+const BottomNavigation = ({ language }: BottomNavigationProps) => {
   const location = useLocation();
+  
+  const navItems = [
+    {
+      icon: Home,
+      labelEn: 'Home',
+      labelAm: 'ዋና',
+      labelOr: 'Mana',
+      labelSw: 'Nyumbani',
+      path: '/'
+    },
+    {
+      icon: Heart,
+      labelEn: 'Animals',
+      labelAm: 'እንስሳት',
+      labelOr: 'Horii',
+      labelSw: 'Wanyama',
+      path: '/animals'
+    },
+    {
+      icon: ShoppingCart,
+      labelEn: 'Market',
+      labelAm: 'ገበያ',
+      labelOr: 'Gabaa',
+      labelSw: 'Soko',
+      path: '/market'
+    },
+    {
+      icon: BarChart3,
+      labelEn: 'Analytics',
+      labelAm: 'ትንታኔ',
+      labelOr: 'Xiinxala',
+      labelSw: 'Uchambuzi',
+      path: '/analytics'
+    },
+    {
+      icon: Milk,
+      labelEn: 'Milk',
+      labelAm: 'ወተት',
+      labelOr: 'Aannan',
+      labelSw: 'Maziwa',
+      path: '/milk-production'
+    }
+  ];
 
-  const translations = {
-    am: {
-      home: 'ቤት',
-      health: 'ጤንነት',
-      growth: 'እድገት',
-      market: 'ገበያ',
-      profile: 'መግለጫ'
-    },
-    en: {
-      home: 'Home',
-      health: 'Health',
-      growth: 'Growth',
-      market: 'Market',
-      profile: 'Profile'
-    },
-    or: {
-      home: 'Mana',
-      health: 'Fayyaa',
-      growth: 'Guddina',
-      market: 'Gabaa',
-      profile: 'Ibsa'
-    },
-    sw: {
-      home: 'Nyumbani',
-      health: 'Afya',
-      growth: 'Ukuaji',
-      market: 'Soko',
-      profile: 'Wasifu'
+  const getLabel = (item: any) => {
+    switch (language) {
+      case 'am':
+        return item.labelAm;
+      case 'or':
+        return item.labelOr;
+      case 'sw':
+        return item.labelSw;
+      default:
+        return item.labelEn;
     }
   };
 
-  const t = translations[language];
-
-  const navItems = [
-    { path: '/', label: t.home, icon: Home },
-    { path: '/health', label: t.health, icon: Heart },
-    { path: '/growth', label: t.growth, icon: TrendingUp },
-    { path: '/market', label: t.market, icon: ShoppingCart },
-    { path: '/profile', label: t.profile, icon: User }
-  ];
-
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 z-50">
-      <div className="flex justify-around items-center max-w-md mx-auto">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = location.pathname === item.path;
-          
-          return (
-            <button
-              key={item.path}
-              onClick={() => navigate(item.path)}
-              className={`flex flex-col items-center space-y-1 py-1 px-2 rounded-lg transition-colors ${
-                isActive
-                  ? 'text-green-600 bg-green-50'
-                  : 'text-gray-600 hover:text-green-600 hover:bg-green-50'
-              }`}
+    <nav className="fixed inset-x-0 bottom-0 bg-white border-t z-50">
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-5">
+          {navItems.map((item, index) => (
+            <NavLink
+              key={index}
+              to={item.path}
+              className={({ isActive }) =>
+                cn(
+                  "py-2 flex flex-col items-center text-xs text-gray-500 hover:text-gray-700",
+                  isActive ? "text-orange-600 font-semibold" : ""
+                )
+              }
             >
-              <Icon className="w-5 h-5" />
-              <span className="text-xs font-medium">{item.label}</span>
-            </button>
-          );
-        })}
+              <item.icon className="w-5 h-5 mb-1" />
+              {getLabel(item)}
+            </NavLink>
+          ))}
+        </div>
       </div>
-    </div>
+    </nav>
   );
 };
+
+export default BottomNavigation;
