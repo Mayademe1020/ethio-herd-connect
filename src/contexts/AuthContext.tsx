@@ -4,6 +4,7 @@ import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useToastNotifications } from '@/hooks/useToastNotifications';
+import { useInputSanitization } from '@/hooks/useInputSanitization';
 
 interface UserProfile {
   id: string;
@@ -42,6 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const [rememberMe, setRememberMe] = useLocalStorage('bet-gitosa-remember-me', false);
   const { showSuccess, showError } = useToastNotifications();
+  const { sanitizeEmail, sanitizeText } = useInputSanitization();
 
   // Fetch user profile data from farm_profiles table
   const fetchUserProfile = async (userId: string) => {
@@ -125,10 +127,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string, remember = false) => {
     try {
+      // Sanitize inputs
+      const sanitizedEmail = sanitizeEmail(email);
+      
+      if (!sanitizedEmail || !password) {
+        throw new Error('Email and password are required');
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sanitizedEmail)) {
+        throw new Error('Please enter a valid email address');
+      }
+
       setRememberMe(remember);
       
       const { error } = await supabase.auth.signInWithPassword({
-        email,
+        email: sanitizedEmail,
         password,
       });
       
@@ -141,16 +154,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string, mobileNumber: string, fullName?: string) => {
     try {
+      // Sanitize inputs
+      const sanitizedEmail = sanitizeEmail(email);
+      const sanitizedFullName = fullName ? sanitizeText(fullName, { maxLength: 100 }) : undefined;
+      const sanitizedMobile = sanitizeText(mobileNumber, { maxLength: 20 });
+
+      if (!sanitizedEmail || !password || !sanitizedMobile) {
+        throw new Error('Email, password, and mobile number are required');
+      }
+
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sanitizedEmail)) {
+        throw new Error('Please enter a valid email address');
+      }
+
+      if (password.length < 8) {
+        throw new Error('Password must be at least 8 characters long');
+      }
+
       const redirectUrl = `${window.location.origin}/`;
       
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: sanitizedEmail,
         password,
         options: {
           emailRedirectTo: redirectUrl,
           data: {
-            mobile_number: mobileNumber,
-            full_name: fullName
+            mobile_number: sanitizedMobile,
+            full_name: sanitizedFullName
           }
         }
       });
@@ -158,16 +188,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Create farm profile record if signup successful
       if (!error && data.user) {
         // Generate a simple farm prefix from the user's name or email
-        const farmPrefix = (fullName || email.split('@')[0]).toUpperCase().substring(0, 3);
+        const farmPrefix = (sanitizedFullName || sanitizedEmail.split('@')[0]).toUpperCase().substring(0, 3);
         
         const { error: profileError } = await supabase
           .from('farm_profiles')
           .insert([
             {
               user_id: data.user.id,
-              owner_name: fullName || '',
-              phone: mobileNumber,
-              farm_name: `${fullName || 'User'}'s Farm`,
+              owner_name: sanitizedFullName || '',
+              phone: sanitizedMobile,
+              farm_name: `${sanitizedFullName || 'User'}'s Farm`,
               farm_prefix: farmPrefix,
               location: '',
               created_at: new Date().toISOString()
@@ -201,14 +231,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error: new Error('No user logged in') };
       }
 
+      // Sanitize profile updates
+      const sanitizedUpdates = {
+        owner_name: profileUpdates.full_name ? sanitizeText(profileUpdates.full_name, { maxLength: 100 }) : undefined,
+        phone: profileUpdates.mobile_number ? sanitizeText(profileUpdates.mobile_number, { maxLength: 20 }) : undefined,
+        farm_name: profileUpdates.farm_name ? sanitizeText(profileUpdates.farm_name, { maxLength: 100 }) : undefined,
+        farm_prefix: profileUpdates.farm_prefix ? sanitizeText(profileUpdates.farm_prefix, { maxLength: 10 }) : undefined
+      };
+
+      // Remove undefined values
+      const cleanUpdates = Object.fromEntries(
+        Object.entries(sanitizedUpdates).filter(([_, v]) => v !== undefined)
+      );
+
       const { error } = await supabase
         .from('farm_profiles')
-        .update({
-          owner_name: profileUpdates.full_name,
-          phone: profileUpdates.mobile_number,
-          farm_name: profileUpdates.farm_name,
-          farm_prefix: profileUpdates.farm_prefix
-        })
+        .update(cleanUpdates)
         .eq('user_id', user.id);
 
       if (!error) {
