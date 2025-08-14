@@ -23,7 +23,8 @@ import {
   Users,
   TrendingUp,
   AlertCircle,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Plus
 } from 'lucide-react';
 
 const PublicMarketplace = () => {
@@ -61,7 +62,8 @@ const PublicMarketplace = () => {
       loginRequired: 'መግቢያ ያስፈልጋል',
       secureMarketplace: 'ደህንነቱ የተጠበቀ ገበያ',
       protectedData: 'የተጠበቀ መረጃ',
-      showFilters: 'ማጣሪያዎች አሳይ'
+      showFilters: 'ማጣሪያዎች አሳይ',
+      postListing: 'ዝርዝር ይለጥፉ'
     },
     en: {
       title: 'Public Marketplace',
@@ -79,7 +81,8 @@ const PublicMarketplace = () => {
       loginRequired: 'Login Required',
       secureMarketplace: 'Secure Marketplace',
       protectedData: 'Protected Data',
-      showFilters: 'Show Filters'
+      showFilters: 'Show Filters',
+      postListing: 'Post Listing'
     },
     or: {
       title: 'Gabaa Uumamaa',
@@ -97,7 +100,8 @@ const PublicMarketplace = () => {
       loginRequired: 'Seenuun Barbaachisaa',
       secureMarketplace: 'Gabaa Nageenya',
       protectedData: 'Daataa Eegame',
-      showFilters: 'Calaltoota Agarsiisi'
+      showFilters: 'Calaltoota Agarsiisi',
+      postListing: 'Tarree Maxxansi'
     },
     sw: {
       title: 'Soko la Umma',
@@ -115,7 +119,8 @@ const PublicMarketplace = () => {
       loginRequired: 'Kuingia Kunahitajika',
       secureMarketplace: 'Soko Salama',
       protectedData: 'Data Iliyolindwa',
-      showFilters: 'Onyesha Vichungi'
+      showFilters: 'Onyesha Vichungi',
+      postListing: 'Chapisha Orodha'
     }
   };
 
@@ -134,6 +139,15 @@ const PublicMarketplace = () => {
 
   const handleLoginPrompt = () => {
     setShowAuthModal(true);
+  };
+
+  const handlePostListing = () => {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+    // Navigate to listing creation form
+    console.log('Navigate to post listing form');
   };
 
   const filteredListings = listings.filter(listing => {
@@ -162,7 +176,7 @@ const PublicMarketplace = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50">
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50 pb-16 sm:pb-20 lg:pb-24">
         <EnhancedHeader />
         <div className="flex items-center justify-center min-h-[50vh]">
           <LoadingSpinner />
@@ -188,19 +202,43 @@ const PublicMarketplace = () => {
             </div>
             <p className="text-gray-600 text-sm sm:text-base">{t.subtitle}</p>
             
-            <div className="flex items-center justify-center mt-2">
+            <div className="flex items-center justify-center mt-2 gap-2">
               <Badge variant="outline" className="text-green-700 border-green-300">
                 <Shield className="w-3 h-3 mr-1" />
                 {t.secureMarketplace}
               </Badge>
+              {!user && (
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={handleLoginPrompt}
+                  className="text-blue-600 border-blue-300 hover:bg-blue-50"
+                >
+                  Login / Sign Up
+                </Button>
+              )}
             </div>
+          </div>
+
+          {/* Post Listing Button - Prominent */}
+          <div className="flex justify-center">
+            <Button
+              onClick={handlePostListing}
+              className="bg-orange-600 hover:bg-orange-700 h-12 px-6 text-base shadow-lg"
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              {t.postListing}
+            </Button>
           </div>
 
           {/* Stats Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Card className="hover:shadow-lg transition-shadow cursor-pointer">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">{t.totalListings}</CardTitle>
+                <CardTitle className="text-sm font-medium flex items-center">
+                  <TrendingUp className="w-4 h-4 mr-2 text-blue-600" />
+                  {t.totalListings}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
@@ -209,7 +247,10 @@ const PublicMarketplace = () => {
 
             <Card className="hover:shadow-lg transition-shadow cursor-pointer">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">{t.verifiedListings}</CardTitle>
+                <CardTitle className="text-sm font-medium flex items-center">
+                  <Shield className="w-4 h-4 mr-2 text-green-600" />
+                  {t.verifiedListings}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-green-600">{stats.verified}</div>
@@ -218,7 +259,10 @@ const PublicMarketplace = () => {
 
             <Card className="hover:shadow-lg transition-shadow cursor-pointer">
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium">{t.avgPrice}</CardTitle>
+                <CardTitle className="text-sm font-medium flex items-center">
+                  <Users className="w-4 h-4 mr-2 text-purple-600" />
+                  {t.avgPrice}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold text-purple-600">
@@ -237,13 +281,13 @@ const PublicMarketplace = () => {
                   placeholder={t.search}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 h-12 text-base"
                 />
               </div>
               <Button 
                 variant="outline" 
                 onClick={() => setShowSidebar(true)}
-                className="lg:hidden"
+                className="lg:hidden h-12 px-4"
               >
                 <SlidersHorizontal className="w-4 h-4 mr-2" />
                 {t.showFilters}
@@ -278,20 +322,37 @@ const PublicMarketplace = () => {
           ) : filteredListings.length === 0 ? (
             <Card>
               <CardContent className="p-8 text-center">
-                <p className="text-gray-500">{t.noListings}</p>
+                <div className="space-y-4">
+                  <div className="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center">
+                    <Shield className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No Listings Found</h3>
+                    <p className="text-gray-500 mb-4">{t.noListings}</p>
+                    <Button onClick={handlePostListing} className="bg-orange-600 hover:bg-orange-700">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Be the first to post!
+                    </Button>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {filteredListings.map((listing) => (
-                <PublicMarketListingCard
+                <div 
                   key={listing.id}
-                  listing={listing}
-                  language={language}
-                  isAuthenticated={!!user}
-                  onLoginPrompt={handleLoginPrompt}
-                  onViewDetails={handleViewDetails}
-                />
+                  onClick={() => handleViewDetails(listing.id)}
+                  className="cursor-pointer"
+                >
+                  <PublicMarketListingCard
+                    listing={listing}
+                    language={language}
+                    isAuthenticated={!!user}
+                    onLoginPrompt={handleLoginPrompt}
+                    onViewDetails={handleViewDetails}
+                  />
+                </div>
               ))}
             </div>
           )}
@@ -324,7 +385,7 @@ const PublicMarketplace = () => {
           isOpen={showAuthModal}
           onClose={() => setShowAuthModal(false)}
           onLogin={() => {
-            console.log('Navigate to login');
+            window.location.href = '/auth';
           }}
           viewCount={viewCount}
           language={language}

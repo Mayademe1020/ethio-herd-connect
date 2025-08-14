@@ -1,92 +1,146 @@
+
 import React, { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { EnhancedHeader } from '@/components/EnhancedHeader';
 import BottomNavigation from '@/components/BottomNavigation';
+import { CowSelectionCard } from '@/components/CowSelectionCard';
+import { MilkRecordingForm } from '@/components/MilkRecordingForm';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { useMilkProduction } from '@/hooks/useMilkProduction';
 import { 
   Milk, 
-  Plus, 
+  ArrowLeft,
   TrendingUp, 
   Calendar,
   Circle,
   BarChart3,
-  Target
+  Target,
+  CheckCircle
 } from 'lucide-react';
+import { AnimalData } from '@/types';
 
 const MilkProduction = () => {
   const { language } = useLanguage();
   const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [showForm, setShowForm] = useState(false);
-  const [dailyProduction, setDailyProduction] = useState('');
+  const { recordMilkProduction, isRecording } = useMilkProduction();
+  
+  const [selectedCows, setSelectedCows] = useState<string[]>([]);
+  const [showRecordingForm, setShowRecordingForm] = useState(false);
+  const [cowsData] = useState<AnimalData[]>([
+    {
+      id: '1',
+      animal_code: 'COW001',
+      name: 'Almaz',
+      type: 'Cattle',
+      breed: 'Holstein',
+      birth_date: '2020-01-15',
+      health_status: 'healthy' as const,
+      is_vet_verified: true,
+      created_at: '2023-01-01',
+      updated_at: '2023-01-01',
+      user_id: 'current-user',
+      age: 36
+    },
+    {
+      id: '2',
+      animal_code: 'COW002',
+      name: 'Meseret',
+      type: 'Cattle',
+      breed: 'Jersey',
+      birth_date: '2021-03-20',
+      health_status: 'healthy' as const,
+      is_vet_verified: true,
+      created_at: '2023-01-01',
+      updated_at: '2023-01-01',
+      user_id: 'current-user',
+      age: 24
+    },
+    {
+      id: '3',
+      animal_code: 'COW003',
+      name: 'Hanan',
+      type: 'Cattle',
+      breed: 'Local',
+      birth_date: '2019-11-10',
+      health_status: 'healthy' as const,
+      is_vet_verified: false,
+      created_at: '2023-01-01',
+      updated_at: '2023-01-01',
+      user_id: 'current-user',
+      age: 48
+    }
+  ]);
 
   const translations = {
     am: {
       title: 'የወተት ምርት',
       subtitle: 'ወተት ምርት መከታተያ እና ትንተና',
-      addProduction: 'ወተት ምርት ይመዝግቡ',
-      dailyProduction: 'የዕለት ምርት',
+      selectCows: 'ላቀት ወተት ምርት ለመመዝገብ ላቀት ምረጥ',
+      selectedCount: 'የተመረጡ ላቀቶች',
+      recordProduction: 'ወተት ምርት ይመዝግቡ',
       totalToday: 'ዛሬ ጠቅላላ',
       weeklyAverage: 'የሳምንት አማካይ',
       monthlyTarget: 'የወር ኢላማ',
+      recentRecords: 'የቅርብ ጊዜ መዝገቦች',
       liters: 'ሊትር',
-      record: 'መዝግብ',
-      cancel: 'ሰርዝ',
-      enterAmount: 'የወተት መጠን ያስገቡ (ሊትር)',
-      noRecords: 'ምንም የወተት ምርት መዝገብ የለም'
+      noCows: 'የወተት ላቀቶች አልተገኙም',
+      selectAtLeastOne: 'ቢያንስ አንድ ላቀት ይምረጡ',
+      back: 'ተመለስ'
     },
     en: {
       title: 'Milk Production',
       subtitle: 'Track and analyze milk production',
-      addProduction: 'Record Milk Production',
-      dailyProduction: 'Daily Production',
+      selectCows: 'Select cows to record milk production',
+      selectedCount: 'Selected Cows',
+      recordProduction: 'Record Production',
       totalToday: 'Total Today',
       weeklyAverage: 'Weekly Average',
       monthlyTarget: 'Monthly Target',
+      recentRecords: 'Recent Records',
       liters: 'Liters',
-      record: 'Record',
-      cancel: 'Cancel',
-      enterAmount: 'Enter milk amount (liters)',
-      noRecords: 'No milk production records yet'
+      noCows: 'No dairy cows found',
+      selectAtLeastOne: 'Select at least one cow',
+      back: 'Back'
     },
     or: {
       title: 'Oomisha Aannan',
       subtitle: 'Oomisha aannan hordofuu fi xiinxaluu',
-      addProduction: 'Oomisha Aannan Galmeessi',
-      dailyProduction: 'Oomisha Guyyaa',
+      selectCows: 'Oomisha aannan galmeessuuf saawwan filadhu',
+      selectedCount: 'Saawwan Filataman',
+      recordProduction: 'Oomisha Galmeessi',
       totalToday: 'Waliigala Har\'aa',
       weeklyAverage: 'Giddugaleessa Torban',
       monthlyTarget: 'Galma Ji\'a',
+      recentRecords: 'Galmee Dhihoo',
       liters: 'Liitirii',
-      record: 'Galmeessi',
-      cancel: 'Dhiisi',
-      enterAmount: 'Hamma aannan galchi (liitirii)',
-      noRecords: 'Galmeen oomisha aannan hin jiru'
+      noCows: 'Saawwan aannan hin argamne',
+      selectAtLeastOne: 'Yoo xiqqaate saawwa tokko filadhu',
+      back: 'Deebi\'i'
     },
     sw: {
       title: 'Uzalishaji wa Maziwa',
       subtitle: 'Fuatilia na uchanganue uzalishaji wa maziwa',
-      addProduction: 'Rekodi Uzalishaji wa Maziwa',
-      dailyProduction: 'Uzalishaji wa Kila Siku',
+      selectCows: 'Chagua ng\'ombe wa kurekodi uzalishaji wa maziwa',
+      selectedCount: 'Ng\'ombe Waliochaguliwa',
+      recordProduction: 'Rekodi Uzalishaji',
       totalToday: 'Jumla ya Leo',
       weeklyAverage: 'Wastani wa Wiki',
       monthlyTarget: 'Lengo la Mwezi',
+      recentRecords: 'Rekodi za Hivi Karibuni',
       liters: 'Lita',
-      record: 'Rekodi',
-      cancel: 'Ghairi',
-      enterAmount: 'Ingiza kiasi cha maziwa (lita)',
-      noRecords: 'Hakuna rekodi za uzalishaji wa maziwa bado'
+      noCows: 'Hakuna ng\'ombe wa maziwa',
+      selectAtLeastOne: 'Chagua angalau ng\'ombe mmoja',
+      back: 'Rudi'
     }
   };
 
   const t = translations[language];
 
-  // Mock data for demonstration
+  // Mock stats data
   const stats = {
     todayTotal: 45.5,
     weeklyAverage: 42.3,
@@ -94,18 +148,73 @@ const MilkProduction = () => {
     progress: 65
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!dailyProduction) return;
-    
-    setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-      setShowForm(false);
-      setDailyProduction('');
-    }, 1000);
+  const handleCowSelection = (cowId: string, selected: boolean) => {
+    setSelectedCows(prev => 
+      selected 
+        ? [...prev, cowId]
+        : prev.filter(id => id !== cowId)
+    );
   };
+
+  const handleRecordProduction = () => {
+    if (selectedCows.length === 0) return;
+    setShowRecordingForm(true);
+  };
+
+  const handleSaveRecords = async (records: any[]) => {
+    try {
+      // Here you would call the actual API to save records
+      console.log('Saving milk records:', records);
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Reset state after successful save
+      setSelectedCows([]);
+      setShowRecordingForm(false);
+    } catch (error) {
+      console.error('Failed to save records:', error);
+    }
+  };
+
+  const handleCancel = () => {
+    setShowRecordingForm(false);
+  };
+
+  const getSelectedCowsData = () => {
+    return cowsData.filter(cow => selectedCows.includes(cow.id));
+  };
+
+  if (showRecordingForm) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-green-50 to-emerald-50 pb-16 sm:pb-20 lg:pb-24">
+        <EnhancedHeader />
+        
+        <main className="container mx-auto px-2 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6">
+          <div className="mb-4">
+            <Button
+              variant="ghost"
+              onClick={handleCancel}
+              className="flex items-center gap-2 text-blue-600 hover:text-blue-700 p-0 h-auto"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              {t.back}
+            </Button>
+          </div>
+          
+          <MilkRecordingForm
+            selectedCows={getSelectedCowsData()}
+            language={language}
+            onSave={handleSaveRecords}
+            onCancel={handleCancel}
+            isLoading={isRecording}
+          />
+        </main>
+        
+        <BottomNavigation language={language} />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-green-50 to-emerald-50 pb-16 sm:pb-20 lg:pb-24">
@@ -122,57 +231,6 @@ const MilkProduction = () => {
           </div>
           <p className="text-gray-600 text-sm sm:text-base">{t.subtitle}</p>
         </div>
-
-        {/* Action Button */}
-        <div className="flex justify-center">
-          <Button 
-            onClick={() => setShowForm(!showForm)}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            {t.addProduction}
-          </Button>
-        </div>
-
-        {/* Production Form */}
-        {showForm && (
-          <Card>
-            <CardHeader>
-              <CardTitle>{t.addProduction}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Input
-                    type="number"
-                    step="0.1"
-                    placeholder={t.enterAmount}
-                    value={dailyProduction}
-                    onChange={(e) => setDailyProduction(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="flex space-x-3">
-                  <Button 
-                    type="submit" 
-                    className="flex-1 bg-blue-600 hover:bg-blue-700"
-                    disabled={loading}
-                  >
-                    {loading ? <LoadingSpinner /> : t.record}
-                  </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => setShowForm(false)}
-                    className="flex-1"
-                  >
-                    {t.cancel}
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-        )}
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -238,18 +296,72 @@ const MilkProduction = () => {
           </Card>
         </div>
 
-        {/* Production Records */}
+        {/* Cow Selection Section */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Milk className="w-5 h-5 text-blue-600" />
+                {t.selectCows}
+              </CardTitle>
+              {selectedCows.length > 0 && (
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3" />
+                  {selectedCows.length} {t.selectedCount}
+                </Badge>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            {cowsData.length === 0 ? (
+              <div className="text-center py-8">
+                <Circle className="mx-auto w-12 h-12 text-gray-400 mb-4" />
+                <p className="text-gray-500">{t.noCows}</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {cowsData.map((cow) => (
+                  <CowSelectionCard
+                    key={cow.id}
+                    cow={cow}
+                    isSelected={selectedCows.includes(cow.id)}
+                    onSelectionChange={handleCowSelection}
+                  />
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Action Button */}
+        <div className="sticky bottom-20 z-10">
+          <Button
+            onClick={handleRecordProduction}
+            disabled={selectedCows.length === 0}
+            className="w-full h-14 text-lg bg-blue-600 hover:bg-blue-700 shadow-lg"
+          >
+            <Milk className="w-5 h-5 mr-2" />
+            {t.recordProduction}
+            {selectedCows.length > 0 && (
+              <Badge variant="secondary" className="ml-2">
+                {selectedCows.length}
+              </Badge>
+            )}
+          </Button>
+        </div>
+
+        {/* Recent Records */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
               <Calendar className="w-5 h-5 mr-2" />
-              Recent Records
+              {t.recentRecords}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-center py-8">
               <Circle className="mx-auto w-12 h-12 text-gray-400 mb-4" />
-              <p className="text-gray-500">{t.noRecords}</p>
+              <p className="text-gray-500">No recent records</p>
             </div>
           </CardContent>
         </Card>

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Home, Heart, ShoppingCart, BarChart3, Milk, User } from 'lucide-react';
+import { Home, Heart, ShoppingCart, BarChart3, Milk, User, Stethoscope } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
@@ -34,15 +34,15 @@ const BottomNavigation = ({ language }: BottomNavigationProps) => {
       labelAm: 'ገበያ',
       labelOr: 'Gabaa',
       labelSw: 'Soko',
-      path: '/market'
+      path: '/marketplace'
     },
     {
-      icon: BarChart3,
-      labelEn: 'Analytics',
-      labelAm: 'ትንታኔ',
-      labelOr: 'Xiinxala',
-      labelSw: 'Uchambuzi',
-      path: '/analytics'
+      icon: Stethoscope,
+      labelEn: 'Medical',
+      labelAm: 'ህክምና',
+      labelOr: 'Yaalaa',
+      labelSw: 'Matibabu',
+      path: '/medical'
     },
     {
       icon: Milk,
@@ -77,7 +77,7 @@ const BottomNavigation = ({ language }: BottomNavigationProps) => {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 bg-white border-t z-50 shadow-lg">
-      <div className="container mx-auto px-2">
+      <div className="container mx-auto px-1">
         <div className="grid grid-cols-6 gap-1">
           {navItems.map((item, index) => (
             <NavLink
@@ -85,7 +85,7 @@ const BottomNavigation = ({ language }: BottomNavigationProps) => {
               to={item.path}
               className={({ isActive }) =>
                 cn(
-                  "py-2 px-1 flex flex-col items-center text-xs text-gray-500 hover:text-gray-700 transition-all duration-200 hover:bg-gray-50 rounded-lg",
+                  "py-2 px-1 flex flex-col items-center text-xs text-gray-500 hover:text-gray-700 transition-all duration-200 hover:bg-gray-50 rounded-lg min-h-[60px] justify-center",
                   isActive ? "text-orange-600 font-semibold bg-orange-50" : ""
                 )
               }
