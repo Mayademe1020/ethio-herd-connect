@@ -292,9 +292,12 @@ const PublicMarketplace = () => {
         <AuthGateModal
           isOpen={showAuthModal}
           onClose={() => setShowAuthModal(false)}
+          onLogin={() => {
+            // Handle login navigation
+            console.log('Navigate to login');
+          }}
+          viewCount={viewCount}
           language={language}
-          title={t.loginRequired}
-          message="Log in to view full listing details, contact information, and interact with sellers."
         />
       )}
 

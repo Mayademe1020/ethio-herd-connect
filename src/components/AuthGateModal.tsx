@@ -22,9 +22,9 @@ export const AuthGateModal = ({
 }: AuthGateModalProps) => {
   const translations = {
     am: {
-      title: 'የተሻሉ ወሳጅ ስላልተሰየሙ',
+      title: 'የተሻሉ ወሳኝ ስላልተሰየሙ',
       description: 'ዋጋዎችን፣ የመግባቢያ መረጃዎችን ለማየት እና ፍላጎት ለመግለጽ ይግቡ።',
-      viewedListings: 'እስካሁን ያዩት ዝርዝሮች',
+      viewedListings: 'እስከሁን ያዩት ዝርዝሮች',
       benefits: [
         'ዋጋዎችን እና የመግባቢያ መረጃዎችን ይመልከቱ',
         'ለሸጣዮች ፍላጎት ያሳዩ',
