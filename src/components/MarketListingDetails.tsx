@@ -11,7 +11,7 @@ interface MarketListingDetailsProps {
     id: string;
     title: string;
     category: string;
-    price: number;
+    price: number | null;
     location: string;
     description: string;
     photo: string;
@@ -39,7 +39,8 @@ export const MarketListingDetails = ({
       verified: 'የተረጋገጠ',
       price: 'ዋጋ',
       location: 'አካባቢ',
-      description: 'መግለጫ'
+      description: 'መግለጫ',
+      priceHidden: 'ዋጋ ተደብቋል'
     },
     en: {
       contact: 'Express Interest',
@@ -47,7 +48,8 @@ export const MarketListingDetails = ({
       verified: 'Vet Verified',
       price: 'Price',
       location: 'Location',
-      description: 'Description'
+      description: 'Description',
+      priceHidden: 'Price hidden'
     },
     or: {
       contact: 'Fedhii Ibsi',
@@ -55,7 +57,8 @@ export const MarketListingDetails = ({
       verified: 'Doktoora Beeitii Mirkaneeffame',
       price: 'Gatii',
       location: 'Bakka',
-      description: 'Ibsa'
+      description: 'Ibsa',
+      priceHidden: 'Gatiin dhokfame'
     },
     sw: {
       contact: 'Onyesha Hamu',
@@ -63,7 +66,8 @@ export const MarketListingDetails = ({
       verified: 'Imethibitishwa na Daktari',
       price: 'Bei',
       location: 'Mahali',
-      description: 'Maelezo'
+      description: 'Maelezo',
+      priceHidden: 'Bei imefichwa'
     }
   };
 
@@ -91,9 +95,13 @@ export const MarketListingDetails = ({
           <div className="space-y-3">
             <div>
               <h3 className="font-semibold text-lg">{t.price}</h3>
-              <p className="text-2xl font-bold text-green-600">
-                {listing.price.toLocaleString()} ETB
-              </p>
+              {listing.price !== null && listing.price !== undefined ? (
+                <p className="text-2xl font-bold text-green-600">
+                  {listing.price.toLocaleString()} ETB
+                </p>
+              ) : (
+                <p className="text-lg text-gray-500">{t.priceHidden}</p>
+              )}
             </div>
             
             {listing.location && (

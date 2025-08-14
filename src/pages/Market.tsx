@@ -142,6 +142,24 @@ const Market = () => {
     setShowInterestDialog(true);
   };
 
+  const handleContactListing = (listing: any) => {
+    if (!user) {
+      alert(t.loginRequired);
+      return;
+    }
+    setSelectedListing(listing);
+    setShowInterestDialog(true);
+  };
+
+  const handleEditListing = (listing: any) => {
+    if (!user) {
+      alert(t.loginRequired);
+      return;
+    }
+    // For now, just close the modal - edit functionality can be implemented later
+    setSelectedListing(null);
+  };
+
   const filteredListings = listings.filter(listing => {
     const matchesSearch = listing.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          listing.description?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -352,9 +370,14 @@ const Market = () => {
       {/* Listing Details Modal */}
       {selectedListing && !showInterestDialog && (
         <MarketListingDetails
-          listing={selectedListing}
+          listing={{
+            ...selectedListing,
+            category: 'Animal' // Add required category field
+          }}
           language={language}
           onClose={() => setSelectedListing(null)}
+          onContact={handleContactListing}
+          onEdit={handleEditListing}
         />
       )}
 
