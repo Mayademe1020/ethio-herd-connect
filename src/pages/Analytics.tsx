@@ -361,6 +361,9 @@ const Analytics = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
               <InteractiveSummaryCard
                 title={t.totalRevenue}
+                titleAm="ጠቅላላ ገቢ"
+                titleOr="Galii Waliigalaa"
+                titleSw="Jumla ya Mapato"
                 value={`$${analyticsData.totalRevenue}`}
                 icon={<DollarSign className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
                 color="blue"
@@ -368,6 +371,9 @@ const Analytics = () => {
               />
               <InteractiveSummaryCard
                 title={t.newUsers}
+                titleAm="አዲስ ተጠቃሚዎች"
+                titleOr="Fayyadamtoota Haaraa"
+                titleSw="Watumiaji Wapya"
                 value={analyticsData.newUsers}
                 icon={<Users className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
                 color="green"
@@ -375,6 +381,9 @@ const Analytics = () => {
               />
               <InteractiveSummaryCard
                 title={t.activeUsers}
+                titleAm="አሁን ያሉ ተጠቃሚዎች"
+                titleOr="Fayyadamtoota Hojjatoota"
+                titleSw="Watumiaji Amilifu"
                 value={analyticsData.activeUsers}
                 icon={<Activity className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
                 color="purple"
@@ -382,6 +391,9 @@ const Analytics = () => {
               />
               <InteractiveSummaryCard
                 title={t.weeklyGrowth}
+                titleAm="ሳምንታዊ እድገት"
+                titleOr="Guddina Torbanii"
+                titleSw="Ukuaji wa Kila Wiki"
                 value={`${analyticsData.weeklyGrowth}%`}
                 icon={<TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
                 color="orange"
