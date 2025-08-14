@@ -1,383 +1,259 @@
+
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { EnhancedHeader } from '@/components/EnhancedHeader';
 import BottomNavigation from '@/components/BottomNavigation';
-import { OfflineIndicator } from '@/components/OfflineIndicator';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { 
-  Droplets, 
+  Milk, 
+  Plus, 
   TrendingUp, 
   Calendar,
-  Download,
-  FileText,
+  Cow,
   BarChart3,
-  Activity,
-  AlertCircle
+  Target
 } from 'lucide-react';
-import { useLanguage } from '@/contexts/LanguageContext';
 
 const MilkProduction = () => {
   const { language } = useLanguage();
-  const [selectedTab, setSelectedTab] = useState('overview');
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [dailyProduction, setDailyProduction] = useState('');
 
   const translations = {
     am: {
-      title: 'ወተት ምርት',
-      subtitle: 'የወተት ምርት መረጃዎችን ይከታተሉ',
-      overview: 'አጠቃላይ እይታ',
-      records: 'መዝገቦች',
-      analytics: 'ትንታኔ',
-      downloadReport: 'ሪፖርት ያውርዱ',
-      totalProduction: 'ጠቅላላ ምርት',
-      dailyAverage: 'ዕለታዊ አማካይ',
-      weeklyTrend: 'ሳምንታዊ አዝማሚያ',
-      storageLevel: 'የማከማቻ ደረጃ',
-      recentRecords: 'የቅርብ ጊዜ መዝገቦች',
-      date: 'ቀን',
-      quantity: 'ብዛት',
-      details: 'ዝርዝሮች',
-      noRecords: 'ምንም መዝገቦች የሉም',
-      productionStats: 'የምርት ስታቲስቲክስ',
-      milkQuality: 'የወተት ጥራት',
-      feedEfficiency: 'የምግብ ውጤታማነት',
-      healthImpact: 'በጤና ላይ ተጽዕኖ',
-      downloadData: 'መረጃን ያውርዱ',
-      generateReport: 'ሪፖርት ይፍጠሩ',
-      productionHistory: 'የምርት ታሪክ',
-      monthlyComparison: 'ወርሃዊ ንጽጽር',
-      animalContribution: 'የእንስሳት አስተዋፅኦ',
-      alerts: 'ማስጠንቀቂያዎች',
-      lowProduction: 'ዝቅተኛ ምርት',
-      qualityConcerns: 'የጥራት ስጋቶች',
-      viewAll: 'ሁሉንም ይመልከቱ'
+      title: 'የወተት ምርት',
+      subtitle: 'ወተት ምርት መከታተያ እና ትንተና',
+      addProduction: 'ወተት ምርት ይመዝግቡ',
+      dailyProduction: 'የዕለት ምርት',
+      totalToday: 'ዛሬ ጠቅላላ',
+      weeklyAverage: 'የሳምንት አማካይ',
+      monthlyTarget: 'የወር ኢላማ',
+      liters: 'ሊትር',
+      record: 'መዝግብ',
+      cancel: 'ሰርዝ',
+      enterAmount: 'የወተት መጠን ያስገቡ (ሊትር)',
+      noRecords: 'ምንም የወተት ምርት መዝገብ የለም'
     },
     en: {
       title: 'Milk Production',
-      subtitle: 'Track milk production data',
-      overview: 'Overview',
-      records: 'Records',
-      analytics: 'Analytics',
-      downloadReport: 'Download Report',
-      totalProduction: 'Total Production',
-      dailyAverage: 'Daily Average',
-      weeklyTrend: 'Weekly Trend',
-      storageLevel: 'Storage Level',
-      recentRecords: 'Recent Records',
-      date: 'Date',
-      quantity: 'Quantity',
-      details: 'Details',
-      noRecords: 'No records available',
-      productionStats: 'Production Statistics',
-      milkQuality: 'Milk Quality',
-      feedEfficiency: 'Feed Efficiency',
-      healthImpact: 'Health Impact',
-      downloadData: 'Download Data',
-      generateReport: 'Generate Report',
-      productionHistory: 'Production History',
-      monthlyComparison: 'Monthly Comparison',
-      animalContribution: 'Animal Contribution',
-      alerts: 'Alerts',
-      lowProduction: 'Low Production',
-      qualityConcerns: 'Quality Concerns',
-      viewAll: 'View All'
+      subtitle: 'Track and analyze milk production',
+      addProduction: 'Record Milk Production',
+      dailyProduction: 'Daily Production',
+      totalToday: 'Total Today',
+      weeklyAverage: 'Weekly Average',
+      monthlyTarget: 'Monthly Target',
+      liters: 'Liters',
+      record: 'Record',
+      cancel: 'Cancel',
+      enterAmount: 'Enter milk amount (liters)',
+      noRecords: 'No milk production records yet'
     },
     or: {
-      title: 'Oomisha Aannanii',
-      subtitle: 'Oomisha aannanii hordofaa',
-      overview: 'Ibsa Waliigalaa',
-      records: 'Galmeewwan',
-      analytics: 'Xiinxala',
-      downloadReport: 'Gabaasa Buufadhu',
-      totalProduction: 'Oomisha Waliigalaa',
-      dailyAverage: 'Giddugaleessa Guyyaa',
-      weeklyTrend: 'Haala Torbanii',
-      storageLevel: 'Sadarkaa Kuusaa',
-      recentRecords: 'Galmeewwan Dhihoo',
-      date: 'Guyyaa',
-      quantity: 'Baay\'ina',
-      details: 'Bal\'ina',
-      noRecords: 'Galmeen hin jiru',
-      productionStats: 'Lakkoofsa Oomishaa',
-      milkQuality: 'Qulqullina Aannanii',
-      feedEfficiency: 'Bu\'aa Qubaa',
-      healthImpact: 'Dhiibbaa Fayyaa',
-      downloadData: 'Dataa Buufadhu',
-      generateReport: 'Gabaasa Uumi',
-      productionHistory: 'Seenaa Oomishaa',
-      monthlyComparison: 'Walbira Qabuu Ji\'ootaa',
-      animalContribution: 'Gumaacha Bineensotaa',
-      alerts: 'Akeekkachiisa',
-      lowProduction: 'Oomisha Gad Aanaa',
-      qualityConcerns: 'Yaaddoo Qulqullinaa',
-      viewAll: 'Hunda Agarsiisi'
+      title: 'Oomisha Aannan',
+      subtitle: 'Oomisha aannan hordofuu fi xiinxaluu',
+      addProduction: 'Oomisha Aannan Galmeessi',
+      dailyProduction: 'Oomisha Guyyaa',
+      totalToday: 'Waliigala Har\'aa',
+      weeklyAverage: 'Giddugaleessa Torban',
+      monthlyTarget: 'Galma Ji\'a',
+      liters: 'Liitirii',
+      record: 'Galmeessi',
+      cancel: 'Dhiisi',
+      enterAmount: 'Hamma aannan galchi (liitirii)',
+      noRecords: 'Galmeen oomisha aannan hin jiru'
     },
     sw: {
       title: 'Uzalishaji wa Maziwa',
-      subtitle: 'Fuatilia data ya uzalishaji wa maziwa',
-      overview: 'Muhtasari',
-      records: 'Rekodi',
-      analytics: 'Uchambuzi',
-      downloadReport: 'Pakua Ripoti',
-      totalProduction: 'Jumla ya Uzalishaji',
-      dailyAverage: 'Wastani wa Siku',
-      weeklyTrend: 'Mwenendo wa Wiki',
-      storageLevel: 'Kiwango cha Hifadhi',
-      recentRecords: 'Rekodi za Hivi Karibuni',
-      date: 'Tarehe',
-      quantity: 'Kiasi',
-      details: 'Maelezo',
-      noRecords: 'Hakuna rekodi zinazopatikana',
-      productionStats: 'Takwimu za Uzalishaji',
-      milkQuality: 'Ubora wa Maziwa',
-      feedEfficiency: 'Ufanisi wa Chakula',
-      healthImpact: 'Athari za Kiafya',
-      downloadData: 'Pakua Data',
-      generateReport: 'Tengeneza Ripoti',
-      productionHistory: 'Historia ya Uzalishaji',
-      monthlyComparison: 'Ulinganisho wa Kila Mwezi',
-      animalContribution: 'Mchango wa Wanyama',
-      alerts: 'Tahadhari',
-      lowProduction: 'Uzalishaji Mdogo',
-      qualityConcerns: 'Masuala ya Ubora',
-      viewAll: 'Onyesha Zote'
+      subtitle: 'Fuatilia na uchanganue uzalishaji wa maziwa',
+      addProduction: 'Rekodi Uzalishaji wa Maziwa',
+      dailyProduction: 'Uzalishaji wa Kila Siku',
+      totalToday: 'Jumla ya Leo',
+      weeklyAverage: 'Wastani wa Wiki',
+      monthlyTarget: 'Lengo la Mwezi',
+      liters: 'Lita',
+      record: 'Rekodi',
+      cancel: 'Ghairi',
+      enterAmount: 'Ingiza kiasi cha maziwa (lita)',
+      noRecords: 'Hakuna rekodi za uzalishaji wa maziwa bado'
     }
   };
 
   const t = translations[language];
 
   // Mock data for demonstration
-  const productionData = {
-    totalProduction: 15000, // liters
-    dailyAverage: 500, // liters
-    weeklyTrend: 5, // percentage increase
-    storageLevel: 75, // percentage full
-    recentRecords: [
-      { date: '2024-06-05', quantity: 520, details: 'Morning milking' },
-      { date: '2024-06-04', quantity: 480, details: 'Evening milking' },
-      { date: '2024-06-03', quantity: 550, details: 'Morning milking' }
-    ],
-    alerts: [
-      { type: 'lowProduction', message: t.lowProduction },
-      { type: 'qualityConcerns', message: t.qualityConcerns }
-    ]
+  const stats = {
+    todayTotal: 45.5,
+    weeklyAverage: 42.3,
+    monthlyTarget: 1200,
+    progress: 65
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!dailyProduction) return;
+    
+    setLoading(true);
+    // Simulate API call
+    setTimeout(() => {
+      setLoading(false);
+      setShowForm(false);
+      setDailyProduction('');
+    }, 1000);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 pb-16 sm:pb-20 lg:pb-24">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-green-50 to-emerald-50 pb-16 sm:pb-20 lg:pb-24">
       <EnhancedHeader />
-      <OfflineIndicator language={language} />
-      
+
       <main className="container mx-auto px-2 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6 space-y-3 sm:space-y-4 lg:space-y-6">
-        {/* Page Title */}
-        <div className="text-center px-2">
-          <h1 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-800 mb-1 sm:mb-2">
-            <Droplets className="inline-block w-5 h-5 mr-2 align-middle" />
-            {t.title}
-          </h1>
-          <p className="text-gray-600 text-xs sm:text-sm lg:text-base">
-            {t.subtitle}
-          </p>
+        {/* Page Header */}
+        <div className="text-center">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Milk className="w-6 h-6 text-blue-600" />
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800">
+              {t.title}
+            </h1>
+          </div>
+          <p className="text-gray-600 text-sm sm:text-base">{t.subtitle}</p>
         </div>
 
-        {/* Tabs */}
-        <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="overview">{t.overview}</TabsTrigger>
-            <TabsTrigger value="records">{t.records}</TabsTrigger>
-            <TabsTrigger value="analytics">{t.analytics}</TabsTrigger>
-          </TabsList>
-          
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
-              <Card className="bg-white shadow-md">
-                <CardHeader>
-                  <CardTitle className="text-sm font-semibold">{t.totalProduction}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{productionData.totalProduction} L</div>
-                  <div className="text-xs text-gray-500">{t.dailyAverage}: {productionData.dailyAverage} L</div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white shadow-md">
-                <CardHeader>
-                  <CardTitle className="text-sm font-semibold">{t.weeklyTrend}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{productionData.weeklyTrend}%</div>
-                  <div className="text-xs text-gray-500">
-                    <TrendingUp className="inline-block w-4 h-4 mr-1 align-middle text-green-500" />
-                    {t.weeklyTrend}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white shadow-md">
-                <CardHeader>
-                  <CardTitle className="text-sm font-semibold">{t.storageLevel}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{productionData.storageLevel}%</div>
-                  <div className="text-xs text-gray-500">
-                    {t.storageLevel}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Recent Records */}
-            <Card className="bg-white shadow-md">
-              <CardHeader>
-                <CardTitle className="text-sm font-semibold">{t.recentRecords}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {productionData.recentRecords.length > 0 ? (
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full">
-                      <thead>
-                        <tr className="text-left">
-                          <th className="py-2 px-3 text-xs font-semibold text-gray-600">{t.date}</th>
-                          <th className="py-2 px-3 text-xs font-semibold text-gray-600">{t.quantity}</th>
-                          <th className="py-2 px-3 text-xs font-semibold text-gray-600">{t.details}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {productionData.recentRecords.map((record, index) => (
-                          <tr key={index} className="hover:bg-gray-50">
-                            <td className="py-2 px-3 text-xs">{record.date}</td>
-                            <td className="py-2 px-3 text-xs">{record.quantity} L</td>
-                            <td className="py-2 px-3 text-xs">{record.details}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <div className="text-sm text-gray-500">{t.noRecords}</div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Alerts */}
-            <Card className="bg-white shadow-md">
-              <CardHeader>
-                <CardTitle className="text-sm font-semibold">{t.alerts}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {productionData.alerts.length > 0 ? (
-                  <ul className="list-none space-y-2">
-                    {productionData.alerts.map((alert, index) => (
-                      <li key={index} className="flex items-center space-x-2">
-                        <AlertCircle className="w-4 h-4 text-yellow-500" />
-                        <span className="text-sm text-gray-700">{alert.message}</span>
-                      </li>
-                    ))}
-                    <li>
-                      <Button variant="link" className="text-sm">{t.viewAll}</Button>
-                    </li>
-                  </ul>
-                ) : (
-                  <div className="text-sm text-gray-500">No alerts at this time.</div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Records Tab */}
-          <TabsContent value="records">
-            <Card className="bg-white shadow-md">
-              <CardHeader>
-                <CardTitle className="text-sm font-semibold">{t.recentRecords}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {productionData.recentRecords.length > 0 ? (
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full">
-                      <thead>
-                        <tr className="text-left">
-                          <th className="py-2 px-3 text-xs font-semibold text-gray-600">{t.date}</th>
-                          <th className="py-2 px-3 text-xs font-semibold text-gray-600">{t.quantity}</th>
-                          <th className="py-2 px-3 text-xs font-semibold text-gray-600">{t.details}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {productionData.recentRecords.map((record, index) => (
-                          <tr key={index} className="hover:bg-gray-50">
-                            <td className="py-2 px-3 text-xs">{record.date}</td>
-                            <td className="py-2 px-3 text-xs">{record.quantity} L</td>
-                            <td className="py-2 px-3 text-xs">{record.details}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <div className="text-sm text-gray-500">{t.noRecords}</div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Analytics Tab */}
-          <TabsContent value="analytics">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <Card className="bg-white shadow-md">
-                <CardHeader>
-                  <CardTitle className="text-sm font-semibold">{t.productionStats}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <BarChart3 className="w-6 h-6 text-blue-500" />
-                  <p className="text-sm text-gray-500">{t.productionHistory}</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white shadow-md">
-                <CardHeader>
-                  <CardTitle className="text-sm font-semibold">{t.milkQuality}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Activity className="w-6 h-6 text-green-500" />
-                  <p className="text-sm text-gray-500">{t.monthlyComparison}</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white shadow-md">
-                <CardHeader>
-                  <CardTitle className="text-sm font-semibold">{t.feedEfficiency}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <TrendingUp className="w-6 h-6 text-purple-500" />
-                  <p className="text-sm text-gray-500">{t.animalContribution}</p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white shadow-md">
-                <CardHeader>
-                  <CardTitle className="text-sm font-semibold">{t.healthImpact}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <AlertCircle className="w-6 h-6 text-red-500" />
-                  <p className="text-sm text-gray-500">{t.alerts}</p>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-        </Tabs>
-
-        {/* Actions */}
-        <div className="flex justify-between">
-          <Button variant="outline">
-            <Download className="w-4 h-4 mr-2" />
-            {t.downloadData}
-          </Button>
-          <Button>
-            <FileText className="w-4 h-4 mr-2" />
-            {t.generateReport}
+        {/* Action Button */}
+        <div className="flex justify-center">
+          <Button 
+            onClick={() => setShowForm(!showForm)}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            {t.addProduction}
           </Button>
         </div>
+
+        {/* Production Form */}
+        {showForm && (
+          <Card>
+            <CardHeader>
+              <CardTitle>{t.addProduction}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <Input
+                    type="number"
+                    step="0.1"
+                    placeholder={t.enterAmount}
+                    value={dailyProduction}
+                    onChange={(e) => setDailyProduction(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="flex space-x-3">
+                  <Button 
+                    type="submit" 
+                    className="flex-1 bg-blue-600 hover:bg-blue-700"
+                    disabled={loading}
+                  >
+                    {loading ? <LoadingSpinner /> : t.record}
+                  </Button>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => setShowForm(false)}
+                    className="flex-1"
+                  >
+                    {t.cancel}
+                  </Button>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium flex items-center">
+                <Milk className="w-4 h-4 mr-2 text-blue-600" />
+                {t.totalToday}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-600">
+                {stats.todayTotal} {t.liters}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium flex items-center">
+                <TrendingUp className="w-4 h-4 mr-2 text-green-600" />
+                {t.weeklyAverage}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">
+                {stats.weeklyAverage} {t.liters}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium flex items-center">
+                <Target className="w-4 h-4 mr-2 text-purple-600" />
+                {t.monthlyTarget}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-purple-600">
+                {stats.monthlyTarget} {t.liters}
+              </div>
+              <div className="mt-2">
+                <Badge variant="outline" className="text-xs">
+                  {stats.progress}% Complete
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium flex items-center">
+                <BarChart3 className="w-4 h-4 mr-2 text-orange-600" />
+                Analytics
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-orange-600">
+                <TrendingUp className="w-8 h-8" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Production Records */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Calendar className="w-5 h-5 mr-2" />
+              Recent Records
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center py-8">
+              <Cow className="mx-auto w-12 h-12 text-gray-400 mb-4" />
+              <p className="text-gray-500">{t.noRecords}</p>
+            </div>
+          </CardContent>
+        </Card>
       </main>
 
       <BottomNavigation language={language} />

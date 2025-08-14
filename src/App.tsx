@@ -55,6 +55,7 @@ function App() {
                     <Route path="/marketplace" element={<PublicMarketplace />} />
                     <Route path="/analytics" element={<Analytics />} />
                     <Route path="/milk" element={<MilkProduction />} />
+                    <Route path="/milk-production" element={<MilkProduction />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/notifications" element={<Notifications />} />
                     <Route path="/auth" element={<Auth />} />

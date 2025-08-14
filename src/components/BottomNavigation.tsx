@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { Home, Heart, ShoppingCart, BarChart3, Milk } from 'lucide-react';
+import { Home, Heart, ShoppingCart, BarChart3, Milk, User } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
@@ -49,7 +50,15 @@ const BottomNavigation = ({ language }: BottomNavigationProps) => {
       labelAm: 'ወተት',
       labelOr: 'Aannan',
       labelSw: 'Maziwa',
-      path: '/milk-production'
+      path: '/milk'
+    },
+    {
+      icon: User,
+      labelEn: 'Profile',
+      labelAm: 'መገለጫ',
+      labelOr: 'Ibsa',
+      labelSw: 'Wasifu',
+      path: '/profile'
     }
   ];
 
@@ -67,22 +76,24 @@ const BottomNavigation = ({ language }: BottomNavigationProps) => {
   };
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 bg-white border-t z-50">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-5">
+    <nav className="fixed inset-x-0 bottom-0 bg-white border-t z-50 shadow-lg">
+      <div className="container mx-auto px-2">
+        <div className="grid grid-cols-6 gap-1">
           {navItems.map((item, index) => (
             <NavLink
               key={index}
               to={item.path}
               className={({ isActive }) =>
                 cn(
-                  "py-2 flex flex-col items-center text-xs text-gray-500 hover:text-gray-700",
-                  isActive ? "text-orange-600 font-semibold" : ""
+                  "py-2 px-1 flex flex-col items-center text-xs text-gray-500 hover:text-gray-700 transition-all duration-200 hover:bg-gray-50 rounded-lg",
+                  isActive ? "text-orange-600 font-semibold bg-orange-50" : ""
                 )
               }
             >
               <item.icon className="w-5 h-5 mb-1" />
-              {getLabel(item)}
+              <span className="text-[10px] leading-tight text-center">
+                {getLabel(item)}
+              </span>
             </NavLink>
           ))}
         </div>
