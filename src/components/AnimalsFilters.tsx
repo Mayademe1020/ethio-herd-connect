@@ -93,7 +93,7 @@ export const AnimalsFilters = ({
         />
       </div>
 
-      <Select value={typeFilter} onValueChange={onTypeFilterChange}>
+      <Select value={typeFilter || "all"} onValueChange={onTypeFilterChange}>
         <SelectTrigger>
           <SelectValue placeholder={t.allTypes} />
         </SelectTrigger>
@@ -106,7 +106,7 @@ export const AnimalsFilters = ({
         </SelectContent>
       </Select>
 
-      <Select value={healthFilter} onValueChange={onHealthFilterChange}>
+      <Select value={healthFilter || "all"} onValueChange={onHealthFilterChange}>
         <SelectTrigger>
           <SelectValue placeholder={t.allHealth} />
         </SelectTrigger>

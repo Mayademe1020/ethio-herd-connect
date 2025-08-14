@@ -1,18 +1,20 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React from 'react';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import { 
   Filter, 
   MapPin, 
   DollarSign, 
-  Star, 
-  Shield,
-  X,
-  SlidersHorizontal
+  Shield, 
+  Calendar,
+  Tag,
+  X
 } from 'lucide-react';
 import { Language } from '@/types';
 
@@ -20,7 +22,6 @@ interface MarketplaceSidebarProps {
   language: Language;
   isOpen: boolean;
   onClose: () => void;
-  onFiltersChange: (filters: any) => void;
   filters: {
     category: string;
     minPrice: string;
@@ -28,230 +29,243 @@ interface MarketplaceSidebarProps {
     location: string;
     verifiedOnly: boolean;
   };
+  onFiltersChange: (filters: any) => void;
 }
 
-export const MarketplaceSidebar = ({ 
-  language, 
-  isOpen, 
-  onClose, 
-  onFiltersChange, 
-  filters 
+export const MarketplaceSidebar = ({
+  language,
+  isOpen,
+  onClose,
+  filters,
+  onFiltersChange
 }: MarketplaceSidebarProps) => {
   const translations = {
     am: {
       filters: 'ማጣሪያዎች',
       category: 'ምድብ',
-      priceRange: 'የዋጋ ክልል',
-      minPrice: 'ዝቅተኛ ዋጋ',  
-      maxPrice: 'ከፍተኛ ዋጋ',
-      location: 'አካባቢ',
-      verifiedOnly: 'የተረጋገጡ ብቻ',
-      clearAll: 'ሁሉንም አጽዳ',
-      apply: 'ተግብር',
       allCategories: 'ሁሉም ምድቦች',
       cattle: 'ከብት',
-      goats: 'ፍየሎች', 
-      sheep: 'በጎች',
-      poultry: 'ዶሮ'
+      goat: 'ፍየል',
+      sheep: 'በግ',
+      poultry: 'ዶሮ',
+      priceRange: 'የዋጋ ክልል',
+      minPrice: 'ዝቅተኛ ዋጋ',
+      maxPrice: 'ከፍተኛ ዋጋ',
+      location: 'አካባቢ',
+      verifiedOnly: 'የተረጋገጠ ብቻ',
+      clearAll: 'ሁሉንም አጽዳ',
+      apply: 'ተግብር'
     },
     en: {
       filters: 'Filters',
       category: 'Category',
+      allCategories: 'All Categories',
+      cattle: 'Cattle',
+      goat: 'Goat',
+      sheep: 'Sheep',
+      poultry: 'Poultry',
       priceRange: 'Price Range',
       minPrice: 'Min Price',
-      maxPrice: 'Max Price', 
+      maxPrice: 'Max Price',
       location: 'Location',
       verifiedOnly: 'Verified Only',
       clearAll: 'Clear All',
-      apply: 'Apply',
-      allCategories: 'All Categories',
-      cattle: 'Cattle',
-      goats: 'Goats',
-      sheep: 'Sheep', 
-      poultry: 'Poultry'
+      apply: 'Apply'
     },
     or: {
-      filters: 'Calaltoota',
-      category: 'Akaakuu',
+      filters: 'Calaqqisiisa',
+      category: 'Gosa',
+      allCategories: 'Gosaalee Hundaa',
+      cattle: 'Loon',
+      goat: 'Re\'ee',
+      sheep: 'Hoolaa',
+      poultry: 'Lukku',
       priceRange: 'Daangaa Gatii',
       minPrice: 'Gatii Gadaanaa',
       maxPrice: 'Gatii Olaanaa',
       location: 'Bakka',
-      verifiedOnly: 'Mirkaneeffaman Qofa',
-      clearAll: 'Hunda Qulqulleessi',
-      apply: 'Hojiirra Oolchi',
-      allCategories: 'Akaakuuwwan Hunda',
-      cattle: 'Loon',
-      goats: 'Re\'ee',
-      sheep: 'Hoolaa',
-      poultry: 'Lukkuu'
+      verifiedOnly: 'Mirkaneeffame Qofa',
+      clearAll: 'Hundaa Qulqulleessi',
+      apply: 'Hojiirra Oolchi'
     },
     sw: {
-      filters: 'Vichungi',
-      category: 'Jamii',
+      filters: 'Vichuja',
+      category: 'Kategoria',
+      allCategories: 'Kategoria Zote',
+      cattle: 'Ng\'ombe',
+      goat: 'Mbuzi',
+      sheep: 'Kondoo',
+      poultry: 'Kuku',
       priceRange: 'Mipaka ya Bei',
       minPrice: 'Bei ya Chini',
       maxPrice: 'Bei ya Juu',
       location: 'Mahali',
       verifiedOnly: 'Zilizothibitishwa Tu',
       clearAll: 'Futa Zote',
-      apply: 'Tekeleza',
-      allCategories: 'Jamii Zote',
-      cattle: 'Ng\'ombe',
-      goats: 'Mbuzi',
-      sheep: 'Kondoo',
-      poultry: 'Kuku'
+      apply: 'Tekeleza'
     }
   };
 
   const t = translations[language];
 
   const handleFilterChange = (key: string, value: any) => {
-    onFiltersChange({
-      ...filters,
-      [key]: value
-    });
+    const newFilters = { ...filters, [key]: value };
+    onFiltersChange(newFilters);
   };
 
-  const clearAllFilters = () => {
-    onFiltersChange({
-      category: '',
+  const handleClearAll = () => {
+    const clearedFilters = {
+      category: 'all',
       minPrice: '',
       maxPrice: '',
       location: '',
       verifiedOnly: false
-    });
+    };
+    onFiltersChange(clearedFilters);
   };
 
-  return (
-    <>
-      {/* Overlay for mobile */}
-      {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-          onClick={onClose}
-        />
-      )}
+  const activeFilterCount = Object.values(filters).filter(value => 
+    value !== '' && value !== 'all' && value !== false
+  ).length;
 
-      {/* Sidebar */}
-      <div className={`
-        fixed lg:relative top-0 right-0 h-full w-80 bg-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out
-        ${isOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
-        ${isOpen ? 'lg:block' : 'lg:block'}
-      `}>
-        <Card className="h-full border-0 shadow-none">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="flex items-center">
-              <SlidersHorizontal className="w-5 h-5 mr-2" />
-              {t.filters}
-            </CardTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="lg:hidden"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </CardHeader>
-          
-          <CardContent className="space-y-6">
-            {/* Category Filter */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">{t.category}</label>
-              <Select
-                value={filters.category}
-                onValueChange={(value) => handleFilterChange('category', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t.allCategories} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">{t.allCategories}</SelectItem>
-                  <SelectItem value="cattle">🐄 {t.cattle}</SelectItem>
-                  <SelectItem value="goats">🐐 {t.goats}</SelectItem>
-                  <SelectItem value="sheep">🐑 {t.sheep}</SelectItem>
-                  <SelectItem value="poultry">🐔 {t.poultry}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Price Range */}
-            <div className="space-y-3">
-              <label className="text-sm font-medium">{t.priceRange}</label>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input
-                    type="number"
-                    placeholder={t.minPrice}
-                    value={filters.minPrice}
-                    onChange={(e) => handleFilterChange('minPrice', e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-                <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input
-                    type="number"
-                    placeholder={t.maxPrice}
-                    value={filters.maxPrice}
-                    onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Location Filter */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">{t.location}</label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="Enter location..."
-                  value={filters.location}
-                  onChange={(e) => handleFilterChange('location', e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-
-            {/* Verified Only Toggle */}
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium flex items-center">
-                <Shield className="w-4 h-4 mr-2 text-green-600" />
-                {t.verifiedOnly}
-              </label>
-              <Button
-                variant={filters.verifiedOnly ? "default" : "outline"}
-                size="sm"
-                onClick={() => handleFilterChange('verifiedOnly', !filters.verifiedOnly)}
-              >
-                {filters.verifiedOnly ? (
-                  <Badge variant="secondary" className="bg-green-100 text-green-800">
-                    ON
-                  </Badge>
-                ) : (
-                  <Badge variant="outline">OFF</Badge>
-                )}
-              </Button>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="space-y-2 pt-4 border-t">
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={clearAllFilters}
-              >
-                <Filter className="w-4 h-4 mr-2" />
-                {t.clearAll}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+  const SidebarContent = () => (
+    <div className="space-y-6 p-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Filter className="w-5 h-5" />
+          <h2 className="text-lg font-semibold">{t.filters}</h2>
+          {activeFilterCount > 0 && (
+            <Badge variant="secondary">{activeFilterCount}</Badge>
+          )}
+        </div>
       </div>
-    </>
+
+      {/* Category Filter */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Tag className="w-4 h-4" />
+            {t.category}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Select
+            value={filters.category || "all"}
+            onValueChange={(value) => handleFilterChange('category', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={t.allCategories} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t.allCategories}</SelectItem>
+              <SelectItem value="cattle">🐄 {t.cattle}</SelectItem>
+              <SelectItem value="goat">🐐 {t.goat}</SelectItem>
+              <SelectItem value="sheep">🐑 {t.sheep}</SelectItem>
+              <SelectItem value="poultry">🐔 {t.poultry}</SelectItem>
+            </SelectContent>
+          </Select>
+        </CardContent>
+      </Card>
+
+      {/* Price Range Filter */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <DollarSign className="w-4 h-4" />
+            {t.priceRange}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Input
+            placeholder={t.minPrice}
+            type="number"
+            value={filters.minPrice}
+            onChange={(e) => handleFilterChange('minPrice', e.target.value)}
+          />
+          <Input
+            placeholder={t.maxPrice}
+            type="number"
+            value={filters.maxPrice}
+            onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Location Filter */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <MapPin className="w-4 h-4" />
+            {t.location}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Input
+            placeholder={t.location}
+            value={filters.location}
+            onChange={(e) => handleFilterChange('location', e.target.value)}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Verified Only Filter */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm flex items-center gap-2">
+            <Shield className="w-4 h-4" />
+            {t.verifiedOnly}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center space-x-2">
+            <Switch
+              checked={filters.verifiedOnly}
+              onCheckedChange={(checked) => handleFilterChange('verifiedOnly', checked)}
+            />
+            <span className="text-sm text-gray-600">{t.verifiedOnly}</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Action Buttons */}
+      <div className="flex gap-2 pt-4 border-t">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleClearAll}
+          disabled={activeFilterCount === 0}
+          className="flex-1"
+        >
+          <X className="w-4 h-4 mr-1" />
+          {t.clearAll}
+        </Button>
+      </div>
+    </div>
+  );
+
+  // Mobile Sheet
+  if (isOpen && window.innerWidth < 1024) {
+    return (
+      <Sheet open={isOpen} onOpenChange={onClose}>
+        <SheetContent side="right" className="w-full sm:w-96">
+          <SheetHeader>
+            <SheetTitle>{t.filters}</SheetTitle>
+          </SheetHeader>
+          <SidebarContent />
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
+  // Desktop Sidebar
+  if (!isOpen && window.innerWidth >= 1024) {
+    return null;
+  }
+
+  return (
+    <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto">
+      <SidebarContent />
+    </div>
   );
 };

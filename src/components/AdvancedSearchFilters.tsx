@@ -187,7 +187,7 @@ export const AdvancedSearchFilters = ({
             <div className="space-y-2">
               <label className="text-sm font-medium">{t.animalType}</label>
               <Select
-                value={filters.animalType}
+                value={filters.animalType || "all"}
                 onValueChange={(value) => handleFilterChange('animalType', value)}
               >
                 <SelectTrigger>
@@ -207,7 +207,7 @@ export const AdvancedSearchFilters = ({
             <div className="space-y-2">
               <label className="text-sm font-medium">{t.healthStatus}</label>
               <Select
-                value={filters.healthStatus}
+                value={filters.healthStatus || "all"}
                 onValueChange={(value) => handleFilterChange('healthStatus', value)}
               >
                 <SelectTrigger>
@@ -237,7 +237,7 @@ export const AdvancedSearchFilters = ({
             <div className="space-y-2">
               <label className="text-sm font-medium">{t.vetVerified}</label>
               <Select
-                value={filters.isVetVerified}
+                value={filters.isVetVerified || "all"}
                 onValueChange={(value) => handleFilterChange('isVetVerified', value)}
               >
                 <SelectTrigger>
