@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,7 +13,7 @@ import {
   Plus, 
   TrendingUp, 
   Calendar,
-  Cow,
+  Circle,
   BarChart3,
   Target
 } from 'lucide-react';
@@ -249,7 +248,7 @@ const MilkProduction = () => {
           </CardHeader>
           <CardContent>
             <div className="text-center py-8">
-              <Cow className="mx-auto w-12 h-12 text-gray-400 mb-4" />
+              <Circle className="mx-auto w-12 h-12 text-gray-400 mb-4" />
               <p className="text-gray-500">{t.noRecords}</p>
             </div>
           </CardContent>
