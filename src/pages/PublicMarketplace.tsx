@@ -1,0 +1,306 @@
+
+import React, { useState } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useSecurePublicMarketplace } from '@/hooks/useSecurePublicMarketplace';
+import { useViewTracking } from '@/hooks/useViewTracking';
+import { EnhancedHeader } from '@/components/EnhancedHeader';
+import BottomNavigation from '@/components/BottomNavigation';
+import { PublicMarketListingCard } from '@/components/PublicMarketListingCard';
+import { AuthGateModal } from '@/components/AuthGateModal';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { 
+  Search, 
+  Filter, 
+  MapPin, 
+  Shield, 
+  Eye,
+  Users,
+  TrendingUp,
+  AlertCircle
+} from 'lucide-react';
+
+const PublicMarketplace = () => {
+  const { language } = useLanguage();
+  const { user } = useAuth();
+  const { listings, loading, error } = useSecurePublicMarketplace();
+  const { trackView, viewCount, shouldShowAuthGate } = useViewTracking();
+  
+  const [searchTerm, setSearchTerm] = useState('');
+  const [locationFilter, setLocationFilter] = useState('');
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [selectedListing, setSelectedListing] = useState<string | null>(null);
+
+  const translations = {
+    am: {
+      title: 'የህዝብ ገበያ',
+      subtitle: 'የእንስሳት ገበያ - ግዙ እና ይሽጡ',
+      search: 'ፈልግ...',
+      location: 'አካባቢ',
+      verified: 'የተረጋገጠ',
+      totalListings: 'ጠቅላላ ዝርዝሮች',
+      verifiedListings: 'የተረጋገጡ ዝርዝሮች',
+      avgPrice: 'አማካይ ዋጋ',
+      recentViews: 'የቅርብ ጊዜ እይታዎች',
+      noListings: 'ምንም ዝርዝሮች አልተገኙም',
+      filterByLocation: 'በአካባቢ ማጣሪያ',
+      clearFilters: 'ማጣሪያዎችን አጽዳ',
+      loginRequired: 'መግቢያ ያስፈልጋል',
+      secureMarketplace: 'ደህንነቱ የተጠበቀ ገበያ',
+      protectedData: 'የተጠበቀ መረጃ'
+    },
+    en: {
+      title: 'Public Marketplace',
+      subtitle: 'Animal Market - Buy and Sell',
+      search: 'Search...',
+      location: 'Location',
+      verified: 'Verified',
+      totalListings: 'Total Listings',
+      verifiedListings: 'Verified Listings',
+      avgPrice: 'Average Price',
+      recentViews: 'Recent Views',
+      noListings: 'No listings found',
+      filterByLocation: 'Filter by Location',
+      clearFilters: 'Clear Filters',
+      loginRequired: 'Login Required',
+      secureMarketplace: 'Secure Marketplace',
+      protectedData: 'Protected Data'
+    },
+    or: {
+      title: 'Gabaa Uumamaa',
+      subtitle: 'Gabaa Bineensotaa - Bituu fi Gurguruu',
+      search: 'Barbaadi...',
+      location: 'Bakka',
+      verified: 'Mirkaneeffame',
+      totalListings: 'Tarreewwan Waliigalaa',
+      verifiedListings: 'Tarreewwan Mirkaneeffaman',
+      avgPrice: 'Gatii Giddugaleessaa',
+      recentViews: 'Mul\'ata Dhihoo',
+      noListings: 'Tarreewwan hin argamne',
+      filterByLocation: 'Bakkaatti Calaluu',
+      clearFilters: 'Calaltoota Qulqulleessuu',
+      loginRequired: 'Seenuun Barbaachisaa',
+      secureMarketplace: 'Gabaa Nageenya',
+      protectedData: 'Daataa Eegame'
+    },
+    sw: {
+      title: 'Soko la Umma',
+      subtitle: 'Soko la Wanyamapori - Nunua na Uza',
+      search: 'Tafuta...',
+      location: 'Mahali',
+      verified: 'Imethibitishwa',
+      totalListings: 'Orodha Zote',
+      verifiedListings: 'Orodha Zilizothibitishwa',
+      avgPrice: 'Bei ya Wastani',
+      recentViews: 'Mionekano ya Hivi Karibuni',
+      noListings: 'Hakuna orodha zilizopatikana',
+      filterByLocation: 'Chuja kwa Mahali',
+      clearFilters: 'Futa Vichungi',
+      loginRequired: 'Kuingia Kunahitajika',
+      secureMarketplace: 'Soko Salama',
+      protectedData: 'Data Iliyolindwa'
+    }
+  };
+
+  const t = translations[language];
+
+  const handleViewDetails = (listingId: string) => {
+    if (!user && shouldShowAuthGate()) {
+      setSelectedListing(listingId);
+      setShowAuthModal(true);
+      return;
+    }
+    
+    trackView(listingId);
+    // Navigate to listing details or open modal
+    console.log('Viewing listing:', listingId);
+  };
+
+  const handleLoginPrompt = () => {
+    setShowAuthModal(true);
+  };
+
+  const filteredListings = listings.filter(listing => {
+    const matchesSearch = listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         listing.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesLocation = !locationFilter || 
+                           listing.location?.toLowerCase().includes(locationFilter.toLowerCase());
+    return matchesSearch && matchesLocation;
+  });
+
+  const stats = {
+    total: listings.length,
+    verified: listings.filter(l => l.is_vet_verified).length,
+    avgPrice: listings.length > 0 ? 
+      listings.reduce((sum, l) => sum + (l.price || 0), 0) / listings.length : 0
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50">
+        <EnhancedHeader />
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <LoadingSpinner />
+        </div>
+        <BottomNavigation language={language} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50 pb-16 sm:pb-20 lg:pb-24">
+      <EnhancedHeader />
+
+      <main className="container mx-auto px-2 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6 space-y-3 sm:space-y-4 lg:space-y-6">
+        {/* Page Header */}
+        <div className="text-center">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Shield className="w-6 h-6 text-green-600" />
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800">
+              {t.title}
+            </h1>
+          </div>
+          <p className="text-gray-600 text-sm sm:text-base">{t.subtitle}</p>
+          
+          {/* Security Badge */}
+          <div className="flex items-center justify-center mt-2">
+            <Badge variant="outline" className="text-green-700 border-green-300">
+              <Shield className="w-3 h-3 mr-1" />
+              {t.secureMarketplace}
+            </Badge>
+          </div>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">{t.totalListings}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">{t.verifiedListings}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">{stats.verified}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">{t.avgPrice}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-purple-600">
+                {user ? `${stats.avgPrice.toFixed(0)} ETB` : '***'}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Search and Filters */}
+        <div className="space-y-3">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                placeholder={t.search}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <div className="flex-1 relative">
+              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                placeholder={t.filterByLocation}
+                value={locationFilter}
+                onChange={(e) => setLocationFilter(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setSearchTerm('');
+                setLocationFilter('');
+              }}
+            >
+              <Filter className="w-4 h-4 mr-2" />
+              {t.clearFilters}
+            </Button>
+          </div>
+        </div>
+
+        {/* View Counter for Non-Authenticated Users */}
+        {!user && (
+          <Card className="bg-yellow-50 border-yellow-200">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <Eye className="w-4 h-4 text-yellow-600" />
+                <span className="text-sm text-yellow-800">
+                  Views: {viewCount}/3 - {3 - viewCount} remaining before login required
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Listings Grid */}
+        {error ? (
+          <Card className="bg-red-50 border-red-200">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-red-600" />
+                <span className="text-sm text-red-800">Error: {error}</span>
+              </div>
+            </CardContent>
+          </Card>
+        ) : filteredListings.length === 0 ? (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <p className="text-gray-500">{t.noListings}</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {filteredListings.map((listing) => (
+              <PublicMarketListingCard
+                key={listing.id}
+                listing={listing}
+                language={language}
+                isAuthenticated={!!user}
+                onLoginPrompt={handleLoginPrompt}
+                onViewDetails={handleViewDetails}
+              />
+            ))}
+          </div>
+        )}
+      </main>
+
+      {/* Auth Gate Modal */}
+      {showAuthModal && (
+        <AuthGateModal
+          isOpen={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+          language={language}
+          title={t.loginRequired}
+          message="Log in to view full listing details, contact information, and interact with sellers."
+        />
+      )}
+
+      <BottomNavigation language={language} />
+    </div>
+  );
+};
+
+export default PublicMarketplace;
