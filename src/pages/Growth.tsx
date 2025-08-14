@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { WeightEntryForm } from '@/components/WeightEntryForm';
@@ -6,7 +5,7 @@ import { GrowthChart } from '@/components/GrowthChart';
 import { AnimalGrowthCard } from '@/components/AnimalGrowthCard';
 import { InteractiveSummaryCard } from '@/components/InteractiveSummaryCard';
 import { EnhancedHeader } from '@/components/EnhancedHeader';
-import { BottomNavigation } from '@/components/BottomNavigation';
+import BottomNavigation from '@/components/BottomNavigation';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { GrowthDetailView } from '@/components/DetailedViews/GrowthDetailView';
 import { Plus, TrendingUp, BarChart3, Users, Scale, Target, Calendar } from 'lucide-react';

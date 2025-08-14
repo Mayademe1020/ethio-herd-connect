@@ -1,8 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { EnhancedHeader } from '@/components/EnhancedHeader';
-import { BottomNavigation } from '@/components/BottomNavigation';
+import BottomNavigation from '@/components/BottomNavigation';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { AnimalsPageHeader } from '@/components/AnimalsPageHeader';
 import { AnimalsQuickActions } from '@/components/AnimalsQuickActions';

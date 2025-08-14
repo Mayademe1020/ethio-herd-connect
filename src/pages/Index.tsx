@@ -1,7 +1,6 @@
-
 import { EnhancedHeader } from '@/components/EnhancedHeader';
 import { Header } from '@/components/Header';
-import { BottomNavigation } from '@/components/BottomNavigation';
+import BottomNavigation from '@/components/BottomNavigation';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { InteractiveDashboard } from '@/components/InteractiveDashboard';
 import { QuickActions } from '@/components/QuickActions';

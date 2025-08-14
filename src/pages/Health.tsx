@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Stethoscope, Calendar, TrendingUp, AlertTriangle } from 'lucide-react';
 import { EnhancedHeader } from '@/components/EnhancedHeader';
-import { BottomNavigation } from '@/components/BottomNavigation';
+import BottomNavigation from '@/components/BottomNavigation';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { InteractiveSummaryCard } from '@/components/InteractiveSummaryCard';
 import { HealthReminderSystem } from '@/components/HealthReminderSystem';
