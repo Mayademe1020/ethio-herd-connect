@@ -10,55 +10,62 @@ interface MarketListingCardProps {
   listing: {
     id: string;
     title: string;
-    category: string;
-    price: number;
-    location: string;
-    description: string;
-    photo: string;
-    isFeatured: boolean;
-    isFavorite: boolean;
+    category?: string;
+    price: number | null;
+    location: string | null;
+    description: string | null;
+    photo?: string;
+    photos?: string[] | null;
+    isFeatured?: boolean;
+    isFavorite?: boolean;
     is_vet_verified?: boolean;
   };
   language: Language;
-  onContact: (listing: any) => void;
-  onFavorite: (listing: any) => void;
-  onClick: (listing: any) => void;
+  onViewDetails: (listing: any) => void;
+  onExpressInterest: (listing: any) => void;
 }
 
 export const MarketListingCard = ({ 
   listing, 
   language, 
-  onContact, 
-  onFavorite, 
-  onClick 
+  onViewDetails, 
+  onExpressInterest
 }: MarketListingCardProps) => {
   const translations = {
     am: {
       contact: 'ፍላጎት ያሳዩ',
       favorite: 'ወደ ተወዳጅ ጨምር',
-      verified: 'የተረጋገጠ'
+      verified: 'የተረጋገጠ',
+      viewDetails: 'ዝርዝሮች ይመልከቱ',
+      priceHidden: 'ዋጋ ተደብቋል'
     },
     en: {
       contact: 'Show Interest',
       favorite: 'Add to Favorites',
-      verified: 'Verified'
+      verified: 'Verified',
+      viewDetails: 'View Details',
+      priceHidden: 'Price hidden'
     },
     or: {
       contact: 'Fedhii Agarsiisi',
       favorite: 'Gara Jaallattootatti Dabaluu',
-      verified: 'Mirkaneeffame'
+      verified: 'Mirkaneeffame',
+      viewDetails: 'Bal\'inaa Ilaali',
+      priceHidden: 'Gatiin dhokfame'
     },
     sw: {
       contact: 'Onyesha Hamu',
       favorite: 'Ongeza kwenye Vipendwa',
-      verified: 'Imethibitishwa'
+      verified: 'Imethibitishwa',
+      viewDetails: 'Ona Maelezo',
+      priceHidden: 'Bei imefichwa'
     }
   };
 
   const t = translations[language];
 
   return (
-    <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => onClick(listing)}>
+    <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => onViewDetails(listing)}>
       <CardContent className="p-3 sm:p-4">
         <div className="aspect-video bg-gray-200 rounded-lg mb-3 relative overflow-hidden">
           {listing.isFeatured && (
@@ -72,6 +79,25 @@ export const MarketListingCard = ({
               {t.verified}
             </Badge>
           )}
+          {listing.photos && listing.photos.length > 0 ? (
+            <img 
+              src={listing.photos[0]} 
+              alt={listing.title}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          ) : listing.photo ? (
+            <img 
+              src={listing.photo} 
+              alt={listing.title}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-400">
+              No Image
+            </div>
+          )}
         </div>
         
         <div className="space-y-2">
@@ -79,14 +105,20 @@ export const MarketListingCard = ({
             {listing.title}
           </h3>
           
-          <p className="text-xs sm:text-sm text-gray-600 line-clamp-2">
-            {listing.description}
-          </p>
+          {listing.description && (
+            <p className="text-xs sm:text-sm text-gray-600 line-clamp-2">
+              {listing.description}
+            </p>
+          )}
           
           <div className="flex items-center justify-between">
-            <span className="font-bold text-green-600 text-sm sm:text-base">
-              {listing.price.toLocaleString()} ETB
-            </span>
+            {listing.price !== null && listing.price !== undefined ? (
+              <span className="font-bold text-green-600 text-sm sm:text-base">
+                {listing.price.toLocaleString()} ETB
+              </span>
+            ) : (
+              <span className="text-xs text-gray-500">{t.priceHidden}</span>
+            )}
             
             {listing.location && (
               <div className="flex items-center text-xs sm:text-sm text-gray-500">
@@ -102,7 +134,7 @@ export const MarketListingCard = ({
               className="flex-1 text-xs bg-orange-600 hover:bg-orange-700 transition-all duration-200 hover:scale-105 active:scale-95"
               onClick={(e) => {
                 e.stopPropagation();
-                onContact(listing);
+                onExpressInterest(listing);
               }}
             >
               <MessageSquare className="w-3 h-3 mr-1" />
@@ -114,10 +146,10 @@ export const MarketListingCard = ({
               variant="outline"
               onClick={(e) => {
                 e.stopPropagation();
-                onFavorite(listing);
+                onViewDetails(listing);
               }}
             >
-              <Heart className={`w-3 h-3 ${listing.isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
+              {t.viewDetails}
             </Button>
           </div>
         </div>

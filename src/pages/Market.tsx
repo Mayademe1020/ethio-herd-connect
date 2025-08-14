@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -144,7 +143,7 @@ const Market = () => {
   };
 
   const filteredListings = listings.filter(listing => {
-    const matchesSearch = listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const matchesSearch = listing.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          listing.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesLocation = !locationFilter || 
                            listing.location?.toLowerCase().includes(locationFilter.toLowerCase());
@@ -218,6 +217,7 @@ const Market = () => {
             <CardContent>
               <MarketListingForm
                 onSubmit={handleCreateListing}
+                onClose={() => setShowForm(false)}
                 language={language}
               />
             </CardContent>
@@ -328,7 +328,18 @@ const Market = () => {
             {filteredListings.map((listing) => (
               <MarketListingCard
                 key={listing.id}
-                listing={listing}
+                listing={{
+                  id: listing.id,
+                  title: listing.title || '',
+                  category: 'Animal', // Default category
+                  price: listing.price,
+                  location: listing.location,
+                  description: listing.description,
+                  photos: listing.photos,
+                  isFeatured: false, // Default value
+                  isFavorite: false, // Default value
+                  is_vet_verified: listing.is_vet_verified
+                }}
                 language={language}
                 onViewDetails={handleViewDetails}
                 onExpressInterest={handleExpressInterest}
@@ -344,13 +355,13 @@ const Market = () => {
           listing={selectedListing}
           language={language}
           onClose={() => setSelectedListing(null)}
-          onExpressInterest={handleExpressInterest}
         />
       )}
 
       {/* Interest Expression Dialog */}
       {showInterestDialog && selectedListing && (
         <InterestExpressionDialog
+          isOpen={showInterestDialog}
           listing={selectedListing}
           language={language}
           onClose={() => {
