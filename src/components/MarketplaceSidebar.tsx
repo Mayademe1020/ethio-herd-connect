@@ -12,7 +12,6 @@ import {
   MapPin, 
   DollarSign, 
   Shield, 
-  Calendar,
   Tag,
   X
 } from 'lucide-react';
@@ -54,7 +53,8 @@ export const MarketplaceSidebar = ({
       location: 'አካባቢ',
       verifiedOnly: 'የተረጋገጠ ብቻ',
       clearAll: 'ሁሉንም አጽዳ',
-      apply: 'ተግብር'
+      apply: 'ተግብር',
+      activeFilters: 'ንቁ ማጣሪያዎች'
     },
     en: {
       filters: 'Filters',
@@ -70,7 +70,8 @@ export const MarketplaceSidebar = ({
       location: 'Location',
       verifiedOnly: 'Verified Only',
       clearAll: 'Clear All',
-      apply: 'Apply'
+      apply: 'Apply',
+      activeFilters: 'Active Filters'
     },
     or: {
       filters: 'Calaqqisiisa',
@@ -86,7 +87,8 @@ export const MarketplaceSidebar = ({
       location: 'Bakka',
       verifiedOnly: 'Mirkaneeffame Qofa',
       clearAll: 'Hundaa Qulqulleessi',
-      apply: 'Hojiirra Oolchi'
+      apply: 'Hojiirra Oolchi',
+      activeFilters: 'Calaqqisiisa Sochii'
     },
     sw: {
       filters: 'Vichuja',
@@ -102,7 +104,8 @@ export const MarketplaceSidebar = ({
       location: 'Mahali',
       verifiedOnly: 'Zilizothibitishwa Tu',
       clearAll: 'Futa Zote',
-      apply: 'Tekeleza'
+      apply: 'Tekeleza',
+      activeFilters: 'Vichuja Hai'
     }
   };
 
@@ -115,7 +118,7 @@ export const MarketplaceSidebar = ({
 
   const handleClearAll = () => {
     const clearedFilters = {
-      category: 'all',
+      category: '',
       minPrice: '',
       maxPrice: '',
       location: '',
@@ -128,17 +131,32 @@ export const MarketplaceSidebar = ({
     value !== '' && value !== 'all' && value !== false
   ).length;
 
+  const handleClose = () => {
+    // Preserve scroll position by not forcing any scroll behavior
+    onClose();
+  };
+
   const SidebarContent = () => (
-    <div className="space-y-6 p-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-4 p-4 h-full overflow-y-auto">
+      {/* Header with close button */}
+      <div className="flex items-center justify-between sticky top-0 bg-white pb-2 border-b">
         <div className="flex items-center gap-2">
           <Filter className="w-5 h-5" />
           <h2 className="text-lg font-semibold">{t.filters}</h2>
           {activeFilterCount > 0 && (
-            <Badge variant="secondary">{activeFilterCount}</Badge>
+            <Badge variant="secondary" className="bg-orange-100 text-orange-800">
+              {activeFilterCount} {t.activeFilters}
+            </Badge>
           )}
         </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleClose}
+          className="h-8 w-8 p-0 hover:bg-gray-100"
+        >
+          <X className="w-4 h-4" />
+        </Button>
       </div>
 
       {/* Category Filter */}
@@ -151,14 +169,14 @@ export const MarketplaceSidebar = ({
         </CardHeader>
         <CardContent>
           <Select
-            value={filters.category || "all"}
+            value={filters.category || ""}
             onValueChange={(value) => handleFilterChange('category', value)}
           >
             <SelectTrigger>
               <SelectValue placeholder={t.allCategories} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t.allCategories}</SelectItem>
+              <SelectItem value="">{t.allCategories}</SelectItem>
               <SelectItem value="cattle">🐄 {t.cattle}</SelectItem>
               <SelectItem value="goat">🐐 {t.goat}</SelectItem>
               <SelectItem value="sheep">🐑 {t.sheep}</SelectItem>
@@ -182,12 +200,14 @@ export const MarketplaceSidebar = ({
             type="number"
             value={filters.minPrice}
             onChange={(e) => handleFilterChange('minPrice', e.target.value)}
+            className="h-10"
           />
           <Input
             placeholder={t.maxPrice}
             type="number"
             value={filters.maxPrice}
             onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
+            className="h-10"
           />
         </CardContent>
       </Card>
@@ -205,6 +225,7 @@ export const MarketplaceSidebar = ({
             placeholder={t.location}
             value={filters.location}
             onChange={(e) => handleFilterChange('location', e.target.value)}
+            className="h-10"
           />
         </CardContent>
       </Card>
@@ -229,13 +250,13 @@ export const MarketplaceSidebar = ({
       </Card>
 
       {/* Action Buttons */}
-      <div className="flex gap-2 pt-4 border-t">
+      <div className="flex gap-2 pt-4 border-t sticky bottom-0 bg-white">
         <Button
           variant="outline"
           size="sm"
           onClick={handleClearAll}
           disabled={activeFilterCount === 0}
-          className="flex-1"
+          className="flex-1 h-10"
         >
           <X className="w-4 h-4 mr-1" />
           {t.clearAll}
@@ -245,27 +266,15 @@ export const MarketplaceSidebar = ({
   );
 
   // Mobile Sheet
-  if (isOpen && window.innerWidth < 1024) {
-    return (
-      <Sheet open={isOpen} onOpenChange={onClose}>
-        <SheetContent side="right" className="w-full sm:w-96">
-          <SheetHeader>
-            <SheetTitle>{t.filters}</SheetTitle>
-          </SheetHeader>
-          <SidebarContent />
-        </SheetContent>
-      </Sheet>
-    );
-  }
-
-  // Desktop Sidebar
-  if (!isOpen && window.innerWidth >= 1024) {
-    return null;
-  }
-
   return (
-    <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto">
-      <SidebarContent />
-    </div>
+    <Sheet open={isOpen} onOpenChange={handleClose}>
+      <SheetContent 
+        side="right" 
+        className="w-full sm:w-96 p-0"
+        onInteractOutside={handleClose}
+      >
+        <SidebarContent />
+      </SheetContent>
+    </Sheet>
   );
 };

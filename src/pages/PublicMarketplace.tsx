@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSecurePublicMarketplace } from '@/hooks/useSecurePublicMarketplace';
@@ -16,8 +15,6 @@ import { Badge } from '@/components/ui/badge';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { 
   Search, 
-  Filter, 
-  MapPin, 
   Shield, 
   Eye,
   Users,
@@ -32,6 +29,7 @@ const PublicMarketplace = () => {
   const { user } = useAuth();
   const { listings, loading, error } = useSecurePublicMarketplace();
   const { trackView, viewCount, shouldShowAuthGate } = useViewTracking();
+  const scrollPositionRef = useRef(0);
   
   const [searchTerm, setSearchTerm] = useState('');
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -44,6 +42,21 @@ const PublicMarketplace = () => {
     location: '',
     verifiedOnly: false
   });
+
+  // Save scroll position before opening sidebar
+  const handleOpenSidebar = () => {
+    scrollPositionRef.current = window.scrollY;
+    setShowSidebar(true);
+  };
+
+  // Restore scroll position after closing sidebar
+  const handleCloseSidebar = () => {
+    setShowSidebar(false);
+    // Use requestAnimationFrame to ensure DOM is updated
+    requestAnimationFrame(() => {
+      window.scrollTo(0, scrollPositionRef.current);
+    });
+  };
 
   const translations = {
     am: {
@@ -63,7 +76,8 @@ const PublicMarketplace = () => {
       secureMarketplace: 'ደህንነቱ የተጠበቀ ገበያ',
       protectedData: 'የተጠበቀ መረጃ',
       showFilters: 'ማጣሪያዎች አሳይ',
-      postListing: 'ዝርዝር ይለጥፉ'
+      postListing: 'ዝርዝር ይለጥፉ',
+      filtersApplied: 'ማጣሪያዎች ተተግብረዋል'
     },
     en: {
       title: 'Public Marketplace',
@@ -82,7 +96,8 @@ const PublicMarketplace = () => {
       secureMarketplace: 'Secure Marketplace',
       protectedData: 'Protected Data',
       showFilters: 'Show Filters',
-      postListing: 'Post Listing'
+      postListing: 'Post Listing',
+      filtersApplied: 'Filters Applied'
     },
     or: {
       title: 'Gabaa Uumamaa',
@@ -100,8 +115,9 @@ const PublicMarketplace = () => {
       loginRequired: 'Seenuun Barbaachisaa',
       secureMarketplace: 'Gabaa Nageenya',
       protectedData: 'Daataa Eegame',
-      showFilters: 'Calaltoota Agarsiisi',
-      postListing: 'Tarree Maxxansi'
+      showFilters: 'Calaqqisiisa Agarsiisi',
+      postListing: 'Tarree Maxxansi',
+      filtersApplied: 'Calaqqisiisni Hojiirra Oole'
     },
     sw: {
       title: 'Soko la Umma',
@@ -120,7 +136,8 @@ const PublicMarketplace = () => {
       secureMarketplace: 'Soko Salama',
       protectedData: 'Data Iliyolindwa',
       showFilters: 'Onyesha Vichungi',
-      postListing: 'Chapisha Orodha'
+      postListing: 'Chapisha Orodha',
+      filtersApplied: 'Vichungi Vimetumika'
     }
   };
 
@@ -174,6 +191,10 @@ const PublicMarketplace = () => {
       listings.reduce((sum, l) => sum + (l.price || 0), 0) / listings.length : 0
   };
 
+  const activeFilterCount = Object.values(filters).filter(value => 
+    value !== '' && value !== false
+  ).length;
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50 pb-16 sm:pb-20 lg:pb-24">
@@ -190,191 +211,210 @@ const PublicMarketplace = () => {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-yellow-50 to-amber-50 pb-16 sm:pb-20 lg:pb-24">
       <EnhancedHeader />
 
-      <div className="flex">
-        <main className="flex-1 container mx-auto px-2 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6 space-y-3 sm:space-y-4 lg:space-y-6">
-          {/* Page Header */}
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <Shield className="w-6 h-6 text-green-600" />
-              <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800">
-                {t.title}
-              </h1>
-            </div>
-            <p className="text-gray-600 text-sm sm:text-base">{t.subtitle}</p>
-            
-            <div className="flex items-center justify-center mt-2 gap-2">
-              <Badge variant="outline" className="text-green-700 border-green-300">
-                <Shield className="w-3 h-3 mr-1" />
-                {t.secureMarketplace}
-              </Badge>
-              {!user && (
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={handleLoginPrompt}
-                  className="text-blue-600 border-blue-300 hover:bg-blue-50"
-                >
-                  Login / Sign Up
-                </Button>
-              )}
-            </div>
+      <main className="container mx-auto px-2 sm:px-4 lg:px-6 py-3 sm:py-4 lg:py-6 space-y-3 sm:space-y-4 lg:space-y-6">
+        {/* Page Header */}
+        <div className="text-center">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Shield className="w-6 h-6 text-green-600" />
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800">
+              {t.title}
+            </h1>
           </div>
+          <p className="text-gray-600 text-sm sm:text-base">{t.subtitle}</p>
+          
+          <div className="flex items-center justify-center mt-2 gap-2">
+            <Badge variant="outline" className="text-green-700 border-green-300">
+              <Shield className="w-3 h-3 mr-1" />
+              {t.secureMarketplace}
+            </Badge>
+            {!user && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleLoginPrompt}
+                className="text-blue-600 border-blue-300 hover:bg-blue-50 h-10 px-4"
+              >
+                Login / Sign Up
+              </Button>
+            )}
+          </div>
+        </div>
 
-          {/* Post Listing Button - Prominent */}
-          <div className="flex justify-center">
-            <Button
-              onClick={handlePostListing}
-              className="bg-orange-600 hover:bg-orange-700 h-12 px-6 text-base shadow-lg"
+        {/* Post Listing Button - Prominent */}
+        <div className="flex justify-center">
+          <Button
+            onClick={handlePostListing}
+            className="bg-orange-600 hover:bg-orange-700 h-12 px-6 text-base shadow-lg"
+          >
+            <Plus className="w-5 h-5 mr-2" />
+            {t.postListing}
+          </Button>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium flex items-center">
+                <TrendingUp className="w-4 h-4 mr-2 text-blue-600" />
+                {t.totalListings}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium flex items-center">
+                <Shield className="w-4 h-4 mr-2 text-green-600" />
+                {t.verifiedListings}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">{stats.verified}</div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium flex items-center">
+                <Users className="w-4 h-4 mr-2 text-purple-600" />
+                {t.avgPrice}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-purple-600">
+                {user ? `${stats.avgPrice.toFixed(0)} ETB` : '***'}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Search and Filter Controls */}
+        <div className="space-y-3">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                placeholder={t.search}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 h-12 text-base"
+              />
+            </div>
+            <Button 
+              variant="outline" 
+              onClick={handleOpenSidebar}
+              className="h-12 px-4 relative"
             >
-              <Plus className="w-5 h-5 mr-2" />
-              {t.postListing}
+              <SlidersHorizontal className="w-4 h-4 mr-2" />
+              {t.showFilters}
+              {activeFilterCount > 0 && (
+                <Badge className="ml-2 bg-orange-600 text-white px-1.5 py-0.5 text-xs min-w-[20px] h-5">
+                  {activeFilterCount}
+                </Badge>
+              )}
             </Button>
           </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center">
-                  <TrendingUp className="w-4 h-4 mr-2 text-blue-600" />
-                  {t.totalListings}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-blue-600">{stats.total}</div>
-              </CardContent>
-            </Card>
+          {/* Active Filters Display */}
+          {activeFilterCount > 0 && (
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-sm text-gray-600">{t.filtersApplied}:</span>
+              {filters.category && (
+                <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                  {filters.category}
+                </Badge>
+              )}
+              {filters.location && (
+                <Badge variant="secondary" className="bg-green-100 text-green-800">
+                  📍 {filters.location}
+                </Badge>
+              )}
+              {(filters.minPrice || filters.maxPrice) && (
+                <Badge variant="secondary" className="bg-purple-100 text-purple-800">
+                  💰 {filters.minPrice || '0'} - {filters.maxPrice || '∞'} ETB
+                </Badge>
+              )}
+              {filters.verifiedOnly && (
+                <Badge variant="secondary" className="bg-orange-100 text-orange-800">
+                  ✅ {t.verified}
+                </Badge>
+              )}
+            </div>
+          )}
+        </div>
 
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center">
-                  <Shield className="w-4 h-4 mr-2 text-green-600" />
-                  {t.verifiedListings}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-600">{stats.verified}</div>
-              </CardContent>
-            </Card>
+        {/* View Counter for Non-Authenticated Users */}
+        {!user && (
+          <Card className="bg-yellow-50 border-yellow-200">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <Eye className="w-4 h-4 text-yellow-600" />
+                <span className="text-sm text-yellow-800">
+                  Views: {viewCount}/3 - {3 - viewCount} remaining before login required
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center">
-                  <Users className="w-4 h-4 mr-2 text-purple-600" />
-                  {t.avgPrice}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-purple-600">
-                  {user ? `${stats.avgPrice.toFixed(0)} ETB` : '***'}
+        {/* Listings Grid */}
+        {error ? (
+          <Card className="bg-red-50 border-red-200">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-red-600" />
+                <span className="text-sm text-red-800">Error: {error}</span>
+              </div>
+            </CardContent>
+          </Card>
+        ) : filteredListings.length === 0 ? (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <div className="space-y-4">
+                <div className="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center">
+                  <Shield className="w-8 h-8 text-gray-400" />
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Search and Filter Controls */}
-          <div className="space-y-3">
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder={t.search}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 h-12 text-base"
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No Listings Found</h3>
+                  <p className="text-gray-500 mb-4">{t.noListings}</p>
+                  <Button onClick={handlePostListing} className="bg-orange-600 hover:bg-orange-700">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Be the first to post!
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {filteredListings.map((listing) => (
+              <div 
+                key={listing.id}
+                onClick={() => handleViewDetails(listing.id)}
+                className="cursor-pointer"
+              >
+                <PublicMarketListingCard
+                  listing={listing}
+                  language={language}
+                  isAuthenticated={!!user}
+                  onLoginPrompt={handleLoginPrompt}
+                  onViewDetails={handleViewDetails}
                 />
               </div>
-              <Button 
-                variant="outline" 
-                onClick={() => setShowSidebar(true)}
-                className="lg:hidden h-12 px-4"
-              >
-                <SlidersHorizontal className="w-4 h-4 mr-2" />
-                {t.showFilters}
-              </Button>
-            </div>
+            ))}
           </div>
-
-          {/* View Counter for Non-Authenticated Users */}
-          {!user && (
-            <Card className="bg-yellow-50 border-yellow-200">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2">
-                  <Eye className="w-4 h-4 text-yellow-600" />
-                  <span className="text-sm text-yellow-800">
-                    Views: {viewCount}/3 - {3 - viewCount} remaining before login required
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Listings Grid */}
-          {error ? (
-            <Card className="bg-red-50 border-red-200">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 text-red-600" />
-                  <span className="text-sm text-red-800">Error: {error}</span>
-                </div>
-              </CardContent>
-            </Card>
-          ) : filteredListings.length === 0 ? (
-            <Card>
-              <CardContent className="p-8 text-center">
-                <div className="space-y-4">
-                  <div className="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center">
-                    <Shield className="w-8 h-8 text-gray-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">No Listings Found</h3>
-                    <p className="text-gray-500 mb-4">{t.noListings}</p>
-                    <Button onClick={handlePostListing} className="bg-orange-600 hover:bg-orange-700">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Be the first to post!
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredListings.map((listing) => (
-                <div 
-                  key={listing.id}
-                  onClick={() => handleViewDetails(listing.id)}
-                  className="cursor-pointer"
-                >
-                  <PublicMarketListingCard
-                    listing={listing}
-                    language={language}
-                    isAuthenticated={!!user}
-                    onLoginPrompt={handleLoginPrompt}
-                    onViewDetails={handleViewDetails}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-        </main>
-
-        {/* Sidebar for Desktop */}
-        <div className="hidden lg:block w-80">
-          <MarketplaceSidebar
-            language={language}
-            isOpen={true}
-            onClose={() => {}}
-            filters={filters}
-            onFiltersChange={setFilters}
-          />
-        </div>
-      </div>
+        )}
+      </main>
 
       {/* Mobile Sidebar */}
       <MarketplaceSidebar
         language={language}
         isOpen={showSidebar}
-        onClose={() => setShowSidebar(false)}
+        onClose={handleCloseSidebar}
         filters={filters}
         onFiltersChange={setFilters}
       />
