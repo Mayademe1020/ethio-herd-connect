@@ -145,9 +145,9 @@ export const EnhancedDashboardCards: React.FC<EnhancedDashboardCardsProps> = ({
       value: stats.sickAnimals,
       icon: AlertTriangle,
       subtitle: t.needCare,
-      color: 'error' as const,
+      color: 'warning' as const,
       type: 'sick',
-      trend: 'down' as const,
+      trend: 'neutral' as const,
       trendValue: 'Needs attention'
     });
   }

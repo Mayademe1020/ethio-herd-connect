@@ -19,6 +19,10 @@ export interface AnimalData {
   age?: number;
   last_vaccination?: string;
   photo_url?: string;
+  photos?: string[];
+  location?: string;
+  vaccination_due_date?: string;
+  estimated_value?: number;
   vaccination_records?: VaccinationRecord[];
   weight_records?: WeightRecord[];
 }

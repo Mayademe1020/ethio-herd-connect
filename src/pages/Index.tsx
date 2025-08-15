@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -27,7 +26,7 @@ const Index = () => {
       if (!user) return [];
       
       const { data, error } = await supabase
-        .from('animal_data')
+        .from('animals')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
@@ -108,7 +107,7 @@ const Index = () => {
     upcomingVaccinations: animals.filter(a => a.vaccination_due_date && new Date(a.vaccination_due_date) > new Date()).length,
     marketListings: marketCount,
     totalValue: animals.reduce((sum, animal) => sum + (animal.estimated_value || 0), 0),
-    sickAnimals: animals.filter(a => a.health_status === 'sick' || a.health_status === 'injured').length
+    sickAnimals: animals.filter(a => a.health_status === 'sick' || a.health_status === 'critical').length
   };
 
   const handleCardClick = (type: string) => {

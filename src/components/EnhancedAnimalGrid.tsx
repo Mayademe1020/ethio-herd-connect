@@ -86,7 +86,6 @@ export const EnhancedAnimalGrid: React.FC<EnhancedAnimalGridProps> = ({
   };
 
   const getHealthStatus = (animal: AnimalData) => {
-    // Simple health status logic - you can enhance this based on your data
     return animal.health_status === 'healthy' ? 'healthy' : 'needsAttention';
   };
 
@@ -141,6 +140,12 @@ export const EnhancedAnimalGrid: React.FC<EnhancedAnimalGridProps> = ({
                 {animal.photos && animal.photos.length > 0 ? (
                   <img
                     src={animal.photos[0]}
+                    alt={animal.name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                ) : animal.photo_url ? (
+                  <img
+                    src={animal.photo_url}
                     alt={animal.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
