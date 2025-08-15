@@ -1,0 +1,399 @@
+
+import React, { useState } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useSecurePublicMarketplace } from '@/hooks/useSecurePublicMarketplace';
+import { ProfessionalAnimalCard } from '@/components/ProfessionalAnimalCard';
+import { MarketplaceFilters } from '@/components/MarketplaceFilters';
+import { StatCard } from '@/components/ui/stat-card';
+import { LoadingSkeleton } from '@/components/ui/loading-skeleton';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { 
+  TrendingUp, 
+  Shield, 
+  Users, 
+  Star,
+  Filter,
+  Grid,
+  List,
+  Plus,
+  MapPin,
+  Eye
+} from 'lucide-react';
+
+export const ProfessionalMarketplace = () => {
+  const { language } = useLanguage();
+  const { user } = useAuth();
+  const { listings, loading, error } = useSecurePublicMarketplace();
+  
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [filters, setFilters] = useState({
+    animalType: '',
+    location: '',
+    minPrice: 0,
+    maxPrice: 1000000,
+    ageRange: [0, 120] as [number, number],
+    weightRange: [0, 1000] as [number, number],
+    healthStatus: '',
+    verifiedOnly: false,
+    sellerRating: 0
+  });
+
+  const translations = {
+    am: {
+      title: 'ሞደርን የእንስሳት ገበያ',
+      subtitle: 'ያለ እንስሳዎን በሙያዊነት ይግዙና ይሽጡ',
+      totalListings: 'ጠቅላላ ዝርዝሮች',
+      verifiedSellers: 'የተረጋገጡ ሻጮች',
+      avgRating: 'አማካይ ደረጃ',
+      newToday: 'ዛሬ አዲስ',
+      featuredListings: 'ተለይተው የቀረቡ',
+      postYourAnimal: 'እንስሳዎን ያስተዋውቁ',
+      noListings: 'ምንም ዝርዝሮች አልተገኙም',
+      filterResults: 'ውጤቶችን ያጣሩ',
+      gridView: 'ግሪድ እይታ',
+      listView: 'ዝርዝር እይታ',
+      showingResults: 'ውጤቶች እያሳዩ',
+      of: 'ከ',
+      results: 'ውጤቶች'
+    },
+    en: {
+      title: 'Professional Livestock Market',
+      subtitle: 'Buy and sell your animals professionally',
+      totalListings: 'Total Listings',
+      verifiedSellers: 'Verified Sellers',
+      avgRating: 'Average Rating',
+      newToday: 'New Today',
+      featuredListings: 'Featured Listings',
+      postYourAnimal: 'Post Your Animal',
+      noListings: 'No listings found',
+      filterResults: 'Filter Results',
+      gridView: 'Grid View',
+      listView: 'List View',
+      showingResults: 'Showing',
+      of: 'of',
+      results: 'results'
+    },
+    or: {
+      title: 'Gabaa Bineensotaa Ogummaa',
+      subtitle: 'Bineensota keessan ogummaadhaan bituu fi gurguruu',
+      totalListings: 'Tarreewwan Waliigalaa',
+      verifiedSellers: 'Gurgurtoota Mirkaneeffaman',
+      avgRating: 'Madaallii Giddugaleessaa',
+      newToday: 'Har\'a Haaraa',
+      featuredListings: 'Tarreewwan Mul\'atan',
+      postYourAnimal: 'Bineensota Keessan Maxxansaa',
+      noListings: 'Tarreewwan hin argamne',
+      filterResults: 'Bu\'uura Calaluu',
+      gridView: 'Mul\'ata Grid',
+      listView: 'Mul\'ata Tarree',
+      showingResults: 'Mul\'isuu',
+      of: 'keessaa',
+      results: 'bu\'uura'
+    },
+    sw: {
+      title: 'Soko la Mifugo la Kitaalamu',
+      subtitle: 'Nunua na uza wanyama wako kwa utaalamu',
+      totalListings: 'Orodha Zote',
+      verifiedSellers: 'Wauzaji Waliothibitishwa',
+      avgRating: 'Kiwango cha Wastani',
+      newToday: 'Mpya Leo',
+      featuredListings: 'Orodha za Msingi',
+      postYourAnimal: 'Chapisha Mnyama Wako',
+      noListings: 'Hakuna orodha zilizopatikana',
+      filterResults: 'Chuja Matokeo',
+      gridView: 'Mwonekano wa Gridi',
+      listView: 'Mwonekano wa Orodha',
+      showingResults: 'Inaonyesha',
+      of: 'kati ya',
+      results: 'matokeo'
+    }
+  };
+
+  const t = translations[language];
+
+  // Filter listings based on search and filters
+  const filteredListings = listings.filter(listing => {
+    const matchesSearch = listing.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         listing.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesType = !filters.animalType || 
+                       listing.title.toLowerCase().includes(filters.animalType.toLowerCase());
+    
+    const matchesLocation = !filters.location || 
+                           listing.location?.toLowerCase().includes(filters.location.toLowerCase());
+    
+    const matchesPrice = !user || (
+      (!filters.minPrice || (listing.price && listing.price >= filters.minPrice)) &&
+      (!filters.maxPrice || (listing.price && listing.price <= filters.maxPrice))
+    );
+    
+    const matchesAge = !filters.ageRange || 
+                      !listing.age ||
+                      (listing.age >= filters.ageRange[0] && listing.age <= filters.ageRange[1]);
+    
+    const matchesWeight = !filters.weightRange || 
+                         !listing.weight ||
+                         (listing.weight >= filters.weightRange[0] && listing.weight <= filters.weightRange[1]);
+    
+    const matchesVerified = !filters.verifiedOnly || listing.is_vet_verified;
+    
+    return matchesSearch && matchesType && matchesLocation && matchesPrice && 
+           matchesAge && matchesWeight && matchesVerified;
+  });
+
+  // Calculate stats
+  const stats = {
+    total: listings.length,
+    verified: listings.filter(l => l.is_vet_verified).length,
+    avgRating: 4.6, // Mock data
+    newToday: 12    // Mock data
+  };
+
+  const handleViewDetails = (listingId: string) => {
+    console.log('Viewing details for listing:', listingId);
+    // Implement navigation to detail view
+  };
+
+  const handleContact = (listingId: string) => {
+    if (!user) {
+      console.log('Login required to contact seller');
+      // Show login modal
+      return;
+    }
+    console.log('Contacting seller for listing:', listingId);
+    // Implement contact functionality
+  };
+
+  const handleFavorite = (listingId: string) => {
+    console.log('Toggling favorite for listing:', listingId);
+    // Implement favorite functionality
+  };
+
+  const handleShare = (listingId: string) => {
+    console.log('Sharing listing:', listingId);
+    // Implement share functionality
+  };
+
+  const handlePostAnimal = () => {
+    console.log('Navigate to post animal form');
+    // Implement navigation to listing creation
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
+        <div className="container mx-auto px-4 py-6">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="lg:col-span-1">
+              <LoadingSkeleton className="h-96" />
+            </div>
+            <div className="lg:col-span-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <LoadingSkeleton key={i} className="h-96" />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
+      <div className="container mx-auto px-4 py-6 space-y-6">
+        {/* Header */}
+        <div className="text-center space-y-4">
+          <div className="flex items-center justify-center gap-3">
+            <Shield className="w-8 h-8 text-emerald-600" />
+            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900">
+              {t.title}
+            </h1>
+          </div>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            {t.subtitle}
+          </p>
+          
+          {/* CTA Button */}
+          <Button
+            onClick={handlePostAnimal}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-300"
+          >
+            <Plus className="w-5 h-5 mr-2" />
+            {t.postYourAnimal}
+          </Button>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard
+            title={t.totalListings}
+            value={stats.total}
+            icon={TrendingUp}
+            color="primary"
+            trend="up"
+            trendValue="+12%"
+          />
+          <StatCard
+            title={t.verifiedSellers}
+            value={stats.verified}
+            icon={Shield}
+            color="success"
+            trend="up"
+            trendValue="+8%"
+          />
+          <StatCard
+            title={t.avgRating}
+            value={stats.avgRating}
+            icon={Star}
+            color="warning"
+            trend="up"
+            trendValue="4.6★"
+          />
+          <StatCard
+            title={t.newToday}
+            value={stats.newToday}
+            icon={Users}
+            color="info"
+            trend="up"
+            trendValue="Today"
+          />
+        </div>
+
+        {/* Main Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Filters Sidebar - Desktop */}
+          <div className="hidden lg:block lg:col-span-1">
+            <MarketplaceFilters
+              language={language}
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              filters={filters}
+              onFiltersChange={setFilters}
+              isAuthenticated={!!user}
+            />
+          </div>
+
+          {/* Mobile Filter Button */}
+          <div className="lg:hidden flex justify-between items-center">
+            <Button
+              variant="outline"
+              onClick={() => setShowMobileFilters(true)}
+              className="flex items-center gap-2"
+            >
+              <Filter className="w-4 h-4" />
+              {t.filterResults}
+            </Button>
+            
+            <div className="flex items-center gap-2">
+              <Button
+                variant={viewMode === 'grid' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('grid')}
+              >
+                <Grid className="w-4 h-4" />
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+              >
+                <List className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Listings Grid */}
+          <div className="lg:col-span-3">
+            {/* Results Header */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="text-sm text-gray-600">
+                {t.showingResults} {filteredListings.length} {t.of} {listings.length} {t.results}
+              </div>
+              
+              {/* Desktop View Toggle */}
+              <div className="hidden lg:flex items-center gap-2">
+                <Button
+                  variant={viewMode === 'grid' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('grid')}
+                >
+                  <Grid className="w-4 h-4" />
+                  {t.gridView}
+                </Button>
+                <Button
+                  variant={viewMode === 'list' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setViewMode('list')}
+                >
+                  <List className="w-4 h-4" />
+                  {t.listView}
+                </Button>
+              </div>
+            </div>
+
+            {/* Listings */}
+            {error ? (
+              <div className="text-center py-12">
+                <div className="text-red-600 mb-4">Error loading listings</div>
+                <p className="text-gray-600">{error}</p>
+              </div>
+            ) : filteredListings.length === 0 ? (
+              <div className="text-center py-12">
+                <Eye className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  {t.noListings}
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Try adjusting your search or filters
+                </p>
+                <Button onClick={handlePostAnimal}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Be the first to post!
+                </Button>
+              </div>
+            ) : (
+              <div className={`grid gap-6 ${
+                viewMode === 'grid' 
+                  ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3' 
+                  : 'grid-cols-1'
+              }`}>
+                {filteredListings.map((listing) => (
+                  <ProfessionalAnimalCard
+                    key={listing.id}
+                    listing={listing}
+                    language={language}
+                    isAuthenticated={!!user}
+                    onViewDetails={handleViewDetails}
+                    onContact={handleContact}
+                    onFavorite={handleFavorite}
+                    onShare={handleShare}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Mobile Filters */}
+        {showMobileFilters && (
+          <MarketplaceFilters
+            language={language}
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            filters={filters}
+            onFiltersChange={setFilters}
+            showMobileFilters={showMobileFilters}
+            onToggleMobileFilters={() => setShowMobileFilters(false)}
+            isAuthenticated={!!user}
+          />
+        )}
+      </div>
+    </div>
+  );
+};
