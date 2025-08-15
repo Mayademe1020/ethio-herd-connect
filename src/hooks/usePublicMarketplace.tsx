@@ -32,8 +32,11 @@ export const usePublicMarketplace = () => {
     try {
       setLoading(true);
       
+      // Use secure view for anonymous users, main table for authenticated users
+      const tableName = user ? 'public_market_listings' : 'public_market_view';
+      
       const { data, error } = await supabase
-        .from('public_market_listings')
+        .from(tableName)
         .select('*')
         .order('created_at', { ascending: false });
 

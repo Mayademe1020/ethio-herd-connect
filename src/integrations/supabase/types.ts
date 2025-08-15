@@ -194,6 +194,13 @@ export type Database = {
             referencedRelation: "public_market_listings"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "buyer_interests_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_market_view"
+            referencedColumns: ["id"]
+          },
         ]
       }
       farm_assistants: {
@@ -781,6 +788,63 @@ export type Database = {
           title?: string | null
           updated_at?: string | null
           user_id?: never
+          weight?: number | null
+        }
+        Relationships: []
+      }
+      public_market_view: {
+        Row: {
+          age: number | null
+          animal_id: string | null
+          contact_method: string | null
+          contact_value: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          is_vet_verified: boolean | null
+          location: string | null
+          photos: string[] | null
+          price: number | null
+          status: string | null
+          title: string | null
+          updated_at: string | null
+          user_id: string | null
+          weight: number | null
+        }
+        Insert: {
+          age?: number | null
+          animal_id?: string | null
+          contact_method?: never
+          contact_value?: never
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          is_vet_verified?: boolean | null
+          location?: string | null
+          photos?: string[] | null
+          price?: number | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          weight?: number | null
+        }
+        Update: {
+          age?: number | null
+          animal_id?: string | null
+          contact_method?: never
+          contact_value?: never
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          is_vet_verified?: boolean | null
+          location?: string | null
+          photos?: string[] | null
+          price?: number | null
+          status?: string | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string | null
           weight?: number | null
         }
         Relationships: []
