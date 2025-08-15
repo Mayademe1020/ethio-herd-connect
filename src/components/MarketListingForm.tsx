@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,7 +18,7 @@ interface MarketListingFormProps {
 export const MarketListingForm = ({ language, onClose, onSubmit, onSuccess }: MarketListingFormProps) => {
   const [formData, setFormData] = useState({
     title: '',
-    category: '',
+    category: 'cattle',
     price: '',
     location: '',
     description: '',

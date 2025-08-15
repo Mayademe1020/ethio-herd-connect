@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -169,13 +168,13 @@ export const MarketplaceFilters = ({
 
   const clearAllFilters = () => {
     onFiltersChange({
-      animalType: '',
+      animalType: 'all',
       location: '',
       minPrice: 0,
       maxPrice: 1000000,
       ageRange: [0, 120],
       weightRange: [0, 1000],
-      healthStatus: '',
+      healthStatus: 'all',
       verifiedOnly: false,
       sellerRating: 0
     });
@@ -183,12 +182,12 @@ export const MarketplaceFilters = ({
 
   const getActiveFilterCount = () => {
     let count = 0;
-    if (filters.animalType) count++;
+    if (filters.animalType && filters.animalType !== 'all') count++;
     if (filters.location) count++;
     if (filters.minPrice > 0 || filters.maxPrice < 1000000) count++;
     if (filters.ageRange[0] > 0 || filters.ageRange[1] < 120) count++;
     if (filters.weightRange[0] > 0 || filters.weightRange[1] < 1000) count++;
-    if (filters.healthStatus) count++;
+    if (filters.healthStatus && filters.healthStatus !== 'all') count++;
     if (filters.verifiedOnly) count++;
     if (filters.sellerRating > 0) count++;
     return count;
@@ -226,12 +225,12 @@ export const MarketplaceFilters = ({
           <Tag className="w-4 h-4 mr-2" />
           {t.animalType}
         </label>
-        <Select value={filters.animalType} onValueChange={(value) => updateFilter('animalType', value)}>
+        <Select value={filters.animalType || 'all'} onValueChange={(value) => updateFilter('animalType', value)}>
           <SelectTrigger>
             <SelectValue placeholder={t.allTypes} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">{t.allTypes}</SelectItem>
+            <SelectItem value="all">{t.allTypes}</SelectItem>
             <SelectItem value="cattle">🐄 {t.cattle}</SelectItem>
             <SelectItem value="goats">🐐 {t.goats}</SelectItem>
             <SelectItem value="sheep">🐑 {t.sheep}</SelectItem>
@@ -333,12 +332,12 @@ export const MarketplaceFilters = ({
       {/* Health Status */}
       <div className="space-y-2">
         <label className="text-sm font-medium">{t.healthStatus}</label>
-        <Select value={filters.healthStatus} onValueChange={(value) => updateFilter('healthStatus', value)}>
+        <Select value={filters.healthStatus || 'all'} onValueChange={(value) => updateFilter('healthStatus', value)}>
           <SelectTrigger>
             <SelectValue placeholder={t.allHealth} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">{t.allHealth}</SelectItem>
+            <SelectItem value="all">{t.allHealth}</SelectItem>
             <SelectItem value="excellent">{t.excellent}</SelectItem>
             <SelectItem value="good">{t.good}</SelectItem>
           </SelectContent>
