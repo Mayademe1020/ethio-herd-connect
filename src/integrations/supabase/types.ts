@@ -822,11 +822,11 @@ export type Database = {
           is_vet_verified?: boolean | null
           location?: string | null
           photos?: string[] | null
-          price?: number | null
+          price?: never
           status?: string | null
           title?: string | null
           updated_at?: string | null
-          user_id?: string | null
+          user_id?: never
           weight?: number | null
         }
         Update: {
@@ -840,11 +840,11 @@ export type Database = {
           is_vet_verified?: boolean | null
           location?: string | null
           photos?: string[] | null
-          price?: number | null
+          price?: never
           status?: string | null
           title?: string | null
           updated_at?: string | null
-          user_id?: string | null
+          user_id?: never
           weight?: number | null
         }
         Relationships: []
