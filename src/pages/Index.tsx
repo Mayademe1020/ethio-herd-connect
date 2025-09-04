@@ -10,6 +10,7 @@ import { EnhancedAnimalGrid } from '@/components/EnhancedAnimalGrid';
 import { LoadingSkeleton } from '@/components/ui/loading-skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Cloud, Sun, CloudRain, Wind } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AnimalData } from '@/types';
@@ -141,9 +142,34 @@ const Index = () => {
     navigate('/animals?action=add');
   };
 
+  // Show public marketplace option for non-authenticated users
   if (!user) {
-    navigate('/auth');
-    return null;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center">
+        <div className="text-center space-y-6 p-8">
+          <h1 className="text-4xl font-bold text-foreground">MyLivestock</h1>
+          <p className="text-lg text-muted-foreground max-w-md">
+            Professional livestock marketplace and management platform
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button 
+              onClick={() => navigate('/marketplace')}
+              size="lg"
+              className="bg-primary hover:bg-primary/90"
+            >
+              Browse Marketplace
+            </Button>
+            <Button 
+              onClick={() => navigate('/auth')}
+              variant="outline"
+              size="lg"
+            >
+              Login / Sign Up
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
