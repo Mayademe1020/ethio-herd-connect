@@ -252,38 +252,37 @@ export const MarketplaceFilters = ({
         />
       </div>
 
-      {/* Price Range - Only show if authenticated */}
-      {isAuthenticated && (
-        <div className="space-y-3">
-          <label className="text-sm font-medium">{t.priceRange}</label>
-          <div className="px-2">
-            <Slider
-              value={[filters.minPrice, filters.maxPrice]}
-              onValueChange={([min, max]) => {
-                updateFilter('minPrice', min);
-                updateFilter('maxPrice', max);
-              }}
-              min={0}
-              max={1000000}
-              step={10000}
-              className="w-full"
-            />
+      {/* Price Range */}
+      <div className="space-y-3">
+        <label className="text-sm font-medium">{t.priceRange}</label>
+        {isAuthenticated ? (
+          <>
+            <div className="px-2">
+              <Slider
+                value={[filters.minPrice, filters.maxPrice]}
+                onValueChange={([min, max]) => {
+                  updateFilter('minPrice', min);
+                  updateFilter('maxPrice', max);
+                }}
+                min={0}
+                max={1000000}
+                step={10000}
+                className="w-full"
+              />
+            </div>
+            <div className="flex items-center justify-between text-sm text-gray-600">
+              <span>{filters.minPrice.toLocaleString()} ETB</span>
+              <span>{filters.maxPrice.toLocaleString()} ETB</span>
+            </div>
+          </>
+        ) : (
+          <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+            <p className="text-sm text-gray-600 text-center">
+              {t.loginForPrices}
+            </p>
           </div>
-          <div className="flex items-center justify-between text-sm text-gray-600">
-            <span>{filters.minPrice.toLocaleString()} ETB</span>
-            <span>{filters.maxPrice.toLocaleString()} ETB</span>
-          </div>
-        </div>
-      )}
-
-      {/* Price Range Message for Non-authenticated */}
-      {!isAuthenticated && (
-        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-          <p className="text-sm text-gray-600 text-center">
-            {t.loginForPrices}
-          </p>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Age Range */}
       <div className="space-y-3">

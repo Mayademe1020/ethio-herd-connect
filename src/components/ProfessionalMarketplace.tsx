@@ -5,6 +5,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useSecurePublicMarketplace } from '@/hooks/useSecurePublicMarketplace';
 import { ProfessionalAnimalCard } from '@/components/ProfessionalAnimalCard';
 import { MarketplaceFilters } from '@/components/MarketplaceFilters';
+import { ContactSellerModal } from '@/components/ContactSellerModal';
+import { AnimalListingForm } from '@/components/AnimalListingForm';
 import { StatCard } from '@/components/ui/stat-card';
 import { LoadingSkeleton } from '@/components/ui/loading-skeleton';
 import { Button } from '@/components/ui/button';
@@ -30,6 +32,9 @@ export const ProfessionalMarketplace = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [selectedListing, setSelectedListing] = useState<any>(null);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [showListingForm, setShowListingForm] = useState(false);
   const [filters, setFilters] = useState({
     animalType: '',
     location: '',
@@ -154,33 +159,52 @@ export const ProfessionalMarketplace = () => {
   };
 
   const handleViewDetails = (listingId: string) => {
-    console.log('Viewing details for listing:', listingId);
-    // Implement navigation to detail view
+    const listing = listings.find(l => l.id === listingId);
+    if (listing) {
+      setSelectedListing(listing);
+      // TODO: Implement detailed view modal
+    }
   };
 
   const handleContact = (listingId: string) => {
-    if (!user) {
-      console.log('Login required to contact seller');
-      // Show login modal
-      return;
+    const listing = listings.find(l => l.id === listingId);
+    if (listing) {
+      setSelectedListing(listing);
+      setShowContactModal(true);
     }
-    console.log('Contacting seller for listing:', listingId);
-    // Implement contact functionality
   };
 
   const handleFavorite = (listingId: string) => {
     console.log('Toggling favorite for listing:', listingId);
-    // Implement favorite functionality
+    // TODO: Implement favorite functionality with backend
   };
 
   const handleShare = (listingId: string) => {
-    console.log('Sharing listing:', listingId);
-    // Implement share functionality
+    const listing = listings.find(l => l.id === listingId);
+    if (listing && navigator.share) {
+      navigator.share({
+        title: listing.title,
+        text: listing.description || 'Check out this animal listing',
+        url: window.location.href + `?listing=${listingId}`
+      });
+    } else {
+      // Fallback: copy link to clipboard
+      navigator.clipboard.writeText(window.location.href + `?listing=${listingId}`);
+    }
   };
 
   const handlePostAnimal = () => {
-    console.log('Navigate to post animal form');
-    // Implement navigation to listing creation
+    if (!user) {
+      window.location.href = '/auth';
+      return;
+    }
+    setShowListingForm(true);
+  };
+
+  const handleSubmitListing = async (formData: any) => {
+    // TODO: Implement actual submission to backend
+    console.log('Submitting listing:', formData);
+    // This would call the backend API to create the listing
   };
 
   if (loading) {
@@ -393,6 +417,28 @@ export const ProfessionalMarketplace = () => {
             isAuthenticated={!!user}
           />
         )}
+
+        {/* Contact Seller Modal */}
+        {selectedListing && (
+          <ContactSellerModal
+            isOpen={showContactModal}
+            onClose={() => {
+              setShowContactModal(false);
+              setSelectedListing(null);
+            }}
+            listing={selectedListing}
+            language={language}
+            isAuthenticated={!!user}
+          />
+        )}
+
+        {/* Animal Listing Form */}
+        <AnimalListingForm
+          isOpen={showListingForm}
+          onClose={() => setShowListingForm(false)}
+          language={language}
+          onSubmit={handleSubmitListing}
+        />
       </div>
     </div>
   );
