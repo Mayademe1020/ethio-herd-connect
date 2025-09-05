@@ -59,9 +59,9 @@ export const PublicMarketListingCard = ({
   const t = translations[language];
 
   return (
-    <Card className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-[1.02]">
-      <CardContent className="p-3 sm:p-4">
-        <div className="aspect-video bg-gradient-to-br from-orange-100 to-yellow-100 rounded-lg mb-3 relative overflow-hidden">
+    <Card className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-[1.01] h-full flex flex-col">
+      <CardContent className="p-responsive flex flex-col h-full">
+        <div className="aspect-mobile-card bg-gradient-to-br from-orange-100 to-yellow-100 rounded-lg mb-3 relative overflow-hidden flex-shrink-0">
           {listing.is_vet_verified && (
             <Badge className="absolute top-2 right-2 bg-green-500 text-white">
               <Shield className="w-3 h-3 mr-1" />
@@ -82,42 +82,42 @@ export const PublicMarketListingCard = ({
           )}
         </div>
         
-        <div className="space-y-2">
-          <h3 className="font-semibold text-sm sm:text-base line-clamp-2">
+        <div className="space-y-responsive flex-1 flex flex-col">
+          <h3 className="font-semibold text-sm md:text-base lg:text-lg line-clamp-2 leading-tight">
             {listing.title}
           </h3>
           
           {listing.description && (
-            <p className="text-xs sm:text-sm text-gray-600 line-clamp-2">
+            <p className="text-xs md:text-sm text-muted-foreground line-clamp-2 flex-1">
               {listing.description}
             </p>
           )}
           
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mt-auto pt-2">
             {isAuthenticated && listing.price ? (
-              <span className="font-bold text-green-600 text-sm sm:text-base">
+              <span className="font-bold text-primary text-sm md:text-base">
                 {listing.price.toLocaleString()} ETB
               </span>
             ) : (
-              <div className="flex items-center space-x-1 text-gray-500">
-                <Lock className="w-3 h-3" />
+              <div className="flex items-center space-x-1 text-muted-foreground">
+                <Lock className="w-3 h-3 flex-shrink-0" />
                 <span className="text-xs font-medium">{t.priceHidden}</span>
               </div>
             )}
             
             {listing.location && (
-              <div className="flex items-center text-xs sm:text-sm text-gray-500">
-                <MapPin className="w-3 h-3 mr-1" />
-                {listing.location}
+              <div className="flex items-center text-xs md:text-sm text-muted-foreground max-w-[50%]">
+                <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
+                <span className="truncate">{listing.location}</span>
               </div>
             )}
           </div>
           
-          <div className="flex space-x-2 pt-2">
+          <div className="flex space-x-responsive pt-3">
             {isAuthenticated ? (
               <Button 
                 size="sm" 
-                className="flex-1 text-xs bg-orange-600 hover:bg-orange-700"
+                className="flex-1 text-xs md:text-sm bg-primary hover:bg-primary/90 py-2"
                 onClick={() => onViewDetails(listing.id)}
               >
                 {t.viewDetails}
@@ -126,11 +126,11 @@ export const PublicMarketListingCard = ({
               <Button 
                 size="sm" 
                 variant="outline"
-                className="flex-1 text-xs border-orange-200 hover:bg-orange-50 text-orange-600 hover:text-orange-700"
+                className="flex-1 text-xs md:text-sm border-primary/20 hover:bg-primary/5 text-primary hover:text-primary/90 py-2"
                 onClick={onLoginPrompt}
               >
-                <Lock className="w-3 h-3 mr-1" />
-                {t.loginToSeePrice}
+                <Lock className="w-3 h-3 mr-1 flex-shrink-0" />
+                <span className="truncate">{t.loginToSeePrice}</span>
               </Button>
             )}
           </div>

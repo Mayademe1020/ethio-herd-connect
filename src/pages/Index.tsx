@@ -145,17 +145,17 @@ const Index = () => {
   // Show public marketplace option for non-authenticated users
   if (!user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center">
-        <div className="text-center space-y-6 p-8">
-          <h1 className="text-4xl font-bold text-foreground">MyLivestock</h1>
-          <p className="text-lg text-muted-foreground max-w-md">
-            Professional livestock marketplace and management platform
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center px-4">
+        <div className="container-narrow text-center space-y-responsive py-12">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">EthioHerd Connect</h1>
+          <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            Professional livestock marketplace and management platform designed for Ethiopian farmers
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center max-w-md mx-auto">
             <Button 
-              onClick={() => navigate('/marketplace')}
+              onClick={() => navigate('/market')}
               size="lg"
-              className="bg-primary hover:bg-primary/90"
+              className="bg-primary hover:bg-primary/90 py-3 px-6"
             >
               Browse Marketplace
             </Button>
@@ -163,6 +163,7 @@ const Index = () => {
               onClick={() => navigate('/auth')}
               variant="outline"
               size="lg"
+              className="py-3 px-6"
             >
               Login / Sign Up
             </Button>
@@ -176,43 +177,43 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-20">
       <EnhancedHeader />
       
-      <main className="container mx-auto px-4 py-6 space-y-8">
+      <main className="container-responsive py-responsive space-y-responsive">
         {/* Welcome Section */}
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-foreground">
+        <div className="text-center space-y-responsive">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground leading-tight">
             {t.welcome}, {user.user_metadata?.full_name || user.email?.split('@')[0]}!
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm md:text-base text-muted-foreground">
             {t.dashboard} • {new Date().toLocaleDateString(language === 'am' ? 'am-ET' : 'en-US')}
           </p>
         </div>
 
         {/* Weather Widget */}
-        <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white border-0">
-          <CardHeader className="pb-3">
+        <Card className="bg-gradient-to-r from-primary to-primary/80 text-white border-0">
+          <CardHeader className="p-responsive">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-white flex items-center">
-                <Sun className="w-5 h-5 mr-2" />
+              <CardTitle className="text-white flex items-center text-base md:text-lg">
+                <Sun className="w-4 h-4 md:w-5 md:h-5 mr-2" />
                 {t.todayWeather}
               </CardTitle>
-              <Badge variant="secondary" className="bg-white/20 text-white">
+              <Badge variant="secondary" className="bg-white/20 text-white text-xs md:text-sm">
                 {t.addisAbaba}
               </Badge>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-responsive pb-responsive">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <div className="text-3xl font-bold">24°C</div>
-                <div className="text-blue-100 text-sm">Partly Cloudy</div>
+                <div className="text-2xl md:text-3xl font-bold">24°C</div>
+                <div className="text-white/80 text-xs md:text-sm">Partly Cloudy</div>
               </div>
-              <div className="flex items-center space-x-4 text-sm">
+              <div className="flex flex-col sm:flex-row items-end sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 text-xs md:text-sm">
                 <div className="flex items-center">
-                  <Wind className="w-4 h-4 mr-1" />
+                  <Wind className="w-3 h-3 md:w-4 md:h-4 mr-1" />
                   <span>12 km/h</span>
                 </div>
                 <div className="flex items-center">
-                  <CloudRain className="w-4 h-4 mr-1" />
+                  <CloudRain className="w-3 h-3 md:w-4 md:h-4 mr-1" />
                   <span>20%</span>
                 </div>
               </div>
@@ -231,13 +232,13 @@ const Index = () => {
         </section>
 
         {/* My Livestock Section */}
-        <section className="space-y-4">
+        <section className="space-y-responsive">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-foreground">{t.myLivestock}</h2>
+            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground">{t.myLivestock}</h2>
             {animals.length > 8 && (
               <button 
                 onClick={() => navigate('/animals')}
-                className="text-primary hover:text-primary/80 text-sm font-medium"
+                className="text-primary hover:text-primary/80 text-sm md:text-base font-medium transition-colors"
               >
                 {t.viewAll}
               </button>
@@ -254,14 +255,14 @@ const Index = () => {
         </section>
 
         {/* Recent Activity */}
-        <section className="space-y-4">
-          <h2 className="text-2xl font-bold text-foreground">{t.recentActivity}</h2>
+        <section className="space-y-responsive">
+          <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground">{t.recentActivity}</h2>
           <Card>
-            <CardContent className="p-8 text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
-                <Cloud className="w-8 h-8 text-muted-foreground" />
+            <CardContent className="p-responsive text-center">
+              <div className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
+                <Cloud className="w-6 h-6 md:w-8 md:h-8 text-muted-foreground" />
               </div>
-              <p className="text-muted-foreground">{t.noRecentActivity}</p>
+              <p className="text-sm md:text-base text-muted-foreground">{t.noRecentActivity}</p>
             </CardContent>
           </Card>
         </section>

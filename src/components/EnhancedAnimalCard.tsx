@@ -109,81 +109,84 @@ export const EnhancedAnimalCard = ({
   const canProduceMilk = animal.type.toLowerCase() === 'cattle' && animal.gender === 'female';
 
   return (
-    <Card className="group hover:shadow-xl transition-all duration-300 ease-in-out hover:scale-[1.02] border border-gray-200 hover:border-green-300">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold text-gray-900 group-hover:text-green-700 transition-colors">
-            {animal.name}
-          </CardTitle>
-          <div className="flex items-center space-x-2">
-            <Badge className={`${getHealthBadgeColor(animal.health_status)} transition-all duration-200`}>
+    <Card className="group hover:shadow-xl transition-all duration-300 ease-in-out hover:scale-[1.01] border hover:border-primary/30 h-full flex flex-col">
+      <CardHeader className="pb-3 flex-shrink-0">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-base lg:text-lg font-semibold text-foreground group-hover:text-primary transition-colors truncate">
+              {animal.name}
+            </CardTitle>
+            <p className="text-xs md:text-sm text-muted-foreground font-medium truncate">{animal.animal_code}</p>
+            <p className="text-xs md:text-sm text-muted-foreground truncate">{animal.type} • {animal.breed}</p>
+          </div>
+          <div className="flex flex-col gap-1 items-end flex-shrink-0">
+            <Badge className={`${getHealthBadgeColor(animal.health_status)} transition-all duration-200 text-xs`}>
               <Heart className="w-3 h-3 mr-1" />
-              {t[animal.health_status as keyof typeof t] || animal.health_status}
+              <span className="hidden sm:inline">{t[animal.health_status as keyof typeof t] || animal.health_status}</span>
+              <span className="sm:hidden">●</span>
             </Badge>
             {animal.is_vet_verified && (
-              <Badge variant="outline" className="text-xs border-green-200 text-green-700">
-                ✓ {t.verified}
+              <Badge variant="outline" className="text-xs border-primary/20 text-primary">
+                ✓ <span className="hidden sm:inline ml-1">{t.verified}</span>
               </Badge>
             )}
           </div>
         </div>
-        <p className="text-sm text-gray-600 font-medium">{animal.animal_code}</p>
-        <p className="text-sm text-gray-500">{animal.type} • {animal.breed}</p>
       </CardHeader>
       
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 gap-4 text-sm">
+      <CardContent className="space-y-responsive flex-1 flex flex-col">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm flex-1">
           {animal.weight && (
-            <div className="flex items-center space-x-2 p-2 bg-blue-50 rounded-lg">
-              <Scale className="w-4 h-4 text-blue-600" />
-              <span className="font-medium">{animal.weight}kg</span>
+            <div className="flex items-center space-x-2 p-2 bg-primary/5 rounded-lg">
+              <Scale className="w-4 h-4 text-primary flex-shrink-0" />
+              <span className="font-medium text-primary truncate">{animal.weight}kg</span>
             </div>
           )}
           
           {animal.age && (
-            <div className="flex items-center space-x-2 p-2 bg-purple-50 rounded-lg">
-              <Calendar className="w-4 h-4 text-purple-600" />
-              <span className="font-medium">{animal.age}y</span>
+            <div className="flex items-center space-x-2 p-2 bg-secondary/10 rounded-lg">
+              <Calendar className="w-4 h-4 text-secondary flex-shrink-0" />
+              <span className="font-medium text-secondary truncate">{animal.age}y</span>
             </div>
           )}
         </div>
 
         {animal.last_vaccination && (
-          <div className="text-sm p-2 bg-green-50 rounded-lg">
-            <span className="font-medium text-green-700">{t.lastVaccination}:</span>
-            <span className="text-green-600 ml-1">{animal.last_vaccination}</span>
+          <div className="text-sm p-2 bg-accent/10 rounded-lg">
+            <span className="font-medium text-accent">{t.lastVaccination}:</span>
+            <span className="text-accent/80 ml-1 text-xs">{animal.last_vaccination}</span>
           </div>
         )}
 
-        <div className="flex flex-wrap gap-2 pt-2">
+        <div className="flex flex-wrap gap-1 md:gap-2 pt-2 mt-auto">
           <Button 
             variant="outline" 
             size="sm" 
             onClick={() => onEdit(animal)}
-            className="hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 hover:scale-105"
+            className="hover:bg-primary/5 hover:border-primary/30 transition-all duration-200 flex-1 sm:flex-none"
           >
-            <Edit className="w-4 h-4 mr-1" />
-            {t.edit}
+            <Edit className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+            <span className="hidden sm:inline">{t.edit}</span>
           </Button>
           
           <Button 
             variant="outline" 
             size="sm" 
             onClick={() => onVaccinate(animal)}
-            className="hover:bg-green-50 hover:border-green-300 transition-all duration-200 hover:scale-105"
+            className="hover:bg-accent/10 hover:border-accent/30 transition-all duration-200 flex-1 sm:flex-none"
           >
-            <Syringe className="w-4 h-4 mr-1" />
-            {t.vaccinate}
+            <Syringe className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+            <span className="hidden sm:inline">{t.vaccinate}</span>
           </Button>
           
           <Button 
             variant="outline" 
             size="sm" 
             onClick={() => onTrack(animal)}
-            className="hover:bg-purple-50 hover:border-purple-300 transition-all duration-200 hover:scale-105"
+            className="hover:bg-secondary/10 hover:border-secondary/30 transition-all duration-200 flex-1 sm:flex-none"
           >
-            <TrendingUp className="w-4 h-4 mr-1" />
-            {t.track}
+            <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+            <span className="hidden sm:inline">{t.track}</span>
           </Button>
 
           {canProduceMilk && onMilkRecord && (
@@ -191,10 +194,10 @@ export const EnhancedAnimalCard = ({
               variant="outline" 
               size="sm" 
               onClick={() => onMilkRecord(animal)}
-              className="hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 hover:scale-105"
+              className="hover:bg-primary/5 hover:border-primary/30 transition-all duration-200 flex-1 sm:flex-none"
             >
-              <Droplets className="w-4 h-4 mr-1" />
-              {t.recordMilk}
+              <Droplets className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+              <span className="hidden sm:inline">{t.recordMilk}</span>
             </Button>
           )}
           
@@ -202,20 +205,20 @@ export const EnhancedAnimalCard = ({
             variant="outline" 
             size="sm" 
             onClick={() => onSell(animal)}
-            className="hover:bg-yellow-50 hover:border-yellow-300 transition-all duration-200 hover:scale-105"
+            className="hover:bg-secondary/10 hover:border-secondary/30 transition-all duration-200 flex-1 sm:flex-none"
           >
-            <ShoppingCart className="w-4 h-4 mr-1" />
-            {t.sell}
+            <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+            <span className="hidden sm:inline">{t.sell}</span>
           </Button>
           
           <Button 
             variant="destructive" 
             size="sm" 
             onClick={() => onDelete(animal.id)}
-            className="hover:scale-105 transition-transform duration-200"
+            className="transition-all duration-200 flex-1 sm:flex-none"
           >
-            <Trash2 className="w-4 h-4 mr-1" />
-            {t.delete}
+            <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+            <span className="hidden sm:inline">{t.delete}</span>
           </Button>
         </div>
       </CardContent>

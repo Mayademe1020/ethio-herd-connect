@@ -12,12 +12,50 @@ export default {
 	theme: {
 		container: {
 			center: true,
-			padding: '2rem',
+			padding: {
+				DEFAULT: '1rem',
+				sm: '1.5rem',
+				md: '2rem',
+				lg: '2.5rem',
+				xl: '3rem',
+				'2xl': '4rem'
+			},
 			screens: {
+				sm: '640px',
+				md: '768px',
+				lg: '1024px',
+				xl: '1280px',
 				'2xl': '1400px'
 			}
 		},
+		screens: {
+			'xs': '475px',
+			'sm': '640px',
+			'md': '768px',
+			'lg': '1024px',
+			'xl': '1280px',
+			'2xl': '1536px',
+			'3xl': '1920px'
+		},
 		extend: {
+			spacing: {
+				'18': '4.5rem',
+				'88': '22rem',
+				'112': '28rem',
+				'128': '32rem'
+			},
+			maxWidth: {
+				'8xl': '88rem',
+				'9xl': '96rem'
+			},
+			minHeight: {
+				'screen-safe': '100dvh',
+			},
+			aspectRatio: {
+				'4/3': '4 / 3',
+				'3/2': '3 / 2',
+				'5/4': '5 / 4'
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',

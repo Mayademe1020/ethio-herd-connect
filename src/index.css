@@ -74,6 +74,58 @@
 }
 
 @layer utilities {
+  /* Responsive spacing utilities */
+  .space-y-responsive {
+    @apply space-y-3 md:space-y-4 lg:space-y-6;
+  }
+  
+  .space-x-responsive {
+    @apply space-x-2 md:space-x-3 lg:space-x-4;
+  }
+  
+  .p-responsive {
+    @apply p-3 md:p-4 lg:p-6;
+  }
+  
+  .px-responsive {
+    @apply px-4 md:px-6 lg:px-8;
+  }
+  
+  .py-responsive {
+    @apply py-3 md:py-4 lg:py-6;
+  }
+  
+  /* Responsive grid utilities */
+  .grid-responsive-cards {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4 lg:gap-6;
+  }
+  
+  .grid-responsive-stats {
+    @apply grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-3 md:gap-4;
+  }
+  
+  /* Mobile-first image containers */
+  .aspect-mobile-card {
+    @apply aspect-[4/3] sm:aspect-[3/2] lg:aspect-video;
+  }
+  
+  .aspect-mobile-hero {
+    @apply aspect-[16/10] sm:aspect-[2/1] lg:aspect-[5/2];
+  }
+  
+  /* Container width utilities */
+  .container-responsive {
+    @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .container-narrow {
+    @apply w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  
+  .container-wide {
+    @apply w-full max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12;
+  }
+
   /* Ethiopian-inspired animations */
   .animate-fadeIn {
     animation: fadeIn 0.6s ease-out;
