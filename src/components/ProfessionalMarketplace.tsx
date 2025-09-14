@@ -49,25 +49,28 @@ export const ProfessionalMarketplace = () => {
 
   const translations = {
     am: {
-      title: 'ሞደርን የእንስሳት ገበያ',
-      subtitle: 'ያለ እንስሳዎን በሙያዊነት ይግዙና ይሽጡ',
+      title: 'ለመሸጥ',
+      subtitle: 'እንስሳዎችዎን በማህበረሰቡ ያቀርቡ',
       totalListings: 'ጠቅላላ ዝርዝሮች',
       verifiedSellers: 'የተረጋገጡ ሻጮች',
       avgRating: 'አማካይ ደረጃ',
       newToday: 'ዛሬ አዲስ',
       featuredListings: 'ተለይተው የቀረቡ',
-      postYourAnimal: 'እንስሳዎን ያስተዋውቁ',
+      postYourAnimal: 'እንስሳ ያስተዋውቁ',
       noListings: 'ምንም ዝርዝሮች አልተገኙም',
       filterResults: 'ውጤቶችን ያጣሩ',
-      gridView: 'ግሪድ እይታ',
+      gridView: 'ሳጥን እይታ',
       listView: 'ዝርዝር እይታ',
       showingResults: 'ውጤቶች እያሳዩ',
       of: 'ከ',
-      results: 'ውጤቶች'
+      results: 'ውጤቶች',
+      price: 'ዋጋ',
+      location: 'አካባቢ',
+      health: 'ጤናማነት'
     },
     en: {
-      title: 'Professional Livestock Market',
-      subtitle: 'Buy and sell your animals professionally',
+      title: 'For Sale',
+      subtitle: 'Share your animals with the community',
       totalListings: 'Total Listings',
       verifiedSellers: 'Verified Sellers',
       avgRating: 'Average Rating',
@@ -76,11 +79,14 @@ export const ProfessionalMarketplace = () => {
       postYourAnimal: 'Post Your Animal',
       noListings: 'No listings found',
       filterResults: 'Filter Results',
-      gridView: 'Grid View',
+      gridView: 'Box View',
       listView: 'List View',
       showingResults: 'Showing',
       of: 'of',
-      results: 'results'
+      results: 'results',
+      price: 'Price',
+      location: 'Location',
+      health: 'Health'
     },
     or: {
       title: 'Gabaa Bineensotaa Ogummaa',
@@ -232,23 +238,25 @@ export const ProfessionalMarketplace = () => {
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
       <div className="container mx-auto px-4 py-6 space-y-6">
         {/* Header */}
-        <div className="text-center space-y-4">
+        <div className="text-center space-y-4 bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-emerald-100 shadow-sm">
           <div className="flex items-center justify-center gap-3">
-            <Shield className="w-8 h-8 text-emerald-600" />
-            <h1 className="text-3xl lg:text-4xl font-bold text-gray-900">
-              {t.title}
+            <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+              <Shield className="w-6 h-6 text-emerald-700" />
+            </div>
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
+              ለመሸጥ
             </h1>
           </div>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-base text-gray-700 max-w-xl mx-auto leading-relaxed">
             {t.subtitle}
           </p>
           
-          {/* CTA Button */}
+          {/* Large CTA Button - Farmer Friendly */}
           <Button
             onClick={handlePostAnimal}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-all duration-300"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-12 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 min-h-[56px] touch-target-large"
           >
-            <Plus className="w-5 h-5 mr-2" />
+            <Plus className="w-6 h-6 mr-3" />
             {t.postYourAnimal}
           </Button>
         </div>
@@ -340,25 +348,27 @@ export const ProfessionalMarketplace = () => {
                 {t.showingResults} {filteredListings.length} {t.of} {listings.length} {t.results}
               </div>
               
-              {/* Desktop View Toggle */}
-              <div className="hidden lg:flex items-center gap-2">
-                <Button
-                  variant={viewMode === 'grid' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setViewMode('grid')}
-                >
-                  <Grid className="w-4 h-4" />
-                  {t.gridView}
-                </Button>
-                <Button
-                  variant={viewMode === 'list' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setViewMode('list')}
-                >
-                  <List className="w-4 h-4" />
-                  {t.listView}
-                </Button>
-              </div>
+            {/* Desktop View Toggle - Larger Touch Targets */}
+            <div className="hidden lg:flex items-center gap-3">
+              <Button
+                variant={viewMode === 'grid' ? 'default' : 'outline'}
+                size="lg"
+                onClick={() => setViewMode('grid')}
+                className="min-h-[48px] px-6 font-semibold touch-target-large transition-all duration-200"
+              >
+                <Grid className="w-5 h-5 mr-2" />
+                {t.gridView}
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'outline'}
+                size="lg"
+                onClick={() => setViewMode('list')}
+                className="min-h-[48px] px-6 font-semibold touch-target-large transition-all duration-200"
+              >
+                <List className="w-5 h-5 mr-2" />
+                {t.listView}
+              </Button>
+            </div>
             </div>
 
             {/* Listings */}

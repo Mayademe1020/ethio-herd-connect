@@ -1,0 +1,198 @@
+{
+  "am": {
+    "common": {
+      "save": "አስቀምጥ",
+      "cancel": "ሰርዝ",
+      "edit": "አርም",
+      "delete": "ሰርዝ",
+      "close": "ዝጋ",
+      "next": "ቀጣይ",
+      "previous": "ቀደም",
+      "loading": "እየጠበቀ...",
+      "yes": "አዎ",
+      "no": "አይደለም",
+      "search": "ፈልግ...",
+      "filter": "ማጣሪያ",
+      "clear": "አጽዳ"
+    },
+    "marketplace": {
+      "title": "ለመሸጥ",
+      "subtitle": "እንስሳዎችዎን በማህበረሰቡ ያቀርቡ",
+      "postAnimal": "እንስሳ ያስተዋውቁ",
+      "noListings": "ምንም ዝርዝሮች አልተገኙም",
+      "price": "ዋጋ",
+      "location": "አካባቢ",
+      "health": "ጤናማነት"
+    },
+    "animals": {
+      "registration": "እንስሳ ምዝገባ",
+      "name": "ስም",
+      "age": "እድሜ",
+      "ageYears": "ዓመታት",
+      "ageMonths": "ወራት",
+      "ageDays": "ቀናት",
+      "weight": "ክብደት (ኪ.ግ)",
+      "color": "ቀለም",
+      "notes": "ማስታወሻዎች",
+      "gender": "ጾታ",
+      "male": "ወንድ",
+      "female": "ሴት"
+    },
+    "animalTypes": {
+      "cow": "ላም",
+      "bull": "በሬ",
+      "ox": "ወንድ በሬ",
+      "calf": "ተቦ",
+      "goat": "ፍየል",
+      "sheep": "በግ",
+      "poultry": "ዶሮ"
+    }
+  },
+  "en": {
+    "common": {
+      "save": "Save",
+      "cancel": "Cancel",
+      "edit": "Edit",
+      "delete": "Delete",
+      "close": "Close",
+      "next": "Next",
+      "previous": "Previous",
+      "loading": "Loading...",
+      "yes": "Yes",
+      "no": "No",
+      "search": "Search...",
+      "filter": "Filter",
+      "clear": "Clear"
+    },
+    "marketplace": {
+      "title": "For Sale",
+      "subtitle": "Share your animals with the community",
+      "postAnimal": "Post Your Animal",
+      "noListings": "No listings found",
+      "price": "Price",
+      "location": "Location",
+      "health": "Health"
+    },
+    "animals": {
+      "registration": "Animal Registration",
+      "name": "Name",
+      "age": "Age",
+      "ageYears": "Years",
+      "ageMonths": "Months",
+      "ageDays": "Days",
+      "weight": "Weight (kg)",
+      "color": "Color",
+      "notes": "Notes",
+      "gender": "Gender",
+      "male": "Male",
+      "female": "Female"
+    },
+    "animalTypes": {
+      "cow": "Cow",
+      "bull": "Bull",
+      "ox": "Ox",
+      "calf": "Calf",
+      "goat": "Goat",
+      "sheep": "Sheep",
+      "poultry": "Poultry"
+    }
+  },
+  "or": {
+    "common": {
+      "save": "Olkaa'i",
+      "cancel": "Dhiisi",
+      "edit": "Sirreessi",
+      "delete": "Balleessi",
+      "close": "Cufii",
+      "next": "Itti Aansuuf",
+      "previous": "Duraanii",
+      "loading": "Eeguu...",
+      "yes": "Eeyyee",
+      "no": "Lakki",
+      "search": "Barbaadi...",
+      "filter": "Calaluu",
+      "clear": "Qulqulleessi"
+    },
+    "marketplace": {
+      "title": "Gurgurtaaf",
+      "subtitle": "Bineensota keessan hawaasa waliin qooddadhaa",
+      "postAnimal": "Bineensota Maxxansaa",
+      "noListings": "Tarreewwan hin argamne",
+      "price": "Gatii",
+      "location": "Bakka",
+      "health": "Fayyaa"
+    },
+    "animals": {
+      "registration": "Galmee Horii",
+      "name": "Maqaa",
+      "age": "Umurii",
+      "ageYears": "Waggaawwan",
+      "ageMonths": "Ji'oota",
+      "ageDays": "Guyyoota",
+      "weight": "Ulfaatina (kg)",
+      "color": "Halluu",
+      "notes": "Yaadannoo",
+      "gender": "Saala",
+      "male": "Dhiira",
+      "female": "Dhalaa"
+    },
+    "animalTypes": {
+      "cow": "Loon",
+      "bull": "Korma",
+      "ox": "Korma Qotee",
+      "calf": "Jabbiituu",
+      "goat": "Re'ee",
+      "sheep": "Hoolaa",
+      "poultry": "Lukku"
+    }
+  },
+  "sw": {
+    "common": {
+      "save": "Hifadhi",
+      "cancel": "Ghairi",
+      "edit": "Hariri",
+      "delete": "Futa",
+      "close": "Funga",
+      "next": "Ifuatayo",
+      "previous": "Iliyotangulia",
+      "loading": "Inapakia...",
+      "yes": "Ndiyo",
+      "no": "Hapana",
+      "search": "Tafuta...",
+      "filter": "Chuja",
+      "clear": "Futa"
+    },
+    "marketplace": {
+      "title": "Kwa Kuuza",
+      "subtitle": "Shiriki wanyama wako na jamii",
+      "postAnimal": "Chapisha Mnyama Wako",
+      "noListings": "Hakuna orodha zilizopatikana",
+      "price": "Bei",
+      "location": "Mahali",
+      "health": "Afya"
+    },
+    "animals": {
+      "registration": "Usajili wa Mnyama",
+      "name": "Jina",
+      "age": "Umri",
+      "ageYears": "Miaka",
+      "ageMonths": "Miezi",
+      "ageDays": "Siku",
+      "weight": "Uzito (kg)",
+      "color": "Rangi",
+      "notes": "Maelezo",
+      "gender": "Jinsia",
+      "male": "Dume",
+      "female": "Jike"
+    },
+    "animalTypes": {
+      "cow": "Ng'ombe Jike",
+      "bull": "Ng'ombe Dume",
+      "ox": "Maksai",
+      "calf": "Ndama",
+      "goat": "Mbuzi",
+      "sheep": "Kondoo",
+      "poultry": "Kuku"
+    }
+  }
+}

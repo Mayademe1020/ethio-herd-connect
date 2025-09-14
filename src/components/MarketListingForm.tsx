@@ -28,8 +28,9 @@ export const MarketListingForm = ({ language, onClose, onSubmit, onSuccess }: Ma
 
   const translations = {
     am: {
-      title: 'ወደ ገበያ አስቀምጥ',
-      listingTitle: 'ርዕስ',
+      title: 'ለመሸጥ',
+      listingTitle: 'ርዕስ (ባዶ ሊሆን ይችላል)',
+      titleOptional: 'ምሳሌ: ጤናማ ላም',
       category: 'ምድብ',
       price: 'ዋጋ',
       location: 'አካባቢ',
@@ -42,8 +43,9 @@ export const MarketListingForm = ({ language, onClose, onSubmit, onSuccess }: Ma
       cancel: 'ሰርዝ'
     },
     en: {
-      title: 'Create Market Listing',
-      listingTitle: 'Title',
+      title: 'For Sale',
+      listingTitle: 'Title (Optional)',
+      titleOptional: 'Example: Healthy cow',
       category: 'Category',
       price: 'Price',
       location: 'Location',
@@ -56,8 +58,9 @@ export const MarketListingForm = ({ language, onClose, onSubmit, onSuccess }: Ma
       cancel: 'Cancel'
     },
     or: {
-      title: 'Gabaa Irratti Kaa\'uu',
-      listingTitle: 'Mata Duree',
+      title: 'Gurgurtaaf',
+      listingTitle: 'Mata Duree (Dirqama Miti)',
+      titleOptional: 'Fakkeera: Loon fayyaa',
       category: 'Akaakuu',
       price: 'Gatii',
       location: 'Bakka',
@@ -70,8 +73,9 @@ export const MarketListingForm = ({ language, onClose, onSubmit, onSuccess }: Ma
       cancel: 'Dhiisi'
     },
     sw: {
-      title: 'Tengeneza Tangazo la Soko',
-      listingTitle: 'Kichwa',
+      title: 'Kwa Kuuza',
+      listingTitle: 'Kichwa (Si Lazima)',
+      titleOptional: 'Mfano: Ng\'ombe mzuri',
       category: 'Jamii',
       price: 'Bei',
       location: 'Mahali',
@@ -130,7 +134,7 @@ export const MarketListingForm = ({ language, onClose, onSubmit, onSuccess }: Ma
                 id="title"
                 value={formData.title}
                 onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                required
+                placeholder={t.titleOptional}
               />
             </div>
 
@@ -144,10 +148,13 @@ export const MarketListingForm = ({ language, onClose, onSubmit, onSuccess }: Ma
                   <SelectValue placeholder={t.category} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="cattle">🐄 Cattle</SelectItem>
-                  <SelectItem value="goat">🐐 Goat</SelectItem>
-                  <SelectItem value="sheep">🐑 Sheep</SelectItem>
-                  <SelectItem value="poultry">🐔 Poultry</SelectItem>
+                  <SelectItem value="cow">🐄 {language === 'am' ? 'ላም' : language === 'or' ? 'Loon' : language === 'sw' ? 'Ng\'ombe Jike' : 'Cow'}</SelectItem>
+                  <SelectItem value="bull">🐂 {language === 'am' ? 'በሬ' : language === 'or' ? 'Korma' : language === 'sw' ? 'Ng\'ombe Dume' : 'Bull'}</SelectItem>
+                  <SelectItem value="ox">🐂 {language === 'am' ? 'ወንድ በሬ' : language === 'or' ? 'Korma Qotee' : language === 'sw' ? 'Maksai' : 'Ox'}</SelectItem>
+                  <SelectItem value="calf">🐄 {language === 'am' ? 'ተቦ' : language === 'or' ? 'Jabbiituu' : language === 'sw' ? 'Ndama' : 'Calf'}</SelectItem>
+                  <SelectItem value="goat">🐐 {language === 'am' ? 'ፍየል' : language === 'or' ? 'Re\'ee' : language === 'sw' ? 'Mbuzi' : 'Goat'}</SelectItem>
+                  <SelectItem value="sheep">🐑 {language === 'am' ? 'በግ' : language === 'or' ? 'Hoolaa' : language === 'sw' ? 'Kondoo' : 'Sheep'}</SelectItem>
+                  <SelectItem value="poultry">🐔 {language === 'am' ? 'ዶሮ' : language === 'or' ? 'Lukku' : language === 'sw' ? 'Kuku' : 'Poultry'}</SelectItem>
                 </SelectContent>
               </Select>
             </div>

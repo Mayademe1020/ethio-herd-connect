@@ -17,44 +17,44 @@ export const ViewModeToggle = ({
 }: ViewModeToggleProps) => {
   const translations = {
     am: {
-      cardView: 'ካርድ እይታ',
-      tableView: 'ሠንጠረዥ እይታ'
+      cardView: 'ሳጥን እይታ',
+      tableView: 'ዝርዝር እይታ'
     },
     en: {
-      cardView: 'Card View',
-      tableView: 'Table View'
+      cardView: 'Box View',
+      tableView: 'List View'
     },
     or: {
-      cardView: "Mul'akkaa Kaardii",
-      tableView: "Mul'akkaa Gabatee"
+      cardView: "Mul'akkaa Saanduqaa",
+      tableView: "Mul'akkaa Tarree"
     },
     sw: {
-      cardView: 'Mwongozo wa Kadi',
-      tableView: 'Mwongozo wa Jedwali'
+      cardView: 'Mwongozo wa Sanduku',
+      tableView: 'Mwongozo wa Orodha'
     }
   };
 
   const t = translations[language];
 
   return (
-    <div className="flex space-x-2">
+    <div className="flex space-x-3">
       <Button
         variant={viewMode === 'card' ? 'default' : 'outline'}
-        size="sm"
+        size="lg"
         onClick={() => onViewModeChange('card')}
-        className="flex items-center space-x-1"
+        className="farmer-button flex items-center space-x-3 view-transition-enter"
       >
-        <Grid3X3 className="w-4 h-4" />
-        <span className="hidden sm:inline">{t.cardView}</span>
+        <Grid3X3 className="w-5 h-5" />
+        <span className="hidden sm:inline font-medium">{t.cardView}</span>
       </Button>
       <Button
         variant={viewMode === 'table' ? 'default' : 'outline'}
-        size="sm"
+        size="lg"
         onClick={() => onViewModeChange('table')}
-        className="flex items-center space-x-1"
+        className="farmer-button flex items-center space-x-3 view-transition-enter"
       >
-        <List className="w-4 h-4" />
-        <span className="hidden sm:inline">{t.tableView}</span>
+        <List className="w-5 h-5" />
+        <span className="hidden sm:inline font-medium">{t.tableView}</span>
       </Button>
     </div>
   );

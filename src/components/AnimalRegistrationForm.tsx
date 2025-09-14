@@ -30,6 +30,8 @@ export const AnimalRegistrationForm = ({
     gender: '',
     color: '',
     weight: '',
+    ageYears: '',
+    ageMonths: '',
     notes: ''
   });
 
@@ -53,6 +55,8 @@ export const AnimalRegistrationForm = ({
       female: 'ሴት',
       color: 'ቀለም',
       weight: 'ክብደት (ኪ.ግ)',
+      ageYears: 'ዓመታት',
+      ageMonths: 'ወራት',
       notes: 'ማስታወሻዎች',
       submit: 'ምዝገባ',
       cancel: 'ሰርዝ',
@@ -74,6 +78,8 @@ export const AnimalRegistrationForm = ({
       female: 'Female',
       color: 'Color',
       weight: 'Weight (kg)',
+      ageYears: 'Years',
+      ageMonths: 'Months',
       notes: 'Notes',
       submit: 'Register',
       cancel: 'Cancel',
@@ -95,6 +101,8 @@ export const AnimalRegistrationForm = ({
       female: 'Dhalaa',
       color: 'Halluu',
       weight: 'Ulfaatina (kg)',
+      ageYears: 'Waggaawwan',
+      ageMonths: 'Ji\'oota',
       notes: 'Yaadannoo',
       submit: 'Galmeessi',
       cancel: 'Dhiisi',
@@ -116,6 +124,8 @@ export const AnimalRegistrationForm = ({
       female: 'Jike',
       color: 'Rangi',
       weight: 'Uzito (kg)',
+      ageYears: 'Miaka',
+      ageMonths: 'Miezi', 
       notes: 'Maelezo',
       submit: 'Sajili',
       cancel: 'Ghairi',
@@ -335,7 +345,9 @@ export const AnimalRegistrationForm = ({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="cow">🐄 {t.cow}</SelectItem>
-                  <SelectItem value="ox">🐂 {t.ox}</SelectItem>
+                  <SelectItem value="bull">🐂 {t.ox}</SelectItem>
+                  <SelectItem value="ox">🐂 ወንድ በሬ</SelectItem>
+                  <SelectItem value="calf">🐄 ተቦ</SelectItem>
                   <SelectItem value="goat">🐐 {t.goat}</SelectItem>
                   <SelectItem value="sheep">🐑 {t.sheep}</SelectItem>
                   <SelectItem value="poultry">🐔 {t.poultry}</SelectItem>
@@ -373,16 +385,33 @@ export const AnimalRegistrationForm = ({
               </div>
             </div>
 
-            {/* Birth Date and Weight Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            {/* Age Selection - Custom Input */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
               <div className="space-y-1 sm:space-y-2">
-                <Label htmlFor="birthDate" className="text-xs sm:text-sm font-medium">{t.birthDate}</Label>
+                <Label htmlFor="ageYears" className="text-xs sm:text-sm font-medium">{t.ageYears}</Label>
                 <Input
-                  id="birthDate"
-                  type="date"
-                  value={formData.birthDate}
-                  onChange={(e) => setFormData(prev => ({ ...prev, birthDate: e.target.value }))}
+                  id="ageYears"
+                  type="number"
+                  min="0"
+                  max="30"
+                  value={formData.ageYears}
+                  onChange={(e) => setFormData(prev => ({ ...prev, ageYears: e.target.value }))}
                   className="h-8 sm:h-10 text-xs sm:text-sm transition-all focus:ring-2 focus:ring-primary/20"
+                  placeholder="0"
+                />
+              </div>
+              
+              <div className="space-y-1 sm:space-y-2">
+                <Label htmlFor="ageMonths" className="text-xs sm:text-sm font-medium">{t.ageMonths}</Label>
+                <Input
+                  id="ageMonths"
+                  type="number"
+                  min="0"
+                  max="11"
+                  value={formData.ageMonths}
+                  onChange={(e) => setFormData(prev => ({ ...prev, ageMonths: e.target.value }))}
+                  className="h-8 sm:h-10 text-xs sm:text-sm transition-all focus:ring-2 focus:ring-primary/20"
+                  placeholder="0"
                 />
               </div>
 
