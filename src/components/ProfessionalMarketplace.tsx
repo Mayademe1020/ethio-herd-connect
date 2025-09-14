@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSecurePublicMarketplace } from '@/hooks/useSecurePublicMarketplace';
+import { useTranslations } from '@/hooks/useTranslations';
 import { ProfessionalAnimalCard } from '@/components/ProfessionalAnimalCard';
 import { MarketplaceFilters } from '@/components/MarketplaceFilters';
 import { ContactSellerModal } from '@/components/ContactSellerModal';
@@ -28,6 +29,7 @@ export const ProfessionalMarketplace = () => {
   const { language } = useLanguage();
   const { user } = useAuth();
   const { listings, loading, error } = useSecurePublicMarketplace();
+  const { t } = useTranslations();
   
   const [searchTerm, setSearchTerm] = useState('');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
@@ -47,84 +49,6 @@ export const ProfessionalMarketplace = () => {
     sellerRating: 0
   });
 
-  const translations = {
-    am: {
-      title: 'ለመሸጥ',
-      subtitle: 'እንስሳዎችዎን በማህበረሰቡ ያቀርቡ',
-      totalListings: 'ጠቅላላ ዝርዝሮች',
-      verifiedSellers: 'የተረጋገጡ ሻጮች',
-      avgRating: 'አማካይ ደረጃ',
-      newToday: 'ዛሬ አዲስ',
-      featuredListings: 'ተለይተው የቀረቡ',
-      postYourAnimal: 'እንስሳ ያስተዋውቁ',
-      noListings: 'ምንም ዝርዝሮች አልተገኙም',
-      filterResults: 'ውጤቶችን ያጣሩ',
-      gridView: 'ሳጥን እይታ',
-      listView: 'ዝርዝር እይታ',
-      showingResults: 'ውጤቶች እያሳዩ',
-      of: 'ከ',
-      results: 'ውጤቶች',
-      price: 'ዋጋ',
-      location: 'አካባቢ',
-      health: 'ጤናማነት'
-    },
-    en: {
-      title: 'For Sale',
-      subtitle: 'Share your animals with the community',
-      totalListings: 'Total Listings',
-      verifiedSellers: 'Verified Sellers',
-      avgRating: 'Average Rating',
-      newToday: 'New Today',
-      featuredListings: 'Featured Listings',
-      postYourAnimal: 'Post Your Animal',
-      noListings: 'No listings found',
-      filterResults: 'Filter Results',
-      gridView: 'Box View',
-      listView: 'List View',
-      showingResults: 'Showing',
-      of: 'of',
-      results: 'results',
-      price: 'Price',
-      location: 'Location',
-      health: 'Health'
-    },
-    or: {
-      title: 'Gabaa Bineensotaa Ogummaa',
-      subtitle: 'Bineensota keessan ogummaadhaan bituu fi gurguruu',
-      totalListings: 'Tarreewwan Waliigalaa',
-      verifiedSellers: 'Gurgurtoota Mirkaneeffaman',
-      avgRating: 'Madaallii Giddugaleessaa',
-      newToday: 'Har\'a Haaraa',
-      featuredListings: 'Tarreewwan Mul\'atan',
-      postYourAnimal: 'Bineensota Keessan Maxxansaa',
-      noListings: 'Tarreewwan hin argamne',
-      filterResults: 'Bu\'uura Calaluu',
-      gridView: 'Mul\'ata Grid',
-      listView: 'Mul\'ata Tarree',
-      showingResults: 'Mul\'isuu',
-      of: 'keessaa',
-      results: 'bu\'uura'
-    },
-    sw: {
-      title: 'Soko la Mifugo la Kitaalamu',
-      subtitle: 'Nunua na uza wanyama wako kwa utaalamu',
-      totalListings: 'Orodha Zote',
-      verifiedSellers: 'Wauzaji Waliothibitishwa',
-      avgRating: 'Kiwango cha Wastani',
-      newToday: 'Mpya Leo',
-      featuredListings: 'Orodha za Msingi',
-      postYourAnimal: 'Chapisha Mnyama Wako',
-      noListings: 'Hakuna orodha zilizopatikana',
-      filterResults: 'Chuja Matokeo',
-      gridView: 'Mwonekano wa Gridi',
-      listView: 'Mwonekano wa Orodha',
-      showingResults: 'Inaonyesha',
-      of: 'kati ya',
-      results: 'matokeo'
-    }
-  };
-
-  const t = translations[language];
 
   // Filter listings based on search and filters
   const filteredListings = listings.filter(listing => {
@@ -244,11 +168,11 @@ export const ProfessionalMarketplace = () => {
               <Shield className="w-6 h-6 text-emerald-700" />
             </div>
             <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
-              ለመሸጥ
+              {t('marketplace.title')}
             </h1>
           </div>
           <p className="text-base text-gray-700 max-w-xl mx-auto leading-relaxed">
-            {t.subtitle}
+            {t('marketplace.subtitle')}
           </p>
           
           {/* Large CTA Button - Farmer Friendly */}
@@ -257,14 +181,14 @@ export const ProfessionalMarketplace = () => {
             className="bg-emerald-600 hover:bg-emerald-700 text-white px-12 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 min-h-[56px] touch-target-large"
           >
             <Plus className="w-6 h-6 mr-3" />
-            {t.postYourAnimal}
+            {t('marketplace.postYourAnimal')}
           </Button>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
-            title={t.totalListings}
+            title={t('marketplace.totalListings')}
             value={stats.total}
             icon={TrendingUp}
             color="primary"
@@ -272,7 +196,7 @@ export const ProfessionalMarketplace = () => {
             trendValue="+12%"
           />
           <StatCard
-            title={t.verifiedSellers}
+            title={t('marketplace.verifiedSellers')}
             value={stats.verified}
             icon={Shield}
             color="success"
@@ -280,7 +204,7 @@ export const ProfessionalMarketplace = () => {
             trendValue="+8%"
           />
           <StatCard
-            title={t.avgRating}
+            title={t('marketplace.avgRating')}
             value={stats.avgRating}
             icon={Star}
             color="warning"
@@ -288,7 +212,7 @@ export const ProfessionalMarketplace = () => {
             trendValue="4.6★"
           />
           <StatCard
-            title={t.newToday}
+            title={t('marketplace.newToday')}
             value={stats.newToday}
             icon={Users}
             color="info"
@@ -319,7 +243,7 @@ export const ProfessionalMarketplace = () => {
               className="flex items-center gap-2"
             >
               <Filter className="w-4 h-4" />
-              {t.filterResults}
+              {t('marketplace.filterResults')}
             </Button>
             
             <div className="flex items-center gap-2">
@@ -345,7 +269,7 @@ export const ProfessionalMarketplace = () => {
             {/* Results Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="text-sm text-gray-600">
-                {t.showingResults} {filteredListings.length} {t.of} {listings.length} {t.results}
+                {t('marketplace.showingResults')} {filteredListings.length} {t('marketplace.of')} {listings.length} {t('marketplace.results')}
               </div>
               
             {/* Desktop View Toggle - Larger Touch Targets */}
@@ -357,7 +281,7 @@ export const ProfessionalMarketplace = () => {
                 className="min-h-[48px] px-6 font-semibold touch-target-large transition-all duration-200"
               >
                 <Grid className="w-5 h-5 mr-2" />
-                {t.gridView}
+                {t('marketplace.gridView')}
               </Button>
               <Button
                 variant={viewMode === 'list' ? 'default' : 'outline'}
@@ -366,7 +290,7 @@ export const ProfessionalMarketplace = () => {
                 className="min-h-[48px] px-6 font-semibold touch-target-large transition-all duration-200"
               >
                 <List className="w-5 h-5 mr-2" />
-                {t.listView}
+                {t('marketplace.listView')}
               </Button>
             </div>
             </div>
@@ -381,7 +305,7 @@ export const ProfessionalMarketplace = () => {
               <div className="text-center py-12">
                 <Eye className="w-16 h-16 text-gray-300 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  {t.noListings}
+                  {t('marketplace.noListings')}
                 </h3>
                 <p className="text-gray-600 mb-6">
                   Try adjusting your search or filters
