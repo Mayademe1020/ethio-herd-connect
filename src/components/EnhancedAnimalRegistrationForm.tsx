@@ -1,5 +1,8 @@
 
 import React, { useState } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,6 +28,7 @@ export const EnhancedAnimalRegistrationForm = ({
   onSuccess, 
   editAnimal 
 }: EnhancedAnimalRegistrationFormProps) => {
+  const { t } = useTranslations();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     name: editAnimal?.name || '',
@@ -40,111 +44,6 @@ export const EnhancedAnimalRegistrationForm = ({
   });
 
   const { registerAnimal, updateAnimal, loading } = useSecureAnimalRegistration();
-
-  const translations = {
-    am: {
-      title: editAnimal ? 'እንስሳ አርም' : 'አዲስ እንስሳ መዝግብ',
-      step1: 'መሠረታዊ መረጃ',
-      step2: 'አካላዊ ባህሪያት',
-      step3: 'የጤና መረጃ',
-      progress: 'እድገት',
-      next: 'ቀጣይ',
-      previous: 'ቀደም',
-      submit: editAnimal ? 'አዘምን' : 'መዝግብ',
-      cancel: 'ሰርዝ',
-      name: 'ስም',
-      species: 'ዝርያ',
-      breed: 'ዘር',
-      birthDate: 'የተወለደበት ቀን',
-      gender: 'ጾታ',
-      color: 'ቀለም',
-      weight: 'ክብደት (ኪግ)',
-      healthStatus: 'የጤና ሁኔታ',
-      notes: 'ማስታወሻ',
-      male: 'ወንድ',
-      female: 'ሴት',
-      healthy: 'ጤናማ',
-      sick: 'ህሙም',
-      attention: 'ትኩረት ያስፈልገዋል'
-    },
-    en: {
-      title: editAnimal ? 'Edit Animal' : 'Register New Animal',
-      step1: 'Basic Information',
-      step2: 'Physical Characteristics',
-      step3: 'Health Information',
-      progress: 'Progress',
-      next: 'Next',
-      previous: 'Previous',
-      submit: editAnimal ? 'Update' : 'Register',
-      cancel: 'Cancel',
-      name: 'Name',
-      species: 'Species',
-      breed: 'Breed',
-      birthDate: 'Birth Date',
-      gender: 'Gender',
-      color: 'Color',
-      weight: 'Weight (kg)',
-      healthStatus: 'Health Status',
-      notes: 'Notes',
-      male: 'Male',
-      female: 'Female',
-      healthy: 'Healthy',
-      sick: 'Sick',
-      attention: 'Needs Attention'
-    },
-    or: {
-      title: editAnimal ? 'Horii Sirreessuu' : 'Horii Haaraa Galmeessuu',
-      step1: 'Odeeffannoo Bu\'uuraa',
-      step2: 'Amala Qaamaa',
-      step3: 'Odeeffannoo Fayyaa',
-      progress: 'Adeemsa',
-      next: 'Itti Aansuuf',
-      previous: 'Duraanii',
-      submit: editAnimal ? 'Haaromsi' : 'Galmeessi',
-      cancel: 'Dhiisi',
-      name: 'Maqaa',
-      species: 'Gosa',
-      breed: 'Sanyii',
-      birthDate: 'Guyyaa Dhaloota',
-      gender: 'Saala',
-      color: 'Halluu',
-      weight: 'Ulfaatina (kg)',
-      healthStatus: 'Haala Fayyaa',
-      notes: 'Yaadannoo',
-      male: 'Dhiira',
-      female: 'Dhalaa',
-      healthy: 'Fayyaa',
-      sick: 'Dhukkubsaa',
-      attention: 'Xiyyeeffannoo Barbaada'
-    },
-    sw: {
-      title: editAnimal ? 'Hariri Mnyama' : 'Sajili Mnyama Mpya',
-      step1: 'Taarifa za Msingi',
-      step2: 'Sifa za Kimwili',
-      step3: 'Taarifa za Afya',
-      progress: 'Maendeleo',
-      next: 'Ifuatayo',
-      previous: 'Iliyotangulia',
-      submit: editAnimal ? 'Sasisha' : 'Sajili',
-      cancel: 'Ghairi',
-      name: 'Jina',
-      species: 'Aina',
-      breed: 'Aina',
-      birthDate: 'Tarehe ya Kuzaliwa',
-      gender: 'Jinsia',
-      color: 'Rangi',
-      weight: 'Uzito (kg)',
-      healthStatus: 'Hali ya Afya',
-      notes: 'Maelezo',
-      male: 'Dume',
-      female: 'Jike',
-      healthy: 'Mzuri',
-      sick: 'Mgonjwa',
-      attention: 'Anahitaji Umakini'
-    }
-  };
-
-  const t = translations[language];
 
   const ethiopianBreeds = {
     cattle: ['Boran', 'Horro', 'Arsi', 'Danakil', 'Fogera', 'Sheko'],
@@ -198,11 +97,11 @@ export const EnhancedAnimalRegistrationForm = ({
               <div className="w-16 h-16 bg-ethiopia-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
                 <User className="w-8 h-8 text-ethiopia-green-600" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-800">{t.step1}</h3>
+              <h3 className="text-lg font-semibold text-gray-800">Basic Information</h3>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="name">{t.name}</Label>
+              <Label htmlFor="name">{t('animals.name')}</Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -213,7 +112,7 @@ export const EnhancedAnimalRegistrationForm = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="type">{t.species}</Label>
+              <Label htmlFor="type">Animal Type</Label>
               <Select
                 value={formData.type}
                 onValueChange={(value) => setFormData(prev => ({ ...prev, type: value, breed: '' }))}
@@ -222,25 +121,20 @@ export const EnhancedAnimalRegistrationForm = ({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="cattle">
-                    {language === 'am' ? 'ከብት' : language === 'or' ? 'Loon' : language === 'sw' ? 'Ng\'ombe' : 'Cattle'}
-                  </SelectItem>
-                  <SelectItem value="sheep">
-                    {language === 'am' ? 'በግ' : language === 'or' ? 'Hoolaa' : language === 'sw' ? 'Kondoo' : 'Sheep'}
-                  </SelectItem>
-                  <SelectItem value="goat">
-                    {language === 'am' ? 'ፍየል' : language === 'or' ? 'Re\'ee' : language === 'sw' ? 'Mbuzi' : 'Goat'}
-                  </SelectItem>
-                  <SelectItem value="poultry">
-                    {language === 'am' ? 'ዶሮ' : language === 'or' ? 'Lukku' : language === 'sw' ? 'Kuku' : 'Poultry'}
-                  </SelectItem>
+                  <SelectItem value="cow">{t('animalTypes.cow')}</SelectItem>
+                  <SelectItem value="bull">{t('animalTypes.bull')}</SelectItem>
+                  <SelectItem value="ox">{t('animalTypes.ox')}</SelectItem>
+                  <SelectItem value="calf">{t('animalTypes.calf')}</SelectItem>
+                  <SelectItem value="sheep">{t('animalTypes.sheep')}</SelectItem>
+                  <SelectItem value="goat">{t('animalTypes.goat')}</SelectItem>
+                  <SelectItem value="poultry">{t('animalTypes.poultry')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {formData.type && (
               <div className="space-y-2">
-                <Label htmlFor="breed">{t.breed}</Label>
+                <Label htmlFor="breed">Breed</Label>
                 <Select
                   value={formData.breed}
                   onValueChange={(value) => setFormData(prev => ({ ...prev, breed: value }))}
@@ -268,12 +162,12 @@ export const EnhancedAnimalRegistrationForm = ({
               <div className="w-16 h-16 bg-ethiopia-gold-100 rounded-full flex items-center justify-center mx-auto mb-3">
                 <Beef className="w-8 h-8 text-ethiopia-gold-600" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-800">{t.step2}</h3>
+              <h3 className="text-lg font-semibold text-gray-800">Physical Characteristics</h3>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="gender">{t.gender}</Label>
+                <Label htmlFor="gender">{t('animals.gender')}</Label>
                 <Select
                   value={formData.gender}
                   onValueChange={(value) => setFormData(prev => ({ ...prev, gender: value }))}
@@ -282,14 +176,14 @@ export const EnhancedAnimalRegistrationForm = ({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="male">{t.male}</SelectItem>
-                    <SelectItem value="female">{t.female}</SelectItem>
+                    <SelectItem value="male">{t('animals.male')}</SelectItem>
+                    <SelectItem value="female">{t('animals.female')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="birthDate">{t.birthDate}</Label>
+                <Label htmlFor="birthDate">{t('animals.age')}</Label>
                 <Input
                   id="birthDate"
                   type="date"
@@ -301,7 +195,7 @@ export const EnhancedAnimalRegistrationForm = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="color">{t.color}</Label>
+              <Label htmlFor="color">{t('animals.color')}</Label>
               <Input
                 id="color"
                 value={formData.color}
@@ -311,7 +205,7 @@ export const EnhancedAnimalRegistrationForm = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="weight">{t.weight}</Label>
+              <Label htmlFor="weight">{t('animals.weight')}</Label>
               <Input
                 id="weight"
                 type="number"
@@ -338,11 +232,11 @@ export const EnhancedAnimalRegistrationForm = ({
               <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-3">
                 <Heart className="w-8 h-8 text-red-600" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-800">{t.step3}</h3>
+              <h3 className="text-lg font-semibold text-gray-800">Health Information</h3>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="healthStatus">{t.healthStatus}</Label>
+              <Label htmlFor="healthStatus">Health Status</Label>
               <Select
                 value={formData.healthStatus}
                 onValueChange={(value: 'healthy' | 'sick' | 'attention' | 'critical') => 
@@ -353,15 +247,15 @@ export const EnhancedAnimalRegistrationForm = ({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="healthy">{t.healthy}</SelectItem>
-                  <SelectItem value="attention">{t.attention}</SelectItem>
-                  <SelectItem value="sick">{t.sick}</SelectItem>
+                  <SelectItem value="healthy">Healthy</SelectItem>
+                  <SelectItem value="attention">Needs Attention</SelectItem>
+                  <SelectItem value="sick">Sick</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="notes">{t.notes}</Label>
+              <Label htmlFor="notes">{t('animals.notes')}</Label>
               <textarea
                 id="notes"
                 value={formData.notes}

@@ -13,16 +13,36 @@
       "no": "አይደለም",
       "search": "ፈልግ...",
       "filter": "ማጣሪያ",
-      "clear": "አጽዳ"
+      "clear": "አጽዳ",
+      "details": "ዝርዝር",
+      "contact": "ይገናኙ",
+      "description": "መግለጫ",
+      "loginToContact": "ለመገናኘት ይግቡ",
+      "excellentHealth": "በጣም ጤናማ",
+      "goodHealth": "ጤናማ",
+      "priceOnRequest": "ዋጋ በጥያቄ",
+      "verified": "የተረጋገጠ",
+      "sellerInfo": "የሻጭ መረጃ"
     },
     "marketplace": {
       "title": "ለመሸጥ",
       "subtitle": "እንስሳዎችዎን በማህበረሰቡ ያቀርቡ",
       "postAnimal": "እንስሳ ያስተዋውቁ",
+      "postYourAnimal": "የእርስዎን እንስሳ ያስተዋውቁ",
       "noListings": "ምንም ዝርዝሮች አልተገኙም",
       "price": "ዋጋ",
       "location": "አካባቢ",
-      "health": "ጤናማነት"
+      "health": "ጤናማነት",
+      "totalListings": "ጠቅላላ ዝርዝሮች",
+      "verifiedSellers": "የተረጋገጡ ሻጮች",
+      "avgRating": "አማካይ ደረጃ",
+      "newToday": "ዛሬ አዲስ",
+      "filterResults": "ውጤቶችን ያጣሩ",
+      "showingResults": "ውጤቶችን በማሳየት ላይ",
+      "of": "ከ",
+      "results": "ውጤቶች",
+      "gridView": "የሰንጠረዥ እይታ",
+      "listView": "የዝርዝር እይታ"
     },
     "animals": {
       "registration": "እንስሳ ምዝገባ",
@@ -36,7 +56,8 @@
       "notes": "ማስታወሻዎች",
       "gender": "ጾታ",
       "male": "ወንድ",
-      "female": "ሴት"
+      "female": "ሴት",
+      "description": "መግለጫ"
     },
     "animalTypes": {
       "cow": "ላም",
