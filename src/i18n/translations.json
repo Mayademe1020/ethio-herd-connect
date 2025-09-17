@@ -24,6 +24,16 @@
       "verified": "የተረጋገጠ",
       "sellerInfo": "የሻጭ መረጃ"
     },
+    "navigation": {
+      "title": "የእንስሳት አስተዳደር",
+      "home": "ቤት",
+      "animals": "እንስሳት",
+      "health": "ጤንነት",
+      "growth": "እድገት",
+      "market": "ገበያ",
+      "profile": "መግለጫ",
+      "notifications": "ማሳወቂያዎች"
+    },
     "marketplace": {
       "title": "ለመሸጥ",
       "subtitle": "እንስሳዎችዎን በማህበረሰቡ ያቀርቡ",
@@ -42,7 +52,10 @@
       "of": "ከ",
       "results": "ውጤቶች",
       "gridView": "የሰንጠረዥ እይታ",
-      "listView": "የዝርዝር እይታ"
+      "listView": "የዝርዝር እይታ",
+      "activeListings": "ንቁ ዝርዝሮች",
+      "secureMarket": "ደህንነቱ የተጠበቀ ገበያ",
+      "loginRequired": "ዝርዝር ለመፍጠር እባክዎ ይግቡ"
     },
     "animals": {
       "registration": "እንስሳ ምዝገባ",
@@ -85,6 +98,16 @@
       "filter": "Filter",
       "clear": "Clear"
     },
+    "navigation": {
+      "title": "Livestock Management",
+      "home": "Home",
+      "animals": "Animals",
+      "health": "Health",
+      "growth": "Growth",
+      "market": "Market",
+      "profile": "Profile",
+      "notifications": "Notifications"
+    },
     "marketplace": {
       "title": "For Sale",
       "subtitle": "Share your animals with the community",
@@ -92,7 +115,13 @@
       "noListings": "No listings found",
       "price": "Price",
       "location": "Location",
-      "health": "Health"
+      "health": "Health",
+      "totalListings": "Total Listings",
+      "verifiedSellers": "Verified Sellers",
+      "avgRating": "Average Rating",
+      "activeListings": "Active Listings",
+      "secureMarket": "Secure Market",
+      "loginRequired": "Please log in to create listings"
     },
     "animals": {
       "registration": "Animal Registration",
@@ -134,6 +163,16 @@
       "filter": "Calaluu",
       "clear": "Qulqulleessi"
     },
+    "navigation": {
+      "title": "Bulchiinsa Horii",
+      "home": "Mana",
+      "animals": "Horii",
+      "health": "Fayyaa",
+      "growth": "Guddina",
+      "market": "Gabaa",
+      "profile": "Ibsa",
+      "notifications": "Beeksisa"
+    },
     "marketplace": {
       "title": "Gurgurtaaf",
       "subtitle": "Bineensota keessan hawaasa waliin qooddadhaa",
@@ -141,7 +180,13 @@
       "noListings": "Tarreewwan hin argamne",
       "price": "Gatii",
       "location": "Bakka",
-      "health": "Fayyaa"
+      "health": "Fayyaa",
+      "totalListings": "Tarreewwan Waliigalaa",
+      "verifiedSellers": "Gurgurattoota Mirkaneeffaman",
+      "avgRating": "Madaallii Giddugaleessaa",
+      "activeListings": "Tarreewwan Sochii",
+      "secureMarket": "Gabaa Nageenya",
+      "loginRequired": "Tarree uumuuf seenuu qabda"
     },
     "animals": {
       "registration": "Galmee Horii",
@@ -183,6 +228,16 @@
       "filter": "Chuja",
       "clear": "Futa"
     },
+    "navigation": {
+      "title": "Usimamizi wa Mifugo",
+      "home": "Nyumbani",
+      "animals": "Wanyama",
+      "health": "Afya",
+      "growth": "Ukuaji",
+      "market": "Soko",
+      "profile": "Wasifu",
+      "notifications": "Arifa"
+    },
     "marketplace": {
       "title": "Kwa Kuuza",
       "subtitle": "Shiriki wanyama wako na jamii",
@@ -190,7 +245,13 @@
       "noListings": "Hakuna orodha zilizopatikana",
       "price": "Bei",
       "location": "Mahali",
-      "health": "Afya"
+      "health": "Afya",
+      "totalListings": "Orodha Zote",
+      "verifiedSellers": "Wauzaji Waliothibitishwa",
+      "avgRating": "Kiwango cha Wastani",
+      "activeListings": "Orodha Hai",
+      "secureMarket": "Soko Salama",
+      "loginRequired": "Tafadhali ingia ili kuunda orodha"
     },
     "animals": {
       "registration": "Usajili wa Mnyama",
