@@ -55,7 +55,15 @@
       "listView": "የዝርዝር እይታ",
       "activeListings": "ንቁ ዝርዝሮች",
       "secureMarket": "ደህንነቱ የተጠበቀ ገበያ",
-      "loginRequired": "ዝርዝር ለመፍጠር እባክዎ ይግቡ"
+      "loginRequired": "ዝርዝር ለመፍጠር እባክዎ ይግቡ",
+      "listingTitle": "ርዕስ (ባዶ ሊሆን ይችላል)",
+      "titleOptional": "ምሳሌ: ጤናማ ላም",
+      "category": "ምድብ",
+      "contactMethod": "የመገናኛ መንገድ",
+      "phone": "ስልክ",
+      "email": "ኢሜይል",
+      "contactValue": "የመገናኛ ዝርዝር",
+      "submit": "አስቀምጥ"
     },
     "animals": {
       "registration": "እንስሳ ምዝገባ",
@@ -70,7 +78,11 @@
       "gender": "ጾታ",
       "male": "ወንድ",
       "female": "ሴት",
-      "description": "መግለጫ"
+      "description": "መግለጫ",
+      "type": "ዓይነት",
+      "breed": "ዝርያ",
+      "animalId": "የእንስሳ መለያ",
+      "submit": "ምዝገባ"
     },
     "animalTypes": {
       "cow": "ላም",
@@ -121,7 +133,15 @@
       "avgRating": "Average Rating",
       "activeListings": "Active Listings",
       "secureMarket": "Secure Market",
-      "loginRequired": "Please log in to create listings"
+      "loginRequired": "Please log in to create listings",
+      "listingTitle": "Title (Optional)",
+      "titleOptional": "Example: Healthy cow",
+      "category": "Category",
+      "contactMethod": "Contact Method",
+      "phone": "Phone",
+      "email": "Email",
+      "contactValue": "Contact Details",
+      "submit": "Create Listing"
     },
     "animals": {
       "registration": "Animal Registration",
@@ -135,7 +155,11 @@
       "notes": "Notes",
       "gender": "Gender",
       "male": "Male",
-      "female": "Female"
+      "female": "Female",
+      "type": "Type",
+      "breed": "Breed",
+      "animalId": "Animal ID",
+      "submit": "Register"
     },
     "animalTypes": {
       "cow": "Cow",
@@ -186,7 +210,15 @@
       "avgRating": "Madaallii Giddugaleessaa",
       "activeListings": "Tarreewwan Sochii",
       "secureMarket": "Gabaa Nageenya",
-      "loginRequired": "Tarree uumuuf seenuu qabda"
+      "loginRequired": "Tarree uumuuf seenuu qabda",
+      "listingTitle": "Mata Duree (Dirqama Miti)",
+      "titleOptional": "Fakkeera: Loon fayyaa",
+      "category": "Akaakuu",
+      "contactMethod": "Mala Qunnamtii",
+      "phone": "Bilbila",
+      "email": "Imeelii",
+      "contactValue": "Ibsa Qunnamtii",
+      "submit": "Kaa'i"
     },
     "animals": {
       "registration": "Galmee Horii",
@@ -200,7 +232,11 @@
       "notes": "Yaadannoo",
       "gender": "Saala",
       "male": "Dhiira",
-      "female": "Dhalaa"
+      "female": "Dhalaa",
+      "type": "Gosa",
+      "breed": "Sanyii",
+      "animalId": "Eenyummaa Horii",
+      "submit": "Galmeessi"
     },
     "animalTypes": {
       "cow": "Loon",
@@ -251,7 +287,15 @@
       "avgRating": "Kiwango cha Wastani",
       "activeListings": "Orodha Hai",
       "secureMarket": "Soko Salama",
-      "loginRequired": "Tafadhali ingia ili kuunda orodha"
+      "loginRequired": "Tafadhali ingia ili kuunda orodha",
+      "listingTitle": "Kichwa (Si Lazima)",
+      "titleOptional": "Mfano: Ng'ombe mzuri",
+      "category": "Jamii",
+      "contactMethod": "Njia ya Mawasiliano",
+      "phone": "Simu",
+      "email": "Barua pepe",
+      "contactValue": "Maelezo ya Mawasiliano",
+      "submit": "Tengeneza"
     },
     "animals": {
       "registration": "Usajili wa Mnyama",
@@ -265,7 +309,11 @@
       "notes": "Maelezo",
       "gender": "Jinsia",
       "male": "Dume",
-      "female": "Jike"
+      "female": "Jike",
+      "type": "Aina",
+      "breed": "Aina",
+      "animalId": "Kitambulisho cha Mnyama",
+      "submit": "Sajili"
     },
     "animalTypes": {
       "cow": "Ng'ombe Jike",

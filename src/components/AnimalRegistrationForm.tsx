@@ -10,6 +10,8 @@ import { Language } from '@/types';
 import { generateContinuousAnimalNumber, validateInput, sanitizeInput } from '@/utils/animalIdGenerator';
 import { useToastNotifications } from '@/hooks/useToastNotifications';
 import { supabase } from '@/integrations/supabase/client';
+import { useTranslations } from '@/hooks/useTranslations';
+import { ANIMAL_TYPES, ANIMAL_TYPE_ICONS } from '@/utils/animalTypes';
 
 interface AnimalRegistrationFormProps {
   language: Language;
@@ -42,103 +44,7 @@ export const AnimalRegistrationForm = ({
   const [farmProfile, setFarmProfile] = useState<any>(null);
   const [existingAnimals, setExistingAnimals] = useState<any[]>([]);
   const { showError, showSuccess } = useToastNotifications();
-
-  const translations = {
-    am: {
-      title: 'እንስሳ ምዝገባ',
-      name: 'ስም',
-      type: 'ዓይነት',
-      breed: 'ዝርያ',
-      birthDate: 'የተወለደ ቀን',
-      gender: 'ጾታ',
-      male: 'ወንድ',
-      female: 'ሴት',
-      color: 'ቀለም',
-      weight: 'ክብደት (ኪ.ግ)',
-      ageYears: 'ዓመታት',
-      ageMonths: 'ወራት',
-      notes: 'ማስታወሻዎች',
-      submit: 'ምዝገባ',
-      cancel: 'ሰርዝ',
-      animalId: 'የእንስሳ መለያ',
-      cow: 'ላም',
-      ox: 'በሬ',
-      goat: 'ፍየል',
-      sheep: 'በግ',
-      poultry: 'ዶሮ'
-    },
-    en: {
-      title: 'Animal Registration',
-      name: 'Name',
-      type: 'Type',
-      breed: 'Breed',
-      birthDate: 'Birth Date',
-      gender: 'Gender',
-      male: 'Male',
-      female: 'Female',
-      color: 'Color',
-      weight: 'Weight (kg)',
-      ageYears: 'Years',
-      ageMonths: 'Months',
-      notes: 'Notes',
-      submit: 'Register',
-      cancel: 'Cancel',
-      animalId: 'Animal ID',
-      cow: 'Cow',
-      ox: 'Ox',
-      goat: 'Goat',
-      sheep: 'Sheep',
-      poultry: 'Poultry'
-    },
-    or: {
-      title: 'Galmee Horii',
-      name: 'Maqaa',
-      type: 'Gosa',
-      breed: 'Sanyii',
-      birthDate: 'Guyyaa Dhalootaa',
-      gender: 'Saala',
-      male: 'Korma',
-      female: 'Dhalaa',
-      color: 'Halluu',
-      weight: 'Ulfaatina (kg)',
-      ageYears: 'Waggaawwan',
-      ageMonths: 'Ji\'oota',
-      notes: 'Yaadannoo',
-      submit: 'Galmeessi',
-      cancel: 'Dhiisi',
-      animalId: 'Eenyummaa Horii',
-      cow: 'Loon',
-      ox: 'Korma Loon',
-      goat: 'Re\'ee',
-      sheep: 'Hoolaa',
-      poultry: 'Lukku'
-    },
-    sw: {
-      title: 'Usajili wa Mnyama',
-      name: 'Jina',
-      type: 'Aina',
-      breed: 'Aina',
-      birthDate: 'Tarehe ya Kuzaliwa',
-      gender: 'Jinsia',
-      male: 'Dume',
-      female: 'Jike',
-      color: 'Rangi',
-      weight: 'Uzito (kg)',
-      ageYears: 'Miaka',
-      ageMonths: 'Miezi', 
-      notes: 'Maelezo',
-      submit: 'Sajili',
-      cancel: 'Ghairi',
-      animalId: 'Kitambulisho cha Mnyama',
-      cow: 'Ng\'ombe',
-      ox: 'Ng\'ombe Dume',
-      goat: 'Mbuzi',
-      sheep: 'Kondoo',
-      poultry: 'Kuku'
-    }
-  };
-
-  const t = translations[language];
+  const { t, getAnimalTypeTranslation } = useTranslations();
 
   useEffect(() => {
     fetchFarmProfile();
@@ -212,9 +118,7 @@ export const AnimalRegistrationForm = ({
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!validateInput(formData.name, 'name')) {
-      newErrors.name = language === 'am' ? 'ስም ያስፈልጋል' : 'Name is required';
-    }
+    // Name is now optional - no validation needed
     
     if (!formData.type) {
       newErrors.type = language === 'am' ? 'ዓይነት ይምረጡ' : 'Please select animal type';
@@ -283,7 +187,7 @@ export const AnimalRegistrationForm = ({
         <CardHeader className="flex flex-row items-center justify-between pb-2 sm:pb-4">
           <CardTitle className="text-sm sm:text-base lg:text-lg flex items-center space-x-1 sm:space-x-2">
             <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-            <span>{t.title}</span>
+            <span>{t('animals.registration')}</span>
           </CardTitle>
           <Button
             variant="ghost"
@@ -301,7 +205,7 @@ export const AnimalRegistrationForm = ({
             <div className="bg-primary/5 p-2 sm:p-3 rounded-lg border border-primary/20 animate-in slide-in-from-top-2 duration-300">
               <div className="flex items-center justify-between mb-1 sm:mb-2">
                 <Label className="text-xs sm:text-sm font-medium text-primary">
-                  {t.animalId}
+                  {t('animals.animalId')}
                 </Label>
                 <Button
                   type="button"
@@ -322,35 +226,33 @@ export const AnimalRegistrationForm = ({
           <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
             {/* Name Field */}
             <div className="space-y-1 sm:space-y-2">
-              <Label htmlFor="name" className="text-xs sm:text-sm font-medium">{t.name} *</Label>
+              <Label htmlFor="name" className="text-xs sm:text-sm font-medium">{t('animals.name')}</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                 className="h-8 sm:h-10 text-xs sm:text-sm transition-all focus:ring-2 focus:ring-primary/20"
-                required
+                placeholder={t('animals.name')}
               />
               {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
             </div>
 
             {/* Type Selection */}
             <div className="space-y-1 sm:space-y-2">
-              <Label htmlFor="type" className="text-xs sm:text-sm font-medium">{t.type} *</Label>
+              <Label htmlFor="type" className="text-xs sm:text-sm font-medium">{t('animals.type')} *</Label>
               <Select
                 value={formData.type}
                 onValueChange={(value) => setFormData(prev => ({ ...prev, type: value }))}
               >
                 <SelectTrigger className="h-8 sm:h-10 text-xs sm:text-sm transition-all focus:ring-2 focus:ring-primary/20">
-                  <SelectValue placeholder={t.type} />
+                  <SelectValue placeholder={t('animals.type')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="cow">🐄 {t.cow}</SelectItem>
-                  <SelectItem value="bull">🐂 {t.ox}</SelectItem>
-                  <SelectItem value="ox">🐂 ወንድ በሬ</SelectItem>
-                  <SelectItem value="calf">🐄 ተቦ</SelectItem>
-                  <SelectItem value="goat">🐐 {t.goat}</SelectItem>
-                  <SelectItem value="sheep">🐑 {t.sheep}</SelectItem>
-                  <SelectItem value="poultry">🐔 {t.poultry}</SelectItem>
+                  {ANIMAL_TYPES.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {ANIMAL_TYPE_ICONS[type]} {getAnimalTypeTranslation(type)}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               {errors.type && <p className="text-xs text-destructive">{errors.type}</p>}
@@ -359,7 +261,7 @@ export const AnimalRegistrationForm = ({
             {/* Breed and Gender Grid - Responsive */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div className="space-y-1 sm:space-y-2">
-                <Label htmlFor="breed" className="text-xs sm:text-sm font-medium">{t.breed}</Label>
+                <Label htmlFor="breed" className="text-xs sm:text-sm font-medium">{t('animals.breed')}</Label>
                 <Input
                   id="breed"
                   value={formData.breed}
@@ -369,17 +271,17 @@ export const AnimalRegistrationForm = ({
               </div>
 
               <div className="space-y-1 sm:space-y-2">
-                <Label htmlFor="gender" className="text-xs sm:text-sm font-medium">{t.gender}</Label>
+                <Label htmlFor="gender" className="text-xs sm:text-sm font-medium">{t('animals.gender')}</Label>
                 <Select
                   value={formData.gender}
                   onValueChange={(value) => setFormData(prev => ({ ...prev, gender: value }))}
                 >
                   <SelectTrigger className="h-8 sm:h-10 text-xs sm:text-sm transition-all focus:ring-2 focus:ring-primary/20">
-                    <SelectValue placeholder={t.gender} />
+                    <SelectValue placeholder={t('animals.gender')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="male">{t.male}</SelectItem>
-                    <SelectItem value="female">{t.female}</SelectItem>
+                    <SelectItem value="male">{t('animals.male')}</SelectItem>
+                    <SelectItem value="female">{t('animals.female')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -388,7 +290,7 @@ export const AnimalRegistrationForm = ({
             {/* Age Selection - Custom Input */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
               <div className="space-y-1 sm:space-y-2">
-                <Label htmlFor="ageYears" className="text-xs sm:text-sm font-medium">{t.ageYears}</Label>
+                <Label htmlFor="ageYears" className="text-xs sm:text-sm font-medium">{t('animals.ageYears')}</Label>
                 <Input
                   id="ageYears"
                   type="number"
@@ -402,7 +304,7 @@ export const AnimalRegistrationForm = ({
               </div>
               
               <div className="space-y-1 sm:space-y-2">
-                <Label htmlFor="ageMonths" className="text-xs sm:text-sm font-medium">{t.ageMonths}</Label>
+                <Label htmlFor="ageMonths" className="text-xs sm:text-sm font-medium">{t('animals.ageMonths')}</Label>
                 <Input
                   id="ageMonths"
                   type="number"
@@ -416,7 +318,7 @@ export const AnimalRegistrationForm = ({
               </div>
 
               <div className="space-y-1 sm:space-y-2">
-                <Label htmlFor="weight" className="text-xs sm:text-sm font-medium">{t.weight}</Label>
+                <Label htmlFor="weight" className="text-xs sm:text-sm font-medium">{t('animals.weight')}</Label>
                 <Input
                   id="weight"
                   type="number"
@@ -431,7 +333,7 @@ export const AnimalRegistrationForm = ({
 
             {/* Color */}
             <div className="space-y-1 sm:space-y-2">
-              <Label htmlFor="color" className="text-xs sm:text-sm font-medium">{t.color}</Label>
+              <Label htmlFor="color" className="text-xs sm:text-sm font-medium">{t('animals.color')}</Label>
               <Input
                 id="color"
                 value={formData.color}
@@ -442,7 +344,7 @@ export const AnimalRegistrationForm = ({
 
             {/* Notes */}
             <div className="space-y-1 sm:space-y-2">
-              <Label htmlFor="notes" className="text-xs sm:text-sm font-medium">{t.notes}</Label>
+              <Label htmlFor="notes" className="text-xs sm:text-sm font-medium">{t('animals.notes')}</Label>
               <Textarea
                 id="notes"
                 value={formData.notes}
@@ -460,7 +362,7 @@ export const AnimalRegistrationForm = ({
                 className="flex-1 h-8 sm:h-10 text-xs sm:text-sm bg-primary hover:bg-primary/90 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
               >
                 {loading && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
-                {loading ? 'Saving...' : t.submit}
+                {loading ? 'Saving...' : t('animals.submit')}
               </Button>
               <Button 
                 type="button" 
@@ -468,7 +370,7 @@ export const AnimalRegistrationForm = ({
                 onClick={onClose} 
                 className="h-8 sm:h-10 text-xs sm:text-sm px-3 sm:px-4 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               >
-                {t.cancel}
+                {t('common.cancel')}
               </Button>
             </div>
           </form>

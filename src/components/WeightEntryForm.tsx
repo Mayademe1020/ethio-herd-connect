@@ -11,6 +11,7 @@ import { useSecureGrowthTracking } from '@/hooks/useSecureGrowthTracking';
 import { useAnimalSelection } from '@/hooks/useAnimalSelection';
 import { AnimalSelectorModal } from './AnimalSelectorModal';
 import { AnimalIdDisplay } from './AnimalIdDisplay';
+import { useTranslations } from '@/hooks/useTranslations';
 
 interface WeightEntryFormProps {
   language: Language;
@@ -35,50 +36,10 @@ export const WeightEntryForm = ({
 
   const { recordWeight, loading } = useSecureGrowthTracking();
   const { selectedAnimal, isSelectionModalOpen, selectAnimal, openSelection, closeSelection } = useAnimalSelection();
+  const { t } = useTranslations();
 
   // Use preselected animal if provided
   const currentAnimal = animal || selectedAnimal;
-
-  const translations = {
-    am: {
-      title: 'ክብደት መዝገብ',
-      selectAnimal: 'እንስሳ ምረጥ',
-      weight: 'ክብደት (ኪ.ግ)',
-      date: 'ቀን',
-      notes: 'ማስታወሻዎች',
-      submit: 'መዝግብ',
-      cancel: 'ሰርዝ'
-    },
-    en: {
-      title: 'Weight Record',
-      selectAnimal: 'Select Animal',
-      weight: 'Weight (kg)',
-      date: 'Date',
-      notes: 'Notes',
-      submit: 'Record',
-      cancel: 'Cancel'
-    },
-    or: {
-      title: 'Galmee Ulfaatinaa',
-      selectAnimal: 'Horii Filachuu',
-      weight: 'Ulfaatina (kg)',
-      date: 'Guyyaa',
-      notes: 'Yaadannoo',
-      submit: 'Galmeessi',
-      cancel: 'Dhiisi'
-    },
-    sw: {
-      title: 'Rekodi ya Uzito',
-      selectAnimal: 'Chagua Mnyama',
-      weight: 'Uzito (kg)',
-      date: 'Tarehe',
-      notes: 'Maelezo',
-      submit: 'Rekodi',
-      cancel: 'Ghairi'
-    }
-  };
-
-  const t = translations[language];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,7 +81,7 @@ export const WeightEntryForm = ({
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg font-semibold flex items-center space-x-2">
               <Scale className="w-5 h-5 text-blue-600" />
-              <span>{t.title}</span>
+              <span>{t('growth.weightRecord')}</span>
             </CardTitle>
             <Button
               variant="ghost"
@@ -135,7 +96,7 @@ export const WeightEntryForm = ({
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Animal Selection */}
               <div className="space-y-2">
-                <Label>{t.selectAnimal}</Label>
+                <Label>{t('growth.selectAnimal')}</Label>
                 {currentAnimal ? (
                   <div className="p-3 bg-gray-50 rounded-lg flex items-center justify-between">
                     <div>
@@ -150,13 +111,13 @@ export const WeightEntryForm = ({
                   </div>
                 ) : (
                   <Button variant="outline" onClick={openSelection} className="w-full">
-                    {t.selectAnimal}
+                    {t('growth.selectAnimal')}
                   </Button>
                 )}
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="weight">{t.weight}</Label>
+                <Label htmlFor="weight">{t('animals.weight')}</Label>
                 <Input
                   id="weight"
                   type="number"
@@ -168,7 +129,7 @@ export const WeightEntryForm = ({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="date">{t.date}</Label>
+                <Label htmlFor="date">{t('common.date')}</Label>
                 <Input
                   id="date"
                   type="date"
@@ -179,7 +140,7 @@ export const WeightEntryForm = ({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="notes">{t.notes}</Label>
+                <Label htmlFor="notes">{t('animals.notes')}</Label>
                 <Textarea
                   id="notes"
                   value={formData.notes}
@@ -194,10 +155,10 @@ export const WeightEntryForm = ({
                   className="flex-1 bg-blue-600 hover:bg-blue-700"
                   disabled={loading || !currentAnimal}
                 >
-                  {loading ? 'Recording...' : t.submit}
+                  {loading ? 'Recording...' : t('common.save')}
                 </Button>
                 <Button type="button" variant="outline" onClick={onClose} className="flex-1">
-                  {t.cancel}
+                  {t('common.cancel')}
                 </Button>
               </div>
             </form>
