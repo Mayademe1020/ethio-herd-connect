@@ -278,12 +278,12 @@ export const EnhancedAnimalRegistrationForm = ({
         <CardHeader className="flex flex-row items-center justify-between border-b border-ethiopia-green-100">
           <div className="flex-1">
             <CardTitle className="text-xl font-bold text-ethiopia-green-800 mb-2">
-              {t.title}
+              {t('animals.registration')}
             </CardTitle>
             <div className="flex items-center space-x-4">
               <div className="flex-1">
                 <div className="flex justify-between text-sm text-gray-600 mb-1">
-                  <span>{t.progress}</span>
+                  <span>Progress</span>
                   <span>{Math.round(progress)}%</span>
                 </div>
                 <Progress value={progress} className="h-2" />
@@ -316,7 +316,7 @@ export const EnhancedAnimalRegistrationForm = ({
                 className="flex items-center space-x-2"
               >
                 <ArrowLeft className="w-4 h-4" />
-                <span>{t.previous}</span>
+                <span>{t('common.previous')}</span>
               </Button>
 
               <Button
@@ -325,7 +325,7 @@ export const EnhancedAnimalRegistrationForm = ({
                 onClick={onClose}
                 className="text-gray-600 hover:text-gray-800"
               >
-                {t.cancel}
+                {t('common.cancel')}
               </Button>
 
               {currentStep === totalSteps ? (
@@ -334,7 +334,7 @@ export const EnhancedAnimalRegistrationForm = ({
                   className="bg-ethiopia-green-600 hover:bg-ethiopia-green-700 text-white"
                   disabled={loading}
                 >
-                  {loading ? 'Processing...' : t.submit}
+                  {loading ? 'Processing...' : t('common.save')}
                 </Button>
               ) : (
                 <Button
@@ -342,7 +342,7 @@ export const EnhancedAnimalRegistrationForm = ({
                   onClick={() => setCurrentStep(prev => Math.min(totalSteps, prev + 1))}
                   className="bg-ethiopia-green-600 hover:bg-ethiopia-green-700 text-white flex items-center space-x-2"
                 >
-                  <span>{t.next}</span>
+                  <span>{t('common.next')}</span>
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               )}
