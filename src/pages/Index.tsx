@@ -14,25 +14,29 @@ import { Button } from '@/components/ui/button';
 import { Cloud, Sun, CloudRain, Wind } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { AnimalData } from '@/types';
-
 const Index = () => {
-  const { user } = useAuth();
-  const { language } = useLanguage();
+  const {
+    user
+  } = useAuth();
+  const {
+    language
+  } = useLanguage();
   const navigate = useNavigate();
 
   // Fetch animals data
-  const { data: animals = [], isLoading: animalsLoading } = useQuery({
+  const {
+    data: animals = [],
+    isLoading: animalsLoading
+  } = useQuery({
     queryKey: ['animals', user?.id],
     queryFn: async () => {
       if (!user) return [];
-      
-      const { data, error } = await supabase
-        .from('animals')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(8);
-      
+      const {
+        data,
+        error
+      } = await supabase.from('animals').select('*').eq('user_id', user.id).order('created_at', {
+        ascending: false
+      }).limit(8);
       if (error) throw error;
       return data as AnimalData[];
     },
@@ -40,22 +44,24 @@ const Index = () => {
   });
 
   // Fetch market listings count
-  const { data: marketCount = 0 } = useQuery({
+  const {
+    data: marketCount = 0
+  } = useQuery({
     queryKey: ['market-count', user?.id],
     queryFn: async () => {
       if (!user) return 0;
-      
-      const { count, error } = await supabase
-        .from('market_listings')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
-      
+      const {
+        count,
+        error
+      } = await supabase.from('market_listings').select('*', {
+        count: 'exact',
+        head: true
+      }).eq('user_id', user.id);
       if (error) throw error;
       return count || 0;
     },
     enabled: !!user
   });
-
   const translations = {
     am: {
       welcome: 'እንኳን ደህና መጡ',
@@ -98,7 +104,6 @@ const Index = () => {
       viewAll: 'Ona Zote'
     }
   };
-
   const t = translations[language];
 
   // Calculate stats
@@ -110,7 +115,6 @@ const Index = () => {
     totalValue: animals.reduce((sum, animal) => sum + (animal.estimated_value || 0), 0),
     sickAnimals: animals.filter(a => a.health_status === 'sick' || a.health_status === 'critical').length
   };
-
   const handleCardClick = (type: string) => {
     switch (type) {
       case 'animals':
@@ -133,48 +137,33 @@ const Index = () => {
         break;
     }
   };
-
   const handleAnimalClick = (animal: AnimalData) => {
     navigate(`/animals?id=${animal.id}`);
   };
-
   const handleAddAnimal = () => {
     navigate('/animals?action=add');
   };
 
   // Show public marketplace option for non-authenticated users
   if (!user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center px-4">
+    return <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center px-4">
         <div className="container-narrow text-center space-y-responsive py-12">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground">EthioHerd Connect</h1>
           <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Professional livestock marketplace and management platform designed for Ethiopian farmers
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center max-w-md mx-auto">
-            <Button 
-              onClick={() => navigate('/market')}
-              size="lg"
-              className="bg-primary hover:bg-primary/90 py-3 px-6"
-            >
+            <Button onClick={() => navigate('/market')} size="lg" className="bg-primary hover:bg-primary/90 py-3 px-6">
               Browse Marketplace
             </Button>
-            <Button 
-              onClick={() => navigate('/auth')}
-              variant="outline"
-              size="lg"
-              className="py-3 px-6"
-            >
+            <Button onClick={() => navigate('/auth')} variant="outline" size="lg" className="py-3 px-6">
               Login / Sign Up
             </Button>
           </div>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-20">
+  return <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 pb-20">
       <EnhancedHeader />
       
       <main className="container-responsive py-responsive space-y-responsive">
@@ -183,75 +172,32 @@ const Index = () => {
           <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground leading-tight">
             {t.welcome}, {user.user_metadata?.full_name || user.email?.split('@')[0]}!
           </h1>
-          <p className="text-sm md:text-base text-muted-foreground">
+          <p className="md:text-base text-muted-foreground text-lg">
             {t.dashboard} • {new Date().toLocaleDateString(language === 'am' ? 'am-ET' : 'en-US')}
           </p>
         </div>
 
         {/* Weather Widget */}
         <Card className="bg-gradient-to-r from-primary to-primary/80 text-white border-0">
-          <CardHeader className="p-responsive">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-white flex items-center text-base md:text-lg">
-                <Sun className="w-4 h-4 md:w-5 md:h-5 mr-2" />
-                {t.todayWeather}
-              </CardTitle>
-              <Badge variant="secondary" className="bg-white/20 text-white text-xs md:text-sm">
-                {t.addisAbaba}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="px-responsive pb-responsive">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <div className="text-2xl md:text-3xl font-bold">24°C</div>
-                <div className="text-white/80 text-xs md:text-sm">Partly Cloudy</div>
-              </div>
-              <div className="flex flex-col sm:flex-row items-end sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 text-xs md:text-sm">
-                <div className="flex items-center">
-                  <Wind className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                  <span>12 km/h</span>
-                </div>
-                <div className="flex items-center">
-                  <CloudRain className="w-3 h-3 md:w-4 md:h-4 mr-1" />
-                  <span>20%</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
+          
+          
         </Card>
 
         {/* Dashboard Cards */}
         <section>
-          <EnhancedDashboardCards
-            language={language}
-            stats={stats}
-            loading={animalsLoading}
-            onCardClick={handleCardClick}
-          />
+          <EnhancedDashboardCards language={language} stats={stats} loading={animalsLoading} onCardClick={handleCardClick} />
         </section>
 
         {/* My Livestock Section */}
         <section className="space-y-responsive">
           <div className="flex items-center justify-between">
             <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground">{t.myLivestock}</h2>
-            {animals.length > 8 && (
-              <button 
-                onClick={() => navigate('/animals')}
-                className="text-primary hover:text-primary/80 text-sm md:text-base font-medium transition-colors"
-              >
+            {animals.length > 8 && <button onClick={() => navigate('/animals')} className="text-primary hover:text-primary/80 text-sm md:text-base font-medium transition-colors">
                 {t.viewAll}
-              </button>
-            )}
+              </button>}
           </div>
           
-          <EnhancedAnimalGrid
-            animals={animals.slice(0, 8)}
-            language={language}
-            loading={animalsLoading}
-            onAnimalClick={handleAnimalClick}
-            onAddAnimal={handleAddAnimal}
-          />
+          <EnhancedAnimalGrid animals={animals.slice(0, 8)} language={language} loading={animalsLoading} onAnimalClick={handleAnimalClick} onAddAnimal={handleAddAnimal} />
         </section>
 
         {/* Recent Activity */}
@@ -269,8 +215,6 @@ const Index = () => {
       </main>
 
       <BottomNavigation language={language} />
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
