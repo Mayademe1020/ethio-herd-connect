@@ -1,5 +1,31 @@
 {
   "am": {
+    "home": {
+      "welcome": "እንኳን ደህና መጡ",
+      "dashboard": "ዳሽቦርድ",
+      "userGreeting": "ይኸው ምስክር",
+      "currentDate": "የአሁኑ ቀን",
+      "searchPlaceholder": "ስም, መታወቂያ ወይም የቤት ስም ይፈልጉ...",
+      "totalAnimals": "ጠቅላላ ተራማችን",
+      "favoriteAnimals": "የሚወዱ ተራማችን",
+      "upcomingAppointments": "የሚቀጥሉ የጊዜ መለያዎች",
+      "sales": "ተሸጡ",
+      "basicIncome": "መሠረተኛ የቅርብ ጥቅም",
+      "viewFinancialReport": "የገንዘብ ሪፖርት ይመልከቱ",
+      "noAnimalsTitle": "ለመጨረሻው ስላለበት ተራሚ አይደለም!",
+      "noAnimalsSubtitle": "አስፈላጊ ሁሉንም ተራማችን እንዲያገኙ",
+      "addFirstAnimal": "➕ አስተዋልል ተራማችን",
+      "todayWeather": "የየቀን ሃይልና አየር አቅም",
+      "weatherStatus": "እባክህ እንደገና ማግኘት አለብህ",
+      "weatherSubtitle": "የእግር ሃይልና አየር አቅም",
+      "navigation": {
+        "home": "ቤት",
+        "favorites": "ሚወዱ",
+        "sales": "ሽያጭ",
+        "health": "ጤና",
+        "lab": "ፋብሪካ"
+      }
+    },
     "common": {
       "save": "አስቀምጥ",
       "cancel": "ሰርዝ",
@@ -95,6 +121,32 @@
     }
   },
   "en": {
+    "home": {
+      "welcome": "Welcome",
+      "dashboard": "Dashboard",
+      "userGreeting": "Hello there",
+      "currentDate": "Current Date",
+      "searchPlaceholder": "Search by name, ID or tag...",
+      "totalAnimals": "Total Animals",
+      "favoriteAnimals": "Favorite Animals",
+      "upcomingAppointments": "Upcoming Appointments",
+      "sales": "Sales",
+      "basicIncome": "Basic Recent Income",
+      "viewFinancialReport": "View Financial Report",
+      "noAnimalsTitle": "No livestock registered yet!",
+      "noAnimalsSubtitle": "Start by adding your first animal",
+      "addFirstAnimal": "➕ Register First Animal",
+      "todayWeather": "Today's Weather & Conditions",
+      "weatherStatus": "Please check again later",
+      "weatherSubtitle": "Weather & Air Quality",
+      "navigation": {
+        "home": "Home",
+        "favorites": "Favorites",
+        "sales": "Sales",
+        "health": "Health",
+        "lab": "Lab"
+      }
+    },
     "common": {
       "save": "Save",
       "cancel": "Cancel",
@@ -172,6 +224,32 @@
     }
   },
   "or": {
+    "home": {
+      "welcome": "Baga Nagaan Dhuftan",
+      "dashboard": "Gabatee Hojii",
+      "userGreeting": "Nagaan jirtu",
+      "currentDate": "Guyyaa Har'aa",
+      "searchPlaceholder": "Maqaa, eenyummaa ykn mallattoo barbaadi...",
+      "totalAnimals": "Horii Hunda",
+      "favoriteAnimals": "Horii Jaallataman",
+      "upcomingAppointments": "Beellama Dhufaa Jiru",
+      "sales": "Daldalaa",
+      "basicIncome": "Galii Ammee",
+      "viewFinancialReport": "Gabaasa Maallaqaa Ilaali",
+      "noAnimalsTitle": "Horii amma hin galmeeffamne!",
+      "noAnimalsSubtitle": "Horii kee jalqabaa itti dabaluu jalqabi",
+      "addFirstAnimal": "➕ Horii Jalqabaa Galmeessi",
+      "todayWeather": "Haala Qilleensaa Har'aa",
+      "weatherStatus": "Maaloo booda ceeffadhaa",
+      "weatherSubtitle": "Qilleensa fi Haala Hawaa",
+      "navigation": {
+        "home": "Mana",
+        "favorites": "Jaallataman",
+        "sales": "Daldalaa",
+        "health": "Fayyaa",
+        "lab": "Mana Qorannoo"
+      }
+    },
     "common": {
       "save": "Olkaa'i",
       "cancel": "Dhiisi",
@@ -249,6 +327,32 @@
     }
   },
   "sw": {
+    "home": {
+      "welcome": "Karibu",
+      "dashboard": "Dashibodi",
+      "userGreeting": "Hujambo",
+      "currentDate": "Tarehe ya Leo",
+      "searchPlaceholder": "Tafuta kwa jina, kitambulisho au lebo...",
+      "totalAnimals": "Jumla ya Wanyama",
+      "favoriteAnimals": "Wanyama wa Kipendwa",
+      "upcomingAppointments": "Miadi Ijayo",
+      "sales": "Mauzo",
+      "basicIncome": "Mapato ya Hivi Karibuni",
+      "viewFinancialReport": "Angalia Ripoti ya Kifedha",
+      "noAnimalsTitle": "Hakuna mifugo iliyosajiliwa bado!",
+      "noAnimalsSubtitle": "Anza kwa kuongeza mnyama wako wa kwanza",
+      "addFirstAnimal": "➕ Sajili Mnyama wa Kwanza",
+      "todayWeather": "Hali ya Hewa ya Leo",
+      "weatherStatus": "Tafadhali angalia tena baadaye",
+      "weatherSubtitle": "Hali ya Hewa na Ubora wa Hewa",
+      "navigation": {
+        "home": "Nyumbani",
+        "favorites": "Vipendwa",
+        "sales": "Mauzo",
+        "health": "Afya",
+        "lab": "Maabara"
+      }
+    },
     "common": {
       "save": "Hifadhi",
       "cancel": "Ghairi",
