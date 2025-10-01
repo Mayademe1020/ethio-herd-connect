@@ -765,11 +765,11 @@ export type Database = {
           is_vet_verified?: boolean | null
           location?: string | null
           photos?: string[] | null
-          price?: never
+          price?: number | null
           status?: string | null
           title?: string | null
           updated_at?: string | null
-          user_id?: never
+          user_id?: string | null
           weight?: number | null
         }
         Update: {
@@ -783,11 +783,11 @@ export type Database = {
           is_vet_verified?: boolean | null
           location?: string | null
           photos?: string[] | null
-          price?: never
+          price?: number | null
           status?: string | null
           title?: string | null
           updated_at?: string | null
-          user_id?: never
+          user_id?: string | null
           weight?: number | null
         }
         Relationships: []
