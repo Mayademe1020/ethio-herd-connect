@@ -851,6 +851,10 @@ export type Database = {
       }
     }
     Functions: {
+      can_access_listing_contact: {
+        Args: { listing_id: string }
+        Returns: boolean
+      }
       can_view_contact_info: {
         Args: { listing_id: string; listing_user_id: string }
         Returns: boolean
