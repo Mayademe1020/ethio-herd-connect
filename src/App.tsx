@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import MilkProduction from "./pages/MilkProduction";
 import PublicMarketplace from "./pages/PublicMarketplace";
 import Medical from "./pages/Medical";
+import SystemAnalysis from "./pages/SystemAnalysis";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/milk" element={<MilkProduction />} />
               <Route path="/medical" element={<Medical />} />
+              <Route path="/analysis" element={<SystemAnalysis />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
