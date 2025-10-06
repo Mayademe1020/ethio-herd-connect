@@ -12,6 +12,7 @@ import {
 import { useLanguage } from '@/contexts/LanguageContext';
 import BottomNavigation from '@/components/BottomNavigation';
 import { EnhancedHeader } from '@/components/EnhancedHeader';
+import { FeatureCompletionTracker } from '@/components/FeatureCompletionTracker';
 
 interface FeatureStatus {
   name: string;
@@ -763,8 +764,12 @@ const SystemAnalysis = () => {
         </Alert>
 
         {/* Main Tabs */}
-        <Tabs defaultValue="complete" className="w-full">
-          <TabsList className="grid grid-cols-2 md:grid-cols-5 gap-2 h-auto p-2">
+        <Tabs defaultValue="tracker" className="w-full">
+          <TabsList className="grid grid-cols-2 md:grid-cols-6 gap-2 h-auto p-2">
+            <TabsTrigger value="tracker" className="data-[state=active]:bg-indigo-500 data-[state=active]:text-white">
+              <TrendingUp className="w-4 h-4 mr-2" />
+              Progress Tracker
+            </TabsTrigger>
             <TabsTrigger value="complete" className="data-[state=active]:bg-green-500 data-[state=active]:text-white">
               <CheckCircle2 className="w-4 h-4 mr-2" />
               Complete ({completedFeatures.length})
@@ -786,6 +791,19 @@ const SystemAnalysis = () => {
               Roadmap
             </TabsTrigger>
           </TabsList>
+
+          {/* Progress Tracker Tab */}
+          <TabsContent value="tracker" className="mt-6 space-y-4">
+            <Alert className="bg-indigo-50 border-indigo-200">
+              <TrendingUp className="h-5 w-5 text-indigo-600" />
+              <AlertDescription>
+                <strong>9 Partial Features - Detailed Completion Tracking</strong><br />
+                Track step-by-step progress on completing the partially implemented features.
+                Shows what's been completed and what remains for each feature.
+              </AlertDescription>
+            </Alert>
+            <FeatureCompletionTracker />
+          </TabsContent>
 
           {/* Completed Features Tab */}
           <TabsContent value="complete" className="mt-6 space-y-4">
