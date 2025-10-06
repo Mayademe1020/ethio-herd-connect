@@ -38,6 +38,7 @@ interface ProfessionalAnimalCardProps {
   };
   language: Language;
   isAuthenticated: boolean;
+  isFavorite?: boolean;
   onViewDetails: (listingId: string) => void;
   onContact: (listingId: string) => void;
   onFavorite?: (listingId: string) => void;
@@ -48,6 +49,7 @@ export const ProfessionalAnimalCard = ({
   listing,
   language,
   isAuthenticated,
+  isFavorite = false,
   onViewDetails,
   onContact,
   onFavorite,
@@ -130,13 +132,13 @@ export const ProfessionalAnimalCard = ({
                 <Button
                   size="icon"
                   variant="secondary"
-                  className="w-8 h-8 bg-white/90 hover:bg-white shadow-lg"
+                  className={`w-8 h-8 bg-white/90 hover:bg-white shadow-lg ${isFavorite ? 'text-red-500' : ''}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     onFavorite(listing.id);
                   }}
                 >
-                  <Heart className="w-4 h-4" />
+                  <Heart className={`w-4 h-4 ${isFavorite ? 'fill-current' : ''}`} />
                 </Button>
               )}
               {onShare && (

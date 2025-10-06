@@ -2,37 +2,33 @@ import React, { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSecurePublicMarketplace } from '@/hooks/useSecurePublicMarketplace';
+import { useListingFavorites } from '@/hooks/useListingFavorites';
 import { useTranslations } from '@/hooks/useTranslations';
 import { ProfessionalAnimalCard } from '@/components/ProfessionalAnimalCard';
 import { MarketplaceFilters } from '@/components/MarketplaceFilters';
 import { ContactSellerModal } from '@/components/ContactSellerModal';
 import { AnimalListingForm } from '@/components/AnimalListingForm';
+import { ShareListingDialog } from '@/components/ShareListingDialog';
 import { StatCard } from '@/components/ui/stat-card';
 import { LoadingSkeleton } from '@/components/ui/loading-skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, Shield, Users, Star, Filter, Grid, List, Plus, MapPin, Eye } from 'lucide-react';
 export const ProfessionalMarketplace = () => {
-  const {
-    language
-  } = useLanguage();
-  const {
-    user
-  } = useAuth();
-  const {
-    listings,
-    loading,
-    error
-  } = useSecurePublicMarketplace();
-  const {
-    t
-  } = useTranslations();
+  const { language } = useLanguage();
+  const { user } = useAuth();
+  const { listings, loading, error } = useSecurePublicMarketplace();
+  const { favorites, toggleFavorite, isFavorite } = useListingFavorites();
+  const { t } = useTranslations();
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedListing, setSelectedListing] = useState<any>(null);
   const [showContactModal, setShowContactModal] = useState(false);
   const [showListingForm, setShowListingForm] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
+  const [listingToShare, setListingToShare] = useState<any>(null);
   const [filters, setFilters] = useState({
     animalType: '',
     location: '',
@@ -42,7 +38,7 @@ export const ProfessionalMarketplace = () => {
     weightRange: [0, 1000] as [number, number],
     healthStatus: '',
     verifiedOnly: false,
-    sellerRating: 0
+    sellerRating: 0,
   });
 
   // Filter listings based on search and filters
@@ -80,20 +76,14 @@ export const ProfessionalMarketplace = () => {
     }
   };
   const handleFavorite = (listingId: string) => {
-    console.log('Toggling favorite for listing:', listingId);
-    // TODO: Implement favorite functionality with backend
+    toggleFavorite(listingId);
   };
+  
   const handleShare = (listingId: string) => {
     const listing = listings.find(l => l.id === listingId);
-    if (listing && navigator.share) {
-      navigator.share({
-        title: listing.title,
-        text: listing.description || 'Check out this animal listing',
-        url: window.location.href + `?listing=${listingId}`
-      });
-    } else {
-      // Fallback: copy link to clipboard
-      navigator.clipboard.writeText(window.location.href + `?listing=${listingId}`);
+    if (listing) {
+      setListingToShare(listing);
+      setShowShareDialog(true);
     }
   };
   const handlePostAnimal = () => {
@@ -208,7 +198,7 @@ export const ProfessionalMarketplace = () => {
                   Be the first to post!
                 </Button>
               </div> : <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1'}`}>
-                {filteredListings.map(listing => <ProfessionalAnimalCard key={listing.id} listing={listing} language={language} isAuthenticated={!!user} onViewDetails={handleViewDetails} onContact={handleContact} onFavorite={handleFavorite} onShare={handleShare} />)}
+                {filteredListings.map(listing => <ProfessionalAnimalCard key={listing.id} listing={listing} language={language} isAuthenticated={!!user} isFavorite={isFavorite(listing.id)} onViewDetails={handleViewDetails} onContact={handleContact} onFavorite={handleFavorite} onShare={handleShare} />)}
               </div>}
           </div>
         </div>
@@ -224,6 +214,19 @@ export const ProfessionalMarketplace = () => {
 
         {/* Animal Listing Form */}
         <AnimalListingForm isOpen={showListingForm} onClose={() => setShowListingForm(false)} language={language} onSubmit={handleSubmitListing} />
+
+        {/* Share Listing Dialog */}
+        {listingToShare && (
+          <ShareListingDialog
+            isOpen={showShareDialog}
+            onClose={() => {
+              setShowShareDialog(false);
+              setListingToShare(null);
+            }}
+            listing={listingToShare}
+            language={language}
+          />
+        )}
       </div>
     </div>;
 };

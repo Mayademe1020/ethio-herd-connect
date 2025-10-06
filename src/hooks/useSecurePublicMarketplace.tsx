@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { mockMarketplaceListings } from '@/data/mockMarketplaceData';
 
 interface SecurePublicListing {
   id: string;
@@ -32,6 +31,7 @@ export const useSecurePublicMarketplace = () => {
   const fetchSecurePublicListings = async () => {
     try {
       setLoading(true);
+      setError(null);
       
       // Use secure view for anonymous users, main table for authenticated users
       const tableName = user ? 'public_market_listings' : 'public_market_view';
@@ -48,19 +48,17 @@ export const useSecurePublicMarketplace = () => {
       const { data, error } = await query;
 
       if (error) {
-        console.log('Database error, using mock data:', error.message);
-        // Use mock data if database is not available
-        setListings(mockMarketplaceListings);
+        console.error('Database error fetching listings:', error.message);
+        setError(error.message);
+        setListings([]);
       } else {
-        // Combine real data with mock data for demo
-        const combinedListings = [...(data || []), ...mockMarketplaceListings];
-        setListings(combinedListings);
+        // Use only real data from database
+        setListings(data || []);
       }
     } catch (err: any) {
       console.error('Error fetching secure public listings:', err);
-      // Fallback to mock data
-      setListings(mockMarketplaceListings);
-      setError(null); // Clear error when using mock data
+      setError(err.message || 'Failed to fetch listings');
+      setListings([]);
     } finally {
       setLoading(false);
     }
