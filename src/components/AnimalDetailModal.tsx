@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { X, Edit, Syringe, AlertTriangle, Calendar, Weight } from 'lucide-react';
+import { X, Edit, Syringe, AlertTriangle, Heart } from 'lucide-react';
 import { Language, AnimalData } from '@/types';
 
 interface AnimalDetailModalProps {
@@ -13,15 +13,17 @@ interface AnimalDetailModalProps {
   onEdit: (animal: AnimalData) => void;
   onVaccinate: (animal: AnimalData) => void;
   onReportIllness: (animal: AnimalData) => void;
+  onToggleFavorite: (animal: AnimalData) => void;
 }
 
-export const AnimalDetailModal = ({ 
-  animal, 
-  language, 
-  onClose, 
-  onEdit, 
-  onVaccinate, 
-  onReportIllness 
+export const AnimalDetailModal = ({
+  animal,
+  language,
+  onClose,
+  onEdit,
+  onVaccinate,
+  onReportIllness,
+  onToggleFavorite
 }: AnimalDetailModalProps) => {
   const translations = {
     am: {
@@ -38,7 +40,9 @@ export const AnimalDetailModal = ({
       edit: 'ኤዲት',
       vaccinate: 'ክትባት',
       reportIllness: 'ህመም ሪፖርት',
-      close: 'ዝጋ'
+      close: 'ዝጋ',
+      favorite: 'ወደ ተወዳጆች',
+      unfavorite: 'ከተወዳጆች አስወግድ'
     },
     en: {
       animalDetails: 'Animal Details',
@@ -54,7 +58,9 @@ export const AnimalDetailModal = ({
       edit: 'Edit',
       vaccinate: 'Vaccinate',
       reportIllness: 'Report Illness',
-      close: 'Close'
+      close: 'Close',
+      favorite: 'Favorite',
+      unfavorite: 'Unfavorite'
     },
     or: {
       animalDetails: 'Ibsa Horii',
@@ -70,7 +76,9 @@ export const AnimalDetailModal = ({
       edit: 'Gulaaluu',
       vaccinate: 'Tallaa Gochuu',
       reportIllness: 'Dhukkuba Gabaasuu',
-      close: 'Cufuu'
+      close: 'Cufuu',
+      favorite: 'Jaallatamaa Taasisi',
+      unfavorite: 'Jaallatamaa Irraa Kaasi'
     },
     sw: {
       animalDetails: 'Maelezo ya Mnyama',
@@ -86,7 +94,9 @@ export const AnimalDetailModal = ({
       edit: 'Hariri',
       vaccinate: 'Chanjo',
       reportIllness: 'Ripoti Ugonjwa',
-      close: 'Funga'
+      close: 'Funga',
+      favorite: 'Pendwa',
+      unfavorite: 'Ondoa kwenye Pendwa'
     }
   };
 
@@ -114,6 +124,7 @@ export const AnimalDetailModal = ({
             size="sm"
             onClick={onClose}
             className="h-8 w-8 p-0"
+            aria-label="Close"
           >
             <X className="w-4 h-4" />
           </Button>
@@ -168,6 +179,13 @@ export const AnimalDetailModal = ({
 
           {/* Action Buttons */}
           <div className="flex flex-col space-y-2 pt-4">
+            <Button
+              onClick={() => onToggleFavorite(animal)}
+              className={`w-full ${animal.favorite ? 'bg-pink-600 hover:bg-pink-700 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-800'}`}
+            >
+              <Heart className={`w-4 h-4 mr-2 ${animal.favorite ? 'fill-current' : ''}`} />
+              {animal.favorite ? t.unfavorite : t.favorite}
+            </Button>
             <Button
               onClick={() => onEdit(animal)}
               className="w-full bg-blue-600 hover:bg-blue-700"

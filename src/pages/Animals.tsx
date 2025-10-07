@@ -60,7 +60,8 @@ const Animals = () => {
     handleAnimalRegistration,
     handleVaccinationSubmit,
     handleWeightSubmit,
-    handleIllnessSubmit
+    handleIllnessSubmit,
+    handleToggleFavorite
   } = useAnimalsActions({
     animals,
     setAnimals,
@@ -154,6 +155,7 @@ const Animals = () => {
         onVaccinate={handleVaccinate}
         onReportIllness={handleReportIllness}
         onAnimalRegistration={handleAnimalRegistration}
+        onToggleFavorite={handleToggleFavorite}
         onVaccinationSubmit={(data) => handleVaccinationSubmit(data, animalForAction)}
         onWeightSubmit={(data) => handleWeightSubmit(data, animalForAction)}
         onIllnessSubmit={(data) => handleIllnessSubmit(data, animalForAction)}

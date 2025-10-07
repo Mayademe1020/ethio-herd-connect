@@ -7,8 +7,9 @@ import { useTranslations } from '@/hooks/useTranslations';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Home, Heart, ShoppingCart, Stethoscope, FlaskConical, Calendar, TrendingUp } from 'lucide-react';
+import { Search, Home, Heart, ShoppingCart, Stethoscope, Calendar, TrendingUp } from 'lucide-react';
 import { AnimalData } from '@/types';
+import { calculateSummaryData } from '@/utils/animalsSummaryData';
 
 export const HomeScreen = () => {
   const { user } = useAuth();
@@ -23,7 +24,7 @@ export const HomeScreen = () => {
       if (!user) return [];
       const { data, error } = await supabase
         .from('animals')
-        .select('*')
+        .select('*, growth_records(*)')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
       if (error) throw error;
@@ -48,13 +49,13 @@ export const HomeScreen = () => {
   });
 
   // Calculate stats
+  const summaryData = calculateSummaryData(animals);
   const stats = {
-    totalAnimals: animals.length,
-    favoriteAnimals: 0, // Favorites functionality not implemented yet
-    upcomingAppointments: animals.filter(a => a.vaccination_due_date && new Date(a.vaccination_due_date) > new Date()).length,
+    ...summaryData,
     salesCount: marketCount,
     totalValue: animals.reduce((sum, animal) => sum + (animal.estimated_value || 0), 0),
-    growthRate: 5.2 // Mock data for now
+    favoriteAnimals: animals.filter(animal => animal.favorite).length,
+    upcomingAppointments: animals.filter(a => a.vaccination_due_date && new Date(a.vaccination_due_date) > new Date()).length,
   };
 
   // Navigation handlers
@@ -184,7 +185,7 @@ export const HomeScreen = () => {
               <span className="text-2xl font-bold text-primary">{stats.totalValue} ETB</span>
               <div className="flex items-center text-secondary">
                 <TrendingUp className="w-4 h-4 mr-1" />
-                <span className="text-sm font-medium">+{stats.growthRate}%</span>
+                <span className="text-sm font-medium">+{stats.growthRate.toFixed(1)}%</span>
               </div>
             </div>
             <div className="text-4xl mb-2">📈</div>
@@ -265,14 +266,6 @@ export const HomeScreen = () => {
           >
             <Stethoscope className="w-5 h-5" />
             <span className="text-xs amharic-text">{t('home.navigation.health')}</span>
-          </button>
-          
-          <button
-            onClick={() => handleCardNavigation('/lab')}
-            className="flex flex-col items-center space-y-1 p-2 text-muted-foreground hover:text-primary touch-target-large"
-          >
-            <FlaskConical className="w-5 h-5" />
-            <span className="text-xs amharic-text">{t('home.navigation.lab')}</span>
           </button>
         </div>
       </div>

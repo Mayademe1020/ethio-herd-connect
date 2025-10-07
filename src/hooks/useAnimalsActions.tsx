@@ -1,4 +1,6 @@
 import { AnimalData } from '@/types';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './useAuth';
 
 interface UseAnimalsActionsProps {
   animals: AnimalData[];
@@ -21,6 +23,35 @@ export const useAnimalsActions = ({
   setShowIllnessForm,
   setShowRegistrationForm
 }: UseAnimalsActionsProps) => {
+  const { user } = useAuth();
+  const handleToggleFavorite = async (toggledAnimal: AnimalData) => {
+    if (!user) return;
+
+    const updatedAnimal = { ...toggledAnimal, favorite: !toggledAnimal.favorite };
+
+    setAnimals(prevAnimals =>
+      prevAnimals.map(animal =>
+        animal.id === toggledAnimal.id ? updatedAnimal : animal
+      )
+    );
+    setSelectedAnimal(updatedAnimal);
+
+    const { error } = await supabase
+      .from('animals')
+      .update({ favorite: updatedAnimal.favorite })
+      .eq('id', toggledAnimal.id)
+      .eq('user_id', user.id);
+
+    if (error) {
+      console.error('Error updating favorite status:', error);
+      setAnimals(prevAnimals =>
+        prevAnimals.map(animal =>
+          animal.id === toggledAnimal.id ? toggledAnimal : animal
+        )
+      );
+      setSelectedAnimal(toggledAnimal);
+    }
+  };
 
   const handleEdit = (animal: AnimalData) => {
     setSelectedAnimal(animal);
@@ -119,6 +150,7 @@ export const useAnimalsActions = ({
     handleAnimalRegistration,
     handleVaccinationSubmit,
     handleWeightSubmit,
-    handleIllnessSubmit
+    handleIllnessSubmit,
+    handleToggleFavorite
   };
 };
