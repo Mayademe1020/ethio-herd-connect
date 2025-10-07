@@ -218,21 +218,6 @@ export const HomeScreen = () => {
             </CardContent>
           </Card>
         )}
-
-        {/* Weather Card */}
-        <Card className="mt-6">
-          <CardContent className="p-4">
-            <div className="flex items-center mb-3">
-              <span className="text-2xl mr-2">🌤️</span>
-              <h3 className="font-medium text-foreground amharic-text">{t('home.todayWeather')}</h3>
-            </div>
-            <p className="text-sm text-muted-foreground amharic-text mb-4">{t('home.weatherStatus')}</p>
-            <div className="text-center">
-              <div className="text-5xl mb-2">☁️</div>
-              <p className="text-xs text-muted-foreground amharic-text">{t('home.weatherSubtitle')}</p>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Bottom Navigation */}
