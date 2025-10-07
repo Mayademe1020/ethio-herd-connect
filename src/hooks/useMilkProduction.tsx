@@ -49,7 +49,6 @@ export const useMilkProduction = () => {
       production_date: string;
       morning_yield?: number;
       evening_yield?: number;
-      total_yield: number;
       quality_grade?: 'A' | 'B' | 'C';
       fat_content?: number;
       notes?: string;

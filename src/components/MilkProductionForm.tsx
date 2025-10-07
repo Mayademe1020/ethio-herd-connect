@@ -107,7 +107,6 @@ export const MilkProductionForm = ({ language, onSuccess }: MilkProductionFormPr
       production_date: formData.production_date,
       morning_yield: morningYield || undefined,
       evening_yield: eveningYield || undefined,
-      total_yield: totalYield,
       quality_grade: formData.quality_grade || undefined,
       fat_content: formData.fat_content ? parseFloat(formData.fat_content) : undefined,
       notes: formData.notes || undefined

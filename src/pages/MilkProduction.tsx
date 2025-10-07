@@ -149,7 +149,6 @@ const MilkProduction = () => {
           animal_id: record.cowId,
           production_date: new Date().toISOString().split('T')[0],
           morning_yield: quantity, // Could be split into morning/evening
-          total_yield: quantity,
           notes: `Recorded at ${record.time}`
         });
       }

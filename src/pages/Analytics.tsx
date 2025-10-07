@@ -7,6 +7,7 @@ import { EnhancedHeader } from '@/components/EnhancedHeader';
 import BottomNavigation from '@/components/BottomNavigation';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { InteractiveSummaryCard } from '@/components/InteractiveSummaryCard';
+import { useAnalytics } from '@/hooks/useAnalytics';
 import { 
   BarChart3, 
   TrendingUp, 
@@ -17,13 +18,16 @@ import {
   FileText,
   PieChart,
   Activity,
-  Target
+  Target,
+  Heart,
+  Droplets
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 const Analytics = () => {
   const { language } = useLanguage();
   const [activeTab, setActiveTab] = useState('overview');
+  const analytics = useAnalytics();
 
   const translations = {
     am: {
@@ -214,105 +218,11 @@ const Analytics = () => {
 
   const t = translations[language];
 
-  // Mock analytics data
-  const analyticsData = {
-    totalRevenue: 54200,
-    newUsers: 450,
-    activeUsers: 2350,
-    weeklyGrowth: 7.5,
-    animalDistribution: {
-      cattle: 120,
-      goats: 85,
-      sheep: 60
-    },
-    revenueBreakdown: {
-      milk: 0.6,
-      meat: 0.3,
-      other: 0.1
-    },
-    userActivity: [
-      { date: '2024-01-01', activity: 150 },
-      { date: '2024-01-08', activity: 220 },
-      { date: '2024-01-15', activity: 180 },
-      { date: '2024-01-22', activity: 250 },
-      { date: '2024-01-29', activity: 200 }
-    ],
-    keyMetrics: {
-      animalHealth: 0.95,
-      marketTrends: 1.10,
-      performance: 0.85,
-      engagement: 0.78
-    },
-    animalHealth: {
-      healthy: 0.85,
-      sick: 0.10,
-      needsAttention: 0.05
-    },
-    marketTrends: {
-      demand: 1.2,
-      supply: 0.9
-    },
-    performance: {
-      sales: 1.1,
-      growth: 0.8
-    },
-    engagement: {
-      activeUsers: 0.75,
-      retentionRate: 0.6
-    },
-    animalTypes: {
-      cattle: 0.4,
-      goats: 0.3,
-      sheep: 0.3
-    },
-    healthStatus: {
-      healthy: 0.8,
-      sick: 0.15,
-      needsAttention: 0.05
-    },
-    vaccinationStatus: {
-      vaccinated: 0.9,
-      notVaccinated: 0.1
-    },
-    averageWeight: {
-      cattle: 500,
-      goats: 75,
-      sheep: 60
-    },
-    milkProduction: {
-      dailyAverage: 15,
-      monthlyTotal: 450
-    },
-    feedConsumption: {
-      dailyAverage: 5,
-      monthlyTotal: 150
-    },
-    userDemographics: {
-      male: 0.6,
-      female: 0.4
-    },
-    supportTickets: {
-      open: 15,
-      resolved: 85
-    },
-    resolutionTime: {
-      average: 24
-    },
-    customerSatisfaction: {
-      satisfied: 0.9,
-      neutral: 0.05,
-      dissatisfied: 0.05
-    },
-    animalGrowth: {
-      average: 0.15
-    },
-    salesPerformance: {
-      growth: 0.2
-    },
-    userRetention: {
-      rate: 0.7
-    }
-  };
+  // Get real analytics data
+  const totalAnimals = analytics.totalAnimals;
+  const healthyAnimals = analytics.healthStatus.healthy || 0;
+  const totalIncome = analytics.financial.totalIncome;
+  const netRevenue = analytics.financial.netRevenue;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 pb-16 sm:pb-20 lg:pb-24">
@@ -364,38 +274,38 @@ const Analytics = () => {
                 titleAm="ጠቅላላ ገቢ"
                 titleOr="Galii Waliigalaa"
                 titleSw="Jumla ya Mapato"
-                value={`$${analyticsData.totalRevenue}`}
+                value={`$${netRevenue.toFixed(2)}`}
                 icon={<DollarSign className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
                 color="blue"
                 language={language}
               />
               <InteractiveSummaryCard
                 title={t.newUsers}
-                titleAm="አዲስ ተጠቃሚዎች"
-                titleOr="Fayyadamtoota Haaraa"
-                titleSw="Watumiaji Wapya"
-                value={analyticsData.newUsers}
-                icon={<Users className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
+                titleAm="ጠቅላላ እንስሳት"
+                titleOr="Bineensota Waliigalaa"
+                titleSw="Jumla ya Wanyama"
+                value={totalAnimals}
+                icon={<Heart className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
                 color="green"
                 language={language}
               />
               <InteractiveSummaryCard
                 title={t.activeUsers}
-                titleAm="አሁን ያሉ ተጠቃሚዎች"
-                titleOr="Fayyadamtoota Hojjatoota"
-                titleSw="Watumiaji Amilifu"
-                value={analyticsData.activeUsers}
+                titleAm="ጤነኛ እንስሳት"
+                titleOr="Bineensota Fayyaa"
+                titleSw="Wanyama Wenye Afya"
+                value={healthyAnimals}
                 icon={<Activity className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
                 color="purple"
                 language={language}
               />
               <InteractiveSummaryCard
                 title={t.weeklyGrowth}
-                titleAm="ሳምንታዊ እድገት"
-                titleOr="Guddina Torbanii"
-                titleSw="Ukuaji wa Kila Wiki"
-                value={`${analyticsData.weeklyGrowth}%`}
-                icon={<TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
+                titleAm="ሳምንታዊ ወተት"
+                titleOr="Aannan Torbanii"
+                titleSw="Maziwa ya Wiki"
+                value={`${analytics.milkProduction.weeklyAverage.toFixed(1)}L`}
+                icon={<Droplets className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />}
                 color="orange"
                 language={language}
               />
@@ -413,15 +323,15 @@ const Analytics = () => {
                   <div className="flex flex-col space-y-2">
                     <div className="flex items-center justify-between">
                       <span>{language === 'am' ? 'ወተት' : language === 'or' ? 'Aannan' : language === 'sw' ? 'Maziwa' : 'Milk'}</span>
-                      <span>{analyticsData.revenueBreakdown.milk * 100}%</span>
+                      <span>60%</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span>{language === 'am' ? 'ስጋ' : language === 'or' ? 'Foon' : language === 'sw' ? 'Nyama' : 'Meat'}</span>
-                      <span>{analyticsData.revenueBreakdown.meat * 100}%</span>
+                      <span>30%</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span>{language === 'am' ? 'ሌላ' : language === 'or' ? 'Kan biraa' : language === 'sw' ? 'Nyinginezo' : 'Other'}</span>
-                      <span>{analyticsData.revenueBreakdown.other * 100}%</span>
+                      <span>10%</span>
                     </div>
                   </div>
                 </CardContent>
@@ -433,7 +343,7 @@ const Analytics = () => {
                 <CardContent>
                   <div className="flex items-center justify-between">
                     <span>{language === 'am' ? 'እድገት' : language === 'or' ? 'Guddina' : language === 'sw' ? 'Ukuaji' : 'Growth'}</span>
-                    <Badge variant="secondary">{analyticsData.salesPerformance.growth * 100}%</Badge>
+                    <Badge variant="secondary">{analytics.market.activeListings}</Badge>
                   </div>
                 </CardContent>
               </Card>
@@ -450,7 +360,7 @@ const Analytics = () => {
                 <CardContent>
                   <div className="flex items-center justify-between">
                     <span>{language === 'am' ? 'አማካይ' : language === 'or' ? 'Giddugaleessa' : language === 'sw' ? 'Wastani' : 'Average'}</span>
-                    <Badge variant="secondary">{analyticsData.animalGrowth.average * 100}%</Badge>
+                    <Badge variant="secondary">{analytics.growth.averageWeight.toFixed(1)} kg</Badge>
                   </div>
                 </CardContent>
               </Card>
@@ -461,7 +371,7 @@ const Analytics = () => {
                 <CardContent>
                   <div className="flex items-center justify-between">
                     <span>{language === 'am' ? 'ተመን' : language === 'or' ? 'Safartuu' : language === 'sw' ? 'Kiwango' : 'Rate'}</span>
-                    <Badge variant="secondary">{analyticsData.userRetention.rate * 100}%</Badge>
+                    <Badge variant="secondary">{analytics.health.totalRecords}</Badge>
                   </div>
                 </CardContent>
               </Card>
@@ -478,12 +388,12 @@ const Analytics = () => {
                 <CardContent>
                   <div className="flex flex-col space-y-2">
                     <div className="flex items-center justify-between">
-                      <span>{language === 'am' ? 'ወንድ' : language === 'or' ? 'Dhiira' : language === 'sw' ? 'Mwanaume' : 'Male'}</span>
-                      <span>{analyticsData.userDemographics.male * 100}%</span>
+                      <span>{language === 'am' ? 'የእንስሳት ቁጥር' : language === 'or' ? 'Lakkoofsa Bineensotaa' : language === 'sw' ? 'Idadi ya Wanyama' : 'Animal Count'}</span>
+                      <span>{totalAnimals}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span>{language === 'am' ? 'ሴት' : language === 'or' ? 'Dubara' : language === 'sw' ? 'Mwanamke' : 'Female'}</span>
-                      <span>{analyticsData.userDemographics.female * 100}%</span>
+                      <span>{language === 'am' ? 'ጤናማ' : language === 'or' ? 'Fayyaa Qabeessa' : language === 'sw' ? 'Afya' : 'Healthy'}</span>
+                      <span>{healthyAnimals}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -494,8 +404,8 @@ const Analytics = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between">
-                    <span>{language === 'am' ? 'አሁን ያሉ ተጠቃሚዎች' : language === 'or' ? 'Fayyadamtoota Hojjatoota' : language === 'sw' ? 'Watumiaji Amilifu' : 'Active Users'}</span>
-                    <Badge variant="secondary">{analyticsData.engagement.activeUsers * 100}%</Badge>
+                    <span>{language === 'am' ? 'ወተት ምርት' : language === 'or' ? 'Oomisha Aannan' : language === 'sw' ? 'Uzalishaji wa Maziwa' : 'Milk Records'}</span>
+                    <Badge variant="secondary">{analytics.milkProduction.totalRecords}</Badge>
                   </div>
                 </CardContent>
               </Card>
@@ -526,7 +436,7 @@ const Analytics = () => {
             <CardContent>
               <div className="flex items-center justify-between">
                 <span>{language === 'am' ? 'ጤናማ' : language === 'or' ? 'Fayyaa Qabeessa' : language === 'sw' ? 'Afya' : 'Healthy'}</span>
-                <Badge variant="secondary">{analyticsData.animalHealth.healthy * 100}%</Badge>
+                <Badge variant="secondary">{healthyAnimals}</Badge>
               </div>
             </CardContent>
           </Card>
@@ -536,8 +446,8 @@ const Analytics = () => {
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <span>{language === 'am' ? 'ፍላጎት' : language === 'or' ? 'Fedhii' : language === 'sw' ? 'Mahitaji' : 'Demand'}</span>
-                <Badge variant="secondary">{analyticsData.marketTrends.demand * 100}%</Badge>
+                <span>{language === 'am' ? 'አሁን ያሉ ዝርዝሮች' : language === 'or' ? 'Tarreewwan Hojjatoo' : language === 'sw' ? 'Orodha Amilifu' : 'Active Listings'}</span>
+                <Badge variant="secondary">{analytics.market.activeListings}</Badge>
               </div>
             </CardContent>
           </Card>
@@ -547,8 +457,8 @@ const Analytics = () => {
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <span>{language === 'am' ? 'ሽያጭ' : language === 'or' ? 'Gurgurta' : language === 'sw' ? 'Mauzo' : 'Sales'}</span>
-                <Badge variant="secondary">{analyticsData.performance.sales * 100}%</Badge>
+                <span>{language === 'am' ? 'የግብይት እሴት' : language === 'or' ? 'Gatii Gabaa' : language === 'sw' ? 'Thamani ya Soko' : 'Market Value'}</span>
+                <Badge variant="secondary">${analytics.market.totalValue.toFixed(2)}</Badge>
               </div>
             </CardContent>
           </Card>
@@ -558,8 +468,8 @@ const Analytics = () => {
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between">
-                <span>{language === 'am' ? 'አሁን ያሉ ተጠቃሚዎች' : language === 'or' ? 'Fayyadamtoota Hojjatoota' : language === 'sw' ? 'Watumiaji Amilifu' : 'Active Users'}</span>
-                <Badge variant="secondary">{analyticsData.engagement.activeUsers * 100}%</Badge>
+                <span>{language === 'am' ? 'ወተት ምርት' : language === 'or' ? 'Oomisha Aannan' : language === 'sw' ? 'Uzalishaji wa Maziwa' : 'Milk Records'}</span>
+                <Badge variant="secondary">{analytics.milkProduction.totalRecords}</Badge>
               </div>
             </CardContent>
           </Card>
