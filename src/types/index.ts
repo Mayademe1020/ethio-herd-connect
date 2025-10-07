@@ -1,3 +1,4 @@
+
 export interface AnimalData {
   id: string;
   animal_code: string;
@@ -22,9 +23,8 @@ export interface AnimalData {
   location?: string;
   vaccination_due_date?: string;
   estimated_value?: number;
-  favorite?: boolean;
   vaccination_records?: VaccinationRecord[];
-  growth_records?: WeightRecord[];
+  weight_records?: WeightRecord[];
 }
 
 export interface VaccinationRecord {
@@ -42,7 +42,7 @@ export interface WeightRecord {
   id: string;
   animal_id: string;
   weight: number;
-  recorded_date: string;
+  date_recorded: string;
   recorded_by: string;
   notes?: string;
   created_at: string;

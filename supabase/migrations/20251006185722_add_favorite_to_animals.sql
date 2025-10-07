@@ -1,2 +1,0 @@
-ALTER TABLE public.animals
-ADD COLUMN favorite BOOLEAN DEFAULT FALSE;

@@ -9,10 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, Home, Heart, ShoppingCart, Stethoscope, Calendar, TrendingUp } from 'lucide-react';
 import { AnimalData } from '@/types';
-import { calculateSummaryData } from '@/utils/animalsSummaryData';
 
 export const HomeScreen = () => {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const { t } = useTranslations();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -24,7 +23,7 @@ export const HomeScreen = () => {
       if (!user) return [];
       const { data, error } = await supabase
         .from('animals')
-        .select('*, growth_records(*)')
+        .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
       if (error) throw error;
@@ -49,13 +48,13 @@ export const HomeScreen = () => {
   });
 
   // Calculate stats
-  const summaryData = calculateSummaryData(animals);
   const stats = {
-    ...summaryData,
+    totalAnimals: animals.length,
+    favoriteAnimals: 0, // Favorites functionality not implemented yet
+    upcomingAppointments: animals.filter(a => a.vaccination_due_date && new Date(a.vaccination_due_date) > new Date()).length,
     salesCount: marketCount,
     totalValue: animals.reduce((sum, animal) => sum + (animal.estimated_value || 0), 0),
-    favoriteAnimals: animals.filter(animal => animal.favorite).length,
-    upcomingAppointments: animals.filter(a => a.vaccination_due_date && new Date(a.vaccination_due_date) > new Date()).length,
+    growthRate: 5.2 // Mock data for now
   };
 
   // Navigation handlers
@@ -86,7 +85,7 @@ export const HomeScreen = () => {
     day: 'numeric'
   });
 
-  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'ተጠቃሚ';
+  const userName = userProfile?.full_name || user?.email?.split('@')[0] || 'ተጠቃሚ';
 
   return (
     <div className="min-h-screen bg-background">
@@ -97,7 +96,10 @@ export const HomeScreen = () => {
           <h1 className="text-xl font-bold text-foreground amharic-text">MyLivestock</h1>
         </div>
         <div className="text-right">
-          <p className="text-sm text-foreground amharic-text font-medium">{userName} {t('home.userGreeting')}, 0913623785!</p>
+          <p className="text-sm text-foreground amharic-text font-medium">
+            {userName} {t('home.userGreeting')}
+            {userProfile?.mobile_number ? `, ${userProfile.mobile_number}!` : '!'}
+          </p>
           <p className="text-xs text-muted-foreground amharic-text">{t('home.currentDate')} • {currentDate}</p>
         </div>
       </div>
@@ -185,7 +187,7 @@ export const HomeScreen = () => {
               <span className="text-2xl font-bold text-primary">{stats.totalValue} ETB</span>
               <div className="flex items-center text-secondary">
                 <TrendingUp className="w-4 h-4 mr-1" />
-                <span className="text-sm font-medium">+{stats.growthRate.toFixed(1)}%</span>
+                <span className="text-sm font-medium">+{stats.growthRate}%</span>
               </div>
             </div>
             <div className="text-4xl mb-2">📈</div>
