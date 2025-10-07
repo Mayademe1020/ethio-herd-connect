@@ -96,11 +96,18 @@ export const MilkProductionForm = ({ language, onSuccess }: MilkProductionFormPr
     e.preventDefault();
     if (!selectedAnimal) return;
 
+    const morningYield = formData.morning_yield ? parseFloat(formData.morning_yield) : 0;
+    const eveningYield = formData.evening_yield ? parseFloat(formData.evening_yield) : 0;
+    const totalYield = morningYield + eveningYield;
+
+    if (totalYield === 0) return; // Need at least some production
+
     recordMilkProduction({
       animal_id: selectedAnimal.id,
       production_date: formData.production_date,
-      morning_yield: formData.morning_yield ? parseFloat(formData.morning_yield) : undefined,
-      evening_yield: formData.evening_yield ? parseFloat(formData.evening_yield) : undefined,
+      morning_yield: morningYield || undefined,
+      evening_yield: eveningYield || undefined,
+      total_yield: totalYield,
       quality_grade: formData.quality_grade || undefined,
       fat_content: formData.fat_content ? parseFloat(formData.fat_content) : undefined,
       notes: formData.notes || undefined

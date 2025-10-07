@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useMilkProduction } from '@/hooks/useMilkProduction';
+import { useAnimalsDatabase } from '@/hooks/useAnimalsDatabase';
 import { 
   Milk, 
   ArrowLeft,
@@ -26,54 +27,16 @@ import { AnimalData } from '@/types';
 const MilkProduction = () => {
   const { language } = useLanguage();
   const { user } = useAuth();
-  const { recordMilkProduction, isRecording } = useMilkProduction();
+  const { recordMilkProduction, isRecording, milkRecords, isLoadingRecords } = useMilkProduction();
+  const { animals, isLoading: isLoadingAnimals } = useAnimalsDatabase();
   
   const [selectedCows, setSelectedCows] = useState<string[]>([]);
   const [showRecordingForm, setShowRecordingForm] = useState(false);
-  const [cowsData] = useState<AnimalData[]>([
-    {
-      id: '1',
-      animal_code: 'COW001',
-      name: 'Almaz',
-      type: 'Cattle',
-      breed: 'Holstein',
-      birth_date: '2020-01-15',
-      health_status: 'healthy' as const,
-      is_vet_verified: true,
-      created_at: '2023-01-01',
-      updated_at: '2023-01-01',
-      user_id: 'current-user',
-      age: 36
-    },
-    {
-      id: '2',
-      animal_code: 'COW002',
-      name: 'Meseret',
-      type: 'Cattle',
-      breed: 'Jersey',
-      birth_date: '2021-03-20',
-      health_status: 'healthy' as const,
-      is_vet_verified: true,
-      created_at: '2023-01-01',
-      updated_at: '2023-01-01',
-      user_id: 'current-user',
-      age: 24
-    },
-    {
-      id: '3',
-      animal_code: 'COW003',
-      name: 'Hanan',
-      type: 'Cattle',
-      breed: 'Local',
-      birth_date: '2019-11-10',
-      health_status: 'healthy' as const,
-      is_vet_verified: false,
-      created_at: '2023-01-01',
-      updated_at: '2023-01-01',
-      user_id: 'current-user',
-      age: 48
-    }
-  ]);
+
+  // Filter only cattle from animals
+  const cowsData = animals.filter(animal => 
+    animal.type.toLowerCase() === 'cattle' || animal.type.toLowerCase() === 'cow'
+  );
 
   const translations = {
     am: {
@@ -140,12 +103,29 @@ const MilkProduction = () => {
 
   const t = translations[language];
 
-  // Mock stats data
+  // Calculate stats from real data
+  const today = new Date().toISOString().split('T')[0];
+  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  
+  const todayRecords = milkRecords.filter(r => r.production_date === today);
+  const weekRecords = milkRecords.filter(r => r.production_date >= weekAgo);
+  
+  const todayTotal = todayRecords.reduce((sum, r) => sum + (r.total_yield || 0), 0);
+  const weeklyAverage = weekRecords.length > 0 
+    ? weekRecords.reduce((sum, r) => sum + (r.total_yield || 0), 0) / 7
+    : 0;
+  
+  const monthlyTarget = 1200; // User-defined target
+  const monthTotal = milkRecords
+    .filter(r => r.production_date.startsWith(today.substring(0, 7)))
+    .reduce((sum, r) => sum + (r.total_yield || 0), 0);
+  const progress = Math.round((monthTotal / monthlyTarget) * 100);
+
   const stats = {
-    todayTotal: 45.5,
-    weeklyAverage: 42.3,
-    monthlyTarget: 1200,
-    progress: 65
+    todayTotal: Number(todayTotal.toFixed(1)),
+    weeklyAverage: Number(weeklyAverage.toFixed(1)),
+    monthlyTarget,
+    progress
   };
 
   const handleCowSelection = (cowId: string, selected: boolean) => {
@@ -162,19 +142,22 @@ const MilkProduction = () => {
   };
 
   const handleSaveRecords = async (records: any[]) => {
-    try {
-      // Here you would call the actual API to save records
-      console.log('Saving milk records:', records);
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Reset state after successful save
-      setSelectedCows([]);
-      setShowRecordingForm(false);
-    } catch (error) {
-      console.error('Failed to save records:', error);
+    for (const record of records) {
+      const quantity = parseFloat(record.quantity);
+      if (quantity > 0) {
+        recordMilkProduction({
+          animal_id: record.cowId,
+          production_date: new Date().toISOString().split('T')[0],
+          morning_yield: quantity, // Could be split into morning/evening
+          total_yield: quantity,
+          notes: `Recorded at ${record.time}`
+        });
+      }
     }
+    
+    // Reset state after successful save
+    setSelectedCows([]);
+    setShowRecordingForm(false);
   };
 
   const handleCancel = () => {
@@ -184,6 +167,14 @@ const MilkProduction = () => {
   const getSelectedCowsData = () => {
     return cowsData.filter(cow => selectedCows.includes(cow.id));
   };
+
+  if (isLoadingAnimals || isLoadingRecords) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-green-50 to-emerald-50 flex items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
   if (showRecordingForm) {
     return (
@@ -359,10 +350,34 @@ const MilkProduction = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-center py-8">
-              <Circle className="mx-auto w-12 h-12 text-gray-400 mb-4" />
-              <p className="text-gray-500">No recent records</p>
-            </div>
+            {milkRecords.length === 0 ? (
+              <div className="text-center py-8">
+                <Circle className="mx-auto w-12 h-12 text-gray-400 mb-4" />
+                <p className="text-gray-500">No recent records</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {milkRecords.slice(0, 5).map((record) => {
+                  const animal = animals.find(a => a.id === record.animal_id);
+                  return (
+                    <div key={record.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <div>
+                        <p className="font-medium">{animal?.name || 'Unknown'}</p>
+                        <p className="text-sm text-gray-500">{record.production_date}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-blue-600">{record.total_yield} {t.liters}</p>
+                        {record.quality_grade && (
+                          <Badge variant="outline" className="text-xs mt-1">
+                            Grade {record.quality_grade}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </CardContent>
         </Card>
       </main>

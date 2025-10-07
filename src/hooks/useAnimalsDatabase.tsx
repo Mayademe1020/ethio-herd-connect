@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -8,6 +9,25 @@ export const useAnimalsDatabase = () => {
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  // Fetch animals with React Query
+  const { data: animals = [], isLoading } = useQuery({
+    queryKey: ['animals', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      
+      const { data, error } = await supabase
+        .from('animals')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return (data || []) as AnimalData[];
+    },
+    enabled: !!user
+  });
 
   const fetchAnimals = async (): Promise<AnimalData[]> => {
     if (!user) return [];
@@ -54,6 +74,8 @@ export const useAnimalsDatabase = () => {
 
       if (error) throw error;
 
+      queryClient.invalidateQueries({ queryKey: ['animals'] });
+      
       toast({
         title: 'Success',
         description: 'Animal registered successfully',
@@ -87,6 +109,8 @@ export const useAnimalsDatabase = () => {
 
       if (error) throw error;
 
+      queryClient.invalidateQueries({ queryKey: ['animals'] });
+      
       toast({
         title: 'Success',
         description: 'Animal updated successfully',
@@ -118,6 +142,8 @@ export const useAnimalsDatabase = () => {
 
       if (error) throw error;
 
+      queryClient.invalidateQueries({ queryKey: ['animals'] });
+      
       toast({
         title: 'Success',
         description: 'Animal deleted successfully',
@@ -149,6 +175,8 @@ export const useAnimalsDatabase = () => {
 
       if (error) throw error;
 
+      queryClient.invalidateQueries({ queryKey: ['animals'] });
+      
       toast({
         title: 'Success',
         description: `${animalIds.length} animals deleted successfully`,
@@ -168,8 +196,10 @@ export const useAnimalsDatabase = () => {
   };
 
   return {
+    animals,
+    isLoading,
     loading,
-    fetchAnimals,
+    fetchAnimals: async () => animals, // For backward compatibility
     createAnimal,
     updateAnimal,
     deleteAnimal,
