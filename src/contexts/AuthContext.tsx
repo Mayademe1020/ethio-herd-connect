@@ -127,19 +127,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signIn = async (email: string, password: string, remember = false) => {
     try {
-      // Sanitize inputs
       const sanitizedEmail = sanitizeEmail(email);
-      
-      if (!sanitizedEmail || !password) {
-        throw new Error('Email and password are required');
-      }
-
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sanitizedEmail)) {
-        throw new Error('Please enter a valid email address');
-      }
-
       setRememberMe(remember);
-      
+
       const { error } = await supabase.auth.signInWithPassword({
         email: sanitizedEmail,
         password,
@@ -154,22 +144,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (email: string, password: string, mobileNumber: string, fullName?: string) => {
     try {
-      // Sanitize inputs
       const sanitizedEmail = sanitizeEmail(email);
       const sanitizedFullName = fullName ? sanitizeText(fullName, { maxLength: 100 }) : undefined;
       const sanitizedMobile = sanitizeText(mobileNumber, { maxLength: 20 });
-
-      if (!sanitizedEmail || !password || !sanitizedMobile) {
-        throw new Error('Email, password, and mobile number are required');
-      }
-
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(sanitizedEmail)) {
-        throw new Error('Please enter a valid email address');
-      }
-
-      if (password.length < 8) {
-        throw new Error('Password must be at least 8 characters long');
-      }
 
       const redirectUrl = `${window.location.origin}/`;
       
