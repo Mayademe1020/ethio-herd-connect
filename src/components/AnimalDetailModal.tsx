@@ -15,13 +15,13 @@ interface AnimalDetailModalProps {
   onReportIllness: (animal: AnimalData) => void;
 }
 
-export const AnimalDetailModal = ({ 
-  animal, 
-  language, 
-  onClose, 
-  onEdit, 
-  onVaccinate, 
-  onReportIllness 
+export const AnimalDetailModal = ({
+  animal,
+  language,
+  onClose,
+  onEdit,
+  onVaccinate,
+  onReportIllness
 }: AnimalDetailModalProps) => {
   const translations = {
     am: {

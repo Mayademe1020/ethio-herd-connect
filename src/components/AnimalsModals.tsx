@@ -5,58 +5,51 @@ import { VaccinationForm } from '@/components/VaccinationForm';
 import { WeightEntryForm } from '@/components/WeightEntryForm';
 import { IllnessReportForm } from '@/components/IllnessReportForm';
 import { AnimalData, Language } from '@/types';
+import { useAnimalPageStore } from '@/stores/animalPageStore';
+import { useAnimalStore } from '@/stores/animalStore';
 
 interface AnimalsModalsProps {
   language: Language;
-  selectedAnimal: AnimalData | null;
-  animalForAction: AnimalData | null;
-  showRegistrationForm: boolean;
-  showVaccinationForm: boolean;
-  showWeightForm: boolean;
-  showIllnessForm: boolean;
-  onCloseRegistration: () => void;
-  onCloseDetail: () => void;
-  onCloseVaccination: () => void;
-  onCloseWeight: () => void;
-  onCloseIllness: () => void;
   onEdit: (animal: AnimalData) => void;
   onVaccinate: (animal: AnimalData) => void;
   onReportIllness: (animal: AnimalData) => void;
   onAnimalRegistration: (animalData: any) => void;
-  onVaccinationSubmit: (vaccinationData: any) => void;
-  onWeightSubmit: (weightData: any) => void;
-  onIllnessSubmit: (illnessData: any) => void;
+  onVaccinationSubmit: (vaccinationData: any, animal: AnimalData | null) => void;
+  onWeightSubmit: (weightData: any, animal: AnimalData | null) => void;
+  onIllnessSubmit: (illnessData: any, animal: AnimalData | null) => void;
+  onToggleFavorite: (animal: AnimalData) => void;
 }
 
 export const AnimalsModals = ({
   language,
-  selectedAnimal,
-  animalForAction,
-  showRegistrationForm,
-  showVaccinationForm,
-  showWeightForm,
-  showIllnessForm,
-  onCloseRegistration,
-  onCloseDetail,
-  onCloseVaccination,
-  onCloseWeight,
-  onCloseIllness,
   onEdit,
   onVaccinate,
   onReportIllness,
   onAnimalRegistration,
   onVaccinationSubmit,
   onWeightSubmit,
-  onIllnessSubmit
+  onIllnessSubmit,
+  onToggleFavorite,
 }: AnimalsModalsProps) => {
+  const {
+    selectedAnimal,
+    animalForAction,
+    showRegistrationForm,
+    showVaccinationForm,
+    showWeightForm,
+    showIllnessForm,
+    closeAllModals,
+  } = useAnimalPageStore();
+
   return (
     <>
       {/* Registration Form Modal */}
       {showRegistrationForm && (
         <AnimalRegistrationForm
           language={language}
-          onClose={onCloseRegistration}
+          onClose={closeAllModals}
           onSubmit={onAnimalRegistration}
+          animal={selectedAnimal}
         />
       )}
 
@@ -65,10 +58,11 @@ export const AnimalsModals = ({
         <AnimalDetailModal
           animal={selectedAnimal}
           language={language}
-          onClose={onCloseDetail}
+          onClose={closeAllModals}
           onEdit={onEdit}
           onVaccinate={onVaccinate}
           onReportIllness={onReportIllness}
+          onToggleFavorite={onToggleFavorite}
         />
       )}
 
@@ -77,8 +71,8 @@ export const AnimalsModals = ({
         <VaccinationForm
           animal={animalForAction}
           language={language}
-          onClose={onCloseVaccination}
-          onSubmit={onVaccinationSubmit}
+          onClose={closeAllModals}
+          onSubmit={(data) => onVaccinationSubmit(data, animalForAction)}
         />
       )}
 
@@ -87,8 +81,8 @@ export const AnimalsModals = ({
         <WeightEntryForm
           animal={animalForAction}
           language={language}
-          onClose={onCloseWeight}
-          onSubmit={onWeightSubmit}
+          onClose={closeAllModals}
+          onSubmit={(data) => onWeightSubmit(data, animalForAction)}
         />
       )}
 
@@ -97,8 +91,8 @@ export const AnimalsModals = ({
         <IllnessReportForm
           animal={animalForAction}
           language={language}
-          onClose={onCloseIllness}
-          onSubmit={onIllnessSubmit}
+          onClose={closeAllModals}
+          onSubmit={(data) => onIllnessSubmit(data, animalForAction)}
         />
       )}
     </>

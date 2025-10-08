@@ -7,11 +7,11 @@ import { useTranslations } from '@/hooks/useTranslations';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Home, Heart, ShoppingCart, Stethoscope, FlaskConical, Calendar, TrendingUp } from 'lucide-react';
+import { Search, Home, Heart, ShoppingCart, Stethoscope, Calendar, TrendingUp } from 'lucide-react';
 import { AnimalData } from '@/types';
 
 export const HomeScreen = () => {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const { t } = useTranslations();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -85,7 +85,7 @@ export const HomeScreen = () => {
     day: 'numeric'
   });
 
-  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'ተጠቃሚ';
+  const userName = userProfile?.full_name || user?.email?.split('@')[0] || 'ተጠቃሚ';
 
   return (
     <div className="min-h-screen bg-background">
@@ -96,7 +96,10 @@ export const HomeScreen = () => {
           <h1 className="text-xl font-bold text-foreground amharic-text">MyLivestock</h1>
         </div>
         <div className="text-right">
-          <p className="text-sm text-foreground amharic-text font-medium">{userName} {t('home.userGreeting')}, 0913623785!</p>
+          <p className="text-sm text-foreground amharic-text font-medium">
+            {userName} {t('home.userGreeting')}
+            {userProfile?.mobile_number ? `, ${userProfile.mobile_number}!` : '!'}
+          </p>
           <p className="text-xs text-muted-foreground amharic-text">{t('home.currentDate')} • {currentDate}</p>
         </div>
       </div>
@@ -215,21 +218,6 @@ export const HomeScreen = () => {
             </CardContent>
           </Card>
         )}
-
-        {/* Weather Card */}
-        <Card className="mt-6">
-          <CardContent className="p-4">
-            <div className="flex items-center mb-3">
-              <span className="text-2xl mr-2">🌤️</span>
-              <h3 className="font-medium text-foreground amharic-text">{t('home.todayWeather')}</h3>
-            </div>
-            <p className="text-sm text-muted-foreground amharic-text mb-4">{t('home.weatherStatus')}</p>
-            <div className="text-center">
-              <div className="text-5xl mb-2">☁️</div>
-              <p className="text-xs text-muted-foreground amharic-text">{t('home.weatherSubtitle')}</p>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Bottom Navigation */}
@@ -265,14 +253,6 @@ export const HomeScreen = () => {
           >
             <Stethoscope className="w-5 h-5" />
             <span className="text-xs amharic-text">{t('home.navigation.health')}</span>
-          </button>
-          
-          <button
-            onClick={() => handleCardNavigation('/lab')}
-            className="flex flex-col items-center space-y-1 p-2 text-muted-foreground hover:text-primary touch-target-large"
-          >
-            <FlaskConical className="w-5 h-5" />
-            <span className="text-xs amharic-text">{t('home.navigation.lab')}</span>
           </button>
         </div>
       </div>
