@@ -81,7 +81,11 @@ const Animals = () => {
     if (!user) return;
     const { data, error } = await supabase.from('animals').insert([{ ...animalData, user_id: user.id }]).select().single();
     if (data) {
-      addAnimal(data);
+      const validHealthStatus: 'healthy' | 'sick' | 'attention' | 'critical' = 
+        ['healthy', 'sick', 'attention', 'critical'].includes(data.health_status) 
+          ? data.health_status as 'healthy' | 'sick' | 'attention' | 'critical'
+          : 'healthy';
+      addAnimal({ ...data, health_status: validHealthStatus });
       closeAllModals();
       toast.success("Animal registered successfully.");
     } else {
@@ -95,7 +99,14 @@ const Animals = () => {
     const updatedAnimal = { ...animal, last_vaccination: vaccinationData.date };
     updateAnimal(updatedAnimal);
     closeAllModals();
-    const { error } = await supabase.from('vaccination_records').insert([{ ...vaccinationData, animal_id: animal.id, user_id: user.id }]);
+    const { error } = await supabase.from('health_records').insert([{ 
+      animal_id: animal.id, 
+      user_id: user.id,
+      record_type: 'vaccination',
+      medicine_name: vaccinationData.vaccine_name,
+      administered_date: vaccinationData.date,
+      notes: vaccinationData.notes
+    }]);
     if (error) {
       updateAnimal(originalAnimal);
       toast.error("Failed to submit vaccination record.");
@@ -134,19 +145,7 @@ const Animals = () => {
      }
   };
 
-  const handleToggleFavorite = async (toggledAnimal: AnimalData) => {
-    if (!user) return;
-    const updatedAnimal = { ...toggledAnimal, favorite: !toggledAnimal.favorite };
-    updateAnimal(updatedAnimal);
-    const { error } = await supabase
-      .from('animals')
-      .update({ favorite: updatedAnimal.favorite })
-      .eq('id', toggledAnimal.id);
-    if (error) {
-      updateAnimal(toggledAnimal); // Revert on error
-      toast.error("Failed to update favorite status.");
-    }
-  };
+  // Favorite functionality removed - not part of AnimalData schema
 
   const summaryData = calculateSummaryData(animals);
 
@@ -183,12 +182,6 @@ const Animals = () => {
           animals={filteredAnimals}
           viewMode={viewMode}
           language={language}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onVaccinate={handleVaccinate}
-          onTrack={handleTrack}
-          onSell={handleSell}
-          onShowRegistrationForm={() => openModal('registration')}
         />
       </main>
 
@@ -203,7 +196,6 @@ const Animals = () => {
         onVaccinationSubmit={(data) => handleVaccinationSubmit(data, useAnimalPageStore.getState().animalForAction)}
         onWeightSubmit={(data) => handleWeightSubmit(data, useAnimalPageStore.getState().animalForAction)}
         onIllnessSubmit={(data) => handleIllnessSubmit(data, useAnimalPageStore.getState().animalForAction)}
-        onToggleFavorite={handleToggleFavorite}
       />
     </div>
   );

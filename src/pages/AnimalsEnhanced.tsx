@@ -262,11 +262,6 @@ export const AnimalsEnhanced = () => {
             <AnimalTableView
               animals={filteredAnimals}
               language={language}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onVaccinate={handleVaccinate}
-              onTrack={handleTrack}
-              onSell={handleSell}
             />
           </Card>
         )}

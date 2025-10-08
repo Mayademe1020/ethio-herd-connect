@@ -17,7 +17,6 @@ interface AnimalsModalsProps {
   onVaccinationSubmit: (vaccinationData: any, animal: AnimalData | null) => void;
   onWeightSubmit: (weightData: any, animal: AnimalData | null) => void;
   onIllnessSubmit: (illnessData: any, animal: AnimalData | null) => void;
-  onToggleFavorite: (animal: AnimalData) => void;
 }
 
 export const AnimalsModals = ({
@@ -29,7 +28,6 @@ export const AnimalsModals = ({
   onVaccinationSubmit,
   onWeightSubmit,
   onIllnessSubmit,
-  onToggleFavorite,
 }: AnimalsModalsProps) => {
   const {
     selectedAnimal,
@@ -62,7 +60,6 @@ export const AnimalsModals = ({
           onEdit={onEdit}
           onVaccinate={onVaccinate}
           onReportIllness={onReportIllness}
-          onToggleFavorite={onToggleFavorite}
         />
       )}
 

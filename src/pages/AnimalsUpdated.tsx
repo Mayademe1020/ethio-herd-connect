@@ -272,12 +272,6 @@ export const AnimalsUpdated = () => {
           animals={filteredAnimals}
           viewMode={viewMode}
           language={language}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onVaccinate={handleVaccinate}
-          onTrack={handleTrack}
-          onSell={handleSell}
-          onShowRegistrationForm={() => setShowRegistrationForm(true)}
         />
       </div>
 

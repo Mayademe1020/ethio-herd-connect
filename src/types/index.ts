@@ -62,9 +62,14 @@ export interface User {
 
 // Helper function to transform database data to our AnimalData interface
 export const transformAnimalData = (dbAnimal: any): AnimalData => {
+  const health_status = dbAnimal.health_status || 'healthy';
+  const validHealthStatus = ['healthy', 'sick', 'attention', 'critical'].includes(health_status) 
+    ? health_status 
+    : 'healthy';
+    
   return {
     ...dbAnimal,
-    health_status: dbAnimal.health_status || 'healthy',
+    health_status: validHealthStatus as 'healthy' | 'sick' | 'attention' | 'critical',
     updated_at: dbAnimal.updated_at || dbAnimal.created_at,
     user_id: dbAnimal.user_id || 'current-user-id'
   };

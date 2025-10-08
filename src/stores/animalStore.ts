@@ -27,7 +27,14 @@ export const useAnimalStore = create<AnimalState>((set) => ({
 
       if (error) throw error;
 
-      set({ animals: data || [], isLoading: false });
+      const transformedData = (data || []).map((animal: any) => ({
+        ...animal,
+        health_status: ['healthy', 'sick', 'attention', 'critical'].includes(animal.health_status) 
+          ? animal.health_status 
+          : 'healthy'
+      })) as AnimalData[];
+
+      set({ animals: transformedData, isLoading: false });
     } catch (error: any) {
       set({ error, isLoading: false });
       console.error('Error fetching animals:', error);
