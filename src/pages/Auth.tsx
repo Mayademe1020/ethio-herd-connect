@@ -1,21 +1,21 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { User, Phone, Lock, Eye, EyeOff, Mail } from 'lucide-react';
-import { LoginSchema, MobileLoginSchema, SignUpSchema } from '@/lib/authValidators';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [loginMethod, setLoginMethod] = useState<'mobile' | 'email'>('mobile');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -23,52 +23,55 @@ const Auth = () => {
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
 
-  const currentSchema = isLogin
-    ? (loginMethod === 'email' ? LoginSchema : MobileLoginSchema)
-    : SignUpSchema;
-
-  const form = useForm<z.infer<typeof currentSchema>>({
-    resolver: zodResolver(currentSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-      mobileNumber: '',
-      fullName: '',
-      confirmPassword: '',
-    },
-  });
-
   useEffect(() => {
     if (user) {
       navigate('/');
     }
   }, [user, navigate]);
 
-  useEffect(() => {
-    form.reset();
-  }, [isLogin, loginMethod, form]);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
+    const loginIdentifier = loginMethod === 'mobile' ? mobileNumber : email;
 
-  const onSubmit = async (values: z.infer<typeof currentSchema>) => {
+    if (!loginIdentifier || !password) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+
+    if (!isLogin && (!mobileNumber || password !== confirmPassword)) {
+      if (!mobileNumber) {
+        toast.error('Mobile number is required');
+        return;
+      }
+      if (password !== confirmPassword) {
+        toast.error('Passwords do not match');
+        return;
+      }
+    }
+
+    if (password.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+
     setLoading(true);
 
     try {
       let result;
       if (isLogin) {
-        const { password } = values;
-        const emailForLogin = loginMethod === 'mobile'
-          ? `${(values as z.infer<typeof MobileLoginSchema>).mobileNumber}@mylivestock.app`
-          : (values as z.infer<typeof LoginSchema>).email;
+        // For login, use email format even if mobile number is provided
+        const emailForLogin = loginMethod === 'mobile' ? `${mobileNumber}@mylivestock.app` : email;
         result = await signIn(emailForLogin, password);
       } else {
-        const { email, password, mobileNumber, fullName } = values as z.infer<typeof SignUpSchema>;
+        // For signup, always require both mobile and email
         const emailForSignup = email || `${mobileNumber}@mylivestock.app`;
         result = await signUp(emailForSignup, password, mobileNumber, fullName);
       }
 
       if (result.error) {
         if (result.error.message.includes('Invalid login credentials')) {
-          toast.error('Invalid credentials. Please check your details and try again.');
+          toast.error('Invalid credentials. Please check your mobile number/email and password.');
         } else if (result.error.message.includes('User already registered')) {
           toast.error('User already exists. Please sign in instead.');
           setIsLogin(true);
@@ -84,7 +87,7 @@ const Auth = () => {
       }
     } catch (error) {
       console.error('Auth error:', error);
-      toast.error('An unexpected error occurred. Please try again.');
+      toast.error('An unexpected error occurred');
     } finally {
       setLoading(false);
     }
@@ -106,182 +109,167 @@ const Auth = () => {
         </CardHeader>
         
         <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              {isLogin && (
-                <div className="flex bg-gray-100 rounded-lg p-1 mb-4">
-                  <button
-                    type="button"
-                    onClick={() => setLoginMethod('mobile')}
-                    className={`flex-1 flex items-center justify-center space-x-2 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
-                      loginMethod === 'mobile'
-                        ? 'bg-white text-green-600 shadow-sm'
-                        : 'text-gray-600 hover:text-gray-800'
-                    }`}
-                  >
-                    <Phone className="w-4 h-4" />
-                    <span>Mobile</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setLoginMethod('email')}
-                    className={`flex-1 flex items-center justify-center space-x-2 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
-                      loginMethod === 'email'
-                        ? 'bg-white text-green-600 shadow-sm'
-                        : 'text-gray-600 hover:text-gray-800'
-                    }`}
-                  >
-                    <Mail className="w-4 h-4" />
-                    <span>Email</span>
-                  </button>
-                </div>
-              )}
-
-              {(loginMethod === 'mobile' || !isLogin) && (
-                <FormField
-                  control={form.control}
-                  name="mobileNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center space-x-2">
-                        <Phone className="w-4 h-4" />
-                        <span>Mobile Number *</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input type="tel" placeholder="Enter your mobile number" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              {(loginMethod === 'email' || !isLogin) && (
-                 <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center space-x-2">
-                        <Mail className="w-4 h-4" />
-                        <span>Email {!isLogin ? '(Optional)' : '*'}</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input type="email" placeholder="Enter your email" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              {!isLogin && (
-                <FormField
-                  control={form.control}
-                  name="fullName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center space-x-2">
-                        <User className="w-4 h-4" />
-                        <span>Full Name (Optional)</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Input type="text" placeholder="Enter your full name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center space-x-2">
-                      <Lock className="w-4 h-4" />
-                      <span>Password *</span>
-                    </FormLabel>
-                    <FormControl>
-                       <div className="relative">
-                        <Input
-                          type={showPassword ? 'text' : 'password'}
-                          placeholder="Enter your password"
-                          {...field}
-                        />
-                         <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute right-0 top-0 h-full px-3"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </Button>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {!isLogin && (
-                <FormField
-                  control={form.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="flex items-center space-x-2">
-                        <Lock className="w-4 h-4" />
-                        <span>Confirm Password *</span>
-                      </FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input
-                            type={showConfirmPassword ? 'text' : 'password'}
-                            placeholder="Confirm your password"
-                            {...field}
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="absolute right-0 top-0 h-full px-3"
-                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          >
-                            {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                          </Button>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              <Button type="submit" disabled={loading} className="w-full bg-green-600 hover:bg-green-700">
-                {loading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Create Account')}
-              </Button>
-
-              <div className="text-center">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Login Method Toggle (Login only) */}
+            {isLogin && (
+              <div className="flex bg-gray-100 rounded-lg p-1 mb-4">
                 <button
                   type="button"
-                  onClick={() => {
-                    setIsLogin(!isLogin);
-                    form.reset();
-                  }}
-                  className="text-green-600 hover:text-green-700 text-sm"
-                  disabled={loading}
+                  onClick={() => setLoginMethod('mobile')}
+                  className={`flex-1 flex items-center justify-center space-x-2 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                    loginMethod === 'mobile'
+                      ? 'bg-white text-green-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
                 >
-                  {isLogin
-                    ? "Don't have an account? Sign up"
-                    : "Already have an account? Sign in"
-                  }
+                  <Phone className="w-4 h-4" />
+                  <span>Mobile</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLoginMethod('email')}
+                  className={`flex-1 flex items-center justify-center space-x-2 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                    loginMethod === 'email'
+                      ? 'bg-white text-green-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  <Mail className="w-4 h-4" />
+                  <span>Email</span>
                 </button>
               </div>
-            </form>
-          </Form>
+            )}
+
+            {/* Mobile Number */}
+            {(loginMethod === 'mobile' || !isLogin) && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center space-x-2">
+                  <Phone className="w-4 h-4" />
+                  <span>Mobile Number {!isLogin ? '*' : ''}</span>
+                </label>
+                <Input
+                  type="tel"
+                  value={mobileNumber}
+                  onChange={(e) => setMobileNumber(e.target.value)}
+                  placeholder="Enter your mobile number"
+                  required={loginMethod === 'mobile' || !isLogin}
+                />
+              </div>
+            )}
+
+            {/* Email (shown for email login or signup) */}
+            {(loginMethod === 'email' || !isLogin) && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center space-x-2">
+                  <Mail className="w-4 h-4" />
+                  <span>Email {loginMethod === 'email' ? '*' : '(Optional)'}</span>
+                </label>
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required={loginMethod === 'email'}
+                />
+              </div>
+            )}
+
+            {/* Full Name (Sign Up only) */}
+            {!isLogin && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center space-x-2">
+                  <User className="w-4 h-4" />
+                  <span>Full Name (Optional)</span>
+                </label>
+                <Input
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Enter your full name"
+                />
+              </div>
+            )}
+
+            {/* Password */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium flex items-center space-x-2">
+                <Lock className="w-4 h-4" />
+                <span>Password *</span>
+              </label>
+              <div className="relative">
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  required
+                  minLength={6}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-0 top-0 h-full px-3"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </Button>
+              </div>
+            </div>
+
+            {/* Confirm Password (Sign Up only) */}
+            {!isLogin && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium flex items-center space-x-2">
+                  <Lock className="w-4 h-4" />
+                  <span>Confirm Password *</span>
+                </label>
+                <div className="relative">
+                  <Input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm your password"
+                    required={!isLogin}
+                    minLength={6}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-green-600 hover:bg-green-700"
+            >
+              {loading ? 'Please wait...' : (isLogin ? 'Sign In' : 'Create Account')}
+            </Button>
+
+            {/* Toggle Mode */}
+            <div className="text-center">
+              <button
+                type="button"
+                onClick={() => setIsLogin(!isLogin)}
+                className="text-green-600 hover:text-green-700 text-sm"
+                disabled={loading}
+              >
+                {isLogin
+                  ? "Don't have an account? Sign up"
+                  : "Already have an account? Sign in"
+                }
+              </button>
+            </div>
+          </form>
         </CardContent>
       </Card>
     </div>

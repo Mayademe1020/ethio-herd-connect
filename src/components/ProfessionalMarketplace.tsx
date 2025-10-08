@@ -9,11 +9,13 @@ import { MarketplaceFilters } from '@/components/MarketplaceFilters';
 import { ContactSellerModal } from '@/components/ContactSellerModal';
 import { AnimalListingForm } from '@/components/AnimalListingForm';
 import { ShareListingDialog } from '@/components/ShareListingDialog';
+import { AnimalDetailModal } from '@/components/AnimalDetailModal';
 import { StatCard } from '@/components/ui/stat-card';
 import { LoadingSkeleton } from '@/components/ui/loading-skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, Shield, Users, Star, Filter, Grid, List, Plus, MapPin, Eye } from 'lucide-react';
+
 export const ProfessionalMarketplace = () => {
   const { language } = useLanguage();
   const { user } = useAuth();
@@ -28,6 +30,7 @@ export const ProfessionalMarketplace = () => {
   const [showContactModal, setShowContactModal] = useState(false);
   const [showListingForm, setShowListingForm] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   const [listingToShare, setListingToShare] = useState<any>(null);
   const [filters, setFilters] = useState({
     animalType: '',
@@ -44,12 +47,12 @@ export const ProfessionalMarketplace = () => {
   // Filter listings based on search and filters
   const filteredListings = listings.filter(listing => {
     const matchesSearch = listing.title.toLowerCase().includes(searchTerm.toLowerCase()) || listing.description?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = !filters.animalType || listing.title.toLowerCase().includes(filters.animalType.toLowerCase());
+    const matchesType = !filters.animalType || (listing.animals && listing.animals.type.toLowerCase().includes(filters.animalType.toLowerCase()));
     const matchesLocation = !filters.location || listing.location?.toLowerCase().includes(filters.location.toLowerCase());
     const matchesPrice = !user || (!filters.minPrice || listing.price && listing.price >= filters.minPrice) && (!filters.maxPrice || listing.price && listing.price <= filters.maxPrice);
-    const matchesAge = !filters.ageRange || !listing.age || listing.age >= filters.ageRange[0] && listing.age <= filters.ageRange[1];
-    const matchesWeight = !filters.weightRange || !listing.weight || listing.weight >= filters.weightRange[0] && listing.weight <= filters.weightRange[1];
-    const matchesVerified = !filters.verifiedOnly || listing.is_vet_verified;
+    const matchesAge = !filters.ageRange || !listing.animals.age || listing.animals.age >= filters.ageRange[0] && listing.animals.age <= filters.ageRange[1];
+    const matchesWeight = !filters.weightRange || !listing.animals.weight || listing.animals.weight >= filters.weightRange[0] && listing.animals.weight <= filters.weightRange[1];
+    const matchesVerified = !filters.verifiedOnly || listing.animals.is_vet_verified;
     return matchesSearch && matchesType && matchesLocation && matchesPrice && matchesAge && matchesWeight && matchesVerified;
   });
 
@@ -61,13 +64,15 @@ export const ProfessionalMarketplace = () => {
     // Mock data
     newToday: 12 // Mock data
   };
+
   const handleViewDetails = (listingId: string) => {
     const listing = listings.find(l => l.id === listingId);
     if (listing) {
       setSelectedListing(listing);
-      // TODO: Implement detailed view modal
+      setShowDetailModal(true);
     }
   };
+
   const handleContact = (listingId: string) => {
     const listing = listings.find(l => l.id === listingId);
     if (listing) {
@@ -98,8 +103,10 @@ export const ProfessionalMarketplace = () => {
     console.log('Submitting listing:', formData);
     // This would call the backend API to create the listing
   };
+
   if (loading) {
-    return <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
         <div className="container mx-auto px-4 py-6">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div className="lg:col-span-1">
@@ -112,16 +119,15 @@ export const ProfessionalMarketplace = () => {
             </div>
           </div>
         </div>
-      </div>;
+      </div>
+    );
   }
-  return <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
       <div className="container mx-auto px-4 py-6 space-y-6">
         {/* Header */}
         <div className="text-center space-y-4 bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-emerald-100 shadow-sm">
-          
-          
-          
-          {/* Large CTA Button - Farmer Friendly */}
           <Button onClick={handlePostAnimal} className="bg-emerald-600 hover:bg-emerald-700 text-white px-12 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 min-h-[56px] touch-target-large">
             <Plus className="w-6 h-6 mr-3" />
             {t('marketplace.postYourAnimal')}
@@ -227,6 +233,16 @@ export const ProfessionalMarketplace = () => {
             language={language}
           />
         )}
+
+        {/* Animal Detail Modal */}
+        {selectedListing && (
+          <AnimalDetailModal
+            listing={selectedListing}
+            isOpen={showDetailModal}
+            onClose={() => setShowDetailModal(false)}
+          />
+        )}
       </div>
-    </div>;
+    </div>
+  );
 };

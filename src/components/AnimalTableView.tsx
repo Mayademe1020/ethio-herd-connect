@@ -1,28 +1,30 @@
+
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Edit, Trash2, Syringe, TrendingUp, ShoppingCart } from 'lucide-react';
 import { Language, AnimalData } from '@/types';
-import { useAnimalPageStore } from '@/stores/animalPageStore';
-import { useAnimalStore } from '@/stores/animalStore';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 
 interface AnimalTableViewProps {
   animals: AnimalData[];
   language: Language;
+  onEdit: (animal: AnimalData) => void;
+  onDelete: (animalId: string) => void;
+  onVaccinate: (animal: AnimalData) => void;
+  onTrack: (animal: AnimalData) => void;
+  onSell: (animal: AnimalData) => void;
 }
 
 export const AnimalTableView = ({
   animals,
   language,
+  onEdit,
+  onDelete,
+  onVaccinate,
+  onTrack,
+  onSell
 }: AnimalTableViewProps) => {
-  const { user } = useAuth();
-  const { openModal, setSelectedAnimal } = useAnimalPageStore();
-  const { removeAnimal: removeAnimalFromStore } = useAnimalStore();
-
   const translations = {
     am: {
       name: 'ስም',
@@ -110,28 +112,6 @@ export const AnimalTableView = ({
     }
   };
 
-  const handleEdit = (animal: AnimalData) => {
-    setSelectedAnimal(animal);
-    openModal('registration');
-  };
-
-  const handleDelete = async (animalId: string) => {
-    if (!user) return;
-    const originalAnimals = useAnimalStore.getState().animals;
-    removeAnimalFromStore(animalId);
-    const { error } = await supabase.from('animals').delete().eq('id', animalId);
-    if (error) {
-      useAnimalStore.setState({ animals: originalAnimals });
-      toast.error("Failed to delete animal.");
-    } else {
-      toast.success("Animal deleted successfully.");
-    }
-  };
-
-  const handleVaccinate = (animal: AnimalData) => openModal('vaccination', animal);
-  const handleTrack = (animal: AnimalData) => openModal('weight', animal);
-  const handleSell = (animal: AnimalData) => console.log('Selling animal:', animal);
-
   return (
     <div className="rounded-md border">
       <Table>
@@ -161,19 +141,19 @@ export const AnimalTableView = ({
               <TableCell>{animal.age ? `${animal.age}y` : '-'}</TableCell>
               <TableCell>
                 <div className="flex space-x-1">
-                  <Button variant="ghost" size="sm" onClick={() => handleEdit(animal)}>
+                  <Button variant="ghost" size="sm" onClick={() => onEdit(animal)}>
                     <Edit className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleVaccinate(animal)}>
+                  <Button variant="ghost" size="sm" onClick={() => onVaccinate(animal)}>
                     <Syringe className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleTrack(animal)}>
+                  <Button variant="ghost" size="sm" onClick={() => onTrack(animal)}>
                     <TrendingUp className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleSell(animal)}>
+                  <Button variant="ghost" size="sm" onClick={() => onSell(animal)}>
                     <ShoppingCart className="w-4 h-4" />
                   </Button>
-                  <Button variant="ghost" size="sm" onClick={() => handleDelete(animal.id)}>
+                  <Button variant="ghost" size="sm" onClick={() => onDelete(animal.id)}>
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>

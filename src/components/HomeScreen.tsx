@@ -11,7 +11,7 @@ import { Search, Home, Heart, ShoppingCart, Stethoscope, Calendar, TrendingUp } 
 import { AnimalData } from '@/types';
 
 export const HomeScreen = () => {
-  const { user, userProfile } = useAuth();
+  const { user } = useAuth();
   const { t } = useTranslations();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -85,7 +85,7 @@ export const HomeScreen = () => {
     day: 'numeric'
   });
 
-  const userName = userProfile?.full_name || user?.email?.split('@')[0] || 'ተጠቃሚ';
+  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'ተጠቃሚ';
 
   return (
     <div className="min-h-screen bg-background">
@@ -96,10 +96,7 @@ export const HomeScreen = () => {
           <h1 className="text-xl font-bold text-foreground amharic-text">MyLivestock</h1>
         </div>
         <div className="text-right">
-          <p className="text-sm text-foreground amharic-text font-medium">
-            {userName} {t('home.userGreeting')}
-            {userProfile?.mobile_number ? `, ${userProfile.mobile_number}!` : '!'}
-          </p>
+          <p className="text-sm text-foreground amharic-text font-medium">{userName} {t('home.userGreeting')}, 0913623785!</p>
           <p className="text-xs text-muted-foreground amharic-text">{t('home.currentDate')} • {currentDate}</p>
         </div>
       </div>
@@ -218,6 +215,7 @@ export const HomeScreen = () => {
             </CardContent>
           </Card>
         )}
+
       </div>
 
       {/* Bottom Navigation */}

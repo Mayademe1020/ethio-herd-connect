@@ -1,24 +1,34 @@
+
 import React from 'react';
 import { ModernAnimalCard } from '@/components/ModernAnimalCard';
 import { AnimalTableView } from '@/components/AnimalTableView';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { Language, AnimalData } from '@/types';
-import { useAnimalPageStore } from '@/stores/animalPageStore';
 
 interface AnimalsListViewProps {
   animals: AnimalData[];
   viewMode: 'card' | 'table';
   language: Language;
+  onEdit: (animal: AnimalData) => void;
+  onDelete: (animalId: string) => void;
+  onVaccinate: (animal: AnimalData) => void;
+  onTrack: (animal: AnimalData) => void;
+  onSell: (animal: AnimalData) => void;
+  onShowRegistrationForm: () => void;
 }
 
 export const AnimalsListView = ({
   animals,
   viewMode,
   language,
+  onEdit,
+  onDelete,
+  onVaccinate,
+  onTrack,
+  onSell,
+  onShowRegistrationForm
 }: AnimalsListViewProps) => {
-  const { openModal } = useAnimalPageStore();
-
   const translations = {
     am: {
       noAnimals: 'እንስሳት አልተገኙም',
@@ -44,7 +54,7 @@ export const AnimalsListView = ({
     return (
       <div className="text-center py-12">
         <p className="text-gray-500 mb-4">{t.noAnimals}</p>
-        <Button onClick={() => openModal('registration')} className="bg-green-600 hover:bg-green-700">
+        <Button onClick={onShowRegistrationForm} className="bg-green-600 hover:bg-green-700">
           <Plus className="w-4 h-4 mr-2" />
           {t.addFirst}
         </Button>
@@ -57,6 +67,11 @@ export const AnimalsListView = ({
       <AnimalTableView
         animals={animals}
         language={language}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        onVaccinate={onVaccinate}
+        onTrack={onTrack}
+        onSell={onSell}
       />
     );
   }
@@ -68,6 +83,11 @@ export const AnimalsListView = ({
           key={animal.id}
           animal={animal}
           language={language}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onVaccinate={onVaccinate}
+          onTrack={onTrack}
+          onSell={onSell}
         />
       ))}
     </div>

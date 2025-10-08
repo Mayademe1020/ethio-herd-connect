@@ -1,28 +1,30 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Edit, Trash2, Syringe, TrendingUp, ShoppingCart, Calendar, Scale } from 'lucide-react';
 import { Language, AnimalData } from '@/types';
-import { useAnimalPageStore } from '@/stores/animalPageStore';
-import { useAnimalStore } from '@/stores/animalStore';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 
 interface ModernAnimalCardProps {
   animal: AnimalData;
   language: Language;
+  onEdit: (animal: AnimalData) => void;
+  onDelete: (animalId: string) => void;
+  onVaccinate: (animal: AnimalData) => void;
+  onTrack: (animal: AnimalData) => void;
+  onSell: (animal: AnimalData) => void;
 }
 
 export const ModernAnimalCard = ({
   animal,
   language,
+  onEdit,
+  onDelete,
+  onVaccinate,
+  onTrack,
+  onSell
 }: ModernAnimalCardProps) => {
-  const { user } = useAuth();
-  const { openModal, setSelectedAnimal } = useAnimalPageStore();
-  const { removeAnimal: removeAnimalFromStore } = useAnimalStore();
-
   const translations = {
     am: {
       healthy: 'ጤናማ',
@@ -98,28 +100,6 @@ export const ModernAnimalCard = ({
     }
   };
 
-  const handleEdit = () => {
-    setSelectedAnimal(animal);
-    openModal('registration');
-  };
-
-  const handleDelete = async () => {
-    if (!user) return;
-    const originalAnimals = useAnimalStore.getState().animals;
-    removeAnimalFromStore(animal.id);
-    const { error } = await supabase.from('animals').delete().eq('id', animal.id);
-    if (error) {
-      useAnimalStore.setState({ animals: originalAnimals });
-      toast.error("Failed to delete animal.");
-    } else {
-      toast.success("Animal deleted successfully.");
-    }
-  };
-
-  const handleVaccinate = () => openModal('vaccination', animal);
-  const handleTrack = () => openModal('weight', animal);
-  const handleSell = () => console.log('Selling animal:', animal);
-
   return (
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader className="pb-3">
@@ -167,23 +147,23 @@ export const ModernAnimalCard = ({
         )}
 
         <div className="flex flex-wrap gap-2 pt-2">
-          <Button variant="outline" size="sm" onClick={handleEdit}>
+          <Button variant="outline" size="sm" onClick={() => onEdit(animal)}>
             <Edit className="w-4 h-4 mr-1" />
             {t.edit}
           </Button>
-          <Button variant="outline" size="sm" onClick={handleVaccinate}>
+          <Button variant="outline" size="sm" onClick={() => onVaccinate(animal)}>
             <Syringe className="w-4 h-4 mr-1" />
             {t.vaccinate}
           </Button>
-          <Button variant="outline" size="sm" onClick={handleTrack}>
+          <Button variant="outline" size="sm" onClick={() => onTrack(animal)}>
             <TrendingUp className="w-4 h-4 mr-1" />
             {t.track}
           </Button>
-          <Button variant="outline" size="sm" onClick={handleSell}>
+          <Button variant="outline" size="sm" onClick={() => onSell(animal)}>
             <ShoppingCart className="w-4 h-4 mr-1" />
             {t.sell}
           </Button>
-          <Button variant="destructive" size="sm" onClick={handleDelete}>
+          <Button variant="destructive" size="sm" onClick={() => onDelete(animal.id)}>
             <Trash2 className="w-4 h-4 mr-1" />
             {t.delete}
           </Button>
