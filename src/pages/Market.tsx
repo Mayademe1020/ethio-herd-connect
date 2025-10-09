@@ -4,6 +4,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTranslations } from '@/hooks/useTranslations';
 import { usePublicMarketplace } from '@/hooks/usePublicMarketplace';
 import { useSecureMarketListing } from '@/hooks/useSecureMarketListing';
+import { useMarketListingManagement } from '@/hooks/useMarketListingManagement';
+import { useListingFavorites } from '@/hooks/useListingFavorites';
 import { EnhancedHeader } from '@/components/EnhancedHeader';
 import BottomNavigation from '@/components/BottomNavigation';
 import { MarketListingCard } from '@/components/MarketListingCard';
@@ -32,6 +34,8 @@ const Market = () => {
   const { user } = useAuth();
   const { listings, loading, error, refetch } = usePublicMarketplace();
   const { createListing, loading: creatingListing } = useSecureMarketListing();
+  const { updateListing, deleteListing, updateStatus, isUpdating, isDeleting } = useMarketListingManagement();
+  const { favorites, toggleFavorite, isFavorite, isToggling } = useListingFavorites();
   
   const [showForm, setShowForm] = useState(false);
   const [selectedListing, setSelectedListing] = useState(null);
@@ -82,8 +86,27 @@ const Market = () => {
       alert(t('marketplace.loginRequired'));
       return;
     }
-    // For now, just close the modal - edit functionality can be implemented later
+    // TODO: Open edit form with listing data
     setSelectedListing(null);
+  };
+
+  const handleDeleteListing = (listingId: string) => {
+    if (!user) {
+      alert(t('marketplace.loginRequired'));
+      return;
+    }
+    if (confirm(t('marketplace.confirmDelete') || 'Are you sure you want to delete this listing?')) {
+      deleteListing(listingId, {
+        onSuccess: () => {
+          setSelectedListing(null);
+          refetch();
+        }
+      });
+    }
+  };
+
+  const handleToggleFavorite = (listingId: string) => {
+    toggleFavorite(listingId);
   };
 
   const filteredListings = listings.filter(listing => {
@@ -276,18 +299,21 @@ const Market = () => {
                 listing={{
                   id: listing.id,
                   title: listing.title || '',
-                  category: 'Animal', // Default category
+                  category: 'Animal',
                   price: listing.price,
                   location: listing.location,
                   description: listing.description,
                   photos: listing.photos,
-                  isFeatured: false, // Default value
-                  isFavorite: false, // Default value
-                  is_vet_verified: listing.is_vet_verified
+                  isFeatured: false,
+                  isFavorite: isFavorite(listing.id),
+                  is_vet_verified: listing.is_vet_verified,
+                  user_id: listing.user_id
                 }}
                 language={language}
+                currentUserId={user?.id}
                 onViewDetails={handleViewDetails}
                 onExpressInterest={handleExpressInterest}
+                onToggleFavorite={handleToggleFavorite}
               />
             ))}
           </div>
@@ -299,12 +325,14 @@ const Market = () => {
         <MarketListingDetails
           listing={{
             ...selectedListing,
-            category: 'Animal' // Add required category field
+            category: 'Animal'
           }}
           language={language}
+          currentUserId={user?.id}
           onClose={() => setSelectedListing(null)}
           onContact={handleContactListing}
           onEdit={handleEditListing}
+          onDelete={handleDeleteListing}
         />
       )}
 

@@ -19,46 +19,56 @@ interface MarketListingCardProps {
     isFeatured?: boolean;
     isFavorite?: boolean;
     is_vet_verified?: boolean;
+    user_id?: string;
   };
   language: Language;
+  currentUserId?: string;
   onViewDetails: (listing: any) => void;
   onExpressInterest: (listing: any) => void;
+  onToggleFavorite?: (listingId: string) => void;
 }
 
 export const MarketListingCard = ({ 
   listing, 
   language, 
+  currentUserId,
   onViewDetails, 
-  onExpressInterest
+  onExpressInterest,
+  onToggleFavorite
 }: MarketListingCardProps) => {
+  const isOwner = currentUserId && listing.user_id === currentUserId;
   const translations = {
     am: {
       contact: 'ፍላጎት ያሳዩ',
       favorite: 'ወደ ተወዳጅ ጨምር',
       verified: 'የተረጋገጠ',
       viewDetails: 'ዝርዝሮች ይመልከቱ',
-      priceHidden: 'ዋጋ ተደብቋል'
+      priceHidden: 'ዋጋ ተደብቋል',
+      yourListing: 'የእርስዎ ዝርዝር'
     },
     en: {
       contact: 'Show Interest',
       favorite: 'Add to Favorites',
       verified: 'Verified',
       viewDetails: 'View Details',
-      priceHidden: 'Price hidden'
+      priceHidden: 'Price hidden',
+      yourListing: 'Your Listing'
     },
     or: {
       contact: 'Fedhii Agarsiisi',
       favorite: 'Gara Jaallattootatti Dabaluu',
       verified: 'Mirkaneeffame',
       viewDetails: 'Bal\'inaa Ilaali',
-      priceHidden: 'Gatiin dhokfame'
+      priceHidden: 'Gatiin dhokfame',
+      yourListing: 'Tarree Kee'
     },
     sw: {
       contact: 'Onyesha Hamu',
       favorite: 'Ongeza kwenye Vipendwa',
       verified: 'Imethibitishwa',
       viewDetails: 'Ona Maelezo',
-      priceHidden: 'Bei imefichwa'
+      priceHidden: 'Bei imefichwa',
+      yourListing: 'Orodha Yako'
     }
   };
 
@@ -68,7 +78,12 @@ export const MarketListingCard = ({
     <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => onViewDetails(listing)}>
       <CardContent className="p-3 sm:p-4">
         <div className="aspect-video bg-gray-200 rounded-lg mb-3 relative overflow-hidden">
-          {listing.isFeatured && (
+          {isOwner && (
+            <Badge className="absolute top-2 left-2 bg-blue-500">
+              {t.yourListing}
+            </Badge>
+          )}
+          {listing.isFeatured && !isOwner && (
             <Badge className="absolute top-2 left-2 bg-orange-500">
               Featured
             </Badge>
@@ -78,6 +93,21 @@ export const MarketListingCard = ({
               <Shield className="w-3 h-3 mr-1" />
               {t.verified}
             </Badge>
+          )}
+          {onToggleFavorite && !isOwner && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute bottom-2 right-2 bg-white/80 hover:bg-white"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleFavorite(listing.id);
+              }}
+            >
+              <Heart 
+                className={`w-4 h-4 ${listing.isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600'}`}
+              />
+            </Button>
           )}
           {listing.photos && listing.photos.length > 0 ? (
             <img 

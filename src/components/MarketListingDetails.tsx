@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { X, MessageSquare, Mail, MapPin, Shield, Edit } from 'lucide-react';
+import { X, MessageSquare, Mail, MapPin, Shield, Edit, Trash2 } from 'lucide-react';
 import { Language } from '@/types';
 
 interface MarketListingDetailsProps {
@@ -18,24 +18,31 @@ interface MarketListingDetailsProps {
     is_vet_verified?: boolean;
     contact_method?: string;
     contact_value?: string;
+    user_id?: string;
   };
   language: Language;
+  currentUserId?: string;
   onClose: () => void;
   onContact: (listing: any) => void;
   onEdit: (listing: any) => void;
+  onDelete: (listingId: string) => void;
 }
 
 export const MarketListingDetails = ({ 
   listing, 
   language, 
+  currentUserId,
   onClose, 
   onContact, 
-  onEdit 
+  onEdit,
+  onDelete 
 }: MarketListingDetailsProps) => {
+  const isOwner = currentUserId && listing.user_id === currentUserId;
   const translations = {
     am: {
       contact: 'ፍላጎት ያሳዩ',
       edit: 'ይቀይሩ',
+      delete: 'ደርስበት',
       verified: 'የተረጋገጠ',
       price: 'ዋጋ',
       location: 'አካባቢ',
@@ -45,6 +52,7 @@ export const MarketListingDetails = ({
     en: {
       contact: 'Express Interest',
       edit: 'Edit Listing',
+      delete: 'Delete Listing',
       verified: 'Vet Verified',
       price: 'Price',
       location: 'Location',
@@ -54,6 +62,7 @@ export const MarketListingDetails = ({
     or: {
       contact: 'Fedhii Ibsi',
       edit: 'Tarree Jijjiiruu',
+      delete: 'Tarree Haquu',
       verified: 'Doktoora Beeitii Mirkaneeffame',
       price: 'Gatii',
       location: 'Bakka',
@@ -63,6 +72,7 @@ export const MarketListingDetails = ({
     sw: {
       contact: 'Onyesha Hamu',
       edit: 'Hariri Orodha',
+      delete: 'Futa Orodha',
       verified: 'Imethibitishwa na Daktari',
       price: 'Bei',
       location: 'Mahali',
@@ -118,21 +128,36 @@ export const MarketListingDetails = ({
           </div>
           
           <div className="flex space-x-2 pt-4">
-            <Button 
-              className="flex-1 bg-orange-600 hover:bg-orange-700 transition-all duration-200 hover:scale-105 active:scale-95"
-              onClick={() => onContact(listing)}
-            >
-              <MessageSquare className="w-4 h-4 mr-2" />
-              {t.contact}
-            </Button>
+            {!isOwner && (
+              <Button 
+                className="flex-1 bg-orange-600 hover:bg-orange-700 transition-all duration-200 hover:scale-105 active:scale-95"
+                onClick={() => onContact(listing)}
+              >
+                <MessageSquare className="w-4 h-4 mr-2" />
+                {t.contact}
+              </Button>
+            )}
             
-            <Button 
-              variant="outline"
-              onClick={() => onEdit(listing)}
-            >
-              <Edit className="w-4 h-4 mr-2" />
-              {t.edit}
-            </Button>
+            {isOwner && (
+              <>
+                <Button 
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => onEdit(listing)}
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  {t.edit}
+                </Button>
+                
+                <Button 
+                  variant="destructive"
+                  onClick={() => onDelete(listing.id)}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  {t.delete}
+                </Button>
+              </>
+            )}
           </div>
         </CardContent>
       </Card>
