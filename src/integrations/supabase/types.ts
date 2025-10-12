@@ -239,33 +239,51 @@ export type Database = {
           farm_name: string
           farm_prefix: string
           id: string
+          is_verified_seller: boolean | null
           location: string | null
           owner_name: string | null
           phone: string | null
+          profile_photo_url: string | null
+          seller_bio: string | null
+          seller_rating: number | null
+          total_ratings: number | null
           updated_at: string
           user_id: string
+          verification_date: string | null
         }
         Insert: {
           created_at?: string
           farm_name: string
           farm_prefix: string
           id?: string
+          is_verified_seller?: boolean | null
           location?: string | null
           owner_name?: string | null
           phone?: string | null
+          profile_photo_url?: string | null
+          seller_bio?: string | null
+          seller_rating?: number | null
+          total_ratings?: number | null
           updated_at?: string
           user_id: string
+          verification_date?: string | null
         }
         Update: {
           created_at?: string
           farm_name?: string
           farm_prefix?: string
           id?: string
+          is_verified_seller?: boolean | null
           location?: string | null
           owner_name?: string | null
           phone?: string | null
+          profile_photo_url?: string | null
+          seller_bio?: string | null
+          seller_rating?: number | null
+          total_ratings?: number | null
           updated_at?: string
           user_id?: string
+          verification_date?: string | null
         }
         Relationships: []
       }
@@ -745,6 +763,61 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      seller_ratings: {
+        Row: {
+          buyer_user_id: string
+          created_at: string | null
+          id: string
+          listing_id: string | null
+          rating: number
+          review_text: string | null
+          seller_user_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          buyer_user_id: string
+          created_at?: string | null
+          id?: string
+          listing_id?: string | null
+          rating: number
+          review_text?: string | null
+          seller_user_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          buyer_user_id?: string
+          created_at?: string | null
+          id?: string
+          listing_id?: string | null
+          rating?: number
+          review_text?: string | null
+          seller_user_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_ratings_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "market_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seller_ratings_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_market_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "seller_ratings_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_market_view"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       vaccination_schedules: {
         Row: {

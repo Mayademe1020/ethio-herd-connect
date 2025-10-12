@@ -17,6 +17,10 @@ import MilkProduction from "./pages/MilkProduction";
 import PublicMarketplace from "./pages/PublicMarketplace";
 import Medical from "./pages/Medical";
 import SystemAnalysis from "./pages/SystemAnalysis";
+import MyListings from "./pages/MyListings";
+import Favorites from "./pages/Favorites";
+import InterestInbox from "./pages/InterestInbox";
+import SellerAnalytics from "./pages/SellerAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -33,6 +37,10 @@ const App = () => (
               <Route path="/animals" element={<Animals />} />
               <Route path="/market" element={<Market />} />
               <Route path="/marketplace" element={<PublicMarketplace />} />
+              <Route path="/my-listings" element={<MyListings />} />
+              <Route path="/favorites" element={<Favorites />} />
+              <Route path="/interest-inbox" element={<InterestInbox />} />
+              <Route path="/seller-analytics" element={<SellerAnalytics />} />
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/auth" element={<Auth />} />
