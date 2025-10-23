@@ -9,52 +9,140 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search, Home, Heart, ShoppingCart, Stethoscope, Calendar, TrendingUp } from 'lucide-react';
 import { AnimalData } from '@/types';
+import { useDashboardStats } from '@/hooks/useDashboardStats';
+import { useGrowthRecords } from '@/hooks/useGrowthRecords';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
 
 export const HomeScreen = () => {
   const { user, userProfile } = useAuth();
   const { t } = useTranslations();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const { formatDate } = useDateDisplay();
 
-  // Fetch animals data
-  const { data: animals = [], isLoading } = useQuery({
-    queryKey: ['animals', user?.id],
+  // Use aggregated dashboard stats instead of local queries
+  const { stats: dashboardStats, animals, isLoading, nextBestActions } = useDashboardStats();
+
+  // Use consolidated growth records hook for growth rate computation
+  const { growthRecords } = useGrowthRecords();
+
+  // Fetch market listings (for sales count and total value)
+  const { data: myListings = [] } = useQuery({
+    queryKey: ['my-market-listings', user?.id],
     queryFn: async () => {
       if (!user) return [];
       const { data, error } = await supabase
-        .from('animals')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      return data as AnimalData[];
-    },
-    enabled: !!user
-  });
-
-  // Fetch market listings count
-  const { data: marketCount = 0 } = useQuery({
-    queryKey: ['market-count', user?.id],
-    queryFn: async () => {
-      if (!user) return 0;
-      const { count, error } = await supabase
         .from('market_listings')
-        .select('*', { count: 'exact', head: true })
+        .select('id, status, price, user_id')
         .eq('user_id', user.id);
       if (error) throw error;
-      return count || 0;
+      return data || [];
     },
     enabled: !!user
   });
 
-  // Calculate stats
+  // Fetch vaccination schedules (public table)
+  const { data: vaccinationSchedules = [] } = useQuery({
+    queryKey: ['vaccination-schedules'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('vaccination_schedules')
+        .select('*');
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: true
+  });
+
+  // Fetch vaccination health records for the user
+  const { data: vaccinationRecords = [] } = useQuery({
+    queryKey: ['health-records-vaccination', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await supabase
+        .from('health_records')
+        .select('animal_id, medicine_name, record_type, administered_date')
+        .eq('user_id', user.id)
+        .eq('record_type', 'vaccination');
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user
+  });
+
+  // Calculate growth rate from actual data
+  const calculateGrowthRate = () => {
+    if (growthRecords.length < 2) return 0;
+    
+    const animalGrowthMap = growthRecords.reduce((acc: Record<string, any[]>, record: any) => {
+      const key = record.animal_id || 'unknown';
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(record);
+      return acc;
+    }, {});
+    
+    let totalGrowthRate = 0;
+    let animalCount = 0;
+    
+    Object.values(animalGrowthMap).forEach((records: any[]) => {
+      if (records.length >= 2) {
+        records.sort((a, b) => new Date(a.recorded_date).getTime() - new Date(b.recorded_date).getTime());
+        const firstRecord = records[0];
+        const lastRecord = records[records.length - 1];
+        const initialWeight = Number(firstRecord.weight) || 0;
+        const currentWeight = Number(lastRecord.weight) || 0;
+        if (initialWeight > 0) {
+          const growthPercent = ((currentWeight - initialWeight) / initialWeight) * 100;
+          totalGrowthRate += growthPercent;
+          animalCount++;
+        }
+      }
+    });
+    return animalCount > 0 ? parseFloat((totalGrowthRate / animalCount).toFixed(1)) : 0;
+  };
+
+  // Compute upcoming vaccination appointments from schedules and records
+  const computeUpcomingAppointments = (): number => {
+    if (!animals || animals.length === 0) return 0;
+    const today = new Date();
+    const windowDays = 30;
+    const windowEnd = new Date(today.getTime() + windowDays * 24 * 60 * 60 * 1000);
+    const administered = new Set<string>();
+    vaccinationRecords.forEach((rec: any) => {
+      const key = `${rec.animal_id}|${(rec.medicine_name || '').toLowerCase()}`;
+      administered.add(key);
+    });
+    let upcomingCount = 0;
+    animals.forEach((animal: any) => {
+      const type = (animal.type || '').toLowerCase();
+      const birthDateStr = animal.birth_date;
+      if (!type || !birthDateStr) return;
+      const birthDate = new Date(birthDateStr);
+      const schedules = (vaccinationSchedules || []).filter((s: any) => (s.animal_type || '').toLowerCase() === type);
+      schedules.forEach((s: any) => {
+        const dueDate = new Date(birthDate.getTime() + Number(s.age_days) * 24 * 60 * 60 * 1000);
+        const vaccineName = (s.vaccine_name || '').toLowerCase();
+        const recordKey = `${animal.id}|${vaccineName}`;
+        const isAdministered = administered.has(recordKey);
+        const isDueSoon = dueDate >= today && dueDate <= windowEnd;
+        if (!isAdministered && isDueSoon) {
+          upcomingCount += 1;
+        }
+      });
+    });
+    return upcomingCount;
+  };
+
+  // Calculate stats (mapped to useDashboardStats values)
   const stats = {
-    totalAnimals: animals.length,
-    favoriteAnimals: 0, // Favorites functionality not implemented yet
-    upcomingAppointments: animals.filter(a => a.vaccination_due_date && new Date(a.vaccination_due_date) > new Date()).length,
-    salesCount: marketCount,
-    totalValue: animals.reduce((sum, animal) => sum + (animal.estimated_value || 0), 0),
-    growthRate: 5.2 // Mock data for now
+    totalAnimals: dashboardStats.totalAnimals,
+    favoriteAnimals: 0,
+    upcomingAppointments: computeUpcomingAppointments(),
+    // Use aggregated count of user's market listings
+    salesCount: dashboardStats.marketListings,
+    // We don’t have aggregated total value in useDashboardStats yet
+    totalValue: 0,
+    growthRate: calculateGrowthRate()
   };
 
   // Navigation handlers
@@ -79,11 +167,7 @@ export const HomeScreen = () => {
     animal.animal_code?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const currentDate = new Date().toLocaleDateString('am-ET', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
+  const currentDate = formatDate(new Date());
 
   const userName = userProfile?.full_name || user?.email?.split('@')[0] || 'ተጠቃሚ';
 
@@ -257,5 +341,124 @@ export const HomeScreen = () => {
         </div>
       </div>
     </div>
+
+    // Mode Toggle */}
+    <div className="px-4 py-2 flex items-center justify-between bg-muted/40 border-b border-border">
+      <div className="text-sm font-medium">Display Mode</div>
+      <div className="flex gap-2">
+        <Button variant={mode === 'simple' ? 'default' : 'outline'} onClick={() => setMode('simple')}>
+          Simple
+        </Button>
+        <Button variant={mode === 'advanced' ? 'default' : 'outline'} onClick={() => setMode('advanced')}>
+          Advanced
+        </Button>
+      </div>
+    </div>
+
+    // Onboarding: 3-step visual journey */
+    {showOnboarding && (
+      <div className="px-4 py-4">
+        <Card className="border-primary/50">
+          <CardContent className="space-y-4">
+            <div className="text-lg font-semibold">Welcome! Let’s get started</div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-3 rounded-lg border">
+                <div className="font-medium">1. Register Animal</div>
+                <div className="text-sm text-muted-foreground">Add your first livestock</div>
+                <Button className="mt-2 w-full" onClick={() => navigate('/animals?action=register')}>Start</Button>
+              </div>
+              <div className="p-3 rounded-lg border">
+                <div className="font-medium">2. Track Health</div>
+                <div className="text-sm text-muted-foreground">Record illness/vaccination</div>
+                <Button className="mt-2 w-full" onClick={() => navigate('/health-records')}>Open</Button>
+              </div>
+              <div className="p-3 rounded-lg border">
+                <div className="font-medium">3. Explore Marketplace</div>
+                <div className="text-sm text-muted-foreground">Find buyers or listings</div>
+                <Button className="mt-2 w-full" onClick={() => navigate('/marketplace')}>Explore</Button>
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <Button variant="outline" onClick={completeOnboarding}>Skip</Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )}
+
+    // Next Best Actions */
+    <div className="px-4 py-4">
+      <div className="text-lg font-semibold">Next Best Actions</div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
+        {nextBestActions?.map((a: any) => (
+          <Card key={a.action} className="cursor-pointer" onClick={() => navigate(a.route)}>
+            <CardContent className="py-3">
+              <div className="font-medium">{a.title}</div>
+              <div className="text-sm text-muted-foreground">{a.description}</div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+
+    // Simple Mode: minimal key metrics */
+    {mode === 'simple' && (
+      <div className="px-4 py-4">
+        <Card>
+          <CardContent className="py-4">
+            <div className="flex items-center justify-between">
+              <div className="font-semibold">Animals</div>
+              <div className="text-xl">{dashboardStats.totalAnimals}</div>
+            </div>
+            <div className="mt-3 flex items-center justify-between">
+              <div className="font-semibold">Milk (This Month)</div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl">{dashboardStats.totalMilkThisMonth}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )}
+
+    // Advanced Mode: detailed metrics with visual progress bars */
+    {mode === 'advanced' && (
+      <div className="px-4 py-4 space-y-4">
+        <Card>
+          <CardContent className="py-4">
+            <div className="font-semibold mb-2">Health Overview</div>
+            <div className="space-y-2">
+              <div>
+                <div className="text-sm">Healthy</div>
+                <div className="h-2 bg-muted rounded">
+                  <div
+                    className="h-2 bg-green-500 rounded"
+                    style={{ width: `${(dashboardStats.healthyAnimals / Math.max(dashboardStats.totalAnimals, 1)) * 100}%` }}
+                  />
+                </div>
+              </div>
+              <div>
+                <div className="text-sm">Needs Attention</div>
+                <div className="h-2 bg-muted rounded">
+                  <div
+                    className="h-2 bg-orange-500 rounded"
+                    style={{ width: `${(dashboardStats.needsAttention / Math.max(dashboardStats.totalAnimals, 1)) * 100}%` }}
+                  />
+                </div>
+              </div>
+              <div>
+                <div className="text-sm">Critical</div>
+                <div className="h-2 bg-muted rounded">
+                  <div
+                    className="h-2 bg-red-500 rounded"
+                    style={{ width: `${(dashboardStats.criticalAnimals / Math.max(dashboardStats.totalAnimals, 1)) * 100}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )}
   );
 };

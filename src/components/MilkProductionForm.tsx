@@ -12,6 +12,7 @@ import { useMilkProduction } from '@/hooks/useMilkProduction';
 import { useAnimalSelection } from '@/hooks/useAnimalSelection';
 import { AnimalSelectorModal } from '@/components/AnimalSelectorModal';
 import { Language } from '@/types';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
 
 interface MilkProductionFormProps {
   language: Language;

@@ -11,6 +11,8 @@ import { useSecureVaccination } from '@/hooks/useSecureVaccination';
 import { useAnimalSelection } from '@/hooks/useAnimalSelection';
 import { AnimalSelectorModal } from './AnimalSelectorModal';
 import { AnimalIdDisplay } from './AnimalIdDisplay';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
+import { sanitizeFormData } from '@/utils/securityUtils';
 
 interface VaccinationFormProps {
   language: Language;
@@ -99,11 +101,18 @@ export const VaccinationForm = ({
       return;
     }
 
+    // Sanitize form data before submission
+    const sanitizedData = sanitizeFormData({
+      vaccineName: formData.vaccineName,
+      administeredBy: formData.administeredBy,
+      notes: formData.notes
+    });
+
     const { error } = await recordVaccination({
       animal_id: currentAnimal.id,
-      medicine_name: formData.vaccineName,
+      medicine_name: sanitizedData.vaccineName,
       administered_date: formData.date,
-      notes: formData.notes
+      notes: sanitizedData.notes
     });
 
     if (!error) {

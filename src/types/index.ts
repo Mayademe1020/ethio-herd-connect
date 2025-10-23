@@ -5,6 +5,8 @@ export interface AnimalData {
   name: string;
   type: string;
   breed: string;
+  breed_custom?: string; // User-provided breed description for unknown breeds
+  is_custom_breed?: boolean; // Flag indicating custom breed entry
   birth_date: string;
   weight?: number;
   health_status: 'healthy' | 'sick' | 'attention' | 'critical';

@@ -8,6 +8,8 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Upload, X, Camera, MapPin, Tag, DollarSign } from 'lucide-react';
 import { Language } from '@/types';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
+import { sanitizeFormData } from '@/utils/securityUtils';
 
 interface AnimalListingFormProps {
   isOpen: boolean;
@@ -225,7 +227,10 @@ export const AnimalListingForm = ({
     setIsSubmitting(true);
 
     try {
-      await onSubmit(formData);
+      // Sanitize form data before submission
+      const sanitizedData = sanitizeFormData(formData);
+      
+      await onSubmit(sanitizedData);
       toast({
         title: t.success,
         description: "Your listing is now live on the marketplace.",

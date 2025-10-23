@@ -9,6 +9,7 @@ import { X, ShoppingCart } from 'lucide-react';
 import { Language } from '@/types';
 import { useTranslations } from '@/hooks/useTranslations';
 import { ANIMAL_TYPES, ANIMAL_TYPE_ICONS } from '@/utils/animalTypes';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
 
 interface MarketListingFormProps {
   language: Language;

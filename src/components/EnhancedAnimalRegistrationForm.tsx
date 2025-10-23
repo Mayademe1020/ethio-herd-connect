@@ -1,7 +1,5 @@
 
 import React, { useState } from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
-import { useAuth } from '@/contexts/AuthContext';
 import { useTranslations } from '@/hooks/useTranslations';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,10 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { X, ArrowLeft, ArrowRight, User, Heart, Calendar, Beef } from 'lucide-react';
+import { X, ArrowLeft, ArrowRight, User, Heart, Beef } from 'lucide-react';
 import { Language, AnimalData } from '@/types';
 import { useSecureAnimalRegistration } from '@/hooks/useSecureAnimalRegistration';
 import { AnimalPhotoUpload } from './AnimalPhotoUpload';
+import { sanitizeFormData } from '@/utils/securityUtils';
+import { BreedSelector } from './BreedSelector';
 
 interface EnhancedAnimalRegistrationFormProps {
   language: Language;
@@ -34,6 +34,8 @@ export const EnhancedAnimalRegistrationForm = ({
     name: editAnimal?.name || '',
     type: editAnimal?.type || '',
     breed: editAnimal?.breed || '',
+    customBreed: editAnimal?.breed_custom || '',
+    isCustomBreed: editAnimal?.is_custom_breed || false,
     birthDate: editAnimal?.birth_date || '',
     gender: editAnimal?.gender || '',
     color: editAnimal?.color || '',
@@ -45,13 +47,6 @@ export const EnhancedAnimalRegistrationForm = ({
 
   const { registerAnimal, updateAnimal, loading } = useSecureAnimalRegistration();
 
-  const ethiopianBreeds = {
-    cattle: ['Boran', 'Horro', 'Arsi', 'Danakil', 'Fogera', 'Sheko'],
-    sheep: ['Blackhead Somali', 'Afar', 'Menz', 'Horro', 'Arsi-Bale'],
-    goat: ['Boer', 'Arsi-Bale', 'Afar', 'Keffa', 'Long-eared Somali'],
-    poultry: ['Rhode Island Red', 'Leghorn', 'Local/Indigenous']
-  };
-
   const totalSteps = 3;
   const progress = (currentStep / totalSteps) * 100;
 
@@ -62,17 +57,24 @@ export const EnhancedAnimalRegistrationForm = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const animalData = {
+    // Sanitize all form data before submission
+    const sanitizedData = sanitizeFormData({
       name: formData.name,
       type: formData.type,
       breed: formData.breed,
+      breed_custom: formData.isCustomBreed ? formData.customBreed : undefined,
       birth_date: formData.birthDate || undefined,
       gender: formData.gender || undefined,
       color: formData.color || undefined,
-      weight: formData.weight ? parseFloat(formData.weight) : undefined,
-      health_status: formData.healthStatus,
       notes: formData.notes || undefined,
       photo_url: formData.photoUrl || undefined
+    });
+    
+    const animalData = {
+      ...sanitizedData,
+      weight: formData.weight ? parseFloat(formData.weight) : undefined,
+      health_status: formData.healthStatus,
+      is_custom_breed: formData.isCustomBreed
     };
 
     let result;
@@ -132,26 +134,20 @@ export const EnhancedAnimalRegistrationForm = ({
               </Select>
             </div>
 
-            {formData.type && (
-              <div className="space-y-2">
-                <Label htmlFor="breed">Breed</Label>
-                <Select
-                  value={formData.breed}
-                  onValueChange={(value) => setFormData(prev => ({ ...prev, breed: value }))}
-                >
-                  <SelectTrigger className="border-ethiopia-green-200">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ethiopianBreeds[formData.type as keyof typeof ethiopianBreeds]?.map((breed) => (
-                      <SelectItem key={breed} value={breed}>
-                        {breed}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+            <BreedSelector
+              animalType={formData.type}
+              selectedBreed={formData.breed}
+              customBreed={formData.customBreed}
+              onBreedChange={(breed, isCustom) => 
+                setFormData(prev => ({ ...prev, breed, isCustomBreed: isCustom }))
+              }
+              onCustomBreedChange={(customBreed) => 
+                setFormData(prev => ({ ...prev, customBreed }))
+              }
+              language={language}
+              disabled={loading}
+              required
+            />
           </div>
         );
 

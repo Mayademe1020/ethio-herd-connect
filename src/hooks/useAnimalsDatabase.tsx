@@ -4,6 +4,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { AnimalData } from '@/types';
+import { buildAnimalQuery, ANIMAL_FIELDS } from '@/lib/queryBuilders';
+import { logger } from '@/utils/logger';
 
 export const useAnimalsDatabase = () => {
   const [loading, setLoading] = useState(false);
@@ -11,22 +13,28 @@ export const useAnimalsDatabase = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch animals with React Query
+  // Fetch animals with React Query - OPTIMIZED with specific field selection
   const { data: animals = [], isLoading } = useQuery({
-    queryKey: ['animals', user?.id],
+    queryKey: ['animals', user?.id, 'list'],
     queryFn: async () => {
       if (!user) return [];
       
-      const { data, error } = await supabase
-        .from('animals')
-        .select('*')
-        .eq('user_id', user.id)
+      const startTime = performance.now();
+      
+      // Use query builder for optimized field selection
+      const { data, error } = await buildAnimalQuery(supabase, user.id, 'list')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      
+      const duration = performance.now() - startTime;
+      logger.debug(`Query Performance: Animals list: ${duration.toFixed(2)}ms`);
+      
       return (data || []) as AnimalData[];
     },
-    enabled: !!user
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    cacheTime: 10 * 60 * 1000, // 10 minutes
   });
 
   const fetchAnimals = async (): Promise<AnimalData[]> => {
@@ -34,13 +42,17 @@ export const useAnimalsDatabase = () => {
     
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('animals')
-        .select('*')
-        .eq('user_id', user.id)
+      const startTime = performance.now();
+      
+      // Use query builder for optimized field selection
+      const { data, error } = await buildAnimalQuery(supabase, user.id, 'list')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      
+      const duration = performance.now() - startTime;
+      logger.debug(`Query Performance: Fetch animals: ${duration.toFixed(2)}ms`);
+      
       return (data || []) as AnimalData[];
     } catch (error: any) {
       toast({
@@ -66,13 +78,19 @@ export const useAnimalsDatabase = () => {
 
     try {
       setLoading(true);
+      const startTime = performance.now();
+      
+      // Insert with specific field selection for the response
       const { data, error } = await supabase
         .from('animals')
         .insert([{ ...animalData, user_id: user.id }])
-        .select()
+        .select(ANIMAL_FIELDS.detail) // Return all fields for the created animal
         .single();
 
       if (error) throw error;
+
+      const duration = performance.now() - startTime;
+      logger.debug(`Query Performance: Create animal: ${duration.toFixed(2)}ms`);
 
       queryClient.invalidateQueries({ queryKey: ['animals'] });
       
@@ -99,15 +117,21 @@ export const useAnimalsDatabase = () => {
 
     try {
       setLoading(true);
+      const startTime = performance.now();
+      
+      // Update with specific field selection for the response
       const { data, error } = await supabase
         .from('animals')
         .update({ ...updates, updated_at: new Date().toISOString() })
         .eq('id', animalId)
         .eq('user_id', user.id)
-        .select()
+        .select(ANIMAL_FIELDS.detail) // Return all fields for the updated animal
         .single();
 
       if (error) throw error;
+
+      const duration = performance.now() - startTime;
+      logger.debug(`Query Performance: Update animal: ${duration.toFixed(2)}ms`);
 
       queryClient.invalidateQueries({ queryKey: ['animals'] });
       

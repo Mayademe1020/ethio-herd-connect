@@ -1,4 +1,5 @@
 import { AnimalData } from '@/types';
+import { logger } from '@/utils/logger';
 
 interface UseAnimalsActionsProps {
   animals: AnimalData[];
@@ -42,7 +43,7 @@ export const useAnimalsActions = ({
 
   const handleSell = (animal: AnimalData) => {
     // Handle sell logic
-    console.log('Selling animal:', animal);
+    logger.debug('Selling animal', { animal });
   };
 
   const handleReportIllness = (animal: AnimalData) => {

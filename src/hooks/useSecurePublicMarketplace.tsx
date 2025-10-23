@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { mockMarketplaceListings } from '@/data/mockMarketplaceData';
 
 interface SecurePublicListing {
   id: string;
@@ -50,15 +51,29 @@ export const useSecurePublicMarketplace = () => {
       if (error) {
         console.error('Database error fetching listings:', error.message);
         setError(error.message);
-        setListings([]);
+        // Fallback to mock listings for preview when unauthenticated
+        if (!user) {
+          setListings(mockMarketplaceListings as unknown as SecurePublicListing[]);
+        } else {
+          setListings([]);
+        }
       } else {
-        // Use only real data from database
-        setListings(data || []);
+        // Use only real data from database; if none available for public, show mock for preview
+        if ((!data || data.length === 0) && !user) {
+          setListings(mockMarketplaceListings as unknown as SecurePublicListing[]);
+        } else {
+          setListings(data || []);
+        }
       }
     } catch (err: any) {
       console.error('Error fetching secure public listings:', err);
       setError(err.message || 'Failed to fetch listings');
-      setListings([]);
+      // Fallback to mock listings for preview when unauthenticated
+      if (!user) {
+        setListings(mockMarketplaceListings as unknown as SecurePublicListing[]);
+      } else {
+        setListings([]);
+      }
     } finally {
       setLoading(false);
     }

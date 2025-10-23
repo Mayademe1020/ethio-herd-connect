@@ -5,12 +5,15 @@ import { Button } from '@/components/ui/button';
 import { Lock, Eye, TrendingUp } from 'lucide-react';
 import { Language } from '@/types';
 
+// AuthGateModal component: add intendedAction prop and store postLoginAction
 interface AuthGateModalProps {
   isOpen: boolean;
   onClose: () => void;
   onLogin: () => void;
   viewCount: number;
   language: Language;
+  // New: carry the intended action to resume post-login
+  intendedAction?: { type: string; listingId?: string };
 }
 
 export const AuthGateModal = ({
@@ -18,7 +21,8 @@ export const AuthGateModal = ({
   onClose,
   onLogin,
   viewCount,
-  language
+  language,
+  intendedAction
 }: AuthGateModalProps) => {
   const translations = {
     am: {
@@ -122,7 +126,18 @@ export const AuthGateModal = ({
             {t.continueButton}
           </Button>
           <Button 
-            onClick={onLogin} 
+            onClick={() => {
+              // Store intended action for post-login resume
+              try {
+                if (intendedAction) {
+                  localStorage.setItem(
+                    'postLoginAction',
+                    JSON.stringify({ ...intendedAction, timestamp: Date.now() })
+                  );
+                }
+              } catch {}
+              onLogin();
+            }} 
             className="flex-1 bg-orange-600 hover:bg-orange-700"
           >
             {t.loginButton}

@@ -9,6 +9,7 @@ import { X, Save, MapPin, User, Phone, Mail } from 'lucide-react';
 import { Language } from '@/types';
 import { useToastNotifications } from '@/hooks/useToastNotifications';
 import { supabase } from '@/integrations/supabase/client';
+import { sanitizeFormData } from '@/utils/securityUtils';
 
 interface FarmSetupFormProps {
   language: Language;
@@ -113,17 +114,27 @@ export const FarmSetupForm = ({ language, onClose, editMode = false }: FarmSetup
         return;
       }
 
-      const farmPrefix = formData.farmName.substring(0, 3).toUpperCase();
+      // Sanitize form data before submission
+      const sanitizedData = sanitizeFormData({
+        farmName: formData.farmName,
+        ownerName: formData.ownerName,
+        phone: formData.phone,
+        email: formData.email,
+        location: formData.location,
+        description: formData.description
+      });
+
+      const farmPrefix = sanitizedData.farmName.substring(0, 3).toUpperCase();
       
       const { error } = await supabase
         .from('farm_profiles')
         .upsert({
           user_id: user.id,
-          farm_name: formData.farmName,
+          farm_name: sanitizedData.farmName,
           farm_prefix: farmPrefix,
-          owner_name: formData.ownerName,
-          phone: formData.phone,
-          location: formData.location
+          owner_name: sanitizedData.ownerName,
+          phone: sanitizedData.phone,
+          location: sanitizedData.location
         });
 
       if (error) throw error;

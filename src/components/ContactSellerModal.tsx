@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Phone, Mail, MessageCircle, Send, User, Shield } from 'lucide-react';
 import { Language } from '@/types';
+import { sanitizeFormData } from '@/utils/securityUtils';
 
 interface ContactSellerModalProps {
   isOpen: boolean;
@@ -130,7 +131,14 @@ export const ContactSellerModal = ({
 
     setIsSubmitting(true);
     try {
-      // TODO: Implement actual message sending to backend
+      // Sanitize form data before submission
+      const sanitizedData = sanitizeFormData({
+        message,
+        senderName,
+        senderEmail
+      });
+
+      // TODO: Implement actual message sending to backend with sanitizedData
       await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
       
       toast({

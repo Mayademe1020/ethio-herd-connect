@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Mail, CheckCircle, XCircle, Clock, User, MessageCircle } from 'lucide-react';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { useToast } from '@/hooks/use-toast';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
 
 const InterestInbox = () => {
   const { user } = useAuth();
@@ -21,6 +22,7 @@ const InterestInbox = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('pending');
+  const { formatDateTime } = useDateDisplay();
 
   // Fetch buyer interests where user is the seller
   const { data: interests, isLoading } = useQuery({
@@ -264,7 +266,7 @@ const InterestList = ({ interests, onApprove, onReject, showActions, t }: any) =
 
               {/* Metadata */}
               <p className="text-xs text-gray-500 mb-3">
-                {new Date(interest.created_at).toLocaleDateString()} • {new Date(interest.created_at).toLocaleTimeString()}
+                {formatDateTime(interest.created_at)}
               </p>
 
               {/* Actions */}

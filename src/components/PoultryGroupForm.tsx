@@ -11,7 +11,9 @@ import { useToast } from '@/hooks/use-toast';
 import { DatePicker } from './DatePicker';
 import { breedsByType } from '@/utils/breedData';
 import { AnimalIdDisplay } from '@/components/AnimalIdDisplay';
-import { generateAnimalId, validateInput, sanitizeInput } from '@/utils/animalIdGenerator';
+import { generateAnimalId, validateInput } from '@/utils/animalIdGenerator';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
+import { sanitizeFormData } from '@/utils/securityUtils';
 
 interface PoultryGroupFormProps {
   language: 'am' | 'en';
@@ -85,18 +87,25 @@ export const PoultryGroupForm: React.FC<PoultryGroupFormProps> = ({
       const user = (await supabase.auth.getUser()).data.user;
       if (!user) throw new Error('User not authenticated');
 
-      const finalBreed = formData.breed === 'other' ? sanitizeInput(formData.customBreed) : formData.breed;
+      // Sanitize form data before submission
+      const sanitizedData = sanitizeFormData({
+        groupName: formData.groupName,
+        customBreed: formData.customBreed,
+        notes: formData.notes
+      });
+
+      const finalBreed = formData.breed === 'other' ? sanitizedData.customBreed : formData.breed;
       const totalCount = parseInt(formData.totalCount);
 
       const groupData = {
         user_id: user.id,
         group_code: generatedGroupId,
-        group_name: sanitizeInput(formData.groupName),
+        group_name: sanitizedData.groupName,
         breed: finalBreed || null,
         total_count: totalCount,
         current_count: totalCount,
         batch_date: batchDate?.toISOString().split('T')[0],
-        notes: sanitizeInput(formData.notes) || null
+        notes: sanitizedData.notes || null
       };
 
       if (isOnline) {

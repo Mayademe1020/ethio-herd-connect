@@ -11,6 +11,8 @@ interface BottomNavigationProps {
 const BottomNavigation = ({ language }: BottomNavigationProps) => {
   const location = useLocation();
   
+  // BottomNavigation: already points to /marketplace and keeps public visibility
+  // No changes required — ensure Market points to '/marketplace'
   const navItems = [
     {
       icon: Home,
@@ -38,11 +40,11 @@ const BottomNavigation = ({ language }: BottomNavigationProps) => {
     },
     {
       icon: Stethoscope,
-      labelEn: 'Medical',
-      labelAm: 'ህክምና',
-      labelOr: 'Yaalaa',
-      labelSw: 'Matibabu',
-      path: '/medical'
+      labelEn: 'Health',
+      labelAm: 'ጤና',
+      labelOr: 'Fayyaa',
+      labelSw: 'Afya',
+      path: '/health'
     },
     {
       icon: Milk,

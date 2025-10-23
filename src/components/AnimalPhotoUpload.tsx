@@ -3,6 +3,9 @@ import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Camera, Upload, X, Image } from 'lucide-react';
+import { optimizeForPreview, optimizeForOfflineStorage, blobToBase64, IMAGE_SIZE_LIMITS } from '@/utils/imageOptimization';
+import { useToastNotifications } from '@/hooks/useToastNotifications';
+import { useTranslations } from '@/hooks/useTranslations';
 
 interface AnimalPhotoUploadProps {
   language: 'am' | 'en';
@@ -19,35 +22,77 @@ export const AnimalPhotoUpload: React.FC<AnimalPhotoUploadProps> = ({
 }) => {
   const [photoPreview, setPhotoPreview] = useState<string>(currentPhoto || '');
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { showError, showInfo } = useToastNotifications();
+  const t = useTranslations(language);
 
-  const handlePhotoSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      alert(language === 'am' ? 'እባክዎ ምስል ፋይል ይምረጡ' : 'Please select an image file');
+      showError(
+        t('Invalid file'),
+        t('Please select an image file (JPEG, PNG)')
+      );
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert(language === 'am' ? 'ምስሉ ከ5MB በታች መሆን አለበት' : 'Image must be less than 5MB');
+      showError(
+        t('File too large'),
+        t('Image must be less than 5MB')
+      );
       return;
     }
 
-    setIsUploading(true);
-
-    // Create preview URL
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const imageUrl = e.target?.result as string;
+    try {
+      setIsUploading(true);
+      setUploadProgress(10);
+      
+      // Show info about optimization
+      showInfo(
+        t('Optimizing image'),
+        t('Resizing and compressing for better performance')
+      );
+      
+      // Optimize image based on network conditions
+      setUploadProgress(30);
+      const optimizedBlob = await optimizeForPreview(file);
+      
+      // Create smaller version for offline storage if needed
+      setUploadProgress(60);
+      const offlineBlob = await optimizeForOfflineStorage(file);
+      
+      // Convert to base64 for preview
+      setUploadProgress(80);
+      const imageUrl = await blobToBase64(optimizedBlob);
+      
+      // Update UI and pass to parent
       setPhotoPreview(imageUrl);
-      onPhotoChange(file, imageUrl);
+      
+      // Create new file from blob with original name
+      const optimizedFile = new File(
+        [optimizedBlob], 
+        file.name, 
+        { type: file.type }
+      );
+      
+      onPhotoChange(optimizedFile, imageUrl);
+      setUploadProgress(100);
+    } catch (error) {
+      console.error('Error processing image:', error);
+      showError(
+        t('Image processing failed'),
+        t('Please try again with a different image')
+      );
+    } finally {
       setIsUploading(false);
-    };
-    reader.readAsDataURL(file);
+      setUploadProgress(0);
+    }
   };
 
   const handleRemovePhoto = () => {
@@ -65,7 +110,7 @@ export const AnimalPhotoUpload: React.FC<AnimalPhotoUploadProps> = ({
   return (
     <div className="space-y-3">
       <label className="text-sm font-medium">
-        {language === 'am' ? 'የእንስሳ ምስል' : 'Animal Photo'}
+        {t('animals.photo')}
       </label>
       
       <Card className="p-4">
@@ -73,8 +118,11 @@ export const AnimalPhotoUpload: React.FC<AnimalPhotoUploadProps> = ({
           <div className="relative">
             <img
               src={photoPreview}
-              alt="Animal preview"
+              alt={t('animals.preview')}
               className="w-full h-48 object-cover rounded-lg"
+              loading="lazy"
+              width={IMAGE_SIZE_LIMITS.PREVIEW.width}
+              height={IMAGE_SIZE_LIMITS.PREVIEW.height}
             />
             <Button
               type="button"
@@ -95,16 +143,10 @@ export const AnimalPhotoUpload: React.FC<AnimalPhotoUploadProps> = ({
               </div>
               <div>
                 <p className="text-gray-600 mb-2">
-                  {language === 'am' 
-                    ? 'የእንስሳውን ምስል ይጨምሩ' 
-                    : 'Add animal photo'
-                  }
+                  {t('animals.addPhoto')}
                 </p>
                 <p className="text-xs text-gray-500">
-                  {language === 'am' 
-                    ? 'ከ5MB በታች፣ JPG ወይም PNG' 
-                    : 'Max 5MB, JPG or PNG'
-                  }
+                  {t('animals.photoRequirements')}
                 </p>
               </div>
             </div>
@@ -120,7 +162,7 @@ export const AnimalPhotoUpload: React.FC<AnimalPhotoUploadProps> = ({
             className="flex-1"
           >
             <Upload className="w-4 h-4 mr-2" />
-            {language === 'am' ? 'ምስል ይምረጡ' : 'Choose Photo'}
+            {t('animals.choosePhoto')}
           </Button>
           
           {/* Camera button for mobile devices */}
@@ -151,8 +193,16 @@ export const AnimalPhotoUpload: React.FC<AnimalPhotoUploadProps> = ({
       </Card>
 
       {isUploading && (
-        <div className="text-sm text-gray-600 text-center">
-          {language === 'am' ? 'ምስል እየተጫነ...' : 'Uploading photo...'}
+        <div className="space-y-2">
+          <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div 
+              className="bg-green-600 h-2.5 rounded-full transition-all duration-300" 
+              style={{ width: `${uploadProgress}%` }}
+            ></div>
+          </div>
+          <div className="text-sm text-gray-600 text-center">
+            {t('animals.optimizingPhoto')} ({uploadProgress}%)
+          </div>
         </div>
       )}
     </div>

@@ -2,36 +2,75 @@ import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslations } from '@/hooks/useTranslations';
-import { useSecurePublicMarketplace } from '@/hooks/useSecurePublicMarketplace';
+import { usePaginatedMarketListings } from '@/hooks/usePaginatedMarketListings';
 import { useMarketListingManagement } from '@/hooks/useMarketListingManagement';
 import { EnhancedHeader } from '@/components/EnhancedHeader';
 import BottomNavigation from '@/components/BottomNavigation';
+import { OfflineIndicator } from '@/components/OfflineIndicator';
+import { InfiniteScrollContainer, ListSkeleton, EmptyState } from '@/components/InfiniteScrollContainer';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Edit, Trash2, Eye, TrendingUp, Package, X } from 'lucide-react';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { MarketListingDetails } from '@/components/MarketListingDetails';
 import { MarketListingForm } from '@/components/MarketListingForm';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
 
 const MyListings = () => {
   const { user } = useAuth();
   const { language } = useLanguage();
   const { t } = useTranslations();
-  const { listings, loading: isLoading } = useSecurePublicMarketplace();
   const { deleteListing, updateStatus, isDeleting } = useMarketListingManagement();
 
   const [selectedListing, setSelectedListing] = useState<any>(null);
   const [editingListing, setEditingListing] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('active');
 
-  // Filter to only user's listings
-  const myListings = listings?.filter(l => l.user_id === user?.id) || [];
-  
-  const activeListings = myListings.filter(l => l.status === 'active');
-  const soldListings = myListings.filter(l => l.status === 'sold');
-  const inactiveListings = myListings.filter(l => l.status === 'inactive');
+  // Paginated listings for active tab
+  const {
+    listings: activeListings,
+    hasNextPage: hasNextActive,
+    fetchNextPage: fetchNextActive,
+    isLoading: isLoadingActive,
+    isFetchingNextPage: isFetchingActive,
+    isOffline: isOfflineActive,
+    isEmpty: isEmptyActive,
+    totalCount: totalActive,
+  } = usePaginatedMarketListings(
+    { userId: user?.id, status: 'active' },
+    { pageSize: 20, sortBy: 'date', sortOrder: 'desc' }
+  );
+
+  // Paginated listings for sold tab
+  const {
+    listings: soldListings,
+    hasNextPage: hasNextSold,
+    fetchNextPage: fetchNextSold,
+    isLoading: isLoadingSold,
+    isFetchingNextPage: isFetchingSold,
+    isOffline: isOfflineSold,
+    isEmpty: isEmptySold,
+    totalCount: totalSold,
+  } = usePaginatedMarketListings(
+    { userId: user?.id, status: 'sold' },
+    { pageSize: 20, sortBy: 'date', sortOrder: 'desc' }
+  );
+
+  // Paginated listings for inactive tab
+  const {
+    listings: inactiveListings,
+    hasNextPage: hasNextInactive,
+    fetchNextPage: fetchNextInactive,
+    isLoading: isLoadingInactive,
+    isFetchingNextPage: isFetchingInactive,
+    isOffline: isOfflineInactive,
+    isEmpty: isEmptyInactive,
+    totalCount: totalInactive,
+  } = usePaginatedMarketListings(
+    { userId: user?.id, status: 'inactive' },
+    { pageSize: 20, sortBy: 'date', sortOrder: 'desc' }
+  );
 
   const handleEdit = (listing: any) => {
     setEditingListing(listing);
@@ -51,19 +90,10 @@ const MyListings = () => {
     return (
       <div className="min-h-screen bg-background">
         <EnhancedHeader />
+        <OfflineIndicator language={language} />
         <div className="container mx-auto px-4 py-20 text-center">
           <p className="text-xl">{t('common.loginRequired')}</p>
         </div>
-        <BottomNavigation language={language} />
-      </div>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <EnhancedHeader />
-        <LoadingSpinner />
         <BottomNavigation language={language} />
       </div>
     );

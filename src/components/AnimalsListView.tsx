@@ -1,10 +1,15 @@
 import React from 'react';
-import { ModernAnimalCard } from '@/components/ModernAnimalCard';
+import { EnhancedAnimalCard } from '@/components/EnhancedAnimalCard';
 import { AnimalTableView } from '@/components/AnimalTableView';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { Language, AnimalData } from '@/types';
 import { useAnimalPageStore } from '@/stores/animalPageStore';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { logger } from '@/utils/logger';
+import { useAnimalStore } from '@/stores/animalStore';
 
 interface AnimalsListViewProps {
   animals: AnimalData[];
@@ -17,7 +22,9 @@ export const AnimalsListView = ({
   viewMode,
   language,
 }: AnimalsListViewProps) => {
-  const { openModal } = useAnimalPageStore();
+  const { openModal, setSelectedAnimal } = useAnimalPageStore();
+  const { user } = useAuth();
+  const { removeAnimal: removeAnimalFromStore } = useAnimalStore();
 
   const translations = {
     am: {
@@ -61,13 +68,56 @@ export const AnimalsListView = ({
     );
   }
 
+  const handleEdit = (animal: AnimalData) => {
+    setSelectedAnimal(animal);
+    openModal('registration');
+  };
+
+  const handleDelete = async (animalId: string) => {
+    if (!user) return;
+    const originalAnimals = useAnimalStore.getState().animals;
+    removeAnimalFromStore(animalId);
+    const { error } = await supabase.from('animals').delete().eq('id', animalId);
+    if (error) {
+      useAnimalStore.setState({ animals: originalAnimals });
+      toast.error("Failed to delete animal.");
+      logger.error('Failed to delete animal', error);
+    } else {
+      toast.success("Animal deleted successfully.");
+    }
+  };
+
+  const handleVaccinate = (animal: AnimalData) => {
+    openModal('vaccination', animal);
+  };
+
+  const handleTrack = (animal: AnimalData) => {
+    openModal('weight', animal);
+  };
+
+  const handleSell = (animal: AnimalData) => {
+    logger.debug('Selling animal', { animal });
+    // TODO: Implement sell functionality
+  };
+
+  const handleMilkRecord = (animal: AnimalData) => {
+    openModal('milk', animal);
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {animals.map((animal) => (
-        <ModernAnimalCard
+        <EnhancedAnimalCard
           key={animal.id}
           animal={animal}
           language={language}
+          variant="full"
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onVaccinate={handleVaccinate}
+          onTrack={handleTrack}
+          onSell={handleSell}
+          onMilkRecord={handleMilkRecord}
         />
       ))}
     </div>

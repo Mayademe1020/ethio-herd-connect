@@ -12,6 +12,8 @@ import { useAnimalSelection } from '@/hooks/useAnimalSelection';
 import { AnimalSelectorModal } from './AnimalSelectorModal';
 import { AnimalIdDisplay } from './AnimalIdDisplay';
 import { useTranslations } from '@/hooks/useTranslations';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
+import { sanitizeFormData } from '@/utils/securityUtils';
 
 interface WeightEntryFormProps {
   language: Language;
@@ -48,11 +50,16 @@ export const WeightEntryForm = ({
       return;
     }
 
+    // Sanitize form data before submission
+    const sanitizedData = sanitizeFormData({
+      notes: formData.notes
+    });
+
     const { error } = await recordWeight({
       animal_id: currentAnimal.id,
       weight: parseFloat(formData.weight),
       recorded_date: formData.date,
-      notes: formData.notes
+      notes: sanitizedData.notes
     });
 
     if (!error) {

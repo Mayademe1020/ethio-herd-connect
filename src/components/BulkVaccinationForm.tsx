@@ -7,6 +7,8 @@ import { Syringe, Calendar, X, Check } from 'lucide-react';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
+import { sanitizeFormData } from '@/utils/securityUtils';
 
 interface BulkVaccinationFormProps {
   language: 'am' | 'en';
@@ -58,13 +60,19 @@ export const BulkVaccinationForm = ({ language, onClose }: BulkVaccinationFormPr
       return;
     }
 
+    // Sanitize form data before submission
+    const sanitizedData = sanitizeFormData({
+      medicine: vaccinationData.medicine,
+      notes: vaccinationData.notes
+    });
+
     const vaccinationRecord = {
       id: `vaccination-${Date.now()}`,
       animalIds: selectedAnimals,
       user_id: user.id,
-      medicine: vaccinationData.medicine,
+      medicine: sanitizedData.medicine,
       date: vaccinationData.date,
-      notes: vaccinationData.notes,
+      notes: sanitizedData.notes,
       recordedAt: new Date().toISOString()
     };
 

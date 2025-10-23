@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Bell, Calendar, AlertTriangle } from 'lucide-react';
 import { Language } from '@/types';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
 
 interface HealthReminderSystemProps {
   language: Language;

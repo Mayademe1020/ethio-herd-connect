@@ -48,7 +48,8 @@
       "goodHealth": "ጤናማ",
       "priceOnRequest": "ዋጋ በጥያቄ",
       "verified": "የተረጋገጠ",
-      "sellerInfo": "የሻጭ መረጃ"
+      "sellerInfo": "የሻጭ መረጃ",
+      "country": "አገር"
     },
     "navigation": {
       "title": "የእንስሳት አስተዳደር",
@@ -89,7 +90,10 @@
       "phone": "ስልክ",
       "email": "ኢሜይል",
       "contactValue": "የመገናኛ ዝርዝር",
-      "submit": "አስቀምጥ"
+      "submit": "አስቀምጥ",
+      "confirmDelete": "ይህን ዝርዝር ለማጥፋት እርግጠኛ ነዎት?",
+      "editListing": "ዝርዝር ያርሙ",
+      "status": "ሁኔታ"
     },
     "animals": {
       "registration": "እንስሳ ምዝገባ",
@@ -160,7 +164,9 @@
       "no": "No",
       "search": "Search...",
       "filter": "Filter",
-      "clear": "Clear"
+      "clear": "Clear",
+      "country": "Country",
+      "description": "Description"
     },
     "navigation": {
       "title": "Livestock Management",
@@ -193,7 +199,10 @@
       "phone": "Phone",
       "email": "Email",
       "contactValue": "Contact Details",
-      "submit": "Create Listing"
+      "submit": "Create Listing",
+      "confirmDelete": "Are you sure you want to delete this listing?",
+      "editListing": "Edit Listing",
+      "status": "Status"
     },
     "myListings": {
       "title": "My Listings",
@@ -319,7 +328,9 @@
       "no": "Lakki",
       "search": "Barbaadi...",
       "filter": "Calaluu",
-      "clear": "Qulqulleessi"
+      "clear": "Qulqulleessi",
+      "country": "Biyya",
+      "description": "Ibsa"
     },
     "navigation": {
       "title": "Bulchiinsa Horii",
@@ -352,7 +363,13 @@
       "phone": "Bilbila",
       "email": "Imeelii",
       "contactValue": "Ibsa Qunnamtii",
-      "submit": "Kaa'i"
+      "submit": "Kaa'i",
+      "confirmDelete": "Tarree kana haquu barbaadduu?",
+      "editListing": "Tarree Sirreessi",
+      "status": "Haala",
+      "statusActive": "Socho'aa",
+      "statusInactive": "Hin socho'u",
+      "statusSold": "Gurgurame"
     },
     "animals": {
       "registration": "Galmee Horii",
@@ -422,7 +439,9 @@
       "no": "Hapana",
       "search": "Tafuta...",
       "filter": "Chuja",
-      "clear": "Futa"
+      "clear": "Futa",
+      "country": "Nchi",
+      "description": "Maelezo"
     },
     "navigation": {
       "title": "Usimamizi wa Mifugo",
@@ -455,7 +474,13 @@
       "phone": "Simu",
       "email": "Barua pepe",
       "contactValue": "Maelezo ya Mawasiliano",
-      "submit": "Tengeneza"
+      "submit": "Tengeneza",
+      "confirmDelete": "Je, una uhakika unataka kufuta orodha hii?",
+      "editListing": "Hariri Orodha",
+      "status": "Hali",
+      "statusActive": "Hai",
+      "statusInactive": "Isiyofanya kazi",
+      "statusSold": "Imeuzwa"
     },
     "animals": {
       "registration": "Usajili wa Mnyama",

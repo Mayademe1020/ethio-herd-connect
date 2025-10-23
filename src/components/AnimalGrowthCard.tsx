@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown, Minus, Plus, BarChart3, Scale } from 'lucide-react';
 import { Language } from '@/types';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
 
 interface AnimalGrowthCardProps {
   language: Language;
@@ -29,6 +30,8 @@ export const AnimalGrowthCard = ({
   onAddWeight,
   onViewChart
 }: AnimalGrowthCardProps) => {
+  const { formatDateShort } = useDateDisplay();
+  
   const translations = {
     am: {
       currentWeight: 'የአሁኑ ክብደት',
@@ -143,7 +146,7 @@ export const AnimalGrowthCard = ({
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <p className="text-gray-500">{t.lastWeighed}</p>
-            <p className="font-medium">{animal.lastWeighed}</p>
+            <p className="font-medium">{formatDateShort(animal.lastWeighed)}</p>
           </div>
           <div>
             <p className="text-gray-500">{t.weeklyGain}</p>

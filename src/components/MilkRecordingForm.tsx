@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Clock, Milk } from 'lucide-react';
 import { AnimalData, Language } from '@/types';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
 
 interface MilkRecord {
   cowId: string;

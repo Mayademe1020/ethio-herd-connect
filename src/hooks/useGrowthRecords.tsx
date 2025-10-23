@@ -3,6 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { buildGrowthRecordQuery, GROWTH_RECORD_FIELDS } from '@/lib/queryBuilders';
+import { logger } from '@/utils/logger';
 
 interface GrowthRecord {
   id: string;
@@ -28,34 +30,44 @@ export const useGrowthRecords = (animalId?: string) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // Fetch growth records for a specific animal or all animals
+  // OPTIMIZED: Fetch growth records with specific field selection
   const { data: growthRecords = [], isLoading } = useQuery({
     queryKey: ['growth-records', user?.id, animalId],
     queryFn: async () => {
       if (!user) return [];
       
-      let query = supabase
-        .from('growth_records')
-        .select('*')
-        .eq('user_id', user.id)
+      const startTime = performance.now();
+      
+      // Use query builder for optimized field selection
+      let query = buildGrowthRecordQuery(supabase, user.id, 'list')
         .order('recorded_date', { ascending: false });
 
+      // Add animal filter if specified
       if (animalId) {
         query = query.eq('animal_id', animalId);
       }
 
       const { data, error } = await query;
       if (error) throw error;
+      
+      const duration = performance.now() - startTime;
+      logger.debug(`Query Performance: Growth records${animalId ? ' (filtered)' : ''}: ${duration.toFixed(2)}ms`);
+      
       return (data || []) as GrowthRecord[];
     },
     enabled: !!user,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    cacheTime: 10 * 60 * 1000, // 10 minutes
   });
 
-  // Add growth record mutation
+  // OPTIMIZED: Add growth record mutation with specific field selection
   const addRecordMutation = useMutation({
     mutationFn: async (record: GrowthRecordInput) => {
       if (!user) throw new Error('User not authenticated');
 
+      const startTime = performance.now();
+
+      // Insert with specific field selection for response
       const { data, error } = await supabase
         .from('growth_records')
         .insert([{
@@ -63,10 +75,14 @@ export const useGrowthRecords = (animalId?: string) => {
           user_id: user.id,
           recorded_date: record.recorded_date || new Date().toISOString().split('T')[0],
         }])
-        .select()
+        .select(GROWTH_RECORD_FIELDS.detail) // Return detail fields for the new record
         .single();
 
       if (error) throw error;
+      
+      const duration = performance.now() - startTime;
+      logger.debug(`Query Performance: Add growth record: ${duration.toFixed(2)}ms`);
+      
       return data;
     },
     onSuccess: () => {

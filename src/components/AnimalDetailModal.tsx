@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { X, Edit, Syringe, AlertTriangle, Calendar, Weight } from 'lucide-react';
 import { Language, AnimalData } from '@/types';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
 
 interface AnimalDetailModalProps {
   animal: AnimalData;
@@ -23,6 +24,7 @@ export const AnimalDetailModal = ({
   onVaccinate,
   onReportIllness
 }: AnimalDetailModalProps) => {
+  const { formatDate, formatDateShort } = useDateDisplay();
   const translations = {
     am: {
       animalDetails: 'የእንስሳ ዝርዝር',
@@ -141,7 +143,7 @@ export const AnimalDetailModal = ({
               </div>
               <div>
                 <span className="text-gray-600">{t.birthDate}:</span>
-                <p className="font-medium">{animal.birth_date}</p>
+                <p className="font-medium">{formatDate(animal.birth_date)}</p>
               </div>
               <div>
                 <span className="text-gray-600">{t.weight}:</span>
@@ -162,7 +164,7 @@ export const AnimalDetailModal = ({
           {animal.last_vaccination && (
             <div>
               <span className="text-gray-600 text-sm">{t.lastVaccination}:</span>
-              <p className="font-medium">{animal.last_vaccination}</p>
+              <p className="font-medium">{formatDateShort(animal.last_vaccination)}</p>
             </div>
           )}
 

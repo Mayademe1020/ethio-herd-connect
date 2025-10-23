@@ -9,6 +9,8 @@ import { useAnimalStore } from '@/stores/animalStore';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { logger } from '@/utils/logger';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
 
 interface AnimalTableViewProps {
   animals: AnimalData[];
@@ -22,6 +24,7 @@ export const AnimalTableView = ({
   const { user } = useAuth();
   const { openModal, setSelectedAnimal } = useAnimalPageStore();
   const { removeAnimal: removeAnimalFromStore } = useAnimalStore();
+  const { formatDate, formatDateShort } = useDateDisplay();
 
   const translations = {
     am: {
@@ -130,7 +133,7 @@ export const AnimalTableView = ({
 
   const handleVaccinate = (animal: AnimalData) => openModal('vaccination', animal);
   const handleTrack = (animal: AnimalData) => openModal('weight', animal);
-  const handleSell = (animal: AnimalData) => console.log('Selling animal:', animal);
+  const handleSell = (animal: AnimalData) => logger.info('Selling animal', { animal });
 
   return (
     <div className="rounded-md border">

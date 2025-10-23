@@ -3,22 +3,84 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>bet-gitosa-connect</title>
-    <meta name="description" content="Lovable Generated Project" />
-    <meta name="author" content="Lovable" />
+    <title>Ethio Herd Connect</title>
+    <meta name="description" content="Livestock management platform for Ethiopian farmers" />
+    <meta name="author" content="Ethio Herd Connect" />
 
-    <meta property="og:title" content="bet-gitosa-connect" />
-    <meta property="og:description" content="Lovable Generated Project" />
+    <!-- Preload critical assets -->
+    <link rel="preload" href="/src/main.tsx" as="script" />
+    <link rel="preload" href="/assets/fonts/amharic-font.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/assets/fonts/oromo-font.woff2" as="font" type="font/woff2" crossorigin />
+    
+    <!-- Preconnect to API endpoints -->
+    <link rel="preconnect" href="https://api.ethioherdconnect.com" />
+    <link rel="dns-prefetch" href="https://api.ethioherdconnect.com" />
+    
+    <!-- Prefetch critical routes -->
+    <link rel="prefetch" href="/assets/js/vendor-core-[hash].js" />
+    <link rel="prefetch" href="/assets/js/vendor-ui-[hash].js" />
+    
+    <!-- Offline support -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#4CAF50" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    
+    <!-- Social media tags -->
+    <meta property="og:title" content="Ethio Herd Connect" />
+    <meta property="og:description" content="Livestock management platform for Ethiopian farmers" />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta property="og:image" content="https://ethioherdconnect.com/opengraph-image.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@lovable_dev" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta name="twitter:site" content="@ethioherdconnect" />
+    <meta name="twitter:image" content="https://ethioherdconnect.com/opengraph-image.png" />
+    
+    <!-- Critical CSS inline -->
+    <style>
+      /* Critical path CSS */
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: #f9f9f9;
+      }
+      #root {
+        height: 100%;
+      }
+      .loading-spinner {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        width: 100vw;
+      }
+    </style>
   </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Fallback content for no-JS environments -->
+      <noscript>
+        <div style="padding: 20px; text-align: center;">
+          <h2>JavaScript is required</h2>
+          <p>Please enable JavaScript to use Ethio Herd Connect.</p>
+        </div>
+      </noscript>
+      <!-- Initial loading state -->
+      <div class="loading-spinner">
+        <svg width="38" height="38" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" stroke="#4CAF50">
+          <g fill="none" fill-rule="evenodd">
+            <g transform="translate(1 1)" stroke-width="2">
+              <circle stroke-opacity=".5" cx="18" cy="18" r="18"/>
+              <path d="M36 18c0-9.94-8.06-18-18-18">
+                <animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="1s" repeatCount="indefinite"/>
+              </path>
+            </g>
+          </g>
+        </svg>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

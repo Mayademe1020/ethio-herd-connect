@@ -2,6 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Heart, Activity, Calendar, Weight } from 'lucide-react';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
 
 interface AnimalDetailViewProps {
   language: 'am' | 'en';

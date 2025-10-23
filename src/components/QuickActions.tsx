@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, Syringe, TrendingUp, ShoppingCart } from 'lucide-react';
 import { Language } from '@/types';
 import { useNavigate } from 'react-router-dom';
+import { logger } from '@/utils/logger';
 
 interface QuickActionsProps {
   language: Language;
@@ -48,25 +49,25 @@ export const QuickActions = ({ language, onActionComplete }: QuickActionsProps) 
   const t = translations[language];
 
   const handleAddAnimal = () => {
-    console.log('Navigating to Animals page');
+    logger.debug('Navigating to Animals page');
     navigate('/animals');
     onActionComplete();
   };
 
   const handleVaccinate = () => {
-    console.log('Navigating to Health page');
+    logger.debug('Navigating to Health page');
     navigate('/health');
     onActionComplete();
   };
 
   const handleRecordWeight = () => {
-    console.log('Navigating to Growth page');
+    logger.debug('Navigating to Growth page');
     navigate('/growth');
     onActionComplete();
   };
 
   const handleSellAnimal = () => {
-    console.log('Navigating to Market page');
+    logger.debug('Navigating to Market page');
     navigate('/market');
     onActionComplete();
   };

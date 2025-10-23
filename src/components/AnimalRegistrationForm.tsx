@@ -15,6 +15,7 @@ import { useTranslations } from '@/hooks/useTranslations';
 import { ANIMAL_TYPES, ANIMAL_TYPE_ICONS } from '@/utils/animalTypes';
 import { AnimalSchema } from '@/lib/animalValidators';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
 
 interface AnimalRegistrationFormProps {
   language: Language;

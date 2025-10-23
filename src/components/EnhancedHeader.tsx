@@ -6,6 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { logger } from '@/utils/logger';
+import { CountrySelector } from '@/components/CountrySelector';
+import { OfflineStatusIndicator } from '@/components/OfflineStatusIndicator';
 
 export const EnhancedHeader = () => {
   const [showSearch, setShowSearch] = useState(false);
@@ -18,7 +21,7 @@ export const EnhancedHeader = () => {
     e.preventDefault();
     if (searchQuery.trim()) {
       // Navigate to search results or filter current page
-      console.log('Searching for:', searchQuery);
+      logger.debug('Searching for', { searchQuery });
       setShowSearch(false);
     }
   };
@@ -67,6 +70,11 @@ export const EnhancedHeader = () => {
           >
             <Search className="w-5 h-5" />
           </Button>
+
+          {/* Offline Status Indicator */}
+          {user && (
+            <OfflineStatusIndicator variant="compact" />
+          )}
           
           {/* Notifications */}
           <Button 

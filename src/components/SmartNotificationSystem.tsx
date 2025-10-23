@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Bell, Calendar, Heart, TrendingUp, AlertTriangle, Syringe, Scale, DollarSign, X, CheckCircle } from 'lucide-react';
 import { Language } from '@/types';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
 
 interface Notification {
   id: string;
@@ -25,6 +26,7 @@ interface SmartNotificationSystemProps {
 export const SmartNotificationSystem = ({ language }: SmartNotificationSystemProps) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [filter, setFilter] = useState<'all' | 'unread' | 'high'>('all');
+  const { formatDateShort } = useDateDisplay();
 
   const translations = {
     am: {
@@ -215,7 +217,7 @@ export const SmartNotificationSystem = ({ language }: SmartNotificationSystemPro
     if (diffDays === 1) return t.today;
     if (diffDays === 2) return t.yesterday;
     if (diffDays <= 7) return t.thisWeek;
-    return date.toLocaleDateString();
+    return formatDateShort(date);
   };
 
   const filteredNotifications = notifications.filter(notification => {

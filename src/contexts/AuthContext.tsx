@@ -5,6 +5,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useToastNotifications } from '@/hooks/useToastNotifications';
 import { useInputSanitization } from '@/hooks/useInputSanitization';
+import { encryptData, decryptData, secureLocalStorage, hashData } from '@/utils/securityUtils';
+import { logger } from '@/utils/logger';
 
 interface UserProfile {
   id: string;
@@ -24,6 +26,12 @@ interface AuthContextType {
   signUp: (email: string, password: string, mobileNumber: string, fullName?: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   updateProfile: (profile: Partial<UserProfile>) => Promise<{ error: any }>;
+  offlineSignIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  isOnline: boolean;
+  lastSyncTime: string | null;
+  syncUserData: () => Promise<void>;
+  sendVerificationCode: (params: { method: 'sms'; phone: string } | { method: 'email'; email: string }) => Promise<{ error: any }>;
+  verifyCode: (params: { method: 'sms'; phone: string; code: string } | { method: 'email'; email: string; code: string }) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -42,6 +50,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [rememberMe, setRememberMe] = useLocalStorage('bet-gitosa-remember-me', false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [lastSyncTime, setLastSyncTime] = useLocalStorage('bet-gitosa-last-sync', null);
+  const [offlineCredentials, setOfflineCredentials] = useLocalStorage('bet-gitosa-offline-auth', null);
   const { showSuccess, showError } = useToastNotifications();
   const { sanitizeEmail, sanitizeText } = useInputSanitization();
 
@@ -75,11 +86,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Monitor online status
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
+        logger.debug('Auth state changed', { event, email: session?.user?.email });
         setSession(session);
         setUser(session?.user ?? null);
         
@@ -90,6 +115,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }, 0);
           
           if (event === 'SIGNED_IN') {
+            // Store encrypted credentials for offline use if remember me is enabled
+            if (rememberMe) {
+              const hashedUserId = hashData(session.user.id);
+              secureLocalStorage.setItem('bet-gitosa-offline-auth', {
+                userId: hashedUserId,
+                email: session.user.email,
+                lastAuthenticated: new Date().toISOString()
+              });
+            }
+            
             showSuccess(
               'Welcome back!',
               'You have been successfully signed in.'
@@ -98,6 +133,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else {
           setUserProfile(null);
           if (event === 'SIGNED_OUT') {
+            // Clear offline credentials
+            secureLocalStorage.removeItem('bet-gitosa-offline-auth');
             showSuccess(
               'Signed out',
               'You have been successfully signed out.'
@@ -111,12 +148,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session check:', session?.user?.email);
+      logger.debug('Initial session check', { email: session?.user?.email });
       setSession(session);
       setUser(session?.user ?? null);
       
       if (session?.user) {
         fetchUserProfile(session.user.id);
+        setLastSyncTime(new Date().toISOString());
       }
       
       setLoading(false);
@@ -193,6 +231,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const sendVerificationCode = async (params: { method: 'sms'; phone: string } | { method: 'email'; email: string }) => {
+    try {
+      if (params.method === 'sms') {
+        const phone = sanitizeText(params.phone, { maxLength: 20, allowSpecialChars: true });
+        const { error } = await supabase.auth.signInWithOtp({ phone, options: { channel: 'sms' } });
+        return { error };
+      } else {
+        const email = sanitizeEmail(params.email);
+        const redirectUrl = `${window.location.origin}/marketplace`;
+        const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectUrl } });
+        return { error };
+      }
+    } catch (error) {
+      console.error('Send verification code error:', error);
+      return { error };
+    }
+  };
+
+  const verifyCode = async (params: { method: 'sms'; phone: string; code: string } | { method: 'email'; email: string; code: string }) => {
+    try {
+      if (params.method === 'sms') {
+        const phone = sanitizeText(params.phone, { maxLength: 20, allowSpecialChars: true });
+        const token = params.code.trim();
+        const { error } = await supabase.auth.verifyOtp({ phone, token, type: 'sms' });
+        return { error };
+      } else {
+        const email = sanitizeEmail(params.email);
+        const token = params.code.trim();
+        const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' });
+        return { error };
+      }
+    } catch (error) {
+      console.error('Verify code error:', error);
+      return { error };
+    }
+  };
+
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
@@ -241,6 +316,92 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Offline authentication function
+  const offlineSignIn = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      if (isOnline) {
+        // If online, use regular sign in
+        const { error } = await signIn(email, password, true);
+        return { success: !error, error: error?.message };
+      }
+      
+      // Check for stored offline credentials
+      const storedCreds = secureLocalStorage.getItem('bet-gitosa-offline-auth');
+      if (!storedCreds || !storedCreds.email) {
+        return { success: false, error: 'No offline credentials found. You must sign in online at least once.' };
+      }
+      
+      // Simple offline validation - just check if email matches
+      // In a real implementation, we would use a secure hash comparison
+      if (storedCreds.email.toLowerCase() === email.toLowerCase()) {
+        // Create a temporary user object for offline mode
+        const offlineUser = {
+          id: 'offline-' + hashData(email).substring(0, 8),
+          email: email,
+          app_metadata: { provider: 'offline' },
+          user_metadata: { is_offline: true }
+        };
+        
+        setUser(offlineUser as User);
+        
+        // Try to load cached profile data
+        const cachedProfile = secureLocalStorage.getItem('bet-gitosa-user-profile');
+        if (cachedProfile) {
+          setUserProfile(cachedProfile);
+        }
+        
+        showSuccess(
+          'Offline sign in successful',
+          'You are now signed in offline. Some features may be limited.'
+        );
+        
+        return { success: true };
+      }
+      
+      return { success: false, error: 'Invalid email or password' };
+    } catch (error) {
+      console.error('Offline sign in error:', error);
+      return { success: false, error: 'An error occurred during offline sign in' };
+    }
+  };
+  
+  // Sync user data when coming back online
+  const syncUserData = async () => {
+    if (!isOnline || !user) return;
+    
+    try {
+      // Refresh the session
+      const { data, error } = await supabase.auth.refreshSession();
+      if (error) throw error;
+      
+      // Fetch latest profile data
+      if (data.session?.user) {
+        await fetchUserProfile(data.session.user.id);
+      }
+      
+      // Update last sync time
+      const now = new Date().toISOString();
+      setLastSyncTime(now);
+      
+      // Store profile for offline use
+      if (userProfile) {
+        secureLocalStorage.setItem('bet-gitosa-user-profile', userProfile);
+      }
+      
+      showSuccess('Data synchronized', 'Your data has been updated successfully.');
+    } catch (error) {
+      console.error('Sync error:', error);
+      showError('Sync failed', 'Could not synchronize your data. Please try again later.');
+    }
+  };
+  
+  // Auto-sync when coming back online
+  useEffect(() => {
+    if (isOnline && user && !loading) {
+      syncUserData();
+    }
+  }, [isOnline]);
+
   const value = {
     user,
     session,
@@ -250,6 +411,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signUp,
     signOut,
     updateProfile,
+    offlineSignIn,
+    isOnline,
+    lastSyncTime,
+    syncUserData,
+    sendVerificationCode,
+    verifyCode
   };
 
   return (

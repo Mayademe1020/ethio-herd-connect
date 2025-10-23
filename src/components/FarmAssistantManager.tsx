@@ -8,6 +8,7 @@ import { UserPlus, Mail, Trash2, CheckCircle, XCircle, Users } from 'lucide-reac
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
 
 interface FarmAssistantManagerProps {
   language: 'am' | 'en';
@@ -32,6 +33,7 @@ export const FarmAssistantManager: React.FC<FarmAssistantManagerProps> = ({ lang
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+  const { formatDateShort } = useDateDisplay();
 
   useEffect(() => {
     fetchAssistants();
@@ -275,7 +277,7 @@ export const FarmAssistantManager: React.FC<FarmAssistantManagerProps> = ({ lang
                     <div>
                       <p className="text-sm font-medium">{assistant.assistant_email}</p>
                       <p className="text-xs text-gray-500">
-                        {language === 'am' ? 'ተጋብዞ' : 'Invited'} {new Date(assistant.created_at).toLocaleDateString()}
+                        {language === 'am' ? 'ተጋብዞ' : 'Invited'} {formatDateShort(assistant.created_at)}
                       </p>
                     </div>
                   </div>

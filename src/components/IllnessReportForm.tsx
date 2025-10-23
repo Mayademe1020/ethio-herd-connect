@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { X, AlertTriangle } from 'lucide-react';
 import { Language, AnimalData } from '@/types';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
 
 interface IllnessReportFormProps {
   language: Language;

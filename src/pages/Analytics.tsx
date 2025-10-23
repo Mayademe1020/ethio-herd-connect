@@ -23,6 +23,7 @@ import {
   Droplets
 } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
 
 const Analytics = () => {
   const { language } = useLanguage();

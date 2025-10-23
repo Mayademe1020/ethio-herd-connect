@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { MessageSquare, Send } from 'lucide-react';
 import { Language } from '@/types';
 import { useBuyerInterest } from '@/hooks/useBuyerInterest';
+import { sanitizeInput } from '@/utils/securityUtils';
 
 interface InterestExpressionDialogProps {
   isOpen: boolean;
@@ -66,7 +67,9 @@ export const InterestExpressionDialog = ({
   const t = translations[language];
 
   const handleSubmit = async () => {
-    const result = await expressInterest(listing.id, listing.user_id, message);
+    // Sanitize message before submission
+    const sanitizedMessage = sanitizeInput(message);
+    const result = await expressInterest(listing.id, listing.user_id, sanitizedMessage);
     if (!result.error) {
       setMessage('');
       onClose();

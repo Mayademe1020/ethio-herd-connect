@@ -11,6 +11,8 @@ import { DatePicker } from './DatePicker';
 import { breedsByType } from '@/utils/breedData';
 import { AnimalIdDisplay } from '@/components/AnimalIdDisplay';
 import { generateAnimalId, validateInput, sanitizeInput } from '@/utils/animalIdGenerator';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
+import { sanitizeFormData } from '@/utils/securityUtils';
 
 interface CalfRegistrationFormProps {
   language: 'am' | 'en';
@@ -105,12 +107,18 @@ export const CalfRegistrationForm: React.FC<CalfRegistrationFormProps> = ({
       const user = (await supabase.auth.getUser()).data.user;
       if (!user) throw new Error('User not authenticated');
 
-      const finalBreed = formData.breed === 'other' ? sanitizeInput(formData.customBreed) : formData.breed;
+      // Sanitize form data before submission
+      const sanitizedData = sanitizeFormData({
+        name: formData.name,
+        customBreed: formData.customBreed
+      });
+
+      const finalBreed = formData.breed === 'other' ? sanitizedData.customBreed : formData.breed;
 
       const calfData = {
         animal_code: generatedAnimalId,
         user_id: user.id,
-        name: sanitizeInput(formData.name),
+        name: sanitizedData.name,
         type: 'cattle',
         breed: finalBreed || null,
         weight: formData.weight ? parseFloat(formData.weight) : null,

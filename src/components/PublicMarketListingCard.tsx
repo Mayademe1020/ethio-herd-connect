@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Shield, Lock, Eye } from 'lucide-react';
 import { Language } from '@/types';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
 
 interface PublicMarketListingCardProps {
   listing: {

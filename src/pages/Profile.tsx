@@ -33,12 +33,33 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import BottomNavigation from '@/components/BottomNavigation';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useCalendar } from '@/contexts/CalendarContext';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { toast } from 'sonner';
 
 const Profile = () => {
   const { language } = useLanguage();
+  const { calendarSystem, setCalendarSystem } = useCalendar();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
+
+  const handleCalendarChange = async (value: string) => {
+    try {
+      await setCalendarSystem(value as 'gregorian' | 'ethiopian');
+      toast.success(
+        language === 'am' 
+          ? 'የቀን መቁጠሪያ ምርጫ ተቀይሯል' 
+          : 'Calendar preference updated'
+      );
+    } catch (error) {
+      toast.error(
+        language === 'am'
+          ? 'የቀን መቁጠሪያ ምርጫ መቀየር አልተሳካም'
+          : 'Failed to update calendar preference'
+      );
+    }
+  };
 
   const translations = {
     am: {
@@ -57,6 +78,9 @@ const Profile = () => {
       birthdate: 'የትውልድ ቀን',
       preferences: 'ምርጫዎች',
       language: 'ቋንቋ',
+      calendarSystem: 'የቀን መቁጠሪያ ስርዓት',
+      gregorianCalendar: 'ግሪጎሪያን ዘመን አቆጣጠር',
+      ethiopianCalendar: 'የኢትዮጵያ ዘመን አቆጣጠር',
       helpAndSupport: 'እገዛ እና ድጋፍ',
       privacyPolicy: 'የግላዊነት መመሪያ',
       termsOfService: ' የአገልግሎት ውል',
@@ -116,6 +140,9 @@ const Profile = () => {
       birthdate: 'Birthdate',
       preferences: 'Preferences',
       language: 'Language',
+      calendarSystem: 'Calendar System',
+      gregorianCalendar: 'Gregorian Calendar',
+      ethiopianCalendar: 'Ethiopian Calendar',
       helpAndSupport: 'Help & Support',
       privacyPolicy: 'Privacy Policy',
       termsOfService: 'Terms of Service',
@@ -175,6 +202,9 @@ const Profile = () => {
       birthdate: 'Guyyaa Dhalootaa',
       preferences: 'Filannoo',
       language: 'Afaan',
+      calendarSystem: 'Sirna Kaaleendarii',
+      gregorianCalendar: 'Kaaleendara Girigoriyaanii',
+      ethiopianCalendar: 'Kaaleendara Itoophiyaa',
       helpAndSupport: 'Gargaarsaa fi Deeggarsa',
       privacyPolicy: 'Imaammata Iccitii',
       termsOfService: 'Labsii Hojii',
@@ -234,6 +264,9 @@ const Profile = () => {
       birthdate: 'Tarehe ya Kuzaliwa',
       preferences: 'Mapendeleo',
       language: 'Lugha',
+      calendarSystem: 'Mfumo wa Kalenda',
+      gregorianCalendar: 'Kalenda ya Gregorian',
+      ethiopianCalendar: 'Kalenda ya Ethiopia',
       helpAndSupport: 'Msaada na Usaidizi',
       privacyPolicy: 'Sera ya Faragha',
       termsOfService: 'Masharti ya Huduma',
@@ -375,6 +408,26 @@ const Profile = () => {
                   <span>{t.language}</span>
                 </div>
                 <Badge variant="secondary">{language}</Badge>
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Calendar className="w-4 h-4" />
+                  <span>{t.calendarSystem}</span>
+                </div>
+                <Select value={calendarSystem} onValueChange={handleCalendarChange}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="gregorian">
+                      {t.gregorianCalendar}
+                    </SelectItem>
+                    <SelectItem value="ethiopian">
+                      {t.ethiopianCalendar}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </CardContent>

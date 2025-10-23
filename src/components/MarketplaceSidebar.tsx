@@ -31,13 +31,8 @@ interface MarketplaceSidebarProps {
   onFiltersChange: (filters: any) => void;
 }
 
-export const MarketplaceSidebar = ({
-  language,
-  isOpen,
-  onClose,
-  filters,
-  onFiltersChange
-}: MarketplaceSidebarProps) => {
+// MarketplaceSidebar component
+export const MarketplaceSidebar = ({ language, isOpen, onClose, filters, onFiltersChange }: MarketplaceSidebarProps) => {
   const translations = {
     am: {
       filters: 'ማጣሪያዎች',
@@ -112,7 +107,8 @@ export const MarketplaceSidebar = ({
   const t = translations[language];
 
   const handleFilterChange = (key: string, value: any) => {
-    const newFilters = { ...filters, [key]: value };
+    const newValue = value === 'all' ? '' : value;
+    const newFilters = { ...filters, [key]: newValue };
     onFiltersChange(newFilters);
   };
 
@@ -169,14 +165,14 @@ export const MarketplaceSidebar = ({
         </CardHeader>
         <CardContent>
           <Select
-            value={filters.category || ""}
+            value={filters.category || 'all'}
             onValueChange={(value) => handleFilterChange('category', value)}
           >
             <SelectTrigger>
               <SelectValue placeholder={t.allCategories} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">{t.allCategories}</SelectItem>
+              <SelectItem value="all">{t.allCategories}</SelectItem>
               <SelectItem value="cattle">🐄 {t.cattle}</SelectItem>
               <SelectItem value="goat">🐐 {t.goat}</SelectItem>
               <SelectItem value="sheep">🐑 {t.sheep}</SelectItem>

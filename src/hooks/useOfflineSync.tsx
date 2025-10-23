@@ -1,9 +1,13 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToastNotifications } from '@/hooks/useToastNotifications';
 import { sanitizeInput } from '@/utils/animalIdGenerator';
+import { useTranslations } from '@/hooks/useTranslations';
+import { compressData, decompressData } from '@/utils/dataCompression';
+import { logger } from '@/utils/logger';
 
+// Merged from both useOfflineSync implementations
 interface SyncData {
   id: string;
   type: 'animal' | 'health' | 'market' | 'growth' | 'poultry_group';
@@ -11,22 +15,28 @@ interface SyncData {
   timestamp: number;
   synced: boolean;
   retryCount?: number;
+  conflictResolution?: 'local' | 'remote' | 'manual';
+  serverVersion?: any;
 }
 
-const MAX_RETRY_COUNT = 3;
+const MAX_RETRY_COUNT = 5; // Using the higher retry count from .tsx version
 const SYNC_STORAGE_KEY = 'bet-gitosa-pending-sync';
+const SYNC_INTERVAL = 60000; // 1 minute
 
 export const useOfflineSync = () => {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [pendingSync, setPendingSync] = useState<SyncData[]>([]);
   const [syncing, setSyncing] = useState(false);
-  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'error' | 'success'>('idle');
-  const { showSuccess, showError, showInfo } = useToastNotifications();
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'error' | 'success' | 'conflict'>('idle');
+  const [syncProgress, setSyncProgress] = useState({ total: 0, completed: 0, failed: 0 });
+  const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
+  const { showSuccess, showError, showInfo, showWarning } = useToastNotifications();
+  const { t } = useTranslations();
 
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
-      showInfo('Back online', 'Starting to sync pending changes...');
+      showInfo(t('Back online'), t('Starting to sync pending changes...'));
       setSyncStatus('syncing');
       syncAll();
     };
@@ -34,46 +44,147 @@ export const useOfflineSync = () => {
     const handleOffline = () => {
       setIsOnline(false);
       setSyncStatus('idle');
-      showInfo('Offline mode', 'Changes will be saved locally and synced when online.');
+      showInfo(t('Offline mode'), t('Changes will be saved locally and synced when online.'));
+    };
+
+    // Check connection stability
+    const checkConnectionStability = () => {
+      if (navigator.onLine) {
+        // Test connection by making a small request
+        fetch('/ping', { method: 'HEAD', cache: 'no-store' })
+          .then(() => {
+            if (!isOnline) {
+              setIsOnline(true);
+              showInfo(t('Connection restored'), t('Starting to sync pending changes...'));
+              syncAll();
+            }
+          })
+          .catch(() => {
+            if (isOnline) {
+              setIsOnline(false);
+              showWarning(t('Unstable connection'), t('Your connection appears unstable. Data will be saved locally.'));
+            }
+          });
+      }
     };
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
 
     loadPendingSync();
+    
+    // Set up periodic sync
+    const syncInterval = setInterval(() => {
+      if (isOnline && pendingSync.filter(item => !item.synced).length > 0) {
+        syncAll();
+      }
+    }, SYNC_INTERVAL);
+    
+    // Set up connection stability check
+    const stabilityCheckInterval = setInterval(checkConnectionStability, 30000);
 
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+      clearInterval(syncInterval);
+      clearInterval(stabilityCheckInterval);
     };
-  }, []);
+  }, [isOnline, pendingSync]);
 
-  const loadPendingSync = () => {
+  const loadPendingSync = useCallback(() => {
     const stored = localStorage.getItem(SYNC_STORAGE_KEY);
     if (stored) {
       try {
-        const parsedData = JSON.parse(stored);
-        setPendingSync(parsedData);
+        // Try to decompress data if it's compressed
+        let parsedData;
+        try {
+          parsedData = decompressData(stored);
+        } catch (e) {
+          // Fallback to regular JSON parsing for backward compatibility
+          parsedData = JSON.parse(stored);
+        }
         
-        if (parsedData.length > 0 && isOnline) {
-          showInfo(
-            `${parsedData.length} pending changes`,
-            'Will sync automatically when online.'
+        // Validate data structure
+        if (Array.isArray(parsedData)) {
+          // Filter out any corrupted entries
+          const validData = parsedData.filter(item => 
+            item && item.id && item.type && item.data && item.timestamp
           );
+          
+          setPendingSync(validData);
+          
+          if (validData.length > 0 && isOnline) {
+            const pendingCount = validData.filter(item => !item.synced).length;
+            if (pendingCount > 0) {
+              showInfo(
+                t('Pending changes'),
+                t('{{count}} changes will sync when online', { count: pendingCount })
+              );
+            }
+          }
+        } else {
+          throw new Error('Invalid sync data format');
         }
       } catch (error) {
-        console.error('Error parsing stored sync data:', error);
+        logger.error('Error parsing stored sync data', error);
+        // Create backup before removing
+        localStorage.setItem(`${SYNC_STORAGE_KEY}-backup-${Date.now()}`, stored);
         localStorage.removeItem(SYNC_STORAGE_KEY);
+        setPendingSync([]);
+        showError(
+          t('Data recovery needed'),
+          t('There was an issue with your saved data. Please contact support if you notice missing information.')
+        );
       }
     }
-  };
+  }, [isOnline, showInfo, showError, t]);
 
-  const savePendingSync = (data: SyncData[]) => {
+  const savePendingSync = useCallback((data: SyncData[]) => {
     try {
-      localStorage.setItem(SYNC_STORAGE_KEY, JSON.stringify(data));
+      // Compress data before saving to reduce storage usage
+      const compressedData = compressData(data);
+      localStorage.setItem(SYNC_STORAGE_KEY, compressedData);
       setPendingSync(data);
+      
+      // Update storage usage metrics
+      const storageUsed = estimateStorageUsage();
+      if (storageUsed > 80) { // If using more than 80% of available storage
+        showWarning(
+          t('Storage nearly full'),
+          t('Your device storage is {{percent}}% full. Consider clearing old data.', { percent: storageUsed.toFixed(0) })
+        );
+      }
     } catch (error) {
-      console.error('Error saving pending sync data:', error);
+      logger.error('Error saving pending sync data', error);
+      showError(
+        t('Storage error'),
+        t('Failed to save data locally. Your device may be out of storage.')
+      );
+    }
+  }, [showWarning, showError, t]);
+  
+  // Estimate local storage usage percentage
+  const estimateStorageUsage = (): number => {
+    try {
+      let total = 0;
+      let used = 0;
+      
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key) {
+          const value = localStorage.getItem(key);
+          if (value) {
+            used += value.length * 2; // Approximate bytes used
+          }
+        }
+      }
+      
+      // Estimate total available (5MB is typical browser limit)
+      total = 5 * 1024 * 1024;
+      
+      return (used / total) * 100;
+    } catch (e) {
+      return 0;
     }
   };
 
@@ -93,7 +204,7 @@ export const useOfflineSync = () => {
     const newQueue = [...pendingSync, syncItem];
     savePendingSync(newQueue);
 
-    console.log(`Added to offline queue: ${type}`, syncItem);
+    logger.debug(`Added to offline queue: ${type}`, { syncItem });
 
     if (isOnline && !syncing) {
       syncData(syncItem);
@@ -117,7 +228,7 @@ export const useOfflineSync = () => {
 
   const syncData = async (item: SyncData) => {
     try {
-      console.log('Syncing item:', item);
+      logger.debug('Syncing item', { item });
       
       let result;
       switch (item.type) {
@@ -174,9 +285,9 @@ export const useOfflineSync = () => {
       );
       savePendingSync(updatedQueue);
       
-      console.log(`Successfully synced ${item.type}:`, item.id);
+      logger.info(`Successfully synced ${item.type}`, { id: item.id });
     } catch (error) {
-      console.error('Sync failed for item:', item, error);
+      logger.error('Sync failed for item', error, { item });
       
       // Increment retry count
       const updatedQueue = pendingSync.map(q => 
@@ -204,7 +315,7 @@ export const useOfflineSync = () => {
     
     setSyncing(true);
     setSyncStatus('syncing');
-    console.log('Starting sync for all pending items...');
+    logger.info('Starting sync for all pending items');
     
     const unsynced = pendingSync.filter(item => !item.synced && (item.retryCount || 0) < MAX_RETRY_COUNT);
     
@@ -248,7 +359,7 @@ export const useOfflineSync = () => {
       setSyncStatus('error');
     }
     
-    console.log('Sync completed');
+    logger.info('Sync completed');
   };
 
   const clearSyncedItems = () => {

@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Heart, MapPin, MessageSquare, Shield } from 'lucide-react';
 import { Language } from '@/types';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
+import { useMarketListingManagement } from '@/hooks/useMarketListingManagement';
 
 interface MarketListingCardProps {
   listing: {
@@ -20,6 +22,7 @@ interface MarketListingCardProps {
     isFavorite?: boolean;
     is_vet_verified?: boolean;
     user_id?: string;
+    status?: 'active' | 'inactive' | 'sold';
   };
   language: Language;
   currentUserId?: string;
@@ -37,6 +40,7 @@ export const MarketListingCard = ({
   onToggleFavorite
 }: MarketListingCardProps) => {
   const isOwner = currentUserId && listing.user_id === currentUserId;
++  const { updateStatus, isUpdating } = useMarketListingManagement();
   const translations = {
     am: {
       contact: 'ፍላጎት ያሳዩ',
@@ -58,7 +62,7 @@ export const MarketListingCard = ({
       contact: 'Fedhii Agarsiisi',
       favorite: 'Gara Jaallattootatti Dabaluu',
       verified: 'Mirkaneeffame',
-      viewDetails: 'Bal\'inaa Ilaali',
+      viewDetails: "Bal'inaa Ilaali",
       priceHidden: 'Gatiin dhokfame',
       yourListing: 'Tarree Kee'
     },
@@ -93,6 +97,26 @@ export const MarketListingCard = ({
               <Shield className="w-3 h-3 mr-1" />
               {t.verified}
             </Badge>
+          )}
+          {isOwner && (
+            <div className="absolute bottom-2 left-2 flex gap-1">
+              {(['active','inactive','sold'] as const).map((s) => (
+                <Button
+                  key={s}
+                  variant={listing.status === s ? 'default' : 'outline'}
+                  size="sm"
+                  className="h-6 px-2 text-xs"
+                  disabled={isUpdating}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (listing.status === s) return;
+                    updateStatus(listing.id, s);
+                  }}
+                >
+                  {s}
+                </Button>
+              ))}
+            </div>
           )}
           {onToggleFavorite && !isOwner && (
             <Button

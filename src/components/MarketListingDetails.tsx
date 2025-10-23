@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { X, MessageSquare, Mail, MapPin, Shield, Edit, Trash2 } from 'lucide-react';
 import { Language } from '@/types';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
+import { useMarketListingManagement } from '@/hooks/useMarketListingManagement';
 
 interface MarketListingDetailsProps {
   listing: {
@@ -19,6 +21,7 @@ interface MarketListingDetailsProps {
     contact_method?: string;
     contact_value?: string;
     user_id?: string;
+    status?: 'active' | 'inactive' | 'sold';
   };
   language: Language;
   currentUserId?: string;
@@ -38,6 +41,7 @@ export const MarketListingDetails = ({
   onDelete 
 }: MarketListingDetailsProps) => {
   const isOwner = currentUserId && listing.user_id === currentUserId;
+  const { updateStatus, isUpdating } = useMarketListingManagement();
   const translations = {
     am: {
       contact: 'ፍላጎት ያሳዩ',
@@ -99,6 +103,22 @@ export const MarketListingDetails = ({
                 <Shield className="w-3 h-3 mr-1" />
                 {t.verified}
               </Badge>
+            )}
+            {isOwner && (
+              <div className="absolute bottom-2 left-2 flex gap-1">
+                {(['active','inactive','sold'] as const).map((s) => (
+                  <Button
+                    key={s}
+                    variant={listing.status === s ? 'default' : 'outline'}
+                    size="sm"
+                    className="h-6 px-2 text-xs"
+                    disabled={isUpdating}
+                    onClick={() => updateStatus(listing.id, s)}
+                  >
+                    {s}
+                  </Button>
+                ))}
+              </div>
             )}
           </div>
           

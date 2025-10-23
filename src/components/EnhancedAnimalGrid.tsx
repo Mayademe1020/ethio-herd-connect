@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Heart, MapPin, Calendar, Plus, MoreHorizontal } from 'lucide-react';
 import { AnimalData, Language } from '@/types';
 import { cn } from '@/lib/utils';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
 
 interface EnhancedAnimalGridProps {
   animals: AnimalData[];

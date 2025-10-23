@@ -12,6 +12,7 @@ import { Plus, TrendingUp, BarChart3, Users, Scale, Target, Calendar } from 'luc
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { useToastNotifications } from '@/hooks/useToastNotifications';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
 
 const Growth = () => {
   const { language } = useLanguage();

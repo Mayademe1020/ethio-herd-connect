@@ -11,6 +11,8 @@ import { useSecureHealthSubmission } from '@/hooks/useSecureHealthSubmission';
 import { useAnimalSelection } from '@/hooks/useAnimalSelection';
 import { AnimalSelectorModal } from './AnimalSelectorModal';
 import { AnimalIdDisplay } from './AnimalIdDisplay';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
+import { sanitizeFormData } from '@/utils/securityUtils';
 
 interface HealthSubmissionFormProps {
   language: Language;
@@ -99,10 +101,16 @@ export const HealthSubmissionForm = ({
       return;
     }
 
+    // Sanitize form data before submission
+    const sanitizedData = sanitizeFormData({
+      symptoms: formData.symptoms,
+      description: formData.description
+    });
+
     const { error } = await submitHealthRecord({
       animal_id: currentAnimal.id,
-      symptoms: formData.symptoms,
-      description: formData.description,
+      symptoms: sanitizedData.symptoms,
+      description: sanitizedData.description,
       urgency: formData.urgency
     });
 

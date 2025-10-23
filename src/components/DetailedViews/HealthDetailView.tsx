@@ -2,6 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Syringe, AlertTriangle, Calendar, Activity } from 'lucide-react';
+import { useDateDisplay } from '@/hooks/useDateDisplay';
 
 interface HealthDetailViewProps {
   language: 'am' | 'en';

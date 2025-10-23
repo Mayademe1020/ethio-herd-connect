@@ -234,7 +234,7 @@ export const EditableAnimalId: React.FC<EditableAnimalIdProps> = ({
                       </div>
                       <div className="text-gray-500 text-right">
                         <p>{entry.changedBy}</p>
-                        <p>{new Date(entry.changedAt).toLocaleDateString()}</p>
+                        <p>{formatDateShort(entry.changedAt)}</p>
                       </div>
                     </div>
                   </div>
