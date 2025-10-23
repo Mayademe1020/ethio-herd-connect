@@ -1,0 +1,10 @@
+[33mcommit 2a118cab79bfd5e1fcb660bfe3dff94f66d4c33d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mexhibition-mvp[m[33m)[m
+Author: Mayademe1020 <emukch@gmail.com>
+Date:   Thu Oct 23 05:42:06 2025 +0300
+
+    Remove non-MVP features for exhibition
+
+ src/contexts/CountryContext.tsx |  96 [31m--------[m
+ src/hooks/useDashboardStats.tsx | 281 [31m-----------------------[m
+ src/pages/Analytics.tsx         | 485 [31m----------------------------------------[m
+ 3 files changed, 862 deletions(-)
