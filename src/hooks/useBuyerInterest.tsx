@@ -1,184 +1,113 @@
-import { useState } from 'react';
+// src/hooks/useBuyerInterest.tsx - Hook for managing buyer interests
+
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/contexts/AuthContext';
+import { offlineQueue } from '@/lib/offlineQueue';
+import { v4 as uuidv4 } from 'uuid';
+import { useToastContext } from '@/contexts/ToastContext';
+import { getUserFriendlyError, getSuccessMessage } from '@/lib/errorMessages';
+
+interface ExpressInterestParams {
+  listingId: string;
+  buyerId: string;
+  message?: string;
+}
+
+interface UpdateInterestStatusParams {
+  interestId: string;
+  status: 'pending' | 'contacted' | 'closed';
+}
 
 export const useBuyerInterest = () => {
-  const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
-  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const toastContext = useToastContext();
 
-  const expressInterest = async (listingId: string, sellerUserId: string, message?: string) => {
-    if (!user) {
-      toast({
-        title: 'Authentication Required',
-        description: 'Please sign in to express interest in listings.',
-        variant: 'destructive',
-      });
-      return { error: new Error('User not authenticated') };
-    }
+  // Express interest mutation
+  const expressInterest = useMutation({
+    mutationFn: async ({ listingId, buyerId, message }: ExpressInterestParams) => {
+      const isOnline = navigator.onLine;
+      const tempId = uuidv4();
 
-    if (user.id === sellerUserId) {
-      toast({
-        title: 'Invalid Action',
-        description: 'You cannot express interest in your own listing.',
-        variant: 'destructive',
-      });
-      return { error: new Error('Cannot express interest in own listing') };
-    }
+      const interestData = {
+        id: tempId,
+        listing_id: listingId,
+        buyer_id: buyerId,
+        message: message || null,
+        status: 'pending',
+        created_at: new Date().toISOString()
+      };
 
-    setLoading(true);
-    
-    try {
-      // Check if interest already exists
-      const { data: existingInterest } = await supabase
-        .from('buyer_interests')
-        .select('id, status')
-        .eq('listing_id', listingId)
-        .eq('buyer_user_id', user.id)
-        .single();
-
-      if (existingInterest) {
-        toast({
-          title: 'Interest Already Expressed',
-          description: `Your interest is ${existingInterest.status}. You can send another message.`,
-          variant: 'default',
-        });
-        return { data: existingInterest, error: null };
+      if (!isOnline) {
+        // Add to offline queue
+        await offlineQueue.addToQueue('buyer_interest', interestData);
+        return interestData;
       }
 
+      // Try to save online
+      try {
+        const { data, error } = await supabase
+          .from('buyer_interests')
+          .insert(interestData as any)
+          .select()
+          .single();
+
+        if (error) {
+          // If error, add to offline queue
+          await offlineQueue.addToQueue('buyer_interest', interestData);
+          return interestData;
+        }
+
+        return data as any;
+      } catch (error) {
+        // Fallback to offline queue
+        await offlineQueue.addToQueue('buyer_interest', interestData);
+        return interestData;
+      }
+    },
+    onSuccess: (_data, variables) => {
+      // Invalidate relevant queries
+      queryClient.invalidateQueries({ queryKey: ['user-interest', variables.listingId, variables.buyerId] });
+      queryClient.invalidateQueries({ queryKey: ['listing-interests', variables.listingId] });
+
+      const successMsg = getSuccessMessage('interest_sent', 'amharic');
+      toastContext.success(successMsg.message, successMsg.icon);
+    },
+    onError: (error) => {
+      const errorMsg = getUserFriendlyError(error, 'amharic');
+      toastContext.error(errorMsg.message, errorMsg.icon);
+    },
+  });
+
+  // Update interest status mutation
+  const updateInterestStatus = useMutation({
+    mutationFn: async ({ interestId, status }: UpdateInterestStatusParams) => {
       const { data, error } = await supabase
         .from('buyer_interests')
-        .insert([{
-          listing_id: listingId,
-          buyer_user_id: user.id,
-          seller_user_id: sellerUserId,
-          message: message || 'I am interested in your listing.',
-          status: 'pending'
-        }])
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      toast({
-        title: 'Interest Expressed',
-        description: 'Your interest has been sent to the seller. You will be notified when they respond.',
-        variant: 'default',
-      });
-
-      return { data, error: null };
-    } catch (error: any) {
-      console.error('Express interest error:', error);
-      toast({
-        title: 'Failed to Express Interest',
-        description: error.message || 'Failed to send interest. Please try again.',
-        variant: 'destructive',
-      });
-      return { error };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const updateInterestStatus = async (interestId: string, status: 'approved' | 'rejected') => {
-    if (!user) {
-      return { error: new Error('User not authenticated') };
-    }
-
-    setLoading(true);
-    
-    try {
-      const { data, error } = await supabase
-        .from('buyer_interests')
-        .update({ 
-          status,
-          updated_at: new Date().toISOString()
-        })
+        .update({ status } as any)
         .eq('id', interestId)
-        .eq('seller_user_id', user.id)
         .select()
         .single();
 
       if (error) throw error;
+      return data as any;
+    },
+    onSuccess: (data: any) => {
+      // Invalidate listing interests query
+      queryClient.invalidateQueries({ queryKey: ['listing-interests', data.listing_id] });
 
-      toast({
-        title: status === 'approved' ? 'Interest Approved' : 'Interest Rejected',
-        description: `You have ${status} the buyer's interest.`,
-        variant: 'default',
-      });
-
-      return { data, error: null };
-    } catch (error: any) {
-      console.error('Update interest status error:', error);
-      toast({
-        title: 'Update Failed',
-        description: error.message || 'Failed to update interest status.',
-        variant: 'destructive',
-      });
-      return { error };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getInterestsForListing = async (listingId: string) => {
-    if (!user) {
-      return { data: [], error: new Error('User not authenticated') };
-    }
-
-    try {
-      const { data, error } = await supabase
-        .from('buyer_interests')
-        .select('*')
-        .eq('listing_id', listingId)
-        .eq('seller_user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      return { data: data || [], error: null };
-    } catch (error: any) {
-      console.error('Get interests error:', error);
-      return { data: [], error };
-    }
-  };
-
-  const getMyInterests = async () => {
-    if (!user) {
-      return { data: [], error: new Error('User not authenticated') };
-    }
-
-    try {
-      const { data, error } = await supabase
-        .from('buyer_interests')
-        .select(`
-          *,
-          market_listings (
-            id,
-            title,
-            price,
-            photos,
-            status
-          )
-        `)
-        .eq('buyer_user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      return { data: data || [], error: null };
-    } catch (error: any) {
-      console.error('Get my interests error:', error);
-      return { data: [], error };
-    }
-  };
+      toastContext.success('ተሳክቷል! / Updated!', '✓');
+    },
+    onError: (error) => {
+      const errorMsg = getUserFriendlyError(error, 'amharic');
+      toastContext.error(errorMsg.message, errorMsg.icon);
+    },
+  });
 
   return {
-    expressInterest,
-    updateInterestStatus,
-    getInterestsForListing,
-    getMyInterests,
-    loading
+    expressInterest: expressInterest.mutateAsync,
+    markAsContacted: (interestId: string) => updateInterestStatus.mutateAsync({ interestId, status: 'contacted' }),
+    updateInterestStatus: updateInterestStatus.mutateAsync,
+    isExpressing: expressInterest.isPending,
+    isUpdating: updateInterestStatus.isPending,
   };
 };

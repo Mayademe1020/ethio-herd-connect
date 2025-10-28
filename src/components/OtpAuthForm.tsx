@@ -1,230 +1,169 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { useInputSanitization } from '@/hooks/useInputSanitization';
-import { logger } from '@/utils/logger';
-import { logSecurityAudit } from '@/utils/securityUtils';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Phone, Mail } from 'lucide-react';
-import { ETHIOPIA, isValidEthiopianPhone, addCountryCode } from '@/constants/ethiopia';
+// src/components/OtpAuthForm.tsx - Phone + PIN Authentication (Ethiopia Only)
 
-const translations = {
-  en: {
-    title: 'Login with OTP',
-    selectMethod: 'Select method',
-    phoneLabel: 'Mobile Number',
-    emailLabel: 'Email Address',
-    sendCode: 'Send Code',
-    sendLink: 'Send Link',
-    codeLabel: 'Verification Code',
-    verifyContinue: 'Verify & Continue',
-    resend: 'Resend',
-    cooldownFmt: (n: number) => `Resend in ${n}s`,
-    usePassword: 'Use password instead',
-  },
-  am: {
-    title: 'በ OTP ይግቡ',
-    selectMethod: 'መንገድ ይምረጡ',
-    phoneLabel: 'ስልክ ቁጥር',
-    emailLabel: 'ኢሜይል አድራሻ',
-    sendCode: 'ኮድ ላክ',
-    sendLink: 'ማጂክ ሊንክ ላክ',
-    codeLabel: 'የማረጋገጫ ኮድ',
-    verifyContinue: 'አረጋግጥ እና ቀጥል',
-    resend: 'እንደገና ላክ',
-    cooldownFmt: (n: number) => `${n}ሰ እንደገና ላክ`,
-    usePassword: 'በይለፍ ቃል ተጠቀም',
-  },
-  or: {},
-  sw: {},
-};
+import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
-export const OtpAuthForm: React.FC<{ showPasswordFallback?: boolean; onTogglePassword?: () => void }> = ({
-  showPasswordFallback = true,
-  onTogglePassword,
-}) => {
-  const navigate = useNavigate();
-  const { sanitizeText, sanitizeEmail } = useInputSanitization();
-  const { sendVerificationCode, verifyCode } = useAuth();
-
-  const [method, setMethod] = useState<'sms' | 'email'>('sms');
-  const [step, setStep] = useState<1 | 2>(1);
-  const [phoneLocal, setPhoneLocal] = useState('');
-  const [email, setEmail] = useState('');
-  const [code, setCode] = useState('');
+export function OtpAuthForm() {
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [pin, setPin] = useState('');
   const [loading, setLoading] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
-  const codeInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Build E.164 phone - Ethiopia only (+251)
-  const buildPhoneE164 = (): string => {
-    const raw = sanitizeText(phoneLocal || '', { maxLength: 9, allowSpecialChars: false });
-    const digits = raw.replace(/\D/g, '');
-    // Always use Ethiopia country code
-    return addCountryCode(digits);
+  // Clean and validate Ethiopian phone number
+  const validatePhone = (phone: string): { valid: boolean; cleaned: string; error?: string } => {
+    // Remove all non-digits
+    const cleaned = phone.replace(/\D/g, '');
+    
+    // Remove leading 0 if present (0911234567 → 911234567)
+    const withoutLeadingZero = cleaned.startsWith('0') ? cleaned.slice(1) : cleaned;
+    
+    // Must be exactly 9 digits
+    if (withoutLeadingZero.length !== 9) {
+      return { valid: false, cleaned: withoutLeadingZero, error: 'ስልክ ቁጥር 9 አሃዞች መሆን አለበት / Phone must be 9 digits' };
+    }
+    
+    // Must start with 9 (Ethiopian mobile numbers)
+    if (!withoutLeadingZero.startsWith('9')) {
+      return { valid: false, cleaned: withoutLeadingZero, error: 'ስልክ ቁጥር በ 9 መጀመር አለበት / Phone must start with 9' };
+    }
+    
+    return { valid: true, cleaned: withoutLeadingZero };
   };
 
-  useEffect(() => {
-    if (step === 2) codeInputRef.current?.focus();
-  }, [step]);
-
-  useEffect(() => {
-    if (cooldown > 0) {
-      const t = setTimeout(() => setCooldown((c) => c - 1), 1000);
-      return () => clearTimeout(t);
-    }
-  }, [cooldown]);
-
-  const handleSend = async () => {
+  const signInWithPhonePin = async () => {
     setLoading(true);
     try {
-      const params =
-        method === 'sms'
-          ? { method: 'sms' as const, phone: buildPhoneE164() }
-          : { method: 'email' as const, email: sanitizeEmail(email) };
+      // Validate phone number
+      const { valid, cleaned, error } = validatePhone(phoneNumber);
+      if (!valid) {
+        toast.error(error || 'Invalid phone number');
+        setLoading(false);
+        return;
+      }
 
-      const { error } = await sendVerificationCode(params);
-      if (error) {
-        logger.error('OTP send failed', error);
-      } else {
-        logger.info('OTP send success', params);
-        logSecurityAudit('OTP_SEND_UI', { ...params, success: true });
-        // Email magic link: keep user on step 1 and inform; SMS: go to step 2
-        if (method === 'sms') {
-          setStep(2);
-          setCooldown(30);
+      // Validate PIN
+      if (pin.length < 4) {
+        toast.error('ፒን በጣም አጭር ነው / PIN too short', {
+          description: 'PIN must be at least 4 digits'
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Create email format from phone: 911234567@ethioherd.app
+      const email = `${cleaned}@ethioherd.app`;
+      const password = pin;
+
+      // Try to sign in first
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
+
+      if (signInError) {
+        // If user doesn't exist, create account
+        if (signInError.message.includes('Invalid login credentials')) {
+          const { error: signUpError } = await supabase.auth.signUp({
+            email: email,
+            password: password,
+          });
+
+          if (signUpError) throw signUpError;
+
+          toast.success('✓ መለያ ተፈጥሯል! / Account created!', {
+            description: `Welcome! Phone: +251${cleaned}`
+          });
+        } else {
+          throw signInError;
         }
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVerify = async () => {
-    if (!code) return;
-    setLoading(true);
-    try {
-      const params =
-        method === 'sms'
-          ? { method: 'sms' as const, phone: buildPhoneE164(), code }
-          : { method: 'email' as const, email: sanitizeEmail(email), code };
-
-      const { error } = await verifyCode(params);
-      if (error) {
-        logger.error('OTP verify failed', error);
       } else {
-        logger.info('OTP verify success', params);
-        logSecurityAudit('OTP_VERIFY_UI', { ...params, success: true });
-
-        // Always land users on home after successful login
-        try { localStorage.removeItem('postLoginAction'); } catch {}
-        navigate('/');
+        toast.success('✓ እንኳን ደህና መጡ! / Welcome back!', {
+          description: `Phone: +251${cleaned}`
+        });
       }
+    } catch (error: any) {
+      toast.error('መግባት አልተቻለም / Login failed', {
+        description: error.message || 'Please try again'
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  // Basic language selection via browser (fallback to EN)
-  const lang = (localStorage.getItem('language') as keyof typeof translations) || 'en';
-  const t = translations[lang] || translations.en;
+  // Handle phone input - only allow digits
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, ''); // Only digits
+    setPhoneNumber(value);
+  };
+
+  // Handle PIN input - only allow digits
+  const handlePinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, ''); // Only digits
+    setPin(value);
+  };
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle className="text-xl">{t.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex gap-2">
-          <Button variant={method === 'sms' ? 'default' : 'outline'} size="sm" onClick={() => setMethod('sms')}>
-            <Phone className="w-4 h-4 mr-2" /> SMS
-          </Button>
-          <Button variant={method === 'email' ? 'default' : 'outline'} size="sm" onClick={() => setMethod('email')}>
-            <Mail className="w-4 h-4 mr-2" /> Email
-          </Button>
+    <div className="w-full">
+      <div className="space-y-4">
+        <div>
+          <label className="block text-base font-medium mb-3 text-gray-700">
+            ስልክ ቁጥር / Phone Number
+          </label>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center bg-gray-100 px-3 py-3 border-2 border-gray-300 rounded-lg text-lg font-medium text-gray-700">
+              +251
+            </div>
+            <input
+              type="tel"
+              value={phoneNumber}
+              onChange={handlePhoneChange}
+              placeholder="911234567"
+              maxLength={10}
+              className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-green-500 text-lg"
+              style={{ minHeight: '48px' }}
+              autoFocus
+            />
+          </div>
+          <p className="text-sm text-gray-600 mt-2">
+            9 አሃዞች ያስገቡ / Enter 9 digits (e.g., 911234567)
+          </p>
         </div>
 
-        {method === 'sms' && step === 1 && (
-          <>
-            <div className="space-y-2">
-              <Label htmlFor="phone">{t.phoneLabel}</Label>
-              <div className="flex items-center gap-2">
-                {/* Ethiopia Phone Prefix - Fixed */}
-                <div className="flex items-center gap-2 px-3 py-2 border rounded-md bg-gray-50 flex-shrink-0">
-                  <span className="text-xl">{ETHIOPIA.flag}</span>
-                  <span className="font-medium">{ETHIOPIA.phonePrefix}</span>
-                </div>
-                
-                {/* Phone Number Input - 9 digits */}
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={phoneLocal}
-                  onChange={(e) => {
-                    // Only allow digits, max 9
-                    const cleaned = e.target.value.replace(/\D/g, '');
-                    if (cleaned.length <= 9) {
-                      setPhoneLocal(cleaned);
-                    }
-                  }}
-                  placeholder="912345678"
-                  className="flex-1"
-                  maxLength={9}
-                />
-              </div>
-              <p className="text-xs text-gray-500">
-                {lang === 'am' 
-                  ? 'የስልክ ቁጥርዎን ያስገቡ (9 አሃዞች)'
-                  : 'Enter your phone number (9 digits)'}
-              </p>
-            </div>
-            <Button className="w-full" disabled={loading || cooldown > 0 || phoneLocal.length !== 9} onClick={handleSend}>
-              {cooldown > 0 ? t.cooldownFmt(cooldown) : t.sendCode}
-            </Button>
-          </>
-        )}
+        <div>
+          <label className="block text-base font-medium mb-3 text-gray-700">
+            ፒን / PIN
+          </label>
+          <input
+            type="password"
+            value={pin}
+            onChange={handlePinChange}
+            placeholder="••••"
+            maxLength={6}
+            className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-green-500 text-lg text-center tracking-widest"
+            style={{ minHeight: '48px' }}
+          />
+          <p className="text-sm text-gray-600 mt-2">
+            ቢያንስ 4 አሃዞች / At least 4 digits
+          </p>
+        </div>
 
-        {method === 'email' && (
-          <>
-            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t.emailLabel} />
-            <Button className="w-full" disabled={loading} onClick={handleSend}>
-              {t.sendLink}
-            </Button>
-          </>
-        )}
+        <button
+          onClick={signInWithPhonePin}
+          disabled={loading || phoneNumber.length < 9 || pin.length < 4}
+          className="w-full bg-green-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-md"
+          style={{ minHeight: '56px' }}
+        >
+          {loading ? 'እባክዎ ይጠብቁ... / Please wait...' : '✓ ግባ / Login'}
+        </button>
 
-        {method === 'sms' && step === 2 && (
-          <>
-            <Input
-              ref={codeInputRef}
-              inputMode="numeric"
-              pattern="[0-9]*"
-              value={code}
-              onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-              placeholder={t.codeLabel}
-            />
-            <div className="flex gap-2">
-              <Button className="flex-1" disabled={loading || !code} onClick={handleVerify}>
-                {t.verifyContinue}
-              </Button>
-              <Button className="flex-1" variant="outline" disabled={cooldown > 0 || loading} onClick={handleSend}>
-                {cooldown > 0 ? t.cooldownFmt(cooldown) : t.resend}
-              </Button>
-            </div>
-          </>
-        )}
-
-        {showPasswordFallback && (
-          <div className="text-center">
-            <button type="button" className="text-green-600 hover:text-green-700 text-sm" onClick={onTogglePassword}>
-              {t.usePassword}
-            </button>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+          <p className="text-sm text-blue-800">
+            💡 አዲስ ተጠቃሚ? / New user? Just enter your phone and create a PIN to get started!
+          </p>
+        </div>
+      </div>
+    </div>
   );
-};
+}
+
+export default OtpAuthForm;

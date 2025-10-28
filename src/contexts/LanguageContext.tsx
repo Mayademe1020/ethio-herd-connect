@@ -1,66 +1,65 @@
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
-
-type Language = 'am' | 'en' | 'or' | 'sw';
+type Language = 'am' | 'en';
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  getLanguageName: (lang: Language) => string;
-  getLanguageFlag: (lang: Language) => string;
+  isAmharic: boolean;
+  isEnglish: boolean;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguageState] = useState<Language>('am');
+const LANGUAGE_STORAGE_KEY = 'ethio-herd-language';
 
-  useEffect(() => {
-    // Load language from localStorage on mount
-    const savedLanguage = localStorage.getItem('app-language') as Language;
-    if (savedLanguage && ['am', 'en', 'or', 'sw'].includes(savedLanguage)) {
-      setLanguageState(savedLanguage);
-    }
-  }, []);
+// Default to Amharic for Ethiopian users
+const getDefaultLanguage = (): Language => {
+  // Check localStorage first
+  const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+  if (stored === 'am' || stored === 'en') {
+    return stored as Language;
+  }
+  
+  // Default to Amharic for Ethiopian context
+  return 'am';
+};
+
+interface LanguageProviderProps {
+  children: ReactNode;
+}
+
+export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
+  const [language, setLanguageState] = useState<Language>(getDefaultLanguage);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
-    localStorage.setItem('app-language', lang);
+    localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
+    
+    // Update HTML lang attribute for accessibility
+    document.documentElement.lang = lang === 'am' ? 'am' : 'en';
   };
 
-  const getLanguageName = (lang: Language): string => {
-    const names = {
-      am: 'አማርኛ',
-      en: 'English',
-      or: 'Afaan Oromoo',
-      sw: 'Kiswahili'
-    };
-    return names[lang];
-  };
+  useEffect(() => {
+    // Set initial HTML lang attribute
+    document.documentElement.lang = language === 'am' ? 'am' : 'en';
+  }, []);
 
-  const getLanguageFlag = (lang: Language): string => {
-    const flags = {
-      am: '🇪🇹',
-      en: '🇺🇸',
-      or: '🇪🇹',
-      sw: '🇹🇿'
-    };
-    return flags[lang];
+  const value: LanguageContextType = {
+    language,
+    setLanguage,
+    isAmharic: language === 'am',
+    isEnglish: language === 'en',
   };
 
   return (
-    <LanguageContext.Provider value={{ 
-      language, 
-      setLanguage, 
-      getLanguageName, 
-      getLanguageFlag 
-    }}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );
 };
 
-export const useLanguage = () => {
+export const useLanguage = (): LanguageContextType => {
   const context = useContext(LanguageContext);
   if (context === undefined) {
     throw new Error('useLanguage must be used within a LanguageProvider');

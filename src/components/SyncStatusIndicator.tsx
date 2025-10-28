@@ -1,285 +1,165 @@
-/**
- * Sync Status Indicator Component
- * Shows real-time sync status with progress and retry information
- * Optimized for Ethiopian farmers with visual indicators
- */
-
-import React from 'react';
-import { Cloud, CloudOff, RefreshCw, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { useState, useEffect } from 'react';
+import { Wifi, WifiOff, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { useTranslations } from '@/hooks/useTranslations';
-import { cn } from '@/lib/utils';
+import { offlineQueue } from '@/lib/offlineQueue';
+import { useToast } from '@/hooks/use-toast';
 
-export interface SyncStatus {
-  isOnline: boolean;
-  syncing: boolean;
-  status: 'idle' | 'syncing' | 'error' | 'success';
-  progress: {
-    total: number;
-    completed: number;
-    failed: number;
-  };
-  lastSyncTime: number | null;
-  pendingCount: number;
-  failedCount?: number;
-}
+export function SyncStatusIndicator() {
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
+  const { toast } = useToast();
 
-interface SyncStatusIndicatorProps {
-  syncStatus: SyncStatus;
-  onSync?: () => void;
-  onRetryFailed?: () => void;
-  onClearFailed?: () => void;
-  compact?: boolean;
-  className?: string;
-}
+  // Update online status
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
 
-export const SyncStatusIndicator: React.FC<SyncStatusIndicatorProps> = ({
-  syncStatus,
-  onSync,
-  onRetryFailed,
-  onClearFailed,
-  compact = false,
-  className
-}) => {
-  const { t } = useTranslations();
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
 
-  /**
-   * Get status icon
-   */
-  const getStatusIcon = () => {
-    if (!syncStatus.isOnline) {
-      return <CloudOff className="w-5 h-5 text-gray-500" />;
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  // Subscribe to queue changes
+  useEffect(() => {
+    const updateQueueStatus = async () => {
+      const count = await offlineQueue.getPendingCount();
+      setPendingCount(count);
+      setIsProcessing(offlineQueue.isProcessing());
+    };
+
+    // Initial update
+    updateQueueStatus();
+
+    // Subscribe to changes
+    const unsubscribe = offlineQueue.subscribe(() => {
+      updateQueueStatus();
+    });
+
+    // Poll for updates
+    const interval = setInterval(updateQueueStatus, 2000);
+
+    return () => {
+      unsubscribe();
+      clearInterval(interval);
+    };
+  }, []);
+
+  // Handle manual sync
+  const handleManualSync = async () => {
+    if (!isOnline) {
+      toast({
+        title: 'ኢንተርኔት የለም',
+        description: 'No internet connection',
+        variant: 'destructive',
+      });
+      return;
     }
 
-    switch (syncStatus.status) {
-      case 'syncing':
-        return <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />;
-      case 'success':
-        return syncStatus.pendingCount === 0 ? (
-          <CheckCircle className="w-5 h-5 text-emerald-600" />
-        ) : (
-          <Cloud className="w-5 h-5 text-blue-600" />
-        );
-      case 'error':
-        return <AlertCircle className="w-5 h-5 text-red-600" />;
-      default:
-        return <Cloud className="w-5 h-5 text-gray-600" />;
+    try {
+      setIsProcessing(true);
+      await offlineQueue.processQueue();
+      setLastSyncTime(new Date());
+      
+      toast({
+        title: '✓ ተመሳሳይ ተደርጓል',
+        description: 'All data synced successfully',
+      });
+    } catch (error) {
+      toast({
+        title: 'የማመሳሰል ስህተት',
+        description: 'Sync failed. Will retry automatically.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  /**
-   * Get status color
-   */
-  const getStatusColor = () => {
-    if (!syncStatus.isOnline) return 'text-gray-600';
+  // Format last sync time
+  const formatLastSync = (date: Date | null) => {
+    if (!date) return null;
     
-    switch (syncStatus.status) {
-      case 'syncing':
-        return 'text-blue-600';
-      case 'success':
-        return syncStatus.pendingCount === 0 ? 'text-emerald-600' : 'text-blue-600';
-      case 'error':
-        return 'text-red-600';
-      default:
-        return 'text-gray-600';
-    }
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    
+    return date.toLocaleDateString();
   };
 
-  /**
-   * Get status message
-   */
-  const getStatusMessage = () => {
-    if (!syncStatus.isOnline) {
-      return syncStatus.pendingCount > 0
-        ? `${syncStatus.pendingCount} ${t('items queued for sync')}`
-        : t('Offline mode');
-    }
-
-    switch (syncStatus.status) {
-      case 'syncing':
-        return t('Syncing...');
-      case 'success':
-        return syncStatus.pendingCount > 0
-          ? `${syncStatus.pendingCount} ${t('items pending')}`
-          : t('All synced');
-      case 'error':
-        return t('Sync error');
-      default:
-        return syncStatus.pendingCount > 0
-          ? `${syncStatus.pendingCount} ${t('items to sync')}`
-          : t('All synced');
-    }
-  };
-
-  /**
-   * Format last sync time
-   */
-  const getLastSyncText = () => {
-    if (!syncStatus.lastSyncTime) return null;
-
-    const now = Date.now();
-    const diff = now - syncStatus.lastSyncTime;
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(minutes / 60);
-
-    if (minutes < 1) return t('Just now');
-    if (minutes < 60) return `${minutes} ${t('min ago')}`;
-    if (hours < 24) return `${hours} ${t('hr ago')}`;
-    return t('Over a day ago');
-  };
-
-  /**
-   * Calculate progress percentage
-   */
-  const getProgressPercentage = () => {
-    if (syncStatus.progress.total === 0) return 0;
-    return Math.round((syncStatus.progress.completed / syncStatus.progress.total) * 100);
-  };
-
-  // Compact view for header/toolbar
-  if (compact) {
-    return (
-      <div className={cn('flex items-center gap-2', className)}>
-        {getStatusIcon()}
-        <span className={cn('text-sm font-medium', getStatusColor())}>
-          {getStatusMessage()}
-        </span>
-        {syncStatus.isOnline && syncStatus.pendingCount > 0 && !syncStatus.syncing && onSync && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onSync}
-            className="h-8 px-2"
-            aria-label={t('Sync now')}
-          >
-            <RefreshCw className="w-4 h-4" />
-          </Button>
+  return (
+    <div className="flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-lg">
+      {/* Online/Offline Status */}
+      <div className="flex items-center gap-1.5">
+        {isOnline ? (
+          <>
+            <Wifi className="h-4 w-4 text-green-600" />
+            <span className="text-xs font-medium text-green-600">Online</span>
+          </>
+        ) : (
+          <>
+            <WifiOff className="h-4 w-4 text-orange-600" />
+            <span className="text-xs font-medium text-orange-600">Offline</span>
+          </>
         )}
       </div>
-    );
-  }
 
-  // Full card view
-  return (
-    <Card className={cn('border-2', className)}>
-      <CardContent className="p-4">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-3">
-            {getStatusIcon()}
-            <div>
-              <h3 className={cn('text-base font-semibold', getStatusColor())}>
-                {getStatusMessage()}
-              </h3>
-              {syncStatus.lastSyncTime && (
-                <p className="text-xs text-gray-500">
-                  {t('Last sync')}: {getLastSyncText()}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Sync button */}
-          {syncStatus.isOnline && syncStatus.pendingCount > 0 && !syncStatus.syncing && onSync && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={onSync}
-              className="gap-2"
-            >
-              <RefreshCw className="w-4 h-4" />
-              {t('Sync now')}
-            </Button>
-          )}
+      {/* Pending Items Count */}
+      {pendingCount > 0 && (
+        <div className="flex items-center gap-1.5 px-2 py-0.5 bg-orange-100 rounded-full">
+          <AlertCircle className="h-3.5 w-3.5 text-orange-600" />
+          <span className="text-xs font-medium text-orange-600">
+            {pendingCount} pending
+          </span>
         </div>
+      )}
 
-        {/* Progress bar (when syncing) */}
-        {syncStatus.syncing && syncStatus.progress.total > 0 && (
-          <div className="mb-3">
-            <div className="flex justify-between text-xs text-gray-600 mb-1">
-              <span>
-                {t('Progress')}: {syncStatus.progress.completed} / {syncStatus.progress.total}
-              </span>
-              <span>{getProgressPercentage()}%</span>
-            </div>
-            <Progress value={getProgressPercentage()} className="h-2" />
-          </div>
-        )}
-
-        {/* Status details */}
-        <div className="space-y-2 text-sm">
-          {/* Pending items */}
-          {syncStatus.pendingCount > 0 && (
-            <div className="flex items-center justify-between p-2 bg-blue-50 rounded">
-              <span className="text-blue-900">
-                {t('Pending items')}
-              </span>
-              <span className="font-semibold text-blue-900">
-                {syncStatus.pendingCount}
-              </span>
-            </div>
-          )}
-
-          {/* Failed items */}
-          {syncStatus.failedCount && syncStatus.failedCount > 0 && (
-            <div className="flex items-center justify-between p-2 bg-red-50 rounded">
-              <span className="text-red-900">
-                {t('Failed items')}
-              </span>
-              <span className="font-semibold text-red-900">
-                {syncStatus.failedCount}
-              </span>
-            </div>
-          )}
-
-          {/* Offline message */}
-          {!syncStatus.isOnline && (
-            <div className="p-3 bg-gray-50 rounded border border-gray-200">
-              <p className="text-gray-700 text-sm">
-                {t('You are currently offline. Your changes are being saved locally and will sync automatically when you reconnect.')}
-              </p>
-            </div>
-          )}
-
-          {/* Error message */}
-          {syncStatus.status === 'error' && (
-            <div className="p-3 bg-red-50 rounded border border-red-200">
-              <p className="text-red-700 text-sm">
-                {t('Some items failed to sync. They will be retried automatically.')}
-              </p>
-            </div>
-          )}
+      {/* All Synced Indicator */}
+      {isOnline && pendingCount === 0 && !isProcessing && (
+        <div className="flex items-center gap-1.5">
+          <CheckCircle className="h-3.5 w-3.5 text-green-600" />
+          <span className="text-xs text-muted-foreground">All synced</span>
         </div>
+      )}
 
-        {/* Action buttons for failed items */}
-        {syncStatus.failedCount && syncStatus.failedCount > 0 && (
-          <div className="flex gap-2 mt-3">
-            {onRetryFailed && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onRetryFailed}
-                className="flex-1 gap-2"
-              >
-                <RefreshCw className="w-4 h-4" />
-                {t('Retry failed')}
-              </Button>
-            )}
-            {onClearFailed && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onClearFailed}
-                className="flex-1"
-              >
-                {t('Clear failed')}
-              </Button>
-            )}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+      {/* Sync Progress */}
+      {isProcessing && (
+        <div className="flex items-center gap-1.5">
+          <RefreshCw className="h-3.5 w-3.5 text-blue-600 animate-spin" />
+          <span className="text-xs text-blue-600">Syncing...</span>
+        </div>
+      )}
+
+      {/* Manual Sync Button */}
+      {isOnline && pendingCount > 0 && !isProcessing && (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={handleManualSync}
+          className="h-7 px-2 text-xs"
+        >
+          <RefreshCw className="h-3 w-3 mr-1" />
+          Sync Now
+        </Button>
+      )}
+
+      {/* Last Sync Time */}
+      {lastSyncTime && (
+        <span className="text-xs text-muted-foreground ml-auto">
+          {formatLastSync(lastSyncTime)}
+        </span>
+      )}
+    </div>
   );
-};
+}

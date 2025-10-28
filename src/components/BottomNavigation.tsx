@@ -1,107 +1,53 @@
+// src/components/BottomNavigation.tsx - Bottom navigation bar
 
-import React from 'react';
-import { Home, Heart, ShoppingCart, BarChart3, Milk, User, Stethoscope } from 'lucide-react';
-import { NavLink, useLocation } from 'react-router-dom';
-import { cn } from '@/lib/utils';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Home, Beef, Store, Milk, User } from 'lucide-react';
+import { useTranslation } from '@/hooks/useTranslation';
 
-interface BottomNavigationProps {
-  language: 'am' | 'en' | 'or' | 'sw';
-}
-
-const BottomNavigation = ({ language }: BottomNavigationProps) => {
+export const BottomNavigation = () => {
+  const navigate = useNavigate();
   const location = useLocation();
-  
-  // BottomNavigation: already points to /marketplace and keeps public visibility
-  // No changes required — ensure Market points to '/marketplace'
-  const navItems = [
-    {
-      icon: Home,
-      labelEn: 'Home',
-      labelAm: 'ዋና',
-      labelOr: 'Mana',
-      labelSw: 'Nyumbani',
-      path: '/'
-    },
-    {
-      icon: Heart,
-      labelEn: 'Animals',
-      labelAm: 'እንስሳት',
-      labelOr: 'Horii',
-      labelSw: 'Wanyama',
-      path: '/animals'
-    },
-    {
-      icon: ShoppingCart,
-      labelEn: 'Market',
-      labelAm: 'ገበያ',
-      labelOr: 'Gabaa',
-      labelSw: 'Soko',
-      path: '/marketplace'
-    },
-    {
-      icon: Stethoscope,
-      labelEn: 'Health',
-      labelAm: 'ጤና',
-      labelOr: 'Fayyaa',
-      labelSw: 'Afya',
-      path: '/health'
-    },
-    {
-      icon: Milk,
-      labelEn: 'Milk',
-      labelAm: 'ወተት',
-      labelOr: 'Aannan',
-      labelSw: 'Maziwa',
-      path: '/milk'
-    },
-    {
-      icon: User,
-      labelEn: 'Profile',
-      labelAm: 'መገለጫ',
-      labelOr: 'Ibsa',
-      labelSw: 'Wasifu',
-      path: '/profile'
-    }
+  const { t } = useTranslation();
+
+  const tabs = [
+    { path: '/', icon: Home, label: t('home.welcome') },
+    { path: '/my-animals', icon: Beef, label: t('animals.myAnimals') },
+    { path: '/marketplace', icon: Store, label: t('marketplace.marketplace') },
+    { path: '/record-milk', icon: Milk, label: t('milk.recordMilk') },
+    { path: '/profile', icon: User, label: t('common.profile') || 'Profile' },
   ];
 
-  const getLabel = (item: any) => {
-    switch (language) {
-      case 'am':
-        return item.labelAm;
-      case 'or':
-        return item.labelOr;
-      case 'sw':
-        return item.labelSw;
-      default:
-        return item.labelEn;
+  const isActive = (path: string) => {
+    if (path === '/') {
+      return location.pathname === '/';
     }
+    return location.pathname.startsWith(path);
   };
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 bg-white border-t z-50 shadow-lg">
-      <div className="container mx-auto px-1">
-        <div className="grid grid-cols-6 gap-1">
-          {navItems.map((item, index) => (
-            <NavLink
-              key={index}
-              to={item.path}
-              className={({ isActive }) =>
-                cn(
-                  "py-2 px-1 flex flex-col items-center text-xs text-gray-500 hover:text-gray-700 transition-all duration-200 hover:bg-gray-50 rounded-lg min-h-[60px] justify-center",
-                  isActive ? "text-orange-600 font-semibold bg-orange-50" : ""
-                )
-              }
+    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50">
+      <div className="flex justify-around items-center h-16 max-w-screen-xl mx-auto">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const active = isActive(tab.path);
+          
+          return (
+            <button
+              key={tab.path}
+              onClick={() => navigate(tab.path)}
+              className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
+                active ? 'text-green-600' : 'text-gray-500'
+              }`}
+              style={{ minWidth: '44px', minHeight: '44px' }}
             >
-              <item.icon className="w-5 h-5 mb-1" />
-              <span className="text-[10px] leading-tight text-center">
-                {getLabel(item)}
+              <Icon className={`w-6 h-6 ${active ? 'stroke-[2.5]' : 'stroke-2'}`} />
+              <span className={`text-xs mt-1 ${active ? 'font-semibold' : 'font-normal'}`}>
+                {tab.label}
               </span>
-            </NavLink>
-          ))}
-        </div>
+            </button>
+          );
+        })}
       </div>
-    </nav>
+    </div>
   );
 };
-
-export default BottomNavigation;

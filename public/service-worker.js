@@ -213,68 +213,25 @@ self.addEventListener('fetch', event => {
   }
 });
 
-// Background sync for offline form submissions
+// Background sync for offline queue
 self.addEventListener('sync', event => {
-  if (event.tag === 'sync-animal-data') {
-    event.waitUntil(syncAnimalData());
-  } else if (event.tag === 'sync-marketplace-listing') {
-    event.waitUntil(syncMarketplaceListings());
+  if (event.tag === 'sync-offline-queue') {
+    event.waitUntil(syncOfflineQueue());
   }
 });
 
-// Handle background sync for animal data
-async function syncAnimalData() {
+// Handle background sync for offline queue
+async function syncOfflineQueue() {
   try {
-    const db = await openIndexedDB();
-    const pendingRecords = await db.getAll('pendingAnimalUpdates');
-    
-    for (const record of pendingRecords) {
-      try {
-        const response = await fetch('/api/animals/update', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(record.data)
-        });
-        
-        if (response.ok) {
-          await db.delete('pendingAnimalUpdates', record.id);
-        }
-      } catch (error) {
-        console.error('Failed to sync animal data:', error);
-      }
-    }
+    // Send message to all clients to trigger queue processing
+    const clients = await self.clients.matchAll();
+    clients.forEach(client => {
+      client.postMessage({
+        type: 'SYNC_OFFLINE_QUEUE'
+      });
+    });
   } catch (error) {
-    console.error('Error in syncAnimalData:', error);
-  }
-}
-
-// Handle background sync for marketplace listings
-async function syncMarketplaceListings() {
-  try {
-    const db = await openIndexedDB();
-    const pendingListings = await db.getAll('pendingMarketplaceListings');
-    
-    for (const listing of pendingListings) {
-      try {
-        const response = await fetch('/api/marketplace/listings', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(listing.data)
-        });
-        
-        if (response.ok) {
-          await db.delete('pendingMarketplaceListings', listing.id);
-        }
-      } catch (error) {
-        console.error('Failed to sync marketplace listing:', error);
-      }
-    }
-  } catch (error) {
-    console.error('Error in syncMarketplaceListings:', error);
+    console.error('Error in syncOfflineQueue:', error);
   }
 }
 

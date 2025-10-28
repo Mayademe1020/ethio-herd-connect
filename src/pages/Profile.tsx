@@ -38,7 +38,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 
 const Profile = () => {
-  const { language } = useLanguage();
+  const { language, setLanguage } = useLanguage();
   const { calendarSystem, setCalendarSystem } = useCalendar();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
@@ -407,7 +407,24 @@ const Profile = () => {
                   <Globe className="w-4 h-4" />
                   <span>{t.language}</span>
                 </div>
-                <Badge variant="secondary">{language}</Badge>
+                <Select value={language} onValueChange={(value) => {
+                  setLanguage(value as 'am' | 'en');
+                  toast.success(
+                    value === 'am' 
+                      ? 'ቋንቋ ወደ አማርኛ ተቀይሯል' 
+                      : 'Language changed to English'
+                  );
+                }}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue>
+                      {language === 'am' ? '🇪🇹 አማርኛ' : '🇬🇧 English'}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="am">🇪🇹 አማርኛ (Amharic)</SelectItem>
+                    <SelectItem value="en">🇬🇧 English</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <Separator />
               <div className="flex items-center justify-between">
