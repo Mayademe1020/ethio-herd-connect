@@ -2,8 +2,10 @@
 export interface AnimalData {
   id: string;
   animal_code: string;
+  animal_id?: string; // Professional animal ID (FARM-TYPE-###)
   name: string;
   type: string;
+  subtype?: string; // Added for better animal classification
   breed: string;
   breed_custom?: string; // User-provided breed description for unknown breeds
   is_custom_breed?: boolean; // Flag indicating custom breed entry
@@ -25,6 +27,7 @@ export interface AnimalData {
   location?: string;
   vaccination_due_date?: string;
   estimated_value?: number;
+  status?: string; // Professional status system
   vaccination_records?: VaccinationRecord[];
   weight_records?: WeightRecord[];
 }

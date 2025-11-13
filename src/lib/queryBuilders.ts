@@ -54,8 +54,8 @@ export const MARKET_LISTING_FIELDS = {
  * Milk production field sets
  */
 export const MILK_PRODUCTION_FIELDS = {
-  list: 'id, animal_id, amount, production_date',
-  detail: 'id, animal_id, amount, production_date, quality_grade, notes, created_at, user_id'
+  list: 'id, animal_id, amount, production_date, animals(name, photo_url)',
+  detail: 'id, animal_id, amount, production_date, quality_grade, notes, created_at, user_id, animals(name, photo_url, type, subtype)'
 } as const;
 
 /**

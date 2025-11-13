@@ -1,18 +1,19 @@
-// src/pages/RegisterAnimal.tsx - MVP Animal Registration with 3-step flow
+// src/pages/RegisterAnimal.tsx - Simple 3-click animal registration
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimalTypeSelector, AnimalType } from '@/components/AnimalTypeSelector';
 import { AnimalSubtypeSelector } from '@/components/AnimalSubtypeSelector';
 import { useAnimalRegistration } from '@/hooks/useAnimalRegistration';
 import { BackButton } from '@/components/BackButton';
+import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Camera, ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { Camera, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContextMVP';
 import { toast } from 'sonner';
-import { compressImage } from '@/utils/imageCompression';
+import { compressImage } from '@/utils/imageOptimization';
 
 type Step = 1 | 2 | 3;
 
@@ -20,8 +21,8 @@ const RegisterAnimal = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { registerAnimal, isRegistering } = useAnimalRegistration();
-  
-  // Form state
+
+  // Simple 3-step form state
   const [step, setStep] = useState<Step>(1);
   const [selectedType, setSelectedType] = useState<AnimalType | null>(null);
   const [selectedSubtype, setSelectedSubtype] = useState<string | null>(null);
@@ -29,33 +30,21 @@ const RegisterAnimal = () => {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Handle type selection
+  // Handle type selection - auto-advance to step 2
   const handleTypeSelect = (type: AnimalType) => {
     setSelectedType(type);
     setSelectedSubtype(null); // Reset subtype when type changes
+    setTimeout(() => setStep(2), 300); // Auto-advance
   };
 
-  // Handle subtype selection
+  // Handle subtype selection - auto-advance to step 3
   const handleSubtypeSelect = (subtype: string) => {
     setSelectedSubtype(subtype);
+    setTimeout(() => setStep(3), 300); // Auto-advance
   };
-
-  // Auto-advance when type is selected
-  useEffect(() => {
-    if (step === 1 && selectedType) {
-      setTimeout(() => setStep(2), 300); // Small delay for UX
-    }
-  }, [selectedType, step]);
-
-  // Auto-advance when subtype is selected
-  useEffect(() => {
-    if (step === 2 && selectedSubtype) {
-      setTimeout(() => setStep(3), 300);
-    }
-  }, [selectedSubtype, step]);
 
   // Handle photo selection
   const handlePhotoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,32 +60,31 @@ const RegisterAnimal = () => {
     }
 
     try {
-      // Compress image to <500KB
+      // Compress image to target 100KB
       toast.info('📸 በማመቻቸት ላይ... / Optimizing photo...');
-      const compressedBlob = await compressImage(file, 500);
-      const compressedFile = new File([compressedBlob], file.name, {
+      const result = await compressImage(file, undefined, undefined, 100);
+      const compressedFile = new File([result.blob], file.name, {
         type: 'image/jpeg',
         lastModified: Date.now()
       });
 
-      setPhotoFile(compressedFile);
-      
       // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
-        setPhotoPreview(reader.result as string);
+        const previewUrl = reader.result as string;
+        setPhotoPreview(previewUrl);
+        setPhotoFile(compressedFile);
+
+        const originalSizeKB = (file.size / 1024).toFixed(0);
+        const compressedSizeKB = (result.compressedSize / 1024).toFixed(0);
+        const reductionPercent = result.compressionRatio.toFixed(0);
+        toast.success(`✓ ፎቶ ተዘጋጅቷል / Photo ready (${originalSizeKB}KB → ${compressedSizeKB}KB, ${reductionPercent}% reduction)`);
       };
       reader.readAsDataURL(compressedFile);
 
-      // Show success message with size info
-      const originalSizeKB = (file.size / 1024).toFixed(0);
-      const compressedSizeKB = (compressedFile.size / 1024).toFixed(0);
-      toast.success(`✓ ፎቶ ተዘጋጅቷል / Photo ready (${originalSizeKB}KB → ${compressedSizeKB}KB)`);
     } catch (error) {
       console.error('Image compression error:', error);
-      toast.error('❌ ፎቶ ማመቻቸት አልተሳካም / Photo optimization failed', {
-        description: 'Please try another photo'
-      });
+      toast.error('❌ ፎቶ ማመቻቸት አልተሳካም / Photo optimization failed');
     }
   };
 
@@ -106,7 +94,8 @@ const RegisterAnimal = () => {
 
     try {
       setIsUploadingPhoto(true);
-      
+      toast.info('☁️ ፎቶ በመስቀል ላይ... / Uploading photo...');
+
       // Generate unique filename
       const fileExt = photoFile.name.split('.').pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
@@ -127,6 +116,8 @@ const RegisterAnimal = () => {
         return null;
       }
 
+      toast.success('✓ ፎቶ ተስቀለ / Photo uploaded successfully');
+
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('animal-photos')
@@ -135,6 +126,7 @@ const RegisterAnimal = () => {
       return publicUrl;
     } catch (error) {
       console.error('Photo upload error:', error);
+      toast.error('❌ ፎቶ መስቀል አልተሳካም / Photo upload failed');
       return null;
     } finally {
       setIsUploadingPhoto(false);
@@ -166,7 +158,7 @@ const RegisterAnimal = () => {
       });
 
       if (result.success) {
-        // Navigate to animal detail or home
+        toast.success(`✓ እንስሳ ተመዝግበበት / Animal registered successfully`);
         navigate('/my-animals');
       }
     } catch (error) {
@@ -174,25 +166,13 @@ const RegisterAnimal = () => {
     }
   };
 
-  // Navigation handlers
-  const handleNext = () => {
-    if (step === 1 && selectedType) {
-      setStep(2);
-    } else if (step === 2 && selectedSubtype) {
-      setStep(3);
-    }
-  };
-
+  // Handle back navigation
   const handleBack = () => {
     if (step > 1) {
       setStep((step - 1) as Step);
     } else {
       navigate('/');
     }
-  };
-
-  const handleSkipName = () => {
-    handleSubmit();
   };
 
   // Check if can proceed to next step
@@ -207,7 +187,14 @@ const RegisterAnimal = () => {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <BackButton label="ተመለስ / Back" />
+          <div
+            className="inline-flex items-center gap-2 px-4 py-3 cursor-pointer hover:bg-gray-50 active:scale-95 transition-all rounded-lg border"
+            onClick={handleBack}
+            style={{ minHeight: '44px', minWidth: '44px' }}
+          >
+            <ArrowLeft className="w-5 h-5 text-gray-700" />
+            <span className="font-medium text-gray-700">ተመለስ / Back</span>
+          </div>
 
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
             እንስሳ ይመዝግቡ / Register Animal
@@ -216,15 +203,15 @@ const RegisterAnimal = () => {
           {/* Progress Indicator */}
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <span className={step >= 1 ? 'font-bold text-primary' : ''}>
-              Step 1
+              Step 1: Type
             </span>
             <span>→</span>
             <span className={step >= 2 ? 'font-bold text-primary' : ''}>
-              Step 2
+              Step 2: Subtype
             </span>
             <span>→</span>
             <span className={step >= 3 ? 'font-bold text-primary' : ''}>
-              Step 3
+              Step 3: Name & Photo
             </span>
           </div>
         </div>
@@ -240,7 +227,7 @@ const RegisterAnimal = () => {
               <p className="text-gray-600 mb-6">
                 Choose the type of animal you want to register
               </p>
-              
+
               <AnimalTypeSelector
                 selectedType={selectedType}
                 onSelectType={handleTypeSelect}
@@ -257,7 +244,7 @@ const RegisterAnimal = () => {
               <p className="text-gray-600 mb-6">
                 Choose the specific type
               </p>
-              
+
               <AnimalSubtypeSelector
                 animalType={selectedType}
                 selectedSubtype={selectedSubtype}
@@ -266,7 +253,7 @@ const RegisterAnimal = () => {
             </div>
           )}
 
-          {/* Step 3: Name and Photo (Optional) */}
+          {/* Step 3: Name and Photo */}
           {step === 3 && (
             <div>
               <h2 className="text-xl font-bold mb-2 text-gray-800">
@@ -299,26 +286,34 @@ const RegisterAnimal = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   ፎቶ / Photo (Optional)
                 </label>
-                
+
                 {photoPreview ? (
-                  <div className="relative">
+                  <div className="relative border-2 border-green-500 rounded-lg overflow-hidden">
                     <img
                       src={photoPreview}
-                      alt="Preview"
-                      className="w-full h-64 object-cover rounded-lg"
+                      alt="Animal Preview"
+                      className="w-full h-64 object-cover"
                     />
+                    <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-bold">
+                      ✓ ፎቶ ተዘጋጅቷል / Photo Ready
+                    </div>
                     <button
                       onClick={() => {
                         setPhotoFile(null);
                         setPhotoPreview(null);
+                        if (fileInputRef.current) {
+                          fileInputRef.current.value = '';
+                        }
+                        toast.info('ፎቶ ተወግዷል / Photo removed');
                       }}
-                      className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-red-600"
+                      className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-red-600 font-bold shadow-lg"
                     >
-                      Remove
+                      ✕ Remove
                     </button>
                   </div>
                 ) : (
                   <button
+                    type="button"
                     onClick={() => fileInputRef.current?.click()}
                     className="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-gray-50 transition-colors"
                   >
@@ -333,14 +328,21 @@ const RegisterAnimal = () => {
                     </div>
                   </button>
                 )}
-                
+
                 <input
                   ref={fileInputRef}
                   type="file"
                   accept="image/*"
+                  capture="environment"
                   onChange={handlePhotoSelect}
                   className="hidden"
                 />
+
+                {photoPreview && (
+                  <p className="text-xs text-green-600 mt-2 font-medium">
+                    ✓ ፎቶ ተመርጧል እና ዝግጁ ነው / Photo selected and ready
+                  </p>
+                )}
               </div>
             </div>
           )}
@@ -350,41 +352,27 @@ const RegisterAnimal = () => {
         <div className="flex gap-3">
           {step < 3 ? (
             <Button
-              onClick={handleNext}
+              onClick={() => setStep((step + 1) as Step)}
               disabled={!canProceed()}
               className="flex-1 h-14 text-lg font-bold"
-              size="lg"
             >
               ቀጣይ / Next
-              <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
           ) : (
-            <>
-              <Button
-                onClick={handleSkipName}
-                disabled={isRegistering || isUploadingPhoto}
-                variant="outline"
-                className="flex-1 h-14 text-lg font-bold"
-                size="lg"
-              >
-                {isRegistering || isUploadingPhoto ? 'በመስራት ላይ...' : 'ዝለል / Skip'}
-              </Button>
-              <Button
-                onClick={handleSubmit}
-                disabled={isRegistering || isUploadingPhoto}
-                className="flex-1 h-14 text-lg font-bold"
-                size="lg"
-              >
-                {isRegistering || isUploadingPhoto ? (
-                  'በመስራት ላይ...'
-                ) : (
-                  <>
-                    <Check className="w-5 h-5 mr-2" />
-                    መዝግብ / Register
-                  </>
-                )}
-              </Button>
-            </>
+            <Button
+              onClick={handleSubmit}
+              disabled={isRegistering || isUploadingPhoto}
+              className="flex-1 h-14 text-lg font-bold"
+            >
+              {isRegistering || isUploadingPhoto ? (
+                'በመስራት ላይ...'
+              ) : (
+                <>
+                  <Check className="w-5 h-5 mr-2" />
+                  መዝግብ / Register
+                </>
+              )}
+            </Button>
           )}
         </div>
       </div>

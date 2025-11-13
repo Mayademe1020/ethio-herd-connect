@@ -5,7 +5,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContextMVP';
 import { logger } from '@/utils/logger';
 
 export type CalendarSystem = 'gregorian' | 'ethiopian';
@@ -27,29 +27,16 @@ export const CalendarProvider: React.FC<CalendarProviderProps> = ({ children }) 
   const [calendarSystem, setCalendarSystemState] = useState<CalendarSystem>('gregorian');
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load user's calendar preference from database
+  // Load user's calendar preference from localStorage
   useEffect(() => {
-    const loadCalendarPreference = async () => {
-      if (!user) {
-        // Default to Gregorian for non-authenticated users
-        setCalendarSystemState('gregorian');
-        setIsLoading(false);
-        return;
-      }
-
+    const loadCalendarPreference = () => {
       try {
-        // Try to get from farm_profiles first
-        const { data: profile, error } = await supabase
-          .from('farm_profiles')
-          .select('calendar_preference')
-          .eq('user_id', user.id)
-          .single();
-
-        if (error) {
-          logger.debug('No calendar preference found, using default');
+        const saved = localStorage.getItem('calendar_preference');
+        if (saved === 'gregorian' || saved === 'ethiopian') {
+          setCalendarSystemState(saved);
+        } else {
+          // Default to Gregorian
           setCalendarSystemState('gregorian');
-        } else if (profile?.calendar_preference) {
-          setCalendarSystemState(profile.calendar_preference as CalendarSystem);
         }
       } catch (error) {
         logger.error('Error loading calendar preference', error);
@@ -60,31 +47,13 @@ export const CalendarProvider: React.FC<CalendarProviderProps> = ({ children }) 
     };
 
     loadCalendarPreference();
-  }, [user]);
+  }, []);
 
-  // Save calendar preference to database
+  // Save calendar preference to localStorage
   const setCalendarSystem = async (system: CalendarSystem) => {
-    if (!user) {
-      // For non-authenticated users, just update local state
-      setCalendarSystemState(system);
-      localStorage.setItem('calendar_preference', system);
-      return;
-    }
-
     try {
       setCalendarSystemState(system);
-
-      // Update in database
-      const { error } = await supabase
-        .from('farm_profiles')
-        .update({ calendar_preference: system })
-        .eq('user_id', user.id);
-
-      if (error) {
-        logger.error('Error saving calendar preference', error);
-        throw error;
-      }
-
+      localStorage.setItem('calendar_preference', system);
       logger.info('Calendar preference updated', { system });
     } catch (error) {
       logger.error('Failed to save calendar preference', error);

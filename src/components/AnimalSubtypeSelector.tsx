@@ -10,7 +10,7 @@ interface SubtypeOption {
   translationKey: string;
 }
 
-// Subtype configurations for each animal type
+// Simple subtype configurations for each animal type (3-click process)
 const SUBTYPES: Record<AnimalType, SubtypeOption[]> = {
   cattle: [
     {
@@ -36,12 +36,12 @@ const SUBTYPES: Record<AnimalType, SubtypeOption[]> = {
   ],
   goat: [
     {
-      value: 'Male',
+      value: 'Male Goat',
       icon: '🐐',
       translationKey: 'animalTypes.maleGoat'
     },
     {
-      value: 'Female',
+      value: 'Female Goat',
       icon: '🐐',
       translationKey: 'animalTypes.femaleGoat'
     }
@@ -71,7 +71,9 @@ export const AnimalSubtypeSelector = ({
   selectedSubtype,
   onSelectSubtype
 }: AnimalSubtypeSelectorProps) => {
+  // Get all subtypes for the animal type (simple 3-click process)
   const subtypes = SUBTYPES[animalType];
+
   const { t } = useTranslation();
 
   return (

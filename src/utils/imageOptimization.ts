@@ -32,6 +32,15 @@ export const IMAGE_SIZES = {
 } as const;
 
 /**
+ * Image size limits for different use cases
+ */
+export const IMAGE_SIZE_LIMITS = {
+  PREVIEW: { width: 640, height: 480 },
+  OFFLINE: { width: 320, height: 240 },
+  UPLOAD: { width: 1024, height: 768 }
+} as const;
+
+/**
  * Detect network speed and return appropriate image quality
  */
 export const getOptimalImageQuality = (): number => {
@@ -130,70 +139,120 @@ export const preloadImage = (src: string): Promise<void> => {
 };
 
 /**
- * Compress image file before upload
+ * Compress image file before upload with iterative quality reduction to target size
  */
 export const compressImage = async (
   file: File,
   maxWidth: number = 1024,
   maxHeight: number = 1024,
-  quality: number = 0.8
-): Promise<Blob> => {
+  targetSizeKB: number = 100,
+  onProgress?: (progress: number, stage: string) => void
+): Promise<{
+  blob: Blob;
+  originalSize: number;
+  compressedSize: number;
+  compressionRatio: number;
+  finalQuality: number;
+}> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    
+
     reader.onload = (e) => {
       const img = new Image();
-      
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let { width, height } = img;
-        
-        // Calculate new dimensions while maintaining aspect ratio
-        if (width > height) {
-          if (width > maxWidth) {
-            height = (height * maxWidth) / width;
-            width = maxWidth;
-          }
-        } else {
-          if (height > maxHeight) {
-            width = (width * maxHeight) / height;
-            height = maxHeight;
-          }
-        }
-        
-        canvas.width = width;
-        canvas.height = height;
-        
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          reject(new Error('Failed to get canvas context'));
-          return;
-        }
-        
-        ctx.drawImage(img, 0, 0, width, height);
-        
-        canvas.toBlob(
-          (blob) => {
-            if (blob) {
-              logger.info('Image compressed', {
-                originalSize: file.size,
-                compressedSize: blob.size,
-                reduction: `${((1 - blob.size / file.size) * 100).toFixed(1)}%`
-              });
-              resolve(blob);
-            } else {
-              reject(new Error('Failed to compress image'));
+
+      img.onload = async () => {
+        try {
+          const canvas = document.createElement('canvas');
+          let { width, height } = img;
+
+          // Calculate new dimensions while maintaining aspect ratio
+          if (width > height) {
+            if (width > maxWidth) {
+              height = (height * maxWidth) / width;
+              width = maxWidth;
             }
-          },
-          'image/jpeg',
-          quality
-        );
+          } else {
+            if (height > maxHeight) {
+              width = (width * maxHeight) / height;
+              height = maxHeight;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Failed to get canvas context'));
+            return;
+          }
+
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Iterative compression to target size
+          const targetSizeBytes = targetSizeKB * 1024;
+          let quality = 0.9; // Start with high quality
+          let compressedBlob: Blob | null = null;
+          let iterations = 0;
+          const maxIterations = 8;
+
+          onProgress?.(10, 'Starting compression');
+
+          while (iterations < maxIterations) {
+            compressedBlob = await new Promise<Blob | null>((res) => {
+              canvas.toBlob(res, 'image/jpeg', quality);
+            });
+
+            if (!compressedBlob) {
+              reject(new Error('Failed to compress image'));
+              return;
+            }
+
+            const currentSize = compressedBlob.size;
+            onProgress?.(20 + (iterations * 10), `Quality: ${(quality * 100).toFixed(0)}%`);
+
+            // Check if we're within target size (with 10% tolerance)
+            if (currentSize <= targetSizeBytes * 1.1) {
+              break;
+            }
+
+            // Reduce quality for next iteration
+            quality -= 0.1;
+            if (quality < 0.3) quality = 0.3; // Minimum quality
+
+            iterations++;
+          }
+
+          const finalSize = compressedBlob!.size;
+          const compressionRatio = ((1 - finalSize / file.size) * 100);
+
+          logger.info('Image compressed to target size', {
+            originalSize: file.size,
+            targetSize: targetSizeBytes,
+            compressedSize: finalSize,
+            finalQuality: quality,
+            reduction: `${compressionRatio.toFixed(1)}%`,
+            iterations: iterations + 1
+          });
+
+          onProgress?.(100, 'Compression complete');
+
+          resolve({
+            blob: compressedBlob!,
+            originalSize: file.size,
+            compressedSize: finalSize,
+            compressionRatio,
+            finalQuality: quality
+          });
+        } catch (error) {
+          reject(error);
+        }
       };
-      
+
       img.onerror = () => reject(new Error('Failed to load image'));
       img.src = e.target?.result as string;
     };
-    
+
     reader.onerror = () => reject(new Error('Failed to read file'));
     reader.readAsDataURL(file);
   });
@@ -281,22 +340,187 @@ export const calculateImageDimensions = (
   containerHeight?: number
 ): { width: number; height: number } => {
   const aspectRatio = originalWidth / originalHeight;
-  
+
   if (containerHeight) {
     // Fit within both width and height constraints
     const widthRatio = containerWidth / originalWidth;
     const heightRatio = containerHeight / originalHeight;
     const ratio = Math.min(widthRatio, heightRatio);
-    
+
     return {
       width: Math.round(originalWidth * ratio),
       height: Math.round(originalHeight * ratio)
     };
   }
-  
+
   // Fit within width constraint only
   return {
     width: containerWidth,
     height: Math.round(containerWidth / aspectRatio)
   };
+};
+
+/**
+ * Optimize image for preview (high quality, medium size)
+ */
+export const optimizeForPreview = async (
+  file: File,
+  onProgress?: (progress: number) => void
+): Promise<Blob> => {
+  const result = await compressImage(
+    file,
+    IMAGE_SIZE_LIMITS.PREVIEW.width,
+    IMAGE_SIZE_LIMITS.PREVIEW.height,
+    150, // 150KB target for preview
+    (progress, stage) => {
+      onProgress?.(Math.min(progress * 0.6, 60)); // 60% of total progress
+    }
+  );
+  return result.blob;
+};
+
+/**
+ * Optimize image for offline storage (lower quality, small size)
+ */
+export const optimizeForOfflineStorage = async (
+  file: File,
+  onProgress?: (progress: number) => void
+): Promise<Blob> => {
+  const result = await compressImage(
+    file,
+    IMAGE_SIZE_LIMITS.OFFLINE.width,
+    IMAGE_SIZE_LIMITS.OFFLINE.height,
+    50, // 50KB target for offline
+    (progress, stage) => {
+      onProgress?.(60 + Math.min(progress * 0.3, 30)); // Next 30% of progress
+    }
+  );
+  return result.blob;
+};
+
+/**
+ * Convert blob to base64 data URL
+ */
+export const blobToBase64 = (blob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
+
+/**
+ * Format file size for display
+ */
+export const formatFileSize = (bytes: number): string => {
+  if (bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+};
+
+/**
+ * Calculate megapixels from image dimensions
+ */
+export const calculateMegapixels = (width: number, height: number): number => {
+  return (width * height) / 1000000; // Convert to megapixels
+};
+
+/**
+ * Get image dimensions from file
+ */
+export const getImageDimensions = (file: File): Promise<{ width: number; height: number; megapixels: number }> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      const img = new Image();
+
+      img.onload = () => {
+        const megapixels = calculateMegapixels(img.width, img.height);
+        resolve({
+          width: img.width,
+          height: img.height,
+          megapixels
+        });
+      };
+
+      img.onerror = () => reject(new Error('Failed to load image'));
+      img.src = e.target?.result as string;
+    };
+
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsDataURL(file);
+  });
+};
+
+/**
+ * Check if image exceeds megapixel limit
+ */
+export const exceedsMegapixelLimit = (width: number, height: number, limitMP: number = 5): boolean => {
+  return calculateMegapixels(width, height) > limitMP;
+};
+
+/**
+ * Resize image to fit within megapixel limit while maintaining aspect ratio
+ */
+export const resizeToMegapixelLimit = (
+  file: File,
+  maxMegapixels: number = 5,
+  quality: number = 0.9
+): Promise<Blob> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      const img = new Image();
+
+      img.onload = () => {
+        const currentMP = calculateMegapixels(img.width, img.height);
+
+        if (currentMP <= maxMegapixels) {
+          // No need to resize, return original
+          resolve(file);
+          return;
+        }
+
+        // Calculate new dimensions to fit within MP limit
+        const scaleFactor = Math.sqrt(maxMegapixels / currentMP);
+        const newWidth = Math.round(img.width * scaleFactor);
+        const newHeight = Math.round(img.height * scaleFactor);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = newWidth;
+        canvas.height = newHeight;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Failed to get canvas context'));
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              reject(new Error('Failed to resize image'));
+              return;
+            }
+            resolve(blob);
+          },
+          'image/jpeg',
+          quality
+        );
+      };
+
+      img.onerror = () => reject(new Error('Failed to load image'));
+      img.src = e.target?.result as string;
+    };
+
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsDataURL(file);
+  });
 };

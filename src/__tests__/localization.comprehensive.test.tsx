@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LanguageProvider } from '../contexts/LanguageContext';
 import { AuthProviderMVP } from '../contexts/AuthContextMVP';
 import { ToastProvider } from '../contexts/ToastContext';
+import { DemoModeProvider } from '../contexts/DemoModeContext';
 
 // Mock offline queue to avoid indexedDB issues
 vi.mock('../lib/offlineQueue', () => ({
@@ -18,6 +19,11 @@ vi.mock('../lib/offlineQueue', () => ({
     })),
     clearQueue: vi.fn(() => Promise.resolve()),
     getQueueItems: vi.fn(() => Promise.resolve([])),
+    getPendingCount: vi.fn(() => Promise.resolve(0)),
+    isProcessing: vi.fn(() => false),
+    subscribe: vi.fn((callback: () => void) => {
+      return () => {};
+    }),
   },
   OfflineQueueManager: class {
     static instance = null;
@@ -35,6 +41,11 @@ vi.mock('../lib/offlineQueue', () => ({
       pendingItems: 0,
       lastSyncTime: new Date().toISOString()
     }));
+    getPendingCount = vi.fn(() => Promise.resolve(0));
+    isProcessing = vi.fn(() => false);
+    subscribe = vi.fn((callback: () => void) => {
+      return () => {};
+    });
   }
 }));
 
@@ -95,11 +106,13 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
       <AuthProviderMVP>
-        <LanguageProvider>
-          <ToastProvider>
-            {children}
-          </ToastProvider>
-        </LanguageProvider>
+        <DemoModeProvider>
+          <LanguageProvider>
+            <ToastProvider>
+              {children}
+            </ToastProvider>
+          </LanguageProvider>
+        </DemoModeProvider>
       </AuthProviderMVP>
     </BrowserRouter>
   </QueryClientProvider>

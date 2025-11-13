@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { EnhancedHeader } from '@/components/EnhancedHeader';
@@ -6,22 +6,41 @@ import BottomNavigation from '@/components/BottomNavigation';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { InfiniteScrollContainer, ListSkeleton, EmptyState } from '@/components/InfiniteScrollContainer';
 import { usePaginatedMilkProduction } from '@/hooks/usePaginatedMilkProduction';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Milk, TrendingUp, Calendar, BarChart3, Plus } from 'lucide-react';
+import { Milk, TrendingUp, Calendar, BarChart3, Plus, Edit2 } from 'lucide-react';
 import { format } from 'date-fns';
+import { MilkSummaryCard } from '@/components/MilkSummaryCard';
+import { calculateWeeklySummary, calculateMonthlySummary, MilkSummary } from '@/services/milkSummaryService';
+import { supabase } from '@/integrations/supabase/client';
+import { EditMilkRecordModal } from '@/components/EditMilkRecordModal';
+import useMilkRecording from '@/hooks/useMilkRecording';
 
 // MilkProductionRecords component
 const MilkProductionRecords = () => {
   const { language } = useLanguage();
   const { user } = useAuth();
+  const navigate = useNavigate();
   
   // Filter states
   const [qualityFilter, setQualityFilter] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'amount' | 'quality'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  
+  // Summary states
+  const [summaryPeriod, setSummaryPeriod] = useState<'week' | 'month'>('week');
+  const [summary, setSummary] = useState<MilkSummary | null>(null);
+  const [loadingSummary, setLoadingSummary] = useState(true);
+  
+  // Edit modal states
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<any>(null);
+  
+  // Get update function from hook
+  const { updateMilkRecordAsync } = useMilkRecording();
   
   // Main milk production records with filters
   const {
@@ -65,7 +84,9 @@ const MilkProductionRecords = () => {
       gradeB: 'ደረጃ ለ',
       gradeC: 'ደረጃ ሐ',
       newest: 'አዲስ መጀመሪያ',
-      oldest: 'አሮጌ መጀመሪያ'
+      oldest: 'አሮጌ መጀመሪያ',
+      morning: 'ጠዋት',
+      afternoon: 'ከሰዓት'
     },
     en: {
       title: 'Milk Production',
@@ -87,7 +108,9 @@ const MilkProductionRecords = () => {
       gradeB: 'Grade B',
       gradeC: 'Grade C',
       newest: 'Newest First',
-      oldest: 'Oldest First'
+      oldest: 'Oldest First',
+      morning: 'Morning',
+      afternoon: 'Afternoon'
     },
     or: {
       title: 'Oomisha Aannan',
@@ -109,7 +132,9 @@ const MilkProductionRecords = () => {
       gradeB: 'Sadarkaa B',
       gradeC: 'Sadarkaa C',
       newest: 'Haaraa Jalqaba',
-      oldest: 'Moofaa Jalqaba'
+      oldest: 'Moofaa Jalqaba',
+      morning: 'Ganama',
+      afternoon: 'Galgala'
     },
     sw: {
       title: 'Uzalishaji wa Maziwa',
@@ -131,11 +156,63 @@ const MilkProductionRecords = () => {
       gradeB: 'Daraja B',
       gradeC: 'Daraja C',
       newest: 'Mpya Kwanza',
-      oldest: 'Za Zamani Kwanza'
+      oldest: 'Za Zamani Kwanza',
+      morning: 'Asubuhi',
+      afternoon: 'Alasiri'
     }
   };
 
   const t = translations[language];
+
+  // Fetch all milk records for summary calculation
+  useEffect(() => {
+    const fetchSummaryData = async () => {
+      if (!user?.id) return;
+      
+      setLoadingSummary(true);
+      try {
+        // Fetch records for the last 60 days (to calculate both current and previous periods)
+        const sixtyDaysAgo = new Date();
+        sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+        
+        const { data, error } = await supabase
+          .from('milk_production')
+          .select('id, liters, recorded_at, session')
+          .eq('user_id', user.id)
+          .gte('recorded_at', sixtyDaysAgo.toISOString())
+          .order('recorded_at', { ascending: false });
+        
+        if (error) throw error;
+        
+        // Calculate summary based on selected period
+        const records = (data || []).map(record => ({
+          ...record,
+          session: record.session as 'morning' | 'afternoon'
+        }));
+        const calculatedSummary = summaryPeriod === 'week' 
+          ? calculateWeeklySummary(records)
+          : calculateMonthlySummary(records);
+        
+        setSummary(calculatedSummary);
+      } catch (error) {
+        console.error('Error fetching summary data:', error);
+        // Set empty summary on error
+        setSummary({
+          totalLiters: 0,
+          recordCount: 0,
+          averagePerDay: 0,
+          trend: 'stable',
+          trendPercentage: 0,
+          periodStart: new Date(),
+          periodEnd: new Date()
+        });
+      } finally {
+        setLoadingSummary(false);
+      }
+    };
+    
+    fetchSummaryData();
+  }, [user?.id, summaryPeriod]);
 
   const getQualityColor = (grade: string) => {
     switch (grade?.toUpperCase()) {
@@ -146,36 +223,89 @@ const MilkProductionRecords = () => {
     }
   };
 
-  const MilkRecordCard = ({ record }: { record: any }) => (
-    <Card className="mb-4 hover:shadow-md transition-shadow">
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between mb-2">
-          <div className="flex items-center space-x-2">
-            <Milk className="w-4 h-4 text-blue-600" />
-            <span className="font-medium">{record.amount || record.total_yield || 0} {t.liters}</span>
-            {record.quality_grade && (
-              <Badge className={getQualityColor(record.quality_grade)}>
-                {t[`grade${record.quality_grade}`] || `Grade ${record.quality_grade}`}
-              </Badge>
+  const handleEditRecord = (record: any) => {
+    setEditingRecord(record);
+    setEditModalOpen(true);
+  };
+
+  const handleSaveEdit = async (recordId: string, amount: number, session: 'morning' | 'afternoon') => {
+    await updateMilkRecordAsync({ 
+      recordId, 
+      amount, 
+      session: session as 'morning' | 'evening' 
+    });
+    setEditModalOpen(false);
+    setEditingRecord(null);
+    // Refresh summary data
+    refresh();
+  };
+
+  const MilkRecordCard = ({ record }: { record: any }) => {
+    const animalName = record.animals?.name || record.animal_name || 'Unknown';
+    const animalPhoto = record.animals?.photo_url;
+    const recordedAt = record.recorded_at || record.production_date || record.created_at;
+    const amount = record.liters || record.amount || record.total_yield || 0;
+    const session = record.session || 'morning';
+    
+    return (
+      <Card className="mb-4 hover:shadow-md transition-shadow">
+        <CardContent className="p-4">
+          <div className="flex items-start gap-3">
+            {/* Animal Photo */}
+            {animalPhoto && (
+              <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-gradient-to-br from-blue-100 to-blue-200">
+                <img
+                  src={animalPhoto}
+                  alt={animalName}
+                  className="w-full h-full object-cover"
+                />
+              </div>
             )}
+            
+            {/* Record Details */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start justify-between mb-2">
+                <div className="flex items-center space-x-2">
+                  <Milk className="w-4 h-4 text-blue-600" />
+                  <span className="font-medium">{amount} {t.liters}</span>
+                  {record.quality_grade && (
+                    <Badge className={getQualityColor(record.quality_grade)}>
+                      {t[`grade${record.quality_grade}`] || `Grade ${record.quality_grade}`}
+                    </Badge>
+                  )}
+                  <Badge variant="outline" className="text-xs">
+                    {session === 'morning' ? '🌅 ' + t.morning : '🌆 ' + t.afternoon}
+                  </Badge>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-500">
+                    {recordedAt ? format(new Date(recordedAt), 'MMM dd, yyyy') : 'N/A'}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleEditRecord(record)}
+                    className="h-8 w-8 p-0"
+                    title="Edit record"
+                  >
+                    <Edit2 className="w-4 h-4 text-blue-600" />
+                  </Button>
+                </div>
+              </div>
+              
+              <p className="text-sm text-gray-600 mb-1">
+                <strong>Animal:</strong> {animalName}
+              </p>
+              
+              {record.notes && (
+                <p className="text-sm text-gray-600">{record.notes}</p>
+              )}
+            </div>
           </div>
-          <span className="text-sm text-gray-500">
-            {record.production_date ? format(new Date(record.production_date), 'MMM dd, yyyy') : 'N/A'}
-          </span>
-        </div>
-        
-        {record.animal_name && (
-          <p className="text-sm text-gray-600 mb-1">
-            <strong>Animal:</strong> {record.animal_name}
-          </p>
-        )}
-        
-        {record.notes && (
-          <p className="text-sm text-gray-600">{record.notes}</p>
-        )}
-      </CardContent>
-    </Card>
-  );
+        </CardContent>
+      </Card>
+    );
+  };
 
   if (isLoading) {
     return (
@@ -189,7 +319,7 @@ const MilkProductionRecords = () => {
           </div>
           <ListSkeleton count={5} />
         </main>
-        <BottomNavigation language={language} />
+        <BottomNavigation />
       </div>
     );
   }
@@ -205,6 +335,17 @@ const MilkProductionRecords = () => {
           <h1 className="text-2xl font-bold text-gray-900 mb-2">{t.title}</h1>
           <p className="text-gray-600">{t.subtitle}</p>
         </div>
+
+        {/* Milk Summary Card */}
+        {!loadingSummary && summary && (
+          <div className="mb-6">
+            <MilkSummaryCard 
+              summary={summary}
+              period={summaryPeriod}
+              onPeriodChange={setSummaryPeriod}
+            />
+          </div>
+        )}
 
         {/* Statistics Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -295,10 +436,22 @@ const MilkProductionRecords = () => {
             </SelectContent>
           </Select>
           
-          <Button className="bg-emerald-600 hover:bg-emerald-700">
-            <Plus className="w-4 h-4 mr-2" />
-            {t.addRecord}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              className="bg-emerald-600 hover:bg-emerald-700"
+              onClick={() => navigate('/record-milk')}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              {t.addRecord}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/milk-analytics')}
+            >
+              <BarChart3 className="w-4 h-4 mr-2" />
+              View Analytics
+            </Button>
+          </div>
         </div>
 
         {/* Milk Production Records */}
@@ -308,10 +461,22 @@ const MilkProductionRecords = () => {
             description={t.startTracking}
             icon={<Milk className="w-10 h-10 text-gray-400" />}
             action={
-              <Button className="bg-emerald-600 hover:bg-emerald-700">
-                <Plus className="w-4 h-4 mr-2" />
-                {t.addRecord}
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  className="bg-emerald-600 hover:bg-emerald-700"
+                  onClick={() => navigate('/record-milk')}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  {t.addRecord}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate('/milk-analytics')}
+                >
+                  <BarChart3 className="w-4 h-4 mr-2" />
+                  View Analytics
+                </Button>
+              </div>
             }
           />
         ) : (
@@ -333,7 +498,24 @@ const MilkProductionRecords = () => {
         )}
       </main>
 
-      <BottomNavigation language={language} />
+      <BottomNavigation />
+      
+      {/* Edit Milk Record Modal */}
+      {editingRecord && (
+        <EditMilkRecordModal
+          isOpen={editModalOpen}
+          onClose={() => {
+            setEditModalOpen(false);
+            setEditingRecord(null);
+          }}
+          recordId={editingRecord.id}
+          currentAmount={editingRecord.liters || editingRecord.amount || editingRecord.total_yield || 0}
+          currentSession={(editingRecord.session || 'morning') as 'morning' | 'afternoon'}
+          recordedAt={editingRecord.recorded_at || editingRecord.production_date || editingRecord.created_at}
+          animalName={editingRecord.animals?.name || editingRecord.animal_name}
+          onSave={handleSaveEdit}
+        />
+      )}
     </div>
   );
 };

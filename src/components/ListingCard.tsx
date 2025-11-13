@@ -1,4 +1,5 @@
 // src/components/ListingCard.tsx - Marketplace Listing Card Component
+// PRIVACY: Animal IDs are intentionally NOT displayed to buyers for privacy
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';

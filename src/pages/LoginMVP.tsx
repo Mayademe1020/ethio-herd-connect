@@ -14,7 +14,11 @@ const LoginMVP = () => {
   useEffect(() => {
     // Redirect to home if already logged in
     if (user) {
-      navigate('/', { replace: true });
+      console.log('User logged in, navigating to home...', user.id);
+      // Small delay to ensure auth state is fully settled
+      setTimeout(() => {
+        navigate('/', { replace: true });
+      }, 100);
     }
   }, [user, navigate]);
 

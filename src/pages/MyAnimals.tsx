@@ -6,6 +6,8 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContextMVP';
 import { AnimalCard } from '@/components/AnimalCard';
+import { AnimalSearchBar } from '@/components/AnimalSearchBar';
+import { useAnimalSearch } from '@/hooks/useAnimalSearch';
 import { Button } from '@/components/ui/button';
 import { Plus, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
@@ -14,13 +16,16 @@ type AnimalType = 'all' | 'cattle' | 'goat' | 'sheep';
 
 interface Animal {
   id: string;
+  animal_id?: string; // Professional animal ID
   name: string;
   type: 'cattle' | 'goat' | 'sheep';
   subtype?: string; // Optional until migration is run
   photo_url?: string;
   registration_date?: string; // Optional, fallback to created_at
   is_active?: boolean; // Optional, default to true
+  status?: string; // Professional status system
   created_at: string;
+  [key: string]: any; // Allow additional properties for search
 }
 
 export const MyAnimals = () => {
@@ -43,7 +48,7 @@ export const MyAnimals = () => {
       // @ts-ignore - Supabase type instantiation issue with complex queries
       const result: any = await supabase
         .from('animals')
-        .select('id, name, type, subtype, photo_url, registration_date, is_active, created_at')
+        .select('id, animal_id, name, type, subtype, photo_url, registration_date, is_active, status, created_at')
         .eq('user_id', user.id)
         .eq('is_active', true)
         .order('created_at', { ascending: false })
@@ -58,12 +63,14 @@ export const MyAnimals = () => {
       const data = result.data as any[];
       return (data || []).map((animal: any) => ({
         id: animal.id,
+        animal_id: animal.animal_id,
         name: animal.name,
         type: animal.type,
         subtype: animal.subtype || animal.type, // Fallback: use type as subtype
         photo_url: animal.photo_url,
         registration_date: animal.registration_date || animal.created_at,
         is_active: animal.is_active !== false,
+        status: animal.status || 'active',
         created_at: animal.created_at
       })) as Animal[];
     },
@@ -71,10 +78,15 @@ export const MyAnimals = () => {
     staleTime: 30000, // 30 seconds
   });
 
-  // Filter animals by type
-  const filteredAnimals = animals.filter(animal => 
+  // Search functionality
+  const { searchQuery, setSearchQuery, filteredAnimals: searchedAnimals, isSearching, resultsCount } = useAnimalSearch(animals);
+
+  // Filter animals by type, then by search
+  const typeFilteredAnimals = searchedAnimals.filter(animal => 
     selectedType === 'all' || animal.type === selectedType
   );
+
+  const filteredAnimals = typeFilteredAnimals;
 
   // Pull to refresh handler
   const handleRefresh = async () => {
@@ -118,6 +130,15 @@ export const MyAnimals = () => {
             </Button>
           </div>
 
+          {/* Search Bar */}
+          <div className="mt-4">
+            <AnimalSearchBar 
+              value={searchQuery}
+              onChange={setSearchQuery}
+              onClear={() => setSearchQuery('')}
+            />
+          </div>
+
           {/* Filter Tabs */}
           <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
             <FilterButton
@@ -149,6 +170,13 @@ export const MyAnimals = () => {
               count={animals.filter(a => a.type === 'sheep').length}
             />
           </div>
+
+          {/* Search Results Info */}
+          {isSearching && (
+            <div className="mt-2 text-sm text-gray-600">
+              Found {resultsCount} {resultsCount === 1 ? 'animal' : 'animals'}
+            </div>
+          )}
         </div>
       </div>
 
@@ -162,23 +190,31 @@ export const MyAnimals = () => {
             </div>
           </div>
         ) : filteredAnimals.length === 0 ? (
-          <EmptyState 
-            hasAnimals={animals.length > 0}
-            selectedType={selectedType}
-            onAddAnimal={handleAddAnimal}
-          />
+          isSearching ? (
+            <div className="text-center py-20">
+              <p className="text-xl text-gray-600 mb-2">No animals found</p>
+              <p className="text-sm text-gray-500">Try a different search term</p>
+            </div>
+          ) : (
+            <EmptyState 
+              hasAnimals={animals.length > 0}
+              selectedType={selectedType}
+              onAddAnimal={handleAddAnimal}
+            />
+          )
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredAnimals.map(animal => (
               <AnimalCard
                 key={animal.id}
                 id={animal.id}
+                animal_id={animal.animal_id}
                 name={animal.name}
-                type={animal.type}
-                subtype={animal.subtype || animal.type}
+                type={animal.type as 'cattle' | 'goat' | 'sheep'}
+                subtype={animal.subtype}
                 photo_url={animal.photo_url}
                 registration_date={animal.registration_date || animal.created_at}
-                is_active={animal.is_active !== false}
+                status={animal.status || 'active'}
               />
             ))}
           </div>

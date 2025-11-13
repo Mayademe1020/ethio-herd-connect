@@ -1,139 +1,129 @@
-/**
- * Ethiopian Market Constants
- * Central location for all Ethiopia-specific values
- */
+// src/constants/ethiopia.ts - Ethiopia-specific constants for Ethiopian Livestock Management System
 
-export const ETHIOPIA = {
-  // Country Information
-  code: 'ET' as const,
-  name: 'Ethiopia',
-  nameAmharic: 'ኢትዮጵያ',
-  flag: '🇪🇹',
-  
-  // Phone
-  phonePrefix: '+251',
-  phonePrefixNumeric: '251',
-  phoneLength: 9, // After country code
-  phonePattern: /^(\+?251|0)?[79]\d{8}$/,
-  
+export const ETHIOPIA_CONSTANTS = {
+  // Country information
+  COUNTRY_CODE: 'ET',
+  COUNTRY_NAME: 'Ethiopia',
+  COUNTRY_NAME_AMHARIC: 'ኢትዮጵያ',
+
+  // Phone authentication
+  PHONE_COUNTRY_CODE: '+251',
+  PHONE_PREFIX: '251',
+  PHONE_VALIDATION: {
+    MIN_LENGTH: 9,
+    MAX_LENGTH: 9,
+    STARTS_WITH: '9',
+    PATTERN: /^9\d{8}$/,
+  },
+
   // Currency
-  currency: 'ETB',
-  currencyName: 'Ethiopian Birr',
-  currencyNameAmharic: 'ብር',
-  currencySymbol: 'ብር',
-  
-  // Regions (for future use)
-  regions: [
-    { code: 'AA', name: 'Addis Ababa', nameAmharic: 'አዲስ አበባ' },
-    { code: 'AF', name: 'Afar', nameAmharic: 'አፋር' },
-    { code: 'AM', name: 'Amhara', nameAmharic: 'አማራ' },
-    { code: 'BE', name: 'Benishangul-Gumuz', nameAmharic: 'ቤንሻንጉል ጉሙዝ' },
-    { code: 'DD', name: 'Dire Dawa', nameAmharic: 'ድሬዳዋ' },
-    { code: 'GA', name: 'Gambela', nameAmharic: 'ጋምቤላ' },
-    { code: 'HA', name: 'Harari', nameAmharic: 'ሐረሪ' },
-    { code: 'OR', name: 'Oromia', nameAmharic: 'ኦሮሚያ' },
-    { code: 'SI', name: 'Sidama', nameAmharic: 'ሲዳማ' },
-    { code: 'SO', name: 'Somali', nameAmharic: 'ሶማሌ' },
-    { code: 'SW', name: 'South West Ethiopia Peoples', nameAmharic: 'ደቡብ ምዕራብ ኢትዮጵያ ህዝቦች' },
-    { code: 'SN', name: 'Southern Nations, Nationalities, and Peoples', nameAmharic: 'ደቡብ ብሔር ብሔረሰቦችና ህዝቦች' },
-    { code: 'TI', name: 'Tigray', nameAmharic: 'ትግራይ' },
-  ],
-  
-  // Time Zone
-  timezone: 'Africa/Addis_Ababa',
-  utcOffset: '+03:00',
-  
-  // Locale
-  locale: 'am-ET', // Amharic - Ethiopia
-  localeEnglish: 'en-ET',
+  CURRENCY_CODE: 'ETB',
+  CURRENCY_NAME: 'Ethiopian Birr',
+  CURRENCY_SYMBOL: 'ብር',
+
+  // Language codes
+  LANGUAGES: {
+    ENGLISH: 'en',
+    AMHARIC: 'am',
+    OROMO: 'or',
+    TIGRINYA: 'ti',
+  },
+
+  // Default language
+  DEFAULT_LANGUAGE: 'am',
+
+  // Time zone
+  TIMEZONE: 'Africa/Addis_Ababa',
+
+  // Ethiopian calendar constants
+  ETHIOPIAN_CALENDAR: {
+    ERA_OFFSET: 8, // Years to add to Gregorian year for Ethiopian calendar
+    MONTHS_IN_YEAR: 13,
+    MONTH_NAMES_AMHARIC: [
+      'መስከረም', 'ጥቅምት', 'ህዳር', 'ታህሳስ', 'ጥር', 'የካቲት',
+      'መጋቢት', 'ሚያዝያ', 'ግንቦት', 'ሰኔ', 'ሐምሌ', 'ነሐሴ', 'ጳጉሜን'
+    ],
+    MONTH_NAMES_ENGLISH: [
+      'Meskerem', 'Tikimt', 'Hidar', 'Tahsas', 'Tir', 'Yekatit',
+      'Megabit', 'Miazia', 'Genbot', 'Sene', 'Hamle', 'Nehasse', 'Pagumen'
+    ],
+  },
+
+  // Animal types (Ethiopian focus)
+  ANIMAL_TYPES: {
+    CATTLE: 'cattle',
+    GOAT: 'goat',
+    SHEEP: 'sheep',
+    POULTRY: 'poultry',
+  },
+
+  // Ethiopian regions (for future regional features)
+  REGIONS: {
+    TIGRAY: 'tigray',
+    AFAR: 'afar',
+    AMHARA: 'amhara',
+    OROMIA: 'oromia',
+    SOMALI: 'somali',
+    BENISHANGUL_GUMUZ: 'benishangul_gumuz',
+    SNNPR: 'snnpr',
+    GAMBELLA: 'gambella',
+    HARARI: 'harari',
+    ADDIS_ABABA: 'addis_ababa',
+    DIRE_DAWA: 'dire_dawa',
+  },
+
+  // API endpoints (Ethiopian specific)
+  API_ENDPOINTS: {
+    WEATHER: 'https://api.openweathermap.org/data/2.5/weather',
+    MARKET_DATA: '/api/ethiopian-market-data',
+    BREED_REGISTRY: '/api/breed-registry',
+  },
+
+  // Validation rules
+  VALIDATION: {
+    FARM_NAME_MIN_LENGTH: 2,
+    FARM_NAME_MAX_LENGTH: 100,
+    ANIMAL_ID_PATTERN: /^[A-Z0-9]{6,12}$/,
+    PHONE_PATTERN: /^9\d{8}$/,
+  },
+
+  // UI Constants
+  UI: {
+    DEFAULT_PAGE_SIZE: 20,
+    MAX_UPLOAD_SIZE_MB: 10,
+    SUPPORTED_IMAGE_TYPES: ['image/jpeg', 'image/png', 'image/webp'],
+  },
+
+  // Feature flags (Ethiopian specific features)
+  FEATURES: {
+    ETHIOPIAN_CALENDAR: true,
+    AMHARIC_TRANSLATIONS: true,
+    ETHIOPIAN_BREEDS: true,
+    ETB_CURRENCY: true,
+    OFFLINE_MODE: true,
+  },
 } as const;
 
-/**
- * Format Ethiopian phone number
- * @param phone - Phone number in any format
- * @returns Formatted phone number: +251 9XX XXX XXX
- */
-export function formatEthiopianPhone(phone: string): string {
-  // Remove all non-digits
-  const digits = phone.replace(/\D/g, '');
-  
-  // Remove leading 251 or 0 if present
-  let cleaned = digits;
-  if (cleaned.startsWith('251')) {
-    cleaned = cleaned.substring(3);
-  } else if (cleaned.startsWith('0')) {
-    cleaned = cleaned.substring(1);
-  }
-  
-  // Format as +251 9XX XXX XXX
-  if (cleaned.length === 9) {
-    return `+251 ${cleaned.substring(0, 3)} ${cleaned.substring(3, 6)} ${cleaned.substring(6)}`;
-  }
-  
-  return phone; // Return original if can't format
-}
+// Type exports for TypeScript
+export type EthiopianRegion = keyof typeof ETHIOPIA_CONSTANTS.REGIONS;
+export type EthiopianLanguage = keyof typeof ETHIOPIA_CONSTANTS.LANGUAGES;
+export type AnimalType = keyof typeof ETHIOPIA_CONSTANTS.ANIMAL_TYPES;
 
-/**
- * Validate Ethiopian phone number
- * @param phone - Phone number to validate
- * @returns true if valid Ethiopian phone number
- */
-export function isValidEthiopianPhone(phone: string): boolean {
-  return ETHIOPIA.phonePattern.test(phone);
-}
+// Helper functions
+export const isValidEthiopianPhone = (phone: string): boolean => {
+  const cleaned = phone.replace(/\D/g, '');
+  return ETHIOPIA_CONSTANTS.PHONE_VALIDATION.PATTERN.test(cleaned);
+};
 
-/**
- * Format Ethiopian currency
- * @param amount - Amount to format
- * @param language - Language for formatting ('en' or 'am')
- * @returns Formatted currency string
- */
-export function formatEthiopianCurrency(amount: number, language: 'en' | 'am' = 'en'): string {
-  const formatted = amount.toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-  
-  return language === 'am' 
-    ? `${ETHIOPIA.currencySymbol} ${formatted}`
-    : `${formatted} ${ETHIOPIA.currency}`;
-}
+export const formatEthiopianPhone = (phone: string): string => {
+  const cleaned = phone.replace(/\D/g, '');
+  return `${ETHIOPIA_CONSTANTS.PHONE_COUNTRY_CODE}${cleaned}`;
+};
 
-/**
- * Get region name by code
- * @param code - Region code
- * @param language - Language for name ('en' or 'am')
- * @returns Region name
- */
-export function getRegionName(code: string, language: 'en' | 'am' = 'en'): string {
-  const region = ETHIOPIA.regions.find(r => r.code === code);
-  if (!region) return code;
-  return language === 'am' ? region.nameAmharic : region.name;
-}
+export const getEthiopianMonthName = (month: number, language: EthiopianLanguage = 'AMHARIC'): string => {
+  const months = language === 'AMHARIC'
+    ? ETHIOPIA_CONSTANTS.ETHIOPIAN_CALENDAR.MONTH_NAMES_AMHARIC
+    : ETHIOPIA_CONSTANTS.ETHIOPIAN_CALENDAR.MONTH_NAMES_ENGLISH;
 
-/**
- * Extract phone number without country code
- * @param phone - Full phone number with country code
- * @returns Phone number without country code (9 digits)
- */
-export function extractPhoneNumber(phone: string): string {
-  const digits = phone.replace(/\D/g, '');
-  
-  if (digits.startsWith('251')) {
-    return digits.substring(3);
-  } else if (digits.startsWith('0')) {
-    return digits.substring(1);
-  }
-  
-  return digits.length === 9 ? digits : phone;
-}
-
-/**
- * Add Ethiopian country code to phone number
- * @param phone - Phone number without country code
- * @returns Full phone number with +251
- */
-export function addCountryCode(phone: string): string {
-  const cleaned = extractPhoneNumber(phone);
-  return `+251${cleaned}`;
-}
+  return months[month - 1] || '';
+};

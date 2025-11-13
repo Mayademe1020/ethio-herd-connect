@@ -6,6 +6,7 @@ import { offlineQueue } from '@/lib/offlineQueue';
 import { v4 as uuidv4 } from 'uuid';
 import { useToastContext } from '@/contexts/ToastContext';
 import { getUserFriendlyError, getSuccessMessage } from '@/lib/errorMessages';
+import { analytics, ANALYTICS_EVENTS } from '@/lib/analytics';
 
 interface ExpressInterestParams {
   listingId: string;
@@ -71,6 +72,13 @@ export const useBuyerInterest = () => {
 
       const successMsg = getSuccessMessage('interest_sent', 'amharic');
       toastContext.success(successMsg.message, successMsg.icon);
+
+      // Track analytics event
+      analytics.track(ANALYTICS_EVENTS.INTEREST_EXPRESSED, {
+        listing_id: variables.listingId,
+        has_message: !!variables.message,
+        is_offline: !navigator.onLine,
+      });
     },
     onError: (error) => {
       const errorMsg = getUserFriendlyError(error, 'amharic');

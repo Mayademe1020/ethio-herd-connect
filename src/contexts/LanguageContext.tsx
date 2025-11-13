@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-type Language = 'am' | 'en';
+type Language = 'am' | 'en' | 'or' | 'sw';
 
 interface LanguageContextType {
   language: Language;
@@ -17,10 +17,10 @@ const LANGUAGE_STORAGE_KEY = 'ethio-herd-language';
 const getDefaultLanguage = (): Language => {
   // Check localStorage first
   const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY);
-  if (stored === 'am' || stored === 'en') {
+  if (stored === 'am' || stored === 'en' || stored === 'or' || stored === 'sw') {
     return stored as Language;
   }
-  
+
   // Default to Amharic for Ethiopian context
   return 'am';
 };
@@ -35,9 +35,19 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
     localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
-    
-    // Update HTML lang attribute for accessibility
-    document.documentElement.lang = lang === 'am' ? 'am' : 'en';
+
+    // Update HTML lang attribute for accessibility and RTL support
+    const langMap = {
+      'am': 'am', // Amharic
+      'en': 'en', // English
+      'or': 'om', // Oromo
+      'sw': 'sw'  // Swahili
+    };
+
+    document.documentElement.lang = langMap[lang] || 'en';
+
+    // Add RTL class for proper text direction (though Amharic is LTR, this prepares for future RTL languages)
+    document.documentElement.dir = 'ltr'; // All current languages are LTR
   };
 
   useEffect(() => {

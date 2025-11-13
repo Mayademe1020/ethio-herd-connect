@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { SyncStatusIndicator } from '@/components/SyncStatusIndicator';
 import { useBackgroundSync } from '@/hooks/useBackgroundSync';
 import { useTranslation } from '@/hooks/useTranslation';
+import { NotificationDropdown } from '@/components/NotificationDropdown';
 
 // Helper functions to avoid type issues
 const fetchAnimalsCount = async (userId: string): Promise<number> => {
@@ -17,7 +18,7 @@ const fetchAnimalsCount = async (userId: string): Promise<number> => {
     .select('id')
     .eq('user_id', userId)
     .eq('is_active', true);
-  
+
   if (result.error) {
     console.error('Error fetching animals count:', result.error);
     return 0;
@@ -56,33 +57,59 @@ const SimpleHome = () => {
     staleTime: 30000, // 30 seconds
   });
 
-  // Fetch milk records for this week
-  const { data: weeklyMilk = 0 } = useQuery<number>({
-    queryKey: ['weekly-milk', user?.id],
-    queryFn: async (): Promise<number> => {
-      if (!user) return 0;
+  // Fetch daily milk stats (today and yesterday) - FIXED: using correct column names
+  // Auto-refreshes every 30 seconds to show real-time updates
+  const { data: dailyMilkStats = { today: 0, yesterday: 0 } } = useQuery<{ today: number; yesterday: number }>({
+    queryKey: ['daily-milk-stats', user?.id],
+    queryFn: async (): Promise<{ today: number; yesterday: number }> => {
+      if (!user) return { today: 0, yesterday: 0 };
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
       
-      // Get date 7 days ago
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      
-      const { data, error } = await supabase
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      // Get today's milk
+      const { data: todayData, error: todayError } = await supabase
         .from('milk_production')
-        .select('total_yield')
+        .select('liters')
         .eq('user_id', user.id)
-        .gte('production_date', weekAgo.toISOString());
-      
-      if (error) {
-        console.error('Error fetching weekly milk:', error);
-        return 0;
+        .gte('recorded_at', today.toISOString())
+        .lt('recorded_at', tomorrow.toISOString());
+
+      if (todayError) {
+        console.error('Error fetching today\'s milk:', todayError);
       }
-      
-      // Sum up all liters
-      const total = data?.reduce((sum: number, record: any) => sum + (record.total_yield || 0), 0) || 0;
-      return Math.round(total * 10) / 10; // Round to 1 decimal
+
+      // Get yesterday's milk
+      const { data: yesterdayData, error: yesterdayError } = await supabase
+        .from('milk_production')
+        .select('liters')
+        .eq('user_id', user.id)
+        .gte('recorded_at', yesterday.toISOString())
+        .lt('recorded_at', today.toISOString());
+
+      if (yesterdayError) {
+        console.error('Error fetching yesterday\'s milk:', yesterdayError);
+      }
+
+      const todayTotal = todayData?.reduce((sum: number, record: any) => sum + (record.liters || 0), 0) || 0;
+      const yesterdayTotal = yesterdayData?.reduce((sum: number, record: any) => sum + (record.liters || 0), 0) || 0;
+
+      return {
+        today: Math.round(todayTotal * 10) / 10,
+        yesterday: Math.round(yesterdayTotal * 10) / 10
+      };
     },
     enabled: !!user && isOnline,
-    staleTime: 30000, // 30 seconds
+    staleTime: 10000, // 10 seconds - data considered fresh
+    refetchInterval: 30000, // Auto-refresh every 30 seconds
+    refetchOnWindowFocus: true, // Refresh when user returns to tab
+    refetchOnMount: true, // Refresh when component mounts
   });
 
   // Fetch today's tasks (cows without milk records today)
@@ -98,12 +125,12 @@ const SimpleHome = () => {
     queryKey: ['todays-tasks', user?.id],
     queryFn: async (): Promise<Task[]> => {
       if (!user) return [];
-      
+
       try {
         // Get start of today
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        
+
         // Get all cows - using type='cattle' and checking for cow in name/subtype
         const { data: cows, error: cowsError } = await supabase
           .from('animals')
@@ -111,29 +138,29 @@ const SimpleHome = () => {
           .eq('user_id', user.id)
           .eq('is_active', true)
           .eq('type', 'cattle');
-        
+
         if (cowsError) {
           console.error('Error fetching cows:', cowsError);
           return [];
         }
         if (!cows || cows.length === 0) return [];
-        
-        // Get today's milk records
+
+        // Get today's milk records - FIXED: using correct column name 'recorded_at'
         const { data: todaysMilk, error: milkError } = await supabase
           .from('milk_production')
           .select('animal_id')
           .eq('user_id', user.id)
-          .gte('production_date', today.toISOString());
-        
+          .gte('recorded_at', today.toISOString());  // FIXED: changed from 'production_date' to 'recorded_at'
+
         if (milkError) {
           console.error('Error fetching today\'s milk:', milkError);
           return [];
         }
-        
+
         // Find cows without milk records today
         const recordedAnimalIds = new Set(todaysMilk?.map(r => r.animal_id) || []);
         const cowsNeedingMilk = cows.filter(cow => !recordedAnimalIds.has(cow.id));
-        
+
         // Return max 3 tasks
         return cowsNeedingMilk.slice(0, 3).map(cow => ({
           id: cow.id,
@@ -171,12 +198,15 @@ const SimpleHome = () => {
               </h1>
               <p className="text-gray-600">{getUserGreeting()}</p>
             </div>
-            <button
-              onClick={signOut}
-              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm"
-            >
-              {t('auth.logout')}
-            </button>
+            <div className="flex items-center gap-2">
+              <NotificationDropdown />
+              <button
+                onClick={signOut}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm"
+              >
+                {t('auth.logout')}
+              </button>
+            </div>
           </div>
 
           {/* Sync Status Indicator */}
@@ -253,7 +283,7 @@ const SimpleHome = () => {
           <h2 className="text-lg font-bold mb-4 text-gray-800">
             {t('home.quickStats')}
           </h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="text-center p-5 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border-2 border-green-200 hover:border-green-300 transition-colors">
               <div className="text-3xl mb-2">🐄</div>
               <div className="text-5xl sm:text-6xl font-bold text-green-600 mb-2">
@@ -263,14 +293,26 @@ const SimpleHome = () => {
                 {t('home.totalAnimals')}
               </div>
             </div>
+            <div className="text-center p-5 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border-2 border-purple-200 hover:border-purple-300 transition-colors">
+              <div className="text-3xl mb-2">🥛</div>
+              <div className="text-5xl sm:text-6xl font-bold text-purple-600 mb-2">
+                {dailyMilkStats.yesterday}
+                <span className="text-2xl sm:text-3xl">L</span>
+              </div>
+              <div className="text-sm sm:text-base text-gray-700 font-semibold">
+                የትላንት / Yesterday
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 gap-4">
             <div className="text-center p-5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-200 hover:border-blue-300 transition-colors">
               <div className="text-3xl mb-2">🥛</div>
               <div className="text-5xl sm:text-6xl font-bold text-blue-600 mb-2">
-                {weeklyMilk}
-                <span className="text-2xl sm:text-3xl">{t('home.liters')}</span>
+                {dailyMilkStats.today}
+                <span className="text-2xl sm:text-3xl">L</span>
               </div>
               <div className="text-sm sm:text-base text-gray-700 font-semibold">
-                {t('home.milkThisWeek')}
+                ዛሬ / Today
               </div>
             </div>
           </div>

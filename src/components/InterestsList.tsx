@@ -1,7 +1,11 @@
 // src/components/InterestsList.tsx - Component to display buyer interests for sellers
 
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { useBuyerInterest } from '@/hooks/useBuyerInterest';
+import { useTranslations } from '@/hooks/useTranslations';
+import { Loader2 } from 'lucide-react';
 
 interface BuyerInterest {
   id: string;
@@ -14,11 +18,34 @@ interface BuyerInterest {
 
 interface InterestsListProps {
   interests: BuyerInterest[];
-  buyerPhones?: Record<string, string>; // Map of buyer_id to phone number
 }
 
-const InterestsList: React.FC<InterestsListProps> = ({ interests, buyerPhones = {} }) => {
-  const { updateInterestStatus } = useBuyerInterest();
+const InterestsList: React.FC<InterestsListProps> = ({ interests }) => {
+  const { markAsContacted, isUpdating } = useBuyerInterest();
+  const { t } = useTranslations();
+
+  // Fetch buyer phone numbers
+  const { data: buyerPhones, isLoading: isLoadingPhones } = useQuery({
+    queryKey: ['buyer-phones', interests.map(i => i.buyer_id)],
+    queryFn: async () => {
+      if (interests.length === 0) return {};
+      
+      const buyerIds = [...new Set(interests.map(i => i.buyer_id))];
+      
+      // Fetch user data from auth.users (phone is stored there)
+      const phones: Record<string, string> = {};
+      
+      for (const buyerId of buyerIds) {
+        const { data } = await supabase.auth.admin.getUserById(buyerId);
+        if (data?.user?.phone) {
+          phones[buyerId] = data.user.phone;
+        }
+      }
+      
+      return phones;
+    },
+    enabled: interests.length > 0
+  });
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -45,35 +72,27 @@ const InterestsList: React.FC<InterestsListProps> = ({ interests, buyerPhones = 
 
   const handleMarkAsContacted = async (interestId: string) => {
     try {
-      await updateInterestStatus.mutateAsync({
-        interestId,
-        status: 'contacted',
-      });
+      await markAsContacted(interestId);
     } catch (error) {
       console.error('Failed to update interest status:', error);
-      alert('Failed to update status. Please try again.');
     }
   };
 
-  const handleMarkAsClosed = async (interestId: string) => {
-    try {
-      await updateInterestStatus.mutateAsync({
-        interestId,
-        status: 'closed',
-      });
-    } catch (error) {
-      console.error('Failed to update interest status:', error);
-      alert('Failed to update status. Please try again.');
-    }
-  };
+  if (isLoadingPhones) {
+    return (
+      <div className="flex justify-center items-center py-8">
+        <Loader2 className="w-6 h-6 animate-spin text-orange-600" />
+      </div>
+    );
+  }
 
   if (interests.length === 0) {
     return (
       <div className="bg-gray-50 rounded-lg p-8 text-center">
         <div className="text-4xl mb-3">📭</div>
-        <p className="text-gray-600">No interests yet</p>
+        <p className="text-gray-600">{t('marketplace.noInterests')}</p>
         <p className="text-sm text-gray-500 mt-1">
-          Buyers will appear here when they express interest
+          {t('marketplace.buyersWillAppear')}
         </p>
       </div>
     );
@@ -82,7 +101,7 @@ const InterestsList: React.FC<InterestsListProps> = ({ interests, buyerPhones = 
   return (
     <div className="space-y-4">
       {interests.map((interest) => {
-        const buyerPhone = buyerPhones[interest.buyer_id];
+        const buyerPhone = buyerPhones?.[interest.buyer_id];
         
         return (
           <div
@@ -95,7 +114,7 @@ const InterestsList: React.FC<InterestsListProps> = ({ interests, buyerPhones = 
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-2xl">👤</span>
                   <p className="font-medium text-gray-900">
-                    Buyer #{interest.buyer_id.substring(0, 8)}
+                    {t('marketplace.buyer')} #{interest.buyer_id.substring(0, 8)}
                   </p>
                 </div>
                 <p className="text-sm text-gray-500">
@@ -112,17 +131,17 @@ const InterestsList: React.FC<InterestsListProps> = ({ interests, buyerPhones = 
                 }`}
               >
                 {interest.status === 'contacted'
-                  ? '✓ Contacted'
+                  ? `✓ ${t('marketplace.contacted')}`
                   : interest.status === 'closed'
-                  ? '✕ Closed'
-                  : '⏳ Pending'}
+                  ? `✕ ${t('marketplace.closed')}`
+                  : `⏳ ${t('marketplace.pending')}`}
               </span>
             </div>
 
             {/* Message */}
             {interest.message && (
               <div className="bg-gray-50 rounded-lg p-3 mb-3">
-                <p className="text-sm text-gray-500 mb-1">Message:</p>
+                <p className="text-sm text-gray-500 mb-1">{t('marketplace.message')}:</p>
                 <p className="text-gray-700">"{interest.message}"</p>
               </div>
             )}
@@ -130,8 +149,11 @@ const InterestsList: React.FC<InterestsListProps> = ({ interests, buyerPhones = 
             {/* Phone Number */}
             {buyerPhone && (
               <div className="bg-green-50 rounded-lg p-3 mb-3">
-                <p className="text-sm text-gray-500 mb-1">Contact:</p>
+                <p className="text-sm text-gray-500 mb-1">{t('marketplace.contact')}:</p>
                 <p className="text-lg font-medium text-gray-900">📞 {buyerPhone}</p>
+                <p className="text-xs text-gray-600 mt-1">
+                  {t('marketplace.canUseWhatsApp')}
+                </p>
               </div>
             )}
 
@@ -142,27 +164,17 @@ const InterestsList: React.FC<InterestsListProps> = ({ interests, buyerPhones = 
                   href={`tel:${buyerPhone}`}
                   className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg font-medium text-center hover:bg-green-700 transition-colors"
                 >
-                  📞 Call
+                  📞 {t('marketplace.callSeller')}
                 </a>
               )}
               
               {interest.status === 'pending' && (
                 <button
                   onClick={() => handleMarkAsContacted(interest.id)}
-                  disabled={updateInterestStatus.isPending}
+                  disabled={isUpdating}
                   className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:bg-gray-400"
                 >
-                  {updateInterestStatus.isPending ? 'Updating...' : '✓ Mark Contacted'}
-                </button>
-              )}
-              
-              {interest.status !== 'closed' && (
-                <button
-                  onClick={() => handleMarkAsClosed(interest.id)}
-                  disabled={updateInterestStatus.isPending}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors disabled:bg-gray-100"
-                >
-                  ✕ Close
+                  {isUpdating ? t('common.loading') : `✓ ${t('marketplace.markContacted')}`}
                 </button>
               )}
             </div>

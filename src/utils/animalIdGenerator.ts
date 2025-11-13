@@ -1,94 +1,191 @@
 
 // Animal ID Generation and Validation Utilities
+// Professional livestock management system with farm-specific prefixes
+
+import { supabase } from '@/integrations/supabase/client';
 
 export interface AnimalIdComponents {
+  farmPrefix: string;
   type: string;
   sequence: string;
-  date: string;
-  farmPrefix?: string;
 }
 
-// Type codes for different animal types - Updated to separate cow and ox
+// Type codes for different animal types - Professional livestock standards
 export const ANIMAL_TYPE_CODES = {
+  cattle: 'CAT',  // Generic cattle (includes cow, bull, ox, calf)
   cow: 'COW',
+  bull: 'BUL',
   ox: 'OX',
-  poultry: 'POU', 
-  goat: 'GOT',
-  sheep: 'SHP'
+  calf: 'CAL',
+  goat: 'GOA',
+  sheep: 'SHP',
+  ewe: 'EWE',
+  ram: 'RAM',
+  poultry: 'POU',
+  chicken: 'CHK',
+  duck: 'DUC'
 } as const;
 
-// Generate Animal ID in format: FARM-COW-001-241222
-export const generateAnimalId = (animalType: string, farmPrefix: string = 'FARM'): string => {
-  const typeCode = ANIMAL_TYPE_CODES[animalType as keyof typeof ANIMAL_TYPE_CODES] || 'ANM';
-  const sequence = Math.floor(Math.random() * 999) + 1;
-  const sequenceStr = sequence.toString().padStart(3, '0');
-  
-  // Generate date suffix in YYMMDD format
-  const now = new Date();
-  const year = now.getFullYear().toString().slice(-2);
-  const month = (now.getMonth() + 1).toString().padStart(2, '0');
-  const day = now.getDate().toString().padStart(2, '0');
-  const dateStr = `${year}${month}${day}`;
-  
-  return `${farmPrefix}-${typeCode}-${sequenceStr}-${dateStr}`;
+// Generate farm prefix from farm profile or create from farm name
+export const getFarmPrefix = async (userId: string): Promise<string> => {
+  try {
+    // First, check if farm profile exists with a custom prefix
+    const { data: profile } = await supabase
+      .from('farm_profiles')
+      .select('farm_prefix, farm_name')
+      .eq('user_id', userId)
+      .single();
+
+    if (profile?.farm_prefix) {
+      return profile.farm_prefix.toUpperCase();
+    }
+
+    // If no prefix but farm name exists, generate from name
+    if (profile?.farm_name) {
+      return generatePrefixFromName(profile.farm_name);
+    }
+
+    // Fallback: generate from user info
+    return await generateFallbackPrefix(userId);
+  } catch (error) {
+    console.error('Error getting farm prefix:', error);
+    return 'FARM'; // Ultimate fallback
+  }
 };
 
-// Generate continuous animal number based on existing records
-export const generateContinuousAnimalNumber = async (
-  animalType: string, 
-  farmPrefix: string = 'FARM',
-  existingAnimals: any[] = []
-): Promise<string> => {
-  const typeCode = ANIMAL_TYPE_CODES[animalType as keyof typeof ANIMAL_TYPE_CODES] || 'ANM';
-  
-  // Filter animals of the same type and farm
-  const sameTypeAnimals = existingAnimals.filter(animal => 
-    animal.animal_code && 
-    animal.animal_code.startsWith(`${farmPrefix}-${typeCode}-`)
-  );
-  
-  // Extract sequence numbers from existing animals
-  const existingNumbers = sameTypeAnimals
-    .map(animal => {
-      const parts = animal.animal_code.split('-');
+// Generate prefix from farm name (3-6 characters)
+export const generatePrefixFromName = (farmName: string): string => {
+  // Clean and process farm name
+  const cleanName = farmName
+    .replace(/[^a-zA-Z0-9\s]/g, '') // Remove special characters
+    .trim()
+    .toUpperCase();
+
+  // Take first 3-6 characters, preferring word starts
+  const words = cleanName.split(/\s+/);
+  let prefix = '';
+
+  for (const word of words) {
+    if (prefix.length + word.length <= 6) {
+      prefix += word;
+    } else {
+      break;
+    }
+  }
+
+  // Ensure minimum 3 characters
+  if (prefix.length < 3) {
+    prefix = cleanName.substring(0, 6).padEnd(3, 'X');
+  }
+
+  return prefix.substring(0, 6);
+};
+
+// Generate fallback prefix from user phone or ID
+export const generateFallbackPrefix = async (userId: string): Promise<string> => {
+  try {
+    // Try to get user phone number
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user?.phone) {
+      // Use last 4 digits of phone
+      const phoneDigits = user.phone.replace(/\D/g, '');
+      return `F${phoneDigits.slice(-4)}`;
+    }
+
+    // Fallback to user ID hash
+    const hash = userId.slice(-4).toUpperCase();
+    return `F${hash}`;
+  } catch (error) {
+    return 'FARM';
+  }
+};
+
+// Get next sequential number for farm + animal type combination
+export const getNextAnimalNumber = async (
+  farmPrefix: string,
+  animalType: string
+): Promise<number> => {
+  try {
+    const typeCode = ANIMAL_TYPE_CODES[animalType as keyof typeof ANIMAL_TYPE_CODES] || 'ANM';
+
+    // Find highest existing number for this farm + type combination
+    const { data: existingAnimals } = await supabase
+      .from('animals')
+      .select('animal_id')
+      .like('animal_id', `${farmPrefix}-${typeCode}-%`)
+      .order('animal_id', { ascending: false })
+      .limit(1);
+
+    if (existingAnimals?.[0]?.animal_id) {
+      // Extract number from ID like "ABEBE-COW-005"
+      const parts = existingAnimals[0].animal_id.split('-');
       if (parts.length >= 3) {
-        const sequenceStr = parts[2];
-        return parseInt(sequenceStr, 10);
+        const numberPart = parts[2];
+        const currentNumber = parseInt(numberPart, 10);
+        if (!isNaN(currentNumber)) {
+          return currentNumber + 1;
+        }
       }
-      return 0;
-    })
-    .filter(num => !isNaN(num));
-  
-  // Get the next sequential number
-  const nextNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) + 1 : 1;
-  const sequenceStr = nextNumber.toString().padStart(3, '0');
-  
-  // Generate date suffix in YYMMDD format
-  const now = new Date();
-  const year = now.getFullYear().toString().slice(-2);
-  const month = (now.getMonth() + 1).toString().padStart(2, '0');
-  const day = now.getDate().toString().padStart(2, '0');
-  const dateStr = `${year}${month}${day}`;
-  
-  return `${farmPrefix}-${typeCode}-${sequenceStr}-${dateStr}`;
+    }
+
+    return 1; // First animal of this type for this farm
+  } catch (error) {
+    console.error('Error getting next animal number:', error);
+    return 1;
+  }
+};
+
+// Generate professional Animal ID: FARM-TYPE-###
+export const generateAnimalId = async (
+  userId: string,
+  animalType: string
+): Promise<string> => {
+  const farmPrefix = await getFarmPrefix(userId);
+  const nextNumber = await getNextAnimalNumber(farmPrefix, animalType);
+  const typeCode = ANIMAL_TYPE_CODES[animalType as keyof typeof ANIMAL_TYPE_CODES] || 'ANM';
+
+  const animalId = `${farmPrefix}-${typeCode}-${nextNumber.toString().padStart(3, '0')}`;
+
+  // Validate uniqueness (extra safety check)
+  const isUnique = await validateAnimalIdUniqueness(animalId);
+  if (!isUnique) {
+    throw new Error(`Animal ID ${animalId} already exists`);
+  }
+
+  return animalId;
+};
+
+// Validate animal ID uniqueness
+export const validateAnimalIdUniqueness = async (animalId: string): Promise<boolean> => {
+  try {
+    const { data } = await supabase
+      .from('animals')
+      .select('id')
+      .eq('animal_id', animalId)
+      .single();
+
+    return !data; // Return true if no existing record found
+  } catch (error) {
+    // If error (including no rows found), ID is available
+    return true;
+  }
 };
 
 // Parse Animal ID into components
 export const parseAnimalId = (animalId: string): AnimalIdComponents | null => {
   const parts = animalId.split('-');
-  if (parts.length !== 4) return null;
-  
+  if (parts.length !== 3) return null;
+
   return {
     farmPrefix: parts[0],
     type: parts[1],
-    sequence: parts[2],
-    date: parts[3]
+    sequence: parts[2]
   };
 };
 
-// Validate Animal ID format
+// Validate Animal ID format (FARM-TYPE-###)
 export const validateAnimalId = (animalId: string): boolean => {
-  const regex = /^[A-Z0-9]+-[A-Z]{2,3}-\d{3}-\d{6}$/;
+  const regex = /^[A-Z0-9]{3,8}-[A-Z]{2,3}-\d{3}$/;
   return regex.test(animalId);
 };
 
@@ -175,4 +272,85 @@ export const validatePhone = (phone: string): boolean => {
 export const validateEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
+};
+
+// Animal status types for professional livestock management
+export enum AnimalStatus {
+  ACTIVE = 'active',
+  SOLD = 'sold',
+  DECEASED = 'deceased',
+  CULLED = 'culled',
+  LOST = 'lost',
+  TRANSFERRED = 'transferred',
+  QUARANTINE = 'quarantine'
+}
+
+// Status change interface for audit trail
+export interface StatusChangeData {
+  animal_id: string;
+  old_status: AnimalStatus;
+  new_status: AnimalStatus;
+  reason?: string;
+  details?: {
+    sale_price?: number;
+    buyer_info?: string;
+    cause_of_death?: string;
+    transfer_destination?: string;
+    cull_reason?: string;
+  };
+  changed_by: string;
+}
+
+// Change animal status (soft delete alternative)
+export const changeAnimalStatus = async (
+  animalId: string,
+  newStatus: AnimalStatus,
+  changeData: Omit<StatusChangeData, 'animal_id' | 'old_status'>
+): Promise<void> => {
+  try {
+    // Get current status
+    const { data: currentAnimal } = await supabase
+      .from('animals')
+      .select('status')
+      .eq('animal_id', animalId)
+      .single();
+
+    if (!currentAnimal) {
+      throw new Error('Animal not found');
+    }
+
+    const oldStatus = currentAnimal.status as AnimalStatus;
+
+    // Record status change in history
+    await supabase.from('animal_status_history').insert({
+      animal_id: animalId,
+      old_status: oldStatus,
+      new_status: newStatus,
+      reason: changeData.reason,
+      details: changeData.details,
+      changed_by: changeData.changed_by
+    });
+
+    // Update animal status
+    const updateData: any = {
+      status: newStatus,
+      updated_at: new Date().toISOString()
+    };
+
+    // Add status-specific fields
+    if (newStatus === AnimalStatus.SOLD) {
+      updateData.sold_date = new Date().toISOString();
+    } else if (newStatus === AnimalStatus.DECEASED) {
+      updateData.deceased_date = new Date().toISOString();
+    }
+
+    await supabase
+      .from('animals')
+      .update(updateData)
+      .eq('animal_id', animalId);
+
+  } catch (error) {
+    console.error('Error changing animal status:', error);
+    throw error;
+  }
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { X, ShoppingCart } from 'lucide-react';
 import { Language } from '@/types';
 import { useTranslations } from '@/hooks/useTranslations';
+import { useDemoMode } from '@/contexts/DemoModeContext';
 import { ANIMAL_TYPES, ANIMAL_TYPE_ICONS } from '@/utils/animalTypes';
 import { useDateDisplay } from '@/hooks/useDateDisplay';
 
@@ -19,6 +20,9 @@ interface MarketListingFormProps {
 }
 
 export const MarketListingForm = ({ language, onClose, onSubmit, onSuccess }: MarketListingFormProps) => {
+  const { isDemoMode, getDemoData } = useDemoMode();
+  const { t, getAnimalTypeTranslation } = useTranslations();
+
   const [formData, setFormData] = useState({
     title: '',
     category: 'cattle',
@@ -29,7 +33,24 @@ export const MarketListingForm = ({ language, onClose, onSubmit, onSuccess }: Ma
     contactValue: ''
   });
 
-  const { t, getAnimalTypeTranslation } = useTranslations();
+  // Pre-fill form in demo mode
+  useEffect(() => {
+    if (isDemoMode) {
+      const demoPrice = getDemoData('listing_price');
+      const demoLocation = getDemoData('location');
+      const demoPhone = getDemoData('phone');
+
+      setFormData(prev => ({
+        ...prev,
+        price: demoPrice ? demoPrice.toString() : '25000',
+        location: demoLocation || 'Addis Ababa',
+        contactValue: demoPhone || '+251911111111',
+        is_negotiable: true, // Pre-select negotiable
+        title: 'Demo Animal for Sale',
+        description: 'High-quality animal available for purchase. Contact for more details.'
+      }));
+    }
+  }, [isDemoMode, getDemoData]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

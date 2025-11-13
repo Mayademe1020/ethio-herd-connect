@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContextMVP';
 import { toast } from 'sonner';
+import { validateFullName } from '@/utils/nameValidation';
 
 const Onboarding = () => {
   const { user } = useAuth();
@@ -12,10 +13,33 @@ const Onboarding = () => {
   const [farmerName, setFarmerName] = useState('');
   const [farmName, setFarmName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [nameError, setNameError] = useState('');
+  const [touched, setTouched] = useState(false);
+
+  const handleNameChange = (value: string) => {
+    setFarmerName(value);
+    if (touched) {
+      const validation = validateFullName(value);
+      setNameError(validation.isValid ? '' : validation.error || '');
+    }
+  };
+
+  const handleNameBlur = () => {
+    setTouched(true);
+    const validation = validateFullName(farmerName);
+    setNameError(validation.isValid ? '' : validation.error || '');
+  };
 
   const handleSubmit = async () => {
-    if (!farmerName.trim()) {
-      toast.error('እባክዎ ስምዎን ያስገቡ / Please enter your name');
+    // Validate name before submission
+    const validation = validateFullName(farmerName);
+    if (!validation.isValid) {
+      setNameError(validation.error || '');
+      setTouched(true);
+      // Show bilingual error toast
+      toast.error(validation.errorAm || validation.error || 'Validation failed', {
+        description: validation.error
+      });
       return;
     }
 
@@ -45,13 +69,31 @@ const Onboarding = () => {
         description: `${farmerName}${farmName ? ` - ${farmName}` : ''}`
       });
 
-      // Redirect to home
-      navigate('/', { replace: true });
+      // Wait a moment for the database to process, then redirect
+      setTimeout(() => {
+        navigate('/', { replace: true });
+      }, 500);
     } catch (error: any) {
       console.error('Onboarding error:', error);
-      toast.error('መረጃ ማስቀመጥ አልተቻለም / Failed to save', {
-        description: error.message || 'Please try again'
-      });
+      
+      // Detect network errors specifically
+      if (error.message?.includes('fetch') || 
+          error.message?.includes('network') || 
+          error.message?.includes('Failed to fetch') ||
+          !navigator.onLine) {
+        toast.error('የኢንተርኔት ግንኙነት ችግር / Network Error', {
+          description: 'እባክዎ ግንኙነትዎን ያረጋግጡ / Please check your connection',
+          action: {
+            label: 'እንደገና ይሞክሩ / Retry',
+            onClick: () => handleSubmit()
+          }
+        });
+      } else {
+        // Show bilingual error messages
+        toast.error('መረጃ ማስቀመጥ አልተቻለም / Failed to save', {
+          description: error.message || 'Please try again'
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -83,19 +125,33 @@ const Onboarding = () => {
               <input
                 type="text"
                 value={farmerName}
-                onChange={(e) => setFarmerName(e.target.value)}
+                onChange={(e) => handleNameChange(e.target.value)}
+                onBlur={handleNameBlur}
                 placeholder="ለምሳሌ: አበበ ተሰማ / e.g., Abebe Tesema"
-                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-green-500 text-lg"
+                className={`w-full px-4 py-3 border-2 rounded-lg focus:outline-none text-lg ${
+                  nameError ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-green-500'
+                }`}
                 style={{ minHeight: '48px' }}
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck="false"
+                data-form-type="other"
                 autoFocus
-                onKeyPress={(e) => {
+                onKeyDown={(e) => {
                   if (e.key === 'Enter' && farmerName.trim()) {
                     handleSubmit();
                   }
                 }}
               />
+              {nameError && (
+                <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-800">
+                    {nameError}
+                  </p>
+                </div>
+              )}
               <p className="text-sm text-gray-600 mt-2">
-                የእርስዎ ስም (ያስፈልጋል) / Your name (required)
+                የእርስዎ ሙሉ ስም (ስም እና የአባት ስም) / Your full name (first name and father's name)
               </p>
             </div>
 
@@ -110,7 +166,11 @@ const Onboarding = () => {
                 placeholder="ለምሳሌ: የአበበ እርሻ / e.g., Abebe's Farm"
                 className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-green-500 text-lg"
                 style={{ minHeight: '48px' }}
-                onKeyPress={(e) => {
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck="false"
+                data-form-type="other"
+                onKeyDown={(e) => {
                   if (e.key === 'Enter' && farmerName.trim()) {
                     handleSubmit();
                   }

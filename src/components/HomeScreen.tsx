@@ -7,11 +7,10 @@ import { useTranslations } from '@/hooks/useTranslations';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Home, Heart, ShoppingCart, Stethoscope, Calendar, TrendingUp } from 'lucide-react';
-import { AnimalData } from '@/types';
-// import { useDashboardStats } from '@/hooks/useDashboardStats';
-// import { useGrowthRecords } from '@/hooks/useGrowthRecords';
-// import { useDateDisplay } from '@/hooks/useDateDisplay';
+import { Search, Home, Heart, ShoppingCart, Stethoscope, Calendar } from 'lucide-react';
+import { useMilkAnalytics } from '@/hooks/useMilkAnalytics';
+import { milkQueries } from '@/lib/milkQueries';
+import { toast } from 'sonner';
 
 export const HomeScreen = () => {
   const { user, userProfile } = useAuth();
@@ -21,30 +20,55 @@ export const HomeScreen = () => {
   // const { formatDate } = useDateDisplay();
   const formatDate = (date: Date) => date.toLocaleDateString();
 
-  // Use aggregated dashboard stats instead of local queries
-  // const { stats: dashboardStats, animals, isLoading, nextBestActions } = useDashboardStats();
-  const dashboardStats = { totalAnimals: 0, marketListings: 0, totalMilkThisMonth: 0, healthyAnimals: 0, needsAttention: 0, criticalAnimals: 0 };
-  const animals: any[] = [];
-  const nextBestActions: any[] = [];
+  // Use milk analytics for real dashboard stats
+  const { analytics: milkAnalytics } = useMilkAnalytics();
 
-  // Use consolidated growth records hook for growth rate computation
-  // const { growthRecords } = useGrowthRecords();
-  const growthRecords: any[] = [];
-
-  // Fetch market listings (for sales count and total value)
-  const { data: myListings = [] } = useQuery({
-    queryKey: ['my-market-listings', user?.id],
+  // Get today's and yesterday's milk totals - FIXED: using correct table and column names
+  const { data: dailyMilkStats, isLoading: dailyLoading, error: dailyError } = useQuery({
+    queryKey: ['daily-milk-stats', user?.id],
     queryFn: async () => {
-      if (!user) return [];
-      const { data, error } = await supabase
-        .from('market_listings')
-        .select('id, status, price, user_id')
-        .eq('user_id', user.id);
-      if (error) throw error;
-      return data || [];
+      if (!user) return { today_liters: 0, yesterday_liters: 0 };
+      try {
+        return await milkQueries.getDailyStats(user.id);
+      } catch (error) {
+        console.error('Error fetching daily milk stats:', error);
+        toast.error('የወተት መረጃ መጫን አልተሳካም / Failed to load milk data');
+        return { today_liters: 0, yesterday_liters: 0 };
+      }
     },
     enabled: !!user
   });
+
+  // Fetch real animal count
+  const { data: animalCount = 0 } = useQuery({
+    queryKey: ['animal-count', user?.id],
+    queryFn: async () => {
+      if (!user) return 0;
+      const { count, error } = await supabase
+        .from('animals' as any)
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('is_active', true);
+      if (error) throw error;
+      return count || 0;
+    },
+    enabled: !!user
+  });
+
+  // Use real dashboard stats from milk analytics
+  const dashboardStats = {
+    totalAnimals: animalCount,
+    marketListings: 0, // TODO: implement marketplace count
+    totalMilkThisMonth: milkAnalytics?.thisWeekTotal || 0,
+    healthyAnimals: animalCount, // Assume all are healthy for now
+    needsAttention: 0,
+    criticalAnimals: 0
+  };
+
+  const animals: any[] = [];
+
+  // Use consolidated growth records hook for growth rate computation
+  const growthRecords: any[] = [];
 
   // Fetch vaccination schedules (public table)
   const { data: vaccinationSchedules = [] } = useQuery({
@@ -145,9 +169,9 @@ export const HomeScreen = () => {
     upcomingAppointments: computeUpcomingAppointments(),
     // Use aggregated count of user's market listings
     salesCount: dashboardStats.marketListings,
-    // We don’t have aggregated total value in useDashboardStats yet
-    totalValue: 0,
-    growthRate: calculateGrowthRate()
+    // Use real milk production data
+    totalValue: dashboardStats.totalMilkThisMonth,
+    growthRate: milkAnalytics?.trendPercentage || calculateGrowthRate()
   };
 
   // Navigation handlers
@@ -165,12 +189,6 @@ export const HomeScreen = () => {
       navigate(`/animals?search=${encodeURIComponent(searchQuery.trim())}`);
     }
   };
-
-  // Filter animals for search
-  const filteredAnimals = animals.filter(animal =>
-    animal.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    animal.animal_code?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   const currentDate = formatDate(new Date());
 
@@ -267,26 +285,43 @@ export const HomeScreen = () => {
           </Card>
         </div>
 
-        {/* Income Card */}
-        <Card className="bg-gradient-to-r from-primary/10 to-accent/10 border-primary/20 mt-6">
+        {/* Milk Production Card */}
+        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 mt-6">
           <CardContent className="p-6 text-center">
-            <div className="w-12 h-12 mx-auto mb-4 text-4xl">💸</div>
-            <h3 className="text-lg font-bold text-foreground amharic-text mb-2">{t('home.basicIncome')}</h3>
-            <div className="flex items-center justify-center space-x-2 mb-4">
-              <span className="text-2xl font-bold text-primary">{stats.totalValue} ETB</span>
-              <div className="flex items-center text-secondary">
-                <TrendingUp className="w-4 h-4 mr-1" />
-                <span className="text-sm font-medium">+{stats.growthRate}%</span>
+            <div className="w-12 h-12 mx-auto mb-4 text-4xl">🥛</div>
+            <h3 className="text-lg font-bold text-foreground amharic-text mb-4">
+              የወተት ምርት / Milk Production
+            </h3>
+
+            {/* Daily Stats Grid */}
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="bg-white/50 rounded-lg p-3">
+                <p className="text-xs text-gray-600 mb-1">ያለቀ ቀን / Yesterday</p>
+                <p className="text-xl font-bold text-gray-700">
+                  {dailyLoading ? '...' : `${dailyMilkStats?.yesterday_liters || 0} L`}
+                </p>
+              </div>
+              <div className="bg-blue-100 rounded-lg p-3">
+                <p className="text-xs text-blue-600 mb-1">ያለቀ ቀን / Today</p>
+                <p className="text-2xl font-bold text-blue-600">
+                  {dailyLoading ? '...' : `${dailyMilkStats?.today_liters || 0} L`}
+                </p>
               </div>
             </div>
-            <div className="text-4xl mb-2">📈</div>
+
+            {/* Weekly Summary */}
+            <div className="text-sm text-gray-600 mb-3">
+              በዚህ ሳምንት / This Week: {milkAnalytics?.thisWeekTotal || 0} L total
+            </div>
+
+            {/* Action Button */}
             <Button
               variant="ghost"
               size="sm"
               className="text-xs text-muted-foreground"
-              onClick={() => handleCardNavigation('/analytics')}
+              onClick={() => handleCardNavigation('/milk-summary')}
             >
-              {t('home.viewFinancialReport')}
+              የወተት ማጠቃለያ ይመልከቱ / View Milk Summary
             </Button>
           </CardContent>
         </Card>

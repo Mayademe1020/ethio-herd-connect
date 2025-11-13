@@ -9,6 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { offlineQueue } from '@/lib/offlineQueue';
 import { useToastContext } from '@/contexts/ToastContext';
 import { getUserFriendlyError, getSuccessMessage } from '@/lib/errorMessages';
+import { analytics, ANALYTICS_EVENTS } from '@/lib/analytics';
 
 // Animal short codes mapping
 const ANIMAL_CODES: Record<string, string> = {
@@ -22,58 +23,18 @@ const ANIMAL_CODES: Record<string, string> = {
   'Ewe': 'EWE'
 };
 
-// Generate unique Animal ID
+// Generate unique Animal ID using professional livestock standards
 const generateAnimalId = async (
   type: string,
   subtype: string,
   userId: string
 ): Promise<string> => {
   try {
-    // Get user profile for farm/farmer name
-    const { data: profile } = await supabase
-      .from('profiles' as any)
-      .select('farm_name, farmer_name, phone')
-      .eq('id', userId)
-      .single();
-
-    // Determine prefix (farm name > farmer name > last 6 digits of phone)
-    const profileData = profile as any;
-    let prefix = '';
-    if (profileData?.farm_name) {
-      prefix = profileData.farm_name.substring(0, 10).replace(/\s+/g, '');
-    } else if (profileData?.farmer_name) {
-      prefix = profileData.farmer_name.split(' ')[0].substring(0, 10);
-    } else if (profileData?.phone) {
-      prefix = profileData.phone.slice(-6);
-    } else {
-      prefix = userId.slice(0, 6);
-    }
-
-    // Get animal code
-    let animalCode = ANIMAL_CODES[subtype] || 'ANM';
-    
-    // Special handling for Male/Female based on type
-    if (subtype === 'Male') {
-      animalCode = type === 'goat' ? 'MGT' : 'RAM';
-    } else if (subtype === 'Female') {
-      animalCode = type === 'goat' ? 'FGT' : 'EWE';
-    }
-
-    // Get current year
-    const year = new Date().getFullYear();
-
-    // Get count of user's animals of this type to generate sequence number
-    const { count } = await supabase
-      .from('animals' as any)
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', userId)
-      .eq('type', type);
-
-    const number = String((count || 0) + 1).padStart(3, '0');
-
-    return `${prefix}-${animalCode}-${number}-${year}`;
+    // Use the new professional ID generation system
+    const { generateAnimalId: generateProfessionalId } = await import('@/utils/animalIdGenerator');
+    return await generateProfessionalId(userId, type);
   } catch (error) {
-    console.error('Error generating animal ID:', error);
+    console.error('Error generating professional animal ID:', error);
     // Fallback to simple ID
     return `ANM-${Date.now().toString().slice(-6)}`;
   }
@@ -119,7 +80,7 @@ export const useAnimalRegistration = (): UseAnimalRegistrationReturn => {
         subtype: data.subtype,
         photo_url: data.photo_url,
         registration_date: new Date().toISOString(),
-        is_active: true
+        status: 'active' // Professional status system
       } as any; // Type assertion to bypass outdated Supabase types
 
       // Optimistic update - add to local cache immediately
@@ -132,7 +93,7 @@ export const useAnimalRegistration = (): UseAnimalRegistrationReturn => {
         const networkError = getUserFriendlyError({ message: 'network' }, 'amharic');
         toastContext.info(networkError.message, networkError.icon);
 
-        return { id: tempId, offline: true };
+        return { id: tempId, animal_id: animalId, offline: true };
       }
 
       // Online - save to Supabase
@@ -149,12 +110,12 @@ export const useAnimalRegistration = (): UseAnimalRegistrationReturn => {
         const errorMsg = getUserFriendlyError(saveError, 'amharic');
         toastContext.warning(errorMsg.message, errorMsg.icon);
 
-        return { id: tempId, offline: true };
+        return { id: tempId, animal_id: animalId, offline: true };
       }
 
-      return { id: savedAnimal.id, offline: false };
+      return { id: savedAnimal.id, animal_id: animalId, offline: false };
     },
-    onSuccess: (result) => {
+    onSuccess: (result, variables) => {
       // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ['animals-count'] });
       queryClient.invalidateQueries({ queryKey: ['todays-tasks'] });
@@ -163,6 +124,15 @@ export const useAnimalRegistration = (): UseAnimalRegistrationReturn => {
         const successMsg = getSuccessMessage('animal_registered', 'amharic');
         toastContext.success(successMsg.message, successMsg.icon);
       }
+
+      // Track analytics event
+      analytics.track(ANALYTICS_EVENTS.ANIMAL_REGISTERED, {
+        animal_type: variables.type,
+        animal_subtype: variables.subtype,
+        has_photo: !!variables.photo_url,
+        has_name: !!variables.name,
+        is_offline: result.offline,
+      });
     },
     onError: (err: Error) => {
       setError(err);

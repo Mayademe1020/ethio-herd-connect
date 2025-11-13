@@ -1,11 +1,13 @@
 // src/pages/ListingDetail.tsx - Marketplace Listing Detail Page
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContextMVP';
 import InterestsList from '@/components/InterestsList';
+import { VideoPlayer } from '@/components/VideoPlayer';
+import { analytics, ANALYTICS_EVENTS } from '@/lib/analytics';
 
 const ListingDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -76,6 +78,19 @@ const ListingDetail = () => {
     },
     enabled: !!id && !!user && (listing as any)?.user_id !== user?.id,
   });
+
+  // Track listing view analytics
+  useEffect(() => {
+    if (listing && id) {
+      analytics.track(ANALYTICS_EVENTS.LISTING_VIEWED, {
+        listing_id: id,
+        price: listing.price,
+        animal_type: listing.animal?.type,
+        is_negotiable: listing.is_negotiable,
+        is_own_listing: listing.user_id === user?.id,
+      });
+    }
+  }, [listing, id, user?.id]);
 
   // Express interest mutation
   const expressInterestMutation = useMutation({
@@ -207,9 +222,15 @@ const ListingDetail = () => {
 
         {/* Main Content */}
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          {/* Photo */}
+          {/* Video or Photo */}
           <div className="relative h-64 md:h-96 bg-gray-200">
-            {(listing as any).animal?.photo_url ? (
+            {(listing as any).video_url && (listing as any).video_thumbnail ? (
+              <VideoPlayer
+                videoUrl={(listing as any).video_url}
+                thumbnailUrl={(listing as any).video_thumbnail}
+                className="h-full"
+              />
+            ) : (listing as any).animal?.photo_url ? (
               <img
                 src={(listing as any).animal.photo_url}
                 alt={(listing as any).animal.name}
@@ -221,7 +242,7 @@ const ListingDetail = () => {
               </div>
             )}
             {(listing as any).is_negotiable && (
-              <div className="absolute top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-full font-bold">
+              <div className="absolute top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-full font-bold z-10">
                 Negotiable
               </div>
             )}

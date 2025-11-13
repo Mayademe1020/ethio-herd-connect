@@ -1,21 +1,35 @@
 import { useLanguage } from '@/contexts/LanguageContext';
-import translations from '@/i18n/translations.json';
+import amTranslations from '@/i18n/am.json';
+import enTranslations from '@/i18n/en.json';
+import extendedTranslations from '@/i18n/translations.json';
 
 type Language = 'am' | 'en' | 'or' | 'sw';
+
+const getTranslations = (language: Language) => {
+  // Primary translations (am.json, en.json)
+  if (language === 'am') return amTranslations;
+  if (language === 'en') return enTranslations;
+
+  // Extended translations (or.json, sw.json from translations.json)
+  return extendedTranslations[language] || extendedTranslations.en;
+};
 
 export const useTranslations = () => {
   const { language } = useLanguage();
 
   const t = (key: string): string => {
     const keys = key.split('.');
-    let value: any = translations[language as Language];
-    
+    const translations = getTranslations(language as Language);
+
+    let value: any = translations;
+
+    // Try current language first
     for (const k of keys) {
       if (value && typeof value === 'object' && k in value) {
         value = value[k];
       } else {
         // Fallback to English if translation not found
-        value = translations.en;
+        value = getTranslations('en');
         for (const fallbackKey of keys) {
           if (value && typeof value === 'object' && fallbackKey in value) {
             value = value[fallbackKey];
@@ -26,7 +40,7 @@ export const useTranslations = () => {
         break;
       }
     }
-    
+
     return typeof value === 'string' ? value : key;
   };
 

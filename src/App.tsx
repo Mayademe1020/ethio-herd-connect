@@ -1,117 +1,252 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'sonner';
 
-import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import { LanguageProvider } from "@/contexts/LanguageContext";
-import { CalendarProvider } from "@/contexts/CalendarContext";
-import { LoadingSpinnerEnhanced } from "./components/LoadingSpinnerEnhanced";
-import { PerformanceMonitor } from "./components/PerformanceMonitor";
-import { isLowEndDevice } from "./utils/lazyLoading";
-import { SessionManager } from "./components/SessionManager";
+// Contexts
+import { AuthProvider } from '@/contexts/AuthContext';
+import { AdminProvider } from '@/contexts/AdminContext';
+import { LanguageProvider } from '@/contexts/LanguageContext';
+import { DemoModeProvider } from '@/contexts/DemoModeContext';
+import { CalendarProvider } from '@/contexts/CalendarContext';
+import { ToastProvider } from '@/contexts/ToastContext';
 
-// Eager load critical routes (home, auth)
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import NotFound from "./pages/NotFound";
+// Components
+import AppLayout from '@/components/AppLayout';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
-// Lazy load all other routes for code splitting
-const Profile = lazy(() => import("./pages/Profile"));
-const MyListings = lazy(() => import("./pages/MyListings"));
-const InterestInbox = lazy(() => import("./pages/InterestInbox"));
-const MilkProductionRecords = lazy(() => import("./pages/MilkProductionRecords"));
-const PublicMarketplaceEnhanced = lazy(() => import("./pages/PublicMarketplaceEnhanced"));
+// Pages
+import Index from '@/pages/Index';
+import Auth from '@/pages/Auth';
+import LoginMVP from '@/pages/LoginMVP';
+import RegisterAnimal from '@/pages/RegisterAnimal';
+import MyAnimals from '@/pages/MyAnimals';
+import AnimalDetail from '@/pages/AnimalDetail';
+import RecordMilk from '@/pages/RecordMilk';
+import MilkProductionRecords from '@/pages/MilkProductionRecords';
+import MarketplaceBrowse from '@/pages/MarketplaceBrowse';
+import CreateListing from '@/pages/CreateListing';
+import MyListings from '@/pages/MyListings';
+import ListingDetail from '@/pages/ListingDetail';
+import InterestInbox from '@/pages/InterestInbox';
+import Profile from '@/pages/Profile';
+import Onboarding from '@/pages/Onboarding';
+import SimpleHome from '@/pages/SimpleHome';
+import SyncStatus from '@/pages/SyncStatus';
+import MilkAnalytics from '@/pages/MilkAnalytics';
+import MilkSummary from '@/pages/MilkSummary';
+import Favorites from '@/pages/Favorites';
+import PublicMarketplaceEnhanced from '@/pages/PublicMarketplaceEnhanced';
+import FeedRationing from '@/pages/FeedRationing';
 
-const queryClient = new QueryClient();
+// Admin Pages
+import AdminLogin from '@/pages/AdminLogin';
+import AdminDashboard from '@/pages/AdminDashboard';
 
-// Require authentication for protected routes
-const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
-  if (!user) {
-    try {
-      localStorage.setItem(
-        'postLoginAction',
-        JSON.stringify({ type: 'openMarketplace', timestamp: Date.now() })
-      );
-    } catch {}
-    return <Navigate to="/auth" replace />;
-  }
-  return <>{children}</>;
-};
+// Styles
+import './App.css';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: 1,
+    },
+  },
+});
 
 function App() {
-  const [isLowEnd, setIsLowEnd] = useState(false);
-  const [language, setLanguage] = useState('en');
-  
-  useEffect(() => {
-    // Get language from localStorage or default to English
-    const storedLanguage = localStorage.getItem('language') || 'en';
-    setLanguage(storedLanguage);
-    
-    // Check device capabilities
-    setIsLowEnd(isLowEndDevice());
-    
-    // Add event listener for online/offline status
-    const handleConnectionChange = () => {
-      // Force re-render when connection status changes
-      setIsLowEnd(isLowEndDevice());
-    };
-    
-    window.addEventListener('online', handleConnectionChange);
-    window.addEventListener('offline', handleConnectionChange);
-    
-    // Clean up
-    return () => {
-      window.removeEventListener('online', handleConnectionChange);
-      window.removeEventListener('offline', handleConnectionChange);
-    };
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <LanguageProvider>
-          <CalendarProvider>
-            <TooltipProvider>
-              <Suspense fallback={
-                <div className="min-h-screen flex items-center justify-center">
-                  <LoadingSpinnerEnhanced 
-                    size={isLowEnd ? "sm" : "lg"} 
-                    text={language === 'am' ? "እባክዎ ይጠብቁ..." : "Loading..."} 
-                  />
-                </div>
-              }>
-                <BrowserRouter>
-                  <Routes>
-                    <Route path="/" element={<Index />} />
-                    <Route path="/auth" element={<Auth />} />
-                    <Route path="/animals" element={<RequireAuth><Animals /></RequireAuth>} />
-                    <Route path="/milk" element={<RequireAuth><MilkProductionRecords /></RequireAuth>} />
-                    <Route 
-                      path="/marketplace" 
-                      element={
-                        <RequireAuth>
-                          <PublicMarketplaceEnhanced />
-                        </RequireAuth>
-                      } 
-                    />
-                    <Route path="/my-listings" element={<RequireAuth><MyListings /></RequireAuth>} />
-                    <Route path="/interest-inbox" element={<RequireAuth><InterestInbox /></RequireAuth>} />
-                    <Route path="/profile" element={<RequireAuth><Profile /></RequireAuth>} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </BrowserRouter>
-              </Suspense>
-              {(process.env.NODE_ENV === 'development' || localStorage.getItem('debug') === 'true') && (
-                <PerformanceMonitor language={language} />
-              )}
-            </TooltipProvider>
-          </CalendarProvider>
-        </LanguageProvider>
-      </AuthProvider>
+      <Router>
+        <DemoModeProvider>
+          <LanguageProvider>
+            <CalendarProvider>
+              <AuthProvider>
+                <AdminProvider>
+                  <ToastProvider>
+                    <div className="App">
+                      <Routes>
+                        {/* Public Routes */}
+                        <Route path="/auth" element={<Auth />} />
+                        <Route path="/login" element={<LoginMVP />} />
+                        <Route path="/admin/login" element={<AdminLogin />} />
+
+                        {/* Protected Routes */}
+                        <Route path="/" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Index />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        {/* Animal Management */}
+                        <Route path="/animals" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <MyAnimals />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/animals/register" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <RegisterAnimal />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/animals/:id" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <AnimalDetail />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        {/* Milk Recording */}
+                        <Route path="/milk/record" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <RecordMilk />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/milk/records" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <MilkProductionRecords />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/milk/analytics" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <MilkAnalytics />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/milk/summary" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <MilkSummary />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        {/* Marketplace */}
+                        <Route path="/marketplace" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <MarketplaceBrowse />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/marketplace/public" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <PublicMarketplaceEnhanced />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/marketplace/create" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <CreateListing />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/marketplace/listings" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <MyListings />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/marketplace/listings/:id" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <ListingDetail />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/marketplace/interests" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <InterestInbox />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        {/* Feed Management */}
+                        <Route path="/feed" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <FeedRationing />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        {/* User Profile & Settings */}
+                        <Route path="/profile" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Profile />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/favorites" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Favorites />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/sync" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <SyncStatus />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        {/* Onboarding */}
+                        <Route path="/onboarding" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <Onboarding />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        {/* Admin Routes */}
+                        <Route path="/admin" element={
+                          <ProtectedRoute adminOnly>
+                            <AdminDashboard />
+                          </ProtectedRoute>
+                        } />
+
+                        {/* Legacy/Simple Routes */}
+                        <Route path="/home" element={
+                          <ProtectedRoute>
+                            <AppLayout>
+                              <SimpleHome />
+                            </AppLayout>
+                          </ProtectedRoute>
+                        } />
+
+                        {/* Fallback */}
+                        <Route path="*" element={<Navigate to="/" replace />} />
+                      </Routes>
+                    </div>
+                    <Toaster position="top-right" />
+                  </ToastProvider>
+                </AdminProvider>
+              </AuthProvider>
+            </CalendarProvider>
+          </LanguageProvider>
+        </DemoModeProvider>
+      </Router>
     </QueryClientProvider>
   );
 }

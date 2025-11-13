@@ -1,46 +1,52 @@
 // src/pages/AnimalDetail.tsx - Detailed view of a single animal
+// FIXED: Uses correct table name 'milk_production' and column name 'liters'
 
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tantml:function_calls>
-<invoke name="query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContextMVP';
 import { BackButton } from '@/components/BackButton';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { AnimalIdBadge } from '@/components/AnimalIdBadge';
 import { 
-  ArrowLeft, 
   Milk, 
   Edit, 
   Trash2, 
   ShoppingCart,
   Calendar,
   Heart,
-  TrendingUp,
   Activity
 } from 'lucide-react';
-import { formatDistanceToNow, differenceInMonths, differenceInDays } from 'date-fns';
+import { formatDistanceToNow, differenceInMonths, differenceInDays, format } from 'date-fns';
 import { toast } from 'sonner';
 import { useState } from 'react';
 import { useAnimalDeletion } from '@/hooks/useAnimalDeletion';
+import { useAnimalUpdate } from '@/hooks/useAnimalUpdate';
+import { EditAnimalModal } from '@/components/EditAnimalModal';
+import { milkQueries } from '@/lib/milkQueries';
+import { PregnancyTracker } from '@/components/PregnancyTracker';
+import { PregnancyAlert } from '@/components/PregnancyAlert';
+import { RecordBirthModal } from '@/components/RecordBirthModal';
+import { recordPregnancy, recordBirth, getCurrentPregnancy, getPregnancyHistory, type PregnancyRecord } from '@/services/pregnancyService';
+import { calculateDaysRemaining, isDeliverySoon, canBePregnant } from '@/utils/pregnancyCalculations';
 
 interface Animal {
   id: string;
+  animal_id?: string; // Professional animal ID
   name: string;
   type: 'cattle' | 'goat' | 'sheep';
   subtype?: string; // Optional until migration is run
   photo_url?: string;
   registration_date?: string; // Optional, fallback to created_at
   is_active?: boolean; // Optional, default to true
+  status?: string; // Professional status system
+  pregnancy_status?: 'not_pregnant' | 'pregnant' | 'delivered';
+  pregnancy_data?: PregnancyRecord[];
   created_at: string;
 }
 
-interface MilkRecord {
-  id: string;
-  liters: number;
-  recorded_at: string;
-  session: string;
-}
+
 
 const ANIMAL_ICONS = {
   cattle: '🐄',
@@ -49,14 +55,18 @@ const ANIMAL_ICONS = {
 };
 
 const MILK_PRODUCING_SUBTYPES = ['Cow', 'Female Goat', 'Ewe'];
-const PREGNANCY_CAPABLE_SUBTYPES = ['Cow', 'Female Goat', 'Ewe'];
 
 export const AnimalDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showPregnancyTracker, setShowPregnancyTracker] = useState(false);
+  const [showBirthModal, setShowBirthModal] = useState(false);
   const { deleteAnimal, isDeleting } = useAnimalDeletion();
+  const { updateAnimal, isUpdating } = useAnimalUpdate();
 
   // Fetch animal details
   const { data: animal, isLoading } = useQuery({
@@ -76,12 +86,16 @@ export const AnimalDetail = () => {
       // Map to include default values for MVP fields
       const animal: Animal = {
         id: data.id,
+        animal_id: (data as any).animal_id,
         name: data.name,
         type: data.type as 'cattle' | 'goat' | 'sheep',
         subtype: (data as any).subtype || data.type,
         photo_url: data.photo_url,
         registration_date: (data as any).registration_date || data.created_at,
         is_active: (data as any).is_active !== false,
+        status: (data as any).status || 'active',
+        pregnancy_status: (data as any).pregnancy_status || 'not_pregnant',
+        pregnancy_data: (data as any).pregnancy_data || [],
         created_at: data.created_at
       };
       
@@ -90,41 +104,31 @@ export const AnimalDetail = () => {
     enabled: !!user && !!id,
   });
 
-  // Fetch recent milk records (last 7 days) - optimized with pagination
-  const { data: milkRecords = [] } = useQuery({
+  // Fetch recent milk records (last 7 days) - FIXED: using correct table and column names
+  const { data: milkRecords = [], isLoading: milkLoading, error: milkError } = useQuery({
     queryKey: ['milk-records', id],
     queryFn: async () => {
       if (!user || !id) return [];
-
-      const sevenDaysAgo = new Date();
-      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-
-      const { data, error } = await supabase
-        .from('milk_production')
-        .select('id, liters, recorded_at, session, created_at')
-        .eq('animal_id', id)
-        .gte('created_at', sevenDaysAgo.toISOString())
-        .order('created_at', { ascending: false })
-        .limit(50);
-
-      if (error) {
+      try {
+        return await milkQueries.getAnimalMilkRecords(id);
+      } catch (error) {
         console.error('Error fetching milk records:', error);
+        toast.error('የወተት መዝገብ መጫን አልተሳካም / Failed to load milk records');
         return [];
       }
-      
-      // Map to MilkRecord format (handle both old and new schema)
-      return (data || []).map((record: any) => ({
-        id: record.id,
-        liters: record.liters || record.total_yield || 0,
-        recorded_at: record.recorded_at || record.created_at,
-        session: record.session || (record.morning_yield && record.evening_yield ? 'both' : record.morning_yield ? 'morning' : 'evening')
-      })) as MilkRecord[];
     },
-    enabled: !!user && !!id && MILK_PRODUCING_SUBTYPES.includes(animal?.subtype || ''),
+    enabled: !!user && !!id && MILK_PRODUCING_SUBTYPES.includes(animal?.subtype || '')
   });
 
   const canProduceMilk = animal && MILK_PRODUCING_SUBTYPES.includes(animal.subtype || animal.type);
-  const canGetPregnant = animal && PREGNANCY_CAPABLE_SUBTYPES.includes(animal.subtype || animal.type);
+  const canGetPregnant = animal && canBePregnant(animal.subtype || animal.type);
+  
+  // Get current pregnancy info
+  const currentPregnancy = animal?.pregnancy_status === 'pregnant' && animal?.pregnancy_data && animal.pregnancy_data.length > 0
+    ? animal.pregnancy_data[animal.pregnancy_data.length - 1]
+    : null;
+  
+  const showDeliveryAlert = currentPregnancy && isDeliverySoon(currentPregnancy.expected_delivery);
 
   // Calculate age
   const calculateAge = (registrationDate: string) => {
@@ -176,11 +180,58 @@ export const AnimalDetail = () => {
   };
 
   const handleRecordPregnancy = () => {
-    toast.info('🚧 Pregnancy tracking coming soon!');
+    setShowPregnancyTracker(true);
+  };
+
+  const handleSavePregnancy = async (breedingDate: string, expectedDelivery: string) => {
+    try {
+      await recordPregnancy({
+        animalId: id!,
+        breedingDate,
+        expectedDelivery,
+      });
+      
+      toast.success('Pregnancy recorded successfully! / እርግዝና በተሳካ ሁኔታ ተመዝግቧል!');
+      setShowPregnancyTracker(false);
+      
+      // Refresh animal data
+      queryClient.invalidateQueries({ queryKey: ['animal', id] });
+    } catch (error) {
+      console.error('Error recording pregnancy:', error);
+      toast.error('Failed to record pregnancy / እርግዝና መመዝገብ አልተሳካም');
+    }
+  };
+
+  const handleRecordBirth = async (actualDelivery: string, notes?: string) => {
+    try {
+      await recordBirth({
+        animalId: id!,
+        actualDelivery,
+        notes,
+      });
+      
+      toast.success('Birth recorded successfully! / ልደት በተሳካ ሁኔታ ተመዝግቧል!');
+      setShowBirthModal(false);
+      
+      // Refresh animal data
+      queryClient.invalidateQueries({ queryKey: ['animal', id] });
+    } catch (error) {
+      console.error('Error recording birth:', error);
+      toast.error('Failed to record birth / ልደት መመዝገብ አልተሳካም');
+    }
   };
 
   const handleEdit = () => {
-    toast.info('🚧 Edit feature coming soon!');
+    setShowEditModal(true);
+  };
+
+  const handleSaveEdit = async (updates: { name: string; subtype: string; photo_url?: string }) => {
+    const success = await updateAnimal(id!, updates);
+    if (success) {
+      setShowEditModal(false);
+      // Refresh animal data
+      queryClient.invalidateQueries({ queryKey: ['animal', id] });
+    }
   };
 
   const handleListForSale = () => {
@@ -223,10 +274,19 @@ export const AnimalDetail = () => {
           <div className="mb-2">
             <BackButton to="/my-animals" label="ተመለስ / Back" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            {animal.name}
-          </h1>
-          <p className="text-sm text-gray-600">{animal.subtype || animal.type}</p>
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-gray-900">
+                {animal.name}
+              </h1>
+              <p className="text-sm text-gray-600">{animal.subtype || animal.type}</p>
+            </div>
+            {animal.animal_id && (
+              <div className="flex-shrink-0">
+                <AnimalIdBadge animalId={animal.animal_id} size="lg" />
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -408,7 +468,7 @@ export const AnimalDetail = () => {
           </Card>
         )}
 
-        {/* Pregnancy Section Placeholder */}
+        {/* Pregnancy Section */}
         {canGetPregnant && (
           <Card className="p-6">
             <div className="flex items-center justify-between mb-4">
@@ -417,10 +477,123 @@ export const AnimalDetail = () => {
                 Pregnancy Records
               </h2>
             </div>
-            <div className="text-center py-8 text-gray-500">
-              <p>🚧 Pregnancy tracking coming soon!</p>
-              <p className="text-sm mt-2">Track breeding dates, pregnancy status, and expected delivery</p>
-            </div>
+
+            {/* Delivery Alert */}
+            {showDeliveryAlert && currentPregnancy && (
+              <div className="mb-4">
+                <PregnancyAlert
+                  expectedDelivery={currentPregnancy.expected_delivery}
+                  animalName={animal.name}
+                  onRecordBirth={() => setShowBirthModal(true)}
+                />
+              </div>
+            )}
+
+            {/* Current Pregnancy Status */}
+            {currentPregnancy && animal.pregnancy_status === 'pregnant' && (
+              <div className="mb-4 p-4 bg-pink-50 border border-pink-200 rounded-lg">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-semibold text-pink-900">Currently Pregnant</span>
+                  <span className="text-sm px-2 py-1 bg-pink-200 text-pink-800 rounded-full">
+                    Active
+                  </span>
+                </div>
+                <div className="space-y-1 text-sm text-pink-800">
+                  <p>
+                    <span className="font-medium">Breeding Date:</span>{' '}
+                    {format(new Date(currentPregnancy.breeding_date), 'MMM dd, yyyy')}
+                  </p>
+                  <p>
+                    <span className="font-medium">Expected Delivery:</span>{' '}
+                    {format(new Date(currentPregnancy.expected_delivery), 'MMM dd, yyyy')}
+                  </p>
+                  <p>
+                    <span className="font-medium">Days Remaining:</span>{' '}
+                    {calculateDaysRemaining(currentPregnancy.expected_delivery)} days
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Pregnancy Tracker Form */}
+            {showPregnancyTracker && (
+              <div className="mb-4">
+                <PregnancyTracker
+                  animalId={id!}
+                  animalSubtype={animal.subtype || animal.type}
+                  onRecordPregnancy={handleSavePregnancy}
+                  onCancel={() => setShowPregnancyTracker(false)}
+                />
+              </div>
+            )}
+
+            {/* Record Pregnancy Button */}
+            {!showPregnancyTracker && animal.pregnancy_status !== 'pregnant' && (
+              <Button
+                onClick={handleRecordPregnancy}
+                className="w-full bg-pink-500 hover:bg-pink-600 text-white"
+              >
+                <Heart className="w-4 h-4 mr-2" />
+                Record New Pregnancy
+              </Button>
+            )}
+
+            {/* Pregnancy History */}
+            {animal.pregnancy_data && animal.pregnancy_data.length > 0 && (
+              <div className="mt-6">
+                <h3 className="font-semibold text-gray-900 mb-3">Pregnancy History</h3>
+                <div className="space-y-2">
+                  {animal.pregnancy_data.map((pregnancy, index) => (
+                    <div
+                      key={index}
+                      className="p-3 bg-gray-50 rounded-lg border border-gray-200"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-gray-900">
+                          Pregnancy #{animal.pregnancy_data!.length - index}
+                        </span>
+                        <span
+                          className={`text-xs px-2 py-1 rounded-full ${
+                            pregnancy.status === 'pregnant'
+                              ? 'bg-pink-100 text-pink-700'
+                              : pregnancy.status === 'delivered'
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-gray-100 text-gray-700'
+                          }`}
+                        >
+                          {pregnancy.status}
+                        </span>
+                      </div>
+                      <div className="text-xs text-gray-600 space-y-1">
+                        <p>
+                          Breeding: {format(new Date(pregnancy.breeding_date), 'MMM dd, yyyy')}
+                        </p>
+                        <p>
+                          Expected: {format(new Date(pregnancy.expected_delivery), 'MMM dd, yyyy')}
+                        </p>
+                        {pregnancy.actual_delivery && (
+                          <p>
+                            Delivered: {format(new Date(pregnancy.actual_delivery), 'MMM dd, yyyy')}
+                          </p>
+                        )}
+                        {pregnancy.notes && (
+                          <p className="text-gray-500 italic">Note: {pregnancy.notes}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Empty State */}
+            {(!animal.pregnancy_data || animal.pregnancy_data.length === 0) && !showPregnancyTracker && (
+              <div className="text-center py-8 text-gray-500">
+                <Heart className="w-12 h-12 mx-auto mb-2 opacity-30" />
+                <p>No pregnancy records yet</p>
+                <p className="text-sm">Track breeding dates and expected deliveries</p>
+              </div>
+            )}
           </Card>
         )}
 
@@ -448,6 +621,22 @@ export const AnimalDetail = () => {
         </Card>
       </div>
 
+      {/* Edit Modal */}
+      {showEditModal && animal && (
+        <EditAnimalModal
+          animalId={id!}
+          currentData={{
+            name: animal.name,
+            type: animal.type,
+            subtype: animal.subtype || animal.type,
+            photo_url: animal.photo_url
+          }}
+          onSave={handleSaveEdit}
+          onClose={() => setShowEditModal(false)}
+          isSaving={isUpdating}
+        />
+      )}
+
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <DeleteConfirmationModal
@@ -461,6 +650,18 @@ export const AnimalDetail = () => {
             }
           }}
           onCancel={() => setShowDeleteConfirm(false)}
+        />
+      )}
+
+      {/* Record Birth Modal */}
+      {showBirthModal && currentPregnancy && (
+        <RecordBirthModal
+          isOpen={showBirthModal}
+          onClose={() => setShowBirthModal(false)}
+          animalId={id!}
+          animalName={animal.name}
+          expectedDelivery={currentPregnancy.expected_delivery}
+          onRecordBirth={handleRecordBirth}
         />
       )}
     </div>

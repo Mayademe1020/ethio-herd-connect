@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Clock, Milk } from 'lucide-react';
 import { AnimalData, Language } from '@/types';
 import { useDateDisplay } from '@/hooks/useDateDisplay';
+import { useFormDraft } from '@/hooks/useFormDraft';
+import { DraftRestorePrompt } from '@/components/DraftRestorePrompt';
 
 interface MilkRecord {
   cowId: string;
@@ -22,12 +24,12 @@ interface MilkRecordingFormProps {
   isLoading: boolean;
 }
 
-export const MilkRecordingForm = ({ 
-  selectedCows, 
-  language, 
-  onSave, 
-  onCancel, 
-  isLoading 
+export const MilkRecordingForm = ({
+  selectedCows,
+  language,
+  onSave,
+  onCancel,
+  isLoading
 }: MilkRecordingFormProps) => {
   const [records, setRecords] = useState<MilkRecord[]>(
     selectedCows.map(cow => ({
@@ -36,6 +38,39 @@ export const MilkRecordingForm = ({
       time: new Date().toLocaleTimeString('en-GB', { hour12: false })
     }))
   );
+  const [showDraftPrompt, setShowDraftPrompt] = useState(false);
+
+  // Form draft functionality
+  const {
+    draftData,
+    saveDraft,
+    clearDraft,
+    hasDraft,
+    restoreDraft,
+    isRestoring
+  } = useFormDraft({
+    draftKey: 'milk-recording-form',
+    onDraftRestored: (data) => {
+      if (data.records) {
+        setRecords(data.records);
+      }
+      setShowDraftPrompt(false);
+    }
+  });
+
+  // Check for draft on mount
+  useEffect(() => {
+    if (hasDraft && !isRestoring) {
+      setShowDraftPrompt(true);
+    }
+  }, [hasDraft, isRestoring]);
+
+  // Auto-save draft when records change
+  useEffect(() => {
+    if (records.some(record => record.quantity.trim() !== '')) {
+      saveDraft({ records });
+    }
+  }, [records, saveDraft]);
 
   const translations = {
     am: {
@@ -84,7 +119,20 @@ export const MilkRecordingForm = ({
     const validRecords = records.filter(record => record.quantity.trim() !== '');
     if (validRecords.length > 0) {
       onSave(validRecords);
+      clearDraft(); // Clear draft after successful save
     }
+  };
+
+  const handleRestoreDraft = () => {
+    const restoredData = restoreDraft();
+    if (restoredData?.records) {
+      setRecords(restoredData.records);
+    }
+  };
+
+  const handleDiscardDraft = () => {
+    clearDraft();
+    setShowDraftPrompt(false);
   };
 
   const formatTimeForLanguage = (time: string) => {
@@ -100,6 +148,16 @@ export const MilkRecordingForm = ({
 
   return (
     <div className="space-y-4">
+      {/* Draft Restore Prompt */}
+      {showDraftPrompt && draftData && (
+        <DraftRestorePrompt
+          draftData={draftData}
+          onRestore={handleRestoreDraft}
+          onDiscard={handleDiscardDraft}
+          formName={t.title}
+        />
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -112,7 +170,7 @@ export const MilkRecordingForm = ({
             <Card key={cow.id} className="p-4 bg-gray-50">
               <div className="space-y-3">
                 <div className="font-medium text-sm">
-                  {cow.name} (Tag: {cow.animal_code})
+                  {cow.name} {cow.animal_id && `(ID: ${cow.animal_id})`}
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

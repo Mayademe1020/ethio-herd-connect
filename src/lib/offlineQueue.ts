@@ -3,9 +3,18 @@ import { openDB, DBSchema, IDBPDatabase } from 'idb';
 // Queue action types
 export type QueueActionType = 
   | 'animal_registration'
+  | 'animal_update'
   | 'milk_record'
+  | 'update_milk_record'
   | 'listing_creation'
-  | 'buyer_interest';
+  | 'listing_update'
+  | 'buyer_interest'
+  | 'pregnancy_record'
+  | 'birth_record'
+  | 'pregnancy_terminate'
+  | 'create_notification'
+  | 'mark_notification_read'
+  | 'mark_all_notifications_read';
 
 // Queue item interface
 export interface QueueItem {
@@ -286,7 +295,7 @@ class OfflineQueueManager {
       await tx.store.put({
         ...item,
         status: 'pending',
-        retryCount: 0,
+        retry_count: 0,
         error: undefined,
       });
     }

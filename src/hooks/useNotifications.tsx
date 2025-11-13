@@ -1,134 +1,129 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { useToastNotifications } from '@/hooks/useToastNotifications';
+import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '@/contexts/AuthContextMVP';
+import {
+  getNotifications,
+  getUnreadCount,
+  markAsRead,
+  markAllAsRead,
+  deleteNotification,
+  subscribeToNotifications,
+  Notification,
+  NotificationType,
+} from '@/services/notificationService';
+import { useToast } from '@/hooks/useToast';
 
-export interface Notification {
-  id: string;
-  user_id: string;
-  title: string;
-  message: string;
-  type?: string;
-  action_url?: string;
-  is_read: boolean;
-  created_at: string;
-}
-
-export const useNotifications = () => {
+export function useNotifications() {
   const { user } = useAuth();
-  const queryClient = useQueryClient();
-  const { showSuccess, showError } = useToastNotifications();
+  const { showToast } = useToast();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<{
+    type?: NotificationType;
+    isRead?: boolean;
+  }>({});
 
-  // Fetch all notifications
-  const { data: notifications = [], isLoading } = useQuery({
-    queryKey: ['notifications', user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      
-      const { data, error } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-      
-      if (error) throw error;
-      return data as Notification[];
-    },
-    enabled: !!user
-  });
+  // Fetch notifications
+  const fetchNotifications = useCallback(async () => {
+    if (!user) return;
 
-  // Get unread count
-  const unreadCount = notifications.filter(n => !n.is_read).length;
-
-  // Mark as read mutation
-  const markAsRead = useMutation({
-    mutationFn: async (notificationId: string) => {
-      const { error } = await supabase
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('id', notificationId);
-      
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    try {
+      setLoading(true);
+      const data = await getNotifications(filter);
+      setNotifications(data);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    } finally {
+      setLoading(false);
     }
-  });
+  }, [user, filter]);
 
-  // Mark all as read mutation
-  const markAllAsRead = useMutation({
-    mutationFn: async () => {
-      if (!user) throw new Error('User not authenticated');
-      
-      const { error } = await supabase
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('user_id', user.id)
-        .eq('is_read', false);
-      
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      showSuccess('Success', 'All notifications marked as read');
-    },
-    onError: (error: any) => {
-      showError('Error', error.message || 'Failed to mark notifications as read');
-    }
-  });
+  // Fetch unread count
+  const fetchUnreadCount = useCallback(async () => {
+    if (!user) return;
 
-  // Delete notification mutation
-  const deleteNotification = useMutation({
-    mutationFn: async (notificationId: string) => {
-      const { error } = await supabase
-        .from('notifications')
-        .delete()
-        .eq('id', notificationId);
-      
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      showSuccess('Success', 'Notification deleted');
-    },
-    onError: (error: any) => {
-      showError('Error', error.message || 'Failed to delete notification');
+    try {
+      const count = await getUnreadCount();
+      setUnreadCount(count);
+    } catch (error) {
+      console.error('Error fetching unread count:', error);
     }
-  });
+  }, [user]);
 
-  // Create notification (for testing)
-  const createNotification = useMutation({
-    mutationFn: async (notification: {
-      title: string;
-      message: string;
-      type?: string;
-      action_url?: string;
-    }) => {
-      if (!user) throw new Error('User not authenticated');
-      
-      const { error } = await supabase
-        .from('notifications')
-        .insert([{
-          user_id: user.id,
-          ...notification
-        }]);
-      
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+  // Mark notification as read
+  const handleMarkAsRead = useCallback(async (notificationId: string) => {
+    const success = await markAsRead(notificationId);
+    
+    if (success) {
+      setNotifications(prev =>
+        prev.map(n => n.id === notificationId ? { ...n, is_read: true } : n)
+      );
+      setUnreadCount(prev => Math.max(0, prev - 1));
     }
-  });
+  }, []);
+
+  // Mark all as read
+  const handleMarkAllAsRead = useCallback(async () => {
+    const success = await markAllAsRead();
+    
+    if (success) {
+      setNotifications(prev =>
+        prev.map(n => ({ ...n, is_read: true }))
+      );
+      setUnreadCount(0);
+      showToast('All notifications marked as read', 'success');
+    }
+  }, [showToast]);
+
+  // Delete notification
+  const handleDelete = useCallback(async (notificationId: string) => {
+    const success = await deleteNotification(notificationId);
+    
+    if (success) {
+      setNotifications(prev => prev.filter(n => n.id !== notificationId));
+      
+      // Update unread count if the deleted notification was unread
+      const deletedNotification = notifications.find(n => n.id === notificationId);
+      if (deletedNotification && !deletedNotification.is_read) {
+        setUnreadCount(prev => Math.max(0, prev - 1));
+      }
+    }
+  }, [notifications]);
+
+  // Initial fetch
+  useEffect(() => {
+    if (user) {
+      fetchNotifications();
+      fetchUnreadCount();
+    }
+  }, [user, fetchNotifications, fetchUnreadCount]);
+
+  // Subscribe to real-time updates
+  useEffect(() => {
+    if (!user) return;
+
+    const unsubscribe = subscribeToNotifications(user.id, (newNotification) => {
+      setNotifications(prev => [newNotification, ...prev]);
+      setUnreadCount(prev => prev + 1);
+
+      // Show toast for high-priority notifications
+      if (newNotification.priority === 'high') {
+        showToast(newNotification.title, 'info');
+      }
+    });
+
+    return unsubscribe;
+  }, [user, showToast]);
 
   return {
     notifications,
-    isLoading,
     unreadCount,
-    markAsRead: markAsRead.mutate,
-    markAllAsRead: markAllAsRead.mutate,
-    deleteNotification: deleteNotification.mutate,
-    createNotification: createNotification.mutate,
-    isMarkingAsRead: markAsRead.isPending,
-    isDeleting: deleteNotification.isPending
+    loading,
+    filter,
+    setFilter,
+    markAsRead: handleMarkAsRead,
+    markAllAsRead: handleMarkAllAsRead,
+    deleteNotification: handleDelete,
+    refresh: fetchNotifications,
   };
-};
+}

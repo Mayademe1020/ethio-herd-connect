@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/logger';
-import { CountrySelector } from '@/components/CountrySelector';
 import { OfflineStatusIndicator } from '@/components/OfflineStatusIndicator';
 
 export const EnhancedHeader = () => {

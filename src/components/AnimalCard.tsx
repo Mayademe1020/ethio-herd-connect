@@ -3,18 +3,29 @@
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Milk, Eye, Calendar } from 'lucide-react';
+import { Milk, Eye, Calendar, Heart } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { OptimizedImage } from '@/components/OptimizedImage';
+import { AnimalIdBadge } from '@/components/AnimalIdBadge';
+import { calculateDaysRemaining } from '@/utils/pregnancyCalculations';
+
+interface PregnancyRecord {
+  breeding_date: string;
+  expected_delivery: string;
+  status: 'pregnant' | 'delivered' | 'terminated';
+}
 
 interface AnimalCardProps {
   id: string;
+  animal_id?: string; // Professional animal ID
   name: string;
   type: 'cattle' | 'goat' | 'sheep';
-  subtype: string;
+  subtype?: string;
   photo_url?: string;
   registration_date: string;
-  is_active: boolean;
+  status?: string; // Professional status system
+  pregnancy_status?: 'not_pregnant' | 'pregnant' | 'delivered';
+  pregnancy_data?: PregnancyRecord[];
 }
 
 const ANIMAL_ICONS = {
@@ -27,15 +38,28 @@ const MILK_PRODUCING_SUBTYPES = ['Cow', 'Female Goat', 'Ewe'];
 
 export const AnimalCard = ({
   id,
+  animal_id,
   name,
   type,
   subtype,
   photo_url,
   registration_date,
-  is_active
+  status = 'active',
+  pregnancy_status,
+  pregnancy_data
 }: AnimalCardProps) => {
   const navigate = useNavigate();
   const canProduceMilk = MILK_PRODUCING_SUBTYPES.includes(subtype);
+  const isActive = status === 'active';
+  
+  // Get current pregnancy info
+  const isPregnant = pregnancy_status === 'pregnant';
+  const currentPregnancy = isPregnant && pregnancy_data && pregnancy_data.length > 0
+    ? pregnancy_data[pregnancy_data.length - 1]
+    : null;
+  const daysUntilDelivery = currentPregnancy 
+    ? calculateDaysRemaining(currentPregnancy.expected_delivery)
+    : null;
 
   const handleRecordMilk = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -52,10 +76,9 @@ export const AnimalCard = ({
   };
 
   return (
-    <Card 
-      className={`overflow-hidden cursor-pointer transition-all hover:shadow-lg ${
-        is_active ? 'border-green-200' : 'border-gray-300 opacity-60'
-      }`}
+    <Card
+      className={`overflow-hidden cursor-pointer transition-all hover:shadow-lg ${isActive ? 'border-green-200' : 'border-gray-300 opacity-60'
+        }`}
       onClick={handleCardClick}
     >
       {/* Photo Section */}
@@ -72,15 +95,31 @@ export const AnimalCard = ({
             {ANIMAL_ICONS[type]}
           </div>
         )}
-        
+
         {/* Status Badge */}
-        <div className={`absolute top-2 right-2 px-3 py-1 rounded-full text-xs font-semibold ${
-          is_active 
-            ? 'bg-green-500 text-white' 
+        <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
+          <div className={`px-3 py-1 rounded-full text-xs font-semibold ${isActive
+            ? 'bg-green-500 text-white'
             : 'bg-gray-500 text-white'
-        }`}>
-          {is_active ? '✓ Healthy' : 'Inactive'}
+            }`}>
+            {isActive ? '✓ Active' : status || 'Inactive'}
+          </div>
+          
+          {/* Pregnancy Badge */}
+          {isPregnant && daysUntilDelivery !== null && (
+            <div className="bg-pink-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+              <Heart className="w-3 h-3 fill-current" />
+              <span>{daysUntilDelivery}d</span>
+            </div>
+          )}
         </div>
+
+        {/* Animal ID Badge */}
+        {animal_id && (
+          <div className="absolute bottom-2 left-2">
+            <AnimalIdBadge animalId={animal_id} size="sm" showCopyButton={false} />
+          </div>
+        )}
 
         {/* Type Icon Badge */}
         <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-2xl">

@@ -11,6 +11,12 @@ export const offlineQueue = {
   })),
   clearQueue: vi.fn(() => Promise.resolve()),
   getQueueItems: vi.fn(() => Promise.resolve([])),
+  getPendingCount: vi.fn(() => Promise.resolve(0)),
+  isProcessing: vi.fn(() => false),
+  subscribe: vi.fn((callback: () => void) => {
+    // Return unsubscribe function
+    return () => {};
+  }),
 };
 
 export class OfflineQueueManager {
@@ -33,6 +39,11 @@ export class OfflineQueueManager {
   }));
   clearQueue = vi.fn(() => Promise.resolve());
   getQueueItems = vi.fn(() => Promise.resolve([]));
+  getPendingCount = vi.fn(() => Promise.resolve(0));
+  isProcessing = vi.fn(() => false);
+  subscribe = vi.fn((callback: () => void) => {
+    return () => {};
+  });
 }
 
 export default offlineQueue;

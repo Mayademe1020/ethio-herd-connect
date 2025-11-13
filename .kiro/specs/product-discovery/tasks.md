@@ -360,75 +360,169 @@ This implementation plan transforms the Ethiopian Livestock Management System in
   - Verify totals calculate correctly
   - _Requirements: 1.1, 10.1_
 
-7. Marketplace - Create Listing (Day 3 Afternoon)
-- Implement 3-click listing creation
-- Add photo upload with compression
-- Add video upload with validation (≤10 seconds, ≤20MB)
-- Add female animal specific attributes
- - Add disclaimer for animal health information
-- _Requirements: 5.1, 5.2, 10.1, 10.3_
+- [x] 7. Marketplace - Create Listing (Day 3 Afternoon)
 
-- [ ] 7.1 Create CreateListing page
-Display user's animals (exclude already listed animals)
--Implement animal selection with gender identification
-Create price input with Ethiopian Birr (ETB) label
-Add "Negotiable" toggle switch
-Add photo upload with preview (optional but encouraged)
-Add video upload with preview (optional but recommended)
-Add female animal specific fields (pregnancy status, lactation info)
-Add capacity/production details for relevant animals
-Add health disclaimer checkbox
-Auto-fill location and contact phone from user profile
-Implement optimistic UI update
-Add to offline queue if no connection
-Show success message and navigate to marketplace
-_Requirements: 5.1, 10.1,_
 
- 10.3
-7.2 Implement photo upload with compression
-Add photo picker with camera and gallery options
-Compress images to <500KB before upload
-Show upload progress indicator
-Handle upload errors gracefully
-Store photo URL in listing
--_Requirements: 5.2_
-7.3 Implement video upload with validation
-Add video picker with camera and gallery options
-Validate video duration (≤10 seconds)
-Validate video file size (≤20MB)
-Generate video preview
-Show upload progress indicator
-Handle upload errors gracefully
-Store video URL in listing
--_Requirements: 5.2_
-7.4 Create useMarketplaceListing hook
-Implement listing creation logic with Supabase
-Add offline queue support
-Implement optimistic UI updates
-Add error handling with user-friendly messages
-Auto-fill location and contact_phone
-Handle female animal specific attributes
--_Requirements: 5.1, 6.1_
-7.5 Create MyListings page
-Fetch and display user's active listings
-Show listing cards with photo/video indicator, animal name, price, views count
-Display female animal specific attributes when applicable
-Add action buttons: View Interests, Mark as Sold, Cancel Listing
-Show empty state when no listings
-- _Requirements: 5.1_
+  - Implement 3-click listing creation
+  - Add photo upload with compression
+  - Add video upload with validation (≤10 seconds, ≤20MB)
+  - Add female animal specific attributes
+  - Add disclaimer for animal health information
+  - _Requirements: 5.1, 5.2, 10.1, 10.3_
 
-7.6 Test listing creation flow
-Create listing with photo
-Create listing with video
-Create listing with both photo and video
-Create listing for female animal with pregnancy/lactation info
-Test price input validation
-Test negotiable toggle
-Test offline listing creation
-Verify listing appears in marketplace
-Verify listing appears in MyListings
-Verify female animal attributes display correctly
--_Requirements: 5.1, 10.1_
+- [x] 7.1 Create AnimalSelector component for listings
+
+  - Fetch user's animals that are not already listed
+  - Display animals as visual cards with photos and names
+  - Show animal type icon and subtype
+  - Identify and display gender for female animals (Cow, Female Goat, Ewe)
+  - Implement selection state with visual feedback
+  - Add empty state when no animals available
+  - _Requirements: 5.1, 10.1_
+
+
+
+
+- [ ] 7.2 Create PriceInput component
+  - Build price input field with Ethiopian Birr (ETB) label
+  - Add number formatting (thousands separator)
+  - Implement validation (min: 100 ETB, max: 1,000,000 ETB)
+  - Add "Negotiable" toggle switch below price input
+  - Show validation errors in Amharic and English
+
+
+  - Style with large touch targets (min 44x44px)
+  - _Requirements: 5.1, 10.1_
+
+- [ ] 7.3 Create PhotoUploadField component
+  - Add photo picker with camera and gallery options
+  - Show photo preview after selection
+  - Compress images to <500KB before upload using imageCompression utility
+  - Display upload progress indicator
+  - Show compressed file size
+
+
+  - Handle upload errors with user-friendly messages
+  - Allow photo removal and re-selection
+  - Mark as optional but encouraged with visual hint
+  - _Requirements: 5.2_
+
+- [ ] 7.4 Create VideoUploadField component
+  - Add video picker with camera and gallery options
+  - Validate video duration (≤10 seconds) before upload
+  - Validate video file size (≤20MB) before upload
+  - Generate and show video thumbnail preview
+
+
+  - Display upload progress indicator
+  - Handle validation errors (duration/size exceeded)
+  - Handle upload errors gracefully
+  - Allow video removal and re-selection
+  - Mark as optional but recommended with visual hint
+  - _Requirements: 5.2_
+
+- [x] 7.5 Create FemaleAnimalFields component
+
+
+
+  - Show only when selected animal is female (Cow, Female Goat, Ewe)
+  - Add pregnancy status field (Not Pregnant, Pregnant, Recently Calved/Kidded/Lambed)
+  - Add lactation status field (Lactating, Dry)
+  - Add milk production capacity field (liters per day) for lactating animals
+  - Add expected delivery date picker for pregnant animals
+
+
+  - Use conditional rendering based on selections
+  - Add bilingual labels (Amharic + English)
+  - _Requirements: 5.1_
+
+- [ ] 7.6 Create HealthDisclaimerCheckbox component
+  - Display health disclaimer text in Amharic and English
+  - Text: "I confirm this animal is healthy and has no known diseases"
+  - Implement required checkbox (cannot submit without checking)
+  - Add info icon with expanded disclaimer details
+  - Style with clear visual emphasis
+  - _Requirements: 5.1_
+
+
+
+- [ ] 7.7 Create CreateListing page
+  - Implement multi-step form layout with progress indicator
+  - Step 1: Select Animal (AnimalSelector)
+  - Step 2: Set Price (PriceInput)
+  - Step 3: Add Media (PhotoUploadField, VideoUploadField - optional)
+  - Step 4: Additional Details (FemaleAnimalFields if applicable, HealthDisclaimerCheckbox)
+  - Auto-fill location from user profile
+  - Auto-fill contact_phone from user profile
+  - Add "Back" and "Next" navigation buttons
+
+
+  - Add "Skip" option for optional steps
+  - Implement form validation before submission
+  - _Requirements: 5.1, 10.1, 10.3_
+
+- [ ] 7.8 Create useMarketplaceListing hook
+  - Implement listing creation logic with Supabase
+  - Handle photo upload to Supabase Storage
+
+
+  - Handle video upload to Supabase Storage
+  - Add offline queue support for listing creation
+  - Implement optimistic UI updates
+  - Add error handling with user-friendly messages
+  - Auto-fill location and contact_phone from user profile
+  - Handle female animal specific attributes in payload
+  - Return loading, error, and success states
+  - _Requirements: 5.1, 6.1_
+
+
+- [ ] 7.9 Integrate listing creation with offline queue
+  - Update useMarketplaceListing to use offline queue
+  - Queue listing creation when offline
+  - Queue photo upload when offline
+  - Queue video upload when offline
+  - Show "Saved locally, will post when online" message
+  - Sync automatically when connection restored
+  - _Requirements: 6.1_
+
+
+- [ ] 7.10 Create MyListings page
+  - Fetch and display user's active listings using TanStack Query
+  - Show listing cards with photo/video indicator
+  - Display animal name, type, price, views count
+  - Display female animal specific attributes when applicable (pregnancy, lactation)
+  - Add action buttons: View Interests, Edit, Mark as Sold, Cancel Listing
+  - Show empty state with call-to-action when no listings
+  - Add floating action button for "Create Listing"
+  - Implement pull-to-refresh
+  - _Requirements: 5.1_
+
+- [ ] 7.11 Implement listing status management
+  - Add "Mark as Sold" functionality
+  - Add "Cancel Listing" functionality with confirmation dialog
+  - Update listing status in database
+  - Update UI optimistically
+  - Add to offline queue if no connection
+  - Show success/error messages
+  - _Requirements: 5.1_
+
+- [ ] 7.12 Test listing creation flow
+  - Create listing with photo only
+  - Create listing with video only
+  - Create listing with both photo and video
+  - Create listing without media (skip optional steps)
+  - Create listing for female animal with pregnancy/lactation info
+  - Create listing for male animal (verify female fields don't show)
+  - Test price input validation (too low, too high, invalid)
+  - Test negotiable toggle
+  - Test health disclaimer checkbox (required)
+  - Test offline listing creation
+  - Verify listing appears in marketplace browse
+  - Verify listing appears in MyListings
+  - Verify female animal attributes display correctly
+  - Test mark as sold functionality
+  - Test cancel listing functionality
+  - _Requirements: 5.1, 10.1_
 
 
 - [x] 8. Marketplace - Browse & Contact (Day 3 Evening)

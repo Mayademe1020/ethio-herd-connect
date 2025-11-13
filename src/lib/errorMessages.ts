@@ -30,6 +30,8 @@ export type ErrorType =
   | 'sync_failed'
   | 'permission_denied'
   | 'not_found'
+  | 'milk_load_failed'
+  | 'milk_export_failed'
   | 'unknown';
 
 export const ERROR_MESSAGES: Record<ErrorType, Omit<ErrorMessage, 'action'>> = {
@@ -107,6 +109,16 @@ export const ERROR_MESSAGES: Record<ErrorType, Omit<ErrorMessage, 'action'>> = {
     amharic: 'መረጃው አልተገኘም።',
     english: 'Data not found.',
     icon: '🔍',
+  },
+  milk_load_failed: {
+    amharic: 'የወተት መረጃ መጫን አልተሳካም። እባክዎ ግንኙነትዎን ያረጋግጡ።',
+    english: 'Failed to load milk data. Please check your connection.',
+    icon: '🥛',
+  },
+  milk_export_failed: {
+    amharic: 'ወደ CSV መላክ አልተሳካም። እባክዎ እንደገና ይሞክሩ።',
+    english: 'Failed to export to CSV. Please try again.',
+    icon: '📄',
   },
   unknown: {
     amharic: 'ያልተጠበቀ ስህተት። እባክዎ እንደገና ይሞክሩ።',
@@ -229,6 +241,16 @@ export const SUCCESS_MESSAGES = {
     amharic: 'በተሳካ ሁኔታ ወጥተዋል።',
     english: 'Logged out successfully.',
     icon: '👋',
+  },
+  milk_exported: {
+    amharic: 'የወተት መዝገብ በተሳካ ሁኔታ ወደ CSV ተልኳል!',
+    english: 'Milk records exported to CSV successfully!',
+    icon: '📄',
+  },
+  milk_updated: {
+    amharic: 'የወተት መዝገብ በተሳካ ሁኔታ ተዘምኗል!',
+    english: 'Milk record updated successfully!',
+    icon: '✓',
   },
 } as const;
 

@@ -107,7 +107,7 @@ describe('Localization System', () => {
       fireEvent.click(screen.getByText('Switch to English'));
       
       await waitFor(() => {
-        expect(localStorage.getItem('language')).toBe('en');
+        expect(localStorage.getItem('ethio-herd-language')).toBe('en');
       });
       
       unmount();

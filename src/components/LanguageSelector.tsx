@@ -1,32 +1,32 @@
 import React from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Languages } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslations } from '@/hooks/useTranslations';
 
-export const LanguageSelector = () => {
-  const { language, setLanguage, getLanguageName, getLanguageFlag } = useLanguage();
+export const LanguageSelector: React.FC = () => {
+  const { language, setLanguage } = useLanguage();
+  const { t } = useTranslations();
+
+  const languages = [
+    { code: 'am' as const, name: 'አማርኛ', nativeName: 'Amharic' },
+    { code: 'en' as const, name: 'English', nativeName: 'English' },
+    { code: 'or' as const, name: 'Afaan Oromoo', nativeName: 'Oromo' },
+    { code: 'sw' as const, name: 'Kiswahili', nativeName: 'Swahili' }
+  ];
 
   return (
-    <Select value={language} onValueChange={setLanguage}>
-      <SelectTrigger className="w-auto min-w-[140px] h-12 border-2 border-emerald-200 focus:border-emerald-500 bg-white/90 backdrop-blur-sm">
-        <SelectValue>
-          <div className="flex items-center space-x-2">
-            <span className="text-lg">{getLanguageFlag(language)}</span>
-            <span className="font-medium text-gray-700">{getLanguageName(language)}</span>
-          </div>
-        </SelectValue>
-      </SelectTrigger>
-      <SelectContent>
-        {(['am', 'en', 'or'] as const).map((lang) => (
-          <SelectItem key={lang} value={lang}>
-            <div className="flex items-center space-x-3">
-              <span className="text-lg">{getLanguageFlag(lang)}</span>
-              <span className="font-medium">{getLanguageName(lang)}</span>
-            </div>
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <div className="flex gap-2">
+      {languages.map((lang) => (
+        <Button
+          key={lang.code}
+          variant={language === lang.code ? 'default' : 'outline'}
+          size="sm"
+          onClick={() => setLanguage(lang.code)}
+          className="text-xs"
+        >
+          {lang.name}
+        </Button>
+      ))}
+    </div>
   );
 };

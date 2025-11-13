@@ -48,9 +48,11 @@ export type Database = {
         Row: {
           age: number | null
           animal_code: string
+          animal_id: string | null
           birth_date: string | null
           breed: string | null
           created_at: string
+          deceased_date: string | null
           health_status: string | null
           id: string
           is_vet_verified: boolean | null
@@ -58,6 +60,9 @@ export type Database = {
           name: string
           parent_id: string | null
           photo_url: string | null
+          sold_date: string | null
+          status: string | null
+          transferred_date: string | null
           type: string
           updated_at: string
           user_id: string
@@ -66,9 +71,11 @@ export type Database = {
         Insert: {
           age?: number | null
           animal_code: string
+          animal_id?: string | null
           birth_date?: string | null
           breed?: string | null
           created_at?: string
+          deceased_date?: string | null
           health_status?: string | null
           id?: string
           is_vet_verified?: boolean | null
@@ -76,6 +83,9 @@ export type Database = {
           name: string
           parent_id?: string | null
           photo_url?: string | null
+          sold_date?: string | null
+          status?: string | null
+          transferred_date?: string | null
           type: string
           updated_at?: string
           user_id: string
@@ -84,9 +94,11 @@ export type Database = {
         Update: {
           age?: number | null
           animal_code?: string
+          animal_id?: string | null
           birth_date?: string | null
           breed?: string | null
           created_at?: string
+          deceased_date?: string | null
           health_status?: string | null
           id?: string
           is_vet_verified?: boolean | null
@@ -94,6 +106,9 @@ export type Database = {
           name?: string
           parent_id?: string | null
           photo_url?: string | null
+          sold_date?: string | null
+          status?: string | null
+          transferred_date?: string | null
           type?: string
           updated_at?: string
           user_id?: string
@@ -105,6 +120,54 @@ export type Database = {
             columns: ["parent_id"]
             isOneToOne: false
             referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      animal_status_history: {
+        Row: {
+          id: string
+          animal_id: string | null
+          old_status: string | null
+          new_status: string
+          reason: string | null
+          details: Json | null
+          changed_by: string | null
+          changed_at: string
+        }
+        Insert: {
+          id?: string
+          animal_id?: string | null
+          old_status?: string | null
+          new_status: string
+          reason?: string | null
+          details?: Json | null
+          changed_by?: string | null
+          changed_at?: string
+        }
+        Update: {
+          id?: string
+          animal_id?: string | null
+          old_status?: string | null
+          new_status?: string
+          reason?: string | null
+          details?: Json | null
+          changed_by?: string | null
+          changed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "animal_status_history_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: false
+            referencedRelation: "animals"
+            referencedColumns: ["animal_id"]
+          },
+          {
+            foreignKeyName: "animal_status_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -643,10 +706,13 @@ export type Database = {
           evening_yield: number | null
           fat_content: number | null
           id: string
+          liters: number
           morning_yield: number | null
           notes: string | null
           production_date: string
           quality_grade: string | null
+          recorded_at: string
+          session: string | null
           total_yield: number | null
           updated_at: string | null
           user_id: string
@@ -657,10 +723,13 @@ export type Database = {
           evening_yield?: number | null
           fat_content?: number | null
           id?: string
+          liters?: number
           morning_yield?: number | null
           notes?: string | null
           production_date?: string
           quality_grade?: string | null
+          recorded_at?: string
+          session?: string | null
           total_yield?: number | null
           updated_at?: string | null
           user_id: string
@@ -671,10 +740,13 @@ export type Database = {
           evening_yield?: number | null
           fat_content?: number | null
           id?: string
+          liters?: number
           morning_yield?: number | null
           notes?: string | null
           production_date?: string
           quality_grade?: string | null
+          recorded_at?: string
+          session?: string | null
           total_yield?: number | null
           updated_at?: string | null
           user_id?: string
@@ -848,6 +920,41 @@ export type Database = {
           vaccine_name?: string
         }
         Relationships: []
+      }
+      analytics_events: {
+        Row: {
+          created_at: string
+          event_name: string
+          id: string
+          properties: Json | null
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_name: string
+          id?: string
+          properties?: Json | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_name?: string
+          id?: string
+          properties?: Json | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

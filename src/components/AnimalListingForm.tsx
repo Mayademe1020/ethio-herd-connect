@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,11 +10,14 @@ import { Plus, Upload, X, Camera, MapPin, Tag, DollarSign } from 'lucide-react';
 import { Language } from '@/types';
 import { useDateDisplay } from '@/hooks/useDateDisplay';
 import { sanitizeFormData } from '@/utils/securityUtils';
+import { useFormDraft } from '@/hooks/useFormDraft';
+import { DraftRestorePrompt } from '@/components/DraftRestorePrompt';
 
 interface AnimalListingFormProps {
   isOpen: boolean;
   onClose: () => void;
   language: Language;
+  selectedAnimal?: { id: string; animal_id?: string; name: string; type: string };
   onSubmit: (data: any) => Promise<void>;
 }
 
@@ -22,6 +25,7 @@ export const AnimalListingForm = ({
   isOpen,
   onClose,
   language,
+  selectedAnimal,
   onSubmit
 }: AnimalListingFormProps) => {
   const [formData, setFormData] = useState({
@@ -40,7 +44,46 @@ export const AnimalListingForm = ({
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
+  const [showDraftPrompt, setShowDraftPrompt] = useState(false);
   const { toast } = useToast();
+
+  // Form draft functionality
+  const {
+    draftData,
+    saveDraft,
+    clearDraft,
+    hasDraft,
+    restoreDraft,
+    isRestoring
+  } = useFormDraft({
+    draftKey: 'marketplace-listing-form',
+    onDraftRestored: (data) => {
+      if (data.formData) {
+        setFormData(data.formData);
+      }
+      if (data.photoPreviews) {
+        setPhotoPreviews(data.photoPreviews);
+      }
+      setShowDraftPrompt(false);
+    }
+  });
+
+  // Check for draft on mount
+  useEffect(() => {
+    if (hasDraft && !isRestoring) {
+      setShowDraftPrompt(true);
+    }
+  }, [hasDraft, isRestoring]);
+
+  // Auto-save draft when form data changes
+  useEffect(() => {
+    const hasData = Object.values(formData).some(value =>
+      Array.isArray(value) ? value.length > 0 : value !== '' && value !== false
+    );
+    if (hasData) {
+      saveDraft({ formData, photoPreviews });
+    }
+  }, [formData, photoPreviews, saveDraft]);
 
   const translations = {
     am: {
@@ -229,13 +272,23 @@ export const AnimalListingForm = ({
     try {
       // Sanitize form data before submission
       const sanitizedData = sanitizeFormData(formData);
-      
-      await onSubmit(sanitizedData);
+
+      // Include animal_id if selectedAnimal is provided
+      const submissionData = {
+        ...sanitizedData,
+        animal_id: selectedAnimal?.animal_id,
+        animal_database_id: selectedAnimal?.id
+      };
+
+      await onSubmit(submissionData);
       toast({
         title: t.success,
-        description: "Your listing is now live on the marketplace.",
+        description: selectedAnimal
+          ? `${selectedAnimal.name} is now listed for sale.`
+          : "Your listing is now live on the marketplace.",
       });
       onClose();
+      clearDraft(); // Clear draft after successful submission
       // Reset form
       setFormData({
         title: '',
@@ -263,13 +316,43 @@ export const AnimalListingForm = ({
     }
   };
 
+  const handleRestoreDraft = () => {
+    const restoredData = restoreDraft();
+    if (restoredData?.formData) {
+      setFormData(restoredData.formData);
+    }
+    if (restoredData?.photoPreviews) {
+      setPhotoPreviews(restoredData.photoPreviews);
+    }
+  };
+
+  const handleDiscardDraft = () => {
+    clearDraft();
+    setShowDraftPrompt(false);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+        {/* Draft Restore Prompt */}
+        {showDraftPrompt && draftData && (
+          <DraftRestorePrompt
+            draftData={draftData}
+            onRestore={handleRestoreDraft}
+            onDiscard={handleDiscardDraft}
+            formName={t.title}
+          />
+        )}
+
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Plus className="w-5 h-5" />
-            {t.title}
+            {selectedAnimal ? `List ${selectedAnimal.name} for Sale` : t.title}
+            {selectedAnimal?.animal_id && (
+              <span className="text-sm text-gray-500 font-normal">
+                (ID: {selectedAnimal.animal_id})
+              </span>
+            )}
           </DialogTitle>
         </DialogHeader>
 
