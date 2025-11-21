@@ -1,5 +1,3 @@
-// src/components/AnimalCard.tsx - Visual card component for displaying animals
-
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,6 +24,9 @@ interface AnimalCardProps {
   status?: string; // Professional status system
   pregnancy_status?: 'not_pregnant' | 'pregnant' | 'delivered';
   pregnancy_data?: PregnancyRecord[];
+  weight?: number;
+  age?: string;
+  lastActivity?: string;
 }
 
 const ANIMAL_ICONS = {
@@ -46,7 +47,10 @@ export const AnimalCard = ({
   registration_date,
   status = 'active',
   pregnancy_status,
-  pregnancy_data
+  pregnancy_data,
+  weight,
+  age,
+  lastActivity
 }: AnimalCardProps) => {
   const navigate = useNavigate();
   const canProduceMilk = MILK_PRODUCING_SUBTYPES.includes(subtype);
@@ -57,7 +61,7 @@ export const AnimalCard = ({
   const currentPregnancy = isPregnant && pregnancy_data && pregnancy_data.length > 0
     ? pregnancy_data[pregnancy_data.length - 1]
     : null;
-  const daysUntilDelivery = currentPregnancy 
+  const daysUntilDelivery = currentPregnancy
     ? calculateDaysRemaining(currentPregnancy.expected_delivery)
     : null;
 
@@ -77,97 +81,99 @@ export const AnimalCard = ({
 
   return (
     <Card
-      className={`overflow-hidden cursor-pointer transition-all hover:shadow-lg ${isActive ? 'border-green-200' : 'border-gray-300 opacity-60'
-        }`}
+      className={`
+        cursor-pointer card-hover
+        ${isActive ? 'border-gray-100' : 'border-gray-300 opacity-60'}
+        bg-white rounded-xl p-4 border border-gray-100
+      `}
       onClick={handleCardClick}
     >
-      {/* Photo Section */}
-      <div className="relative h-48 bg-gradient-to-br from-green-50 to-green-100">
-        {photo_url ? (
-          <OptimizedImage
-            src={photo_url}
-            alt={name}
-            className="w-full h-full"
-            fallbackIcon={ANIMAL_ICONS[type]}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-6xl">
-            {ANIMAL_ICONS[type]}
-          </div>
-        )}
-
-        {/* Status Badge */}
-        <div className="absolute top-2 right-2 flex flex-col gap-1 items-end">
-          <div className={`px-3 py-1 rounded-full text-xs font-semibold ${isActive
-            ? 'bg-green-500 text-white'
-            : 'bg-gray-500 text-white'
-            }`}>
-            {isActive ? '✓ Active' : status || 'Inactive'}
+      <div className="flex items-start gap-4">
+        
+        {/* Animal Photo - Rounded, good aspect ratio */}
+        <div className="relative flex-shrink-0">
+          <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-100">
+            {photo_url ? (
+              <OptimizedImage
+                src={photo_url}
+                alt={name}
+                className="w-full h-full object-cover"
+                fallbackIcon={ANIMAL_ICONS[type]}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-3xl">
+                {ANIMAL_ICONS[type]}
+              </div>
+            )}
           </div>
           
-          {/* Pregnancy Badge */}
+          {/* Status badge - Absolute positioned */}
+          <div className={`
+            absolute -top-2 -right-2 px-2 py-0.5 rounded-full text-xs font-medium shadow-sm
+            ${isActive ? 'bg-emerald-500 text-white' : 'bg-gray-500 text-white'}
+          `}>
+            {isActive ? 'Active' : status || 'Inactive'}
+          </div>
+
+          {/* Pregnancy badge */}
           {isPregnant && daysUntilDelivery !== null && (
-            <div className="bg-pink-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+            <div className="absolute -bottom-2 -right-2 bg-pink-500 text-white px-2 py-0.5 rounded-full text-xs font-medium shadow-sm flex items-center gap-1">
               <Heart className="w-3 h-3 fill-current" />
               <span>{daysUntilDelivery}d</span>
             </div>
           )}
         </div>
-
-        {/* Animal ID Badge */}
-        {animal_id && (
-          <div className="absolute bottom-2 left-2">
-            <AnimalIdBadge animalId={animal_id} size="sm" showCopyButton={false} />
+        
+        {/* Animal Info */}
+        <div className="flex-1 min-w-0">
+          {/* Name and Type */}
+          <div className="mb-2">
+            <h3 className="text-base font-semibold text-gray-900 truncate">
+              {name}
+            </h3>
+            <p className="text-sm text-gray-600">
+              {subtype || type} {animal_id && `• ${animal_id}`}
+            </p>
           </div>
-        )}
-
-        {/* Type Icon Badge */}
-        <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-2xl">
-          {ANIMAL_ICONS[type]}
-        </div>
-      </div>
-
-      {/* Info Section */}
-      <div className="p-4 space-y-3">
-        {/* Name and Subtype */}
-        <div>
-          <h3 className="text-lg font-bold text-gray-900 truncate">
-            {name}
-          </h3>
-          <p className="text-sm text-gray-600">
-            {subtype}
-          </p>
-        </div>
-
-        {/* Registration Date */}
-        <div className="flex items-center gap-2 text-xs text-gray-500">
-          <Calendar className="w-4 h-4" />
-          <span>
-            Registered {formatDistanceToNow(new Date(registration_date), { addSuffix: true })}
-          </span>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-2 pt-2">
-          {canProduceMilk && (
-            <Button
-              onClick={handleRecordMilk}
-              size="sm"
-              className="flex-1 bg-blue-500 hover:bg-blue-600 text-white"
-            >
-              <Milk className="w-4 h-4 mr-1" />
-              Record Milk
-            </Button>
+          
+          {/* Quick Stats */}
+          {(weight || age || lastActivity) && (
+            <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
+              {weight && (
+                <>
+                  <span>{weight}kg</span>
+                  <span>•</span>
+                </>
+              )}
+              {age && (
+                <>
+                  <span>{age}</span>
+                  <span>•</span>
+                </>
+              )}
+              {lastActivity && <span>{lastActivity}</span>}
+            </div>
           )}
-          <Button
-            onClick={handleViewDetails}
-            size="sm"
-            variant="outline"
-            className={canProduceMilk ? 'flex-1' : 'w-full'}
-          >
-            <Eye className="w-4 h-4 mr-1" />
-            View Details
-          </Button>
+          
+          {/* Action Buttons */}
+          <div className="flex gap-2">
+            {canProduceMilk && (
+              <button
+                onClick={handleRecordMilk}
+                className="flex-1 bg-emerald-500 text-white text-sm font-medium px-3 py-2 rounded-lg
+                          hover:bg-emerald-600 btn-press flex items-center justify-center gap-1"
+              >
+                <Milk className="w-4 h-4" />
+                🥛 Record Milk
+              </button>
+            )}
+            <button
+              onClick={handleViewDetails}
+              className="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 btn-press"
+            >
+              <Eye className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       </div>
     </Card>

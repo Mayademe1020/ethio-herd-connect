@@ -7,10 +7,11 @@ import { useTranslations } from '@/hooks/useTranslations';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, Home, Heart, ShoppingCart, Stethoscope, Calendar } from 'lucide-react';
+import { Search, Milk, Plus, Beef, ShoppingCart, Bell, LogOut, TrendingUp, Calendar } from 'lucide-react';
 import { useMilkAnalytics } from '@/hooks/useMilkAnalytics';
 import { milkQueries } from '@/lib/milkQueries';
 import { toast } from 'sonner';
+import { BottomNavigation } from '@/components/BottomNavigation';
 
 export const HomeScreen = () => {
   const { user, userProfile } = useAuth();
@@ -195,192 +196,214 @@ export const HomeScreen = () => {
   const userName = userProfile?.full_name || user?.email?.split('@')[0] || 'ተጠቃሚ';
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* TopBar */}
-      <div className="bg-card border-b border-border px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <span className="text-2xl">🛡️</span>
-          <h1 className="text-xl font-bold text-foreground amharic-text">MyLivestock</h1>
+    <div className="min-h-screen bg-gray-50 pb-24">
+      {/* Header */}
+      <div className="bg-white px-4 py-4 flex items-center justify-between shadow-sm">
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">👋</span>
+          <div>
+            <h1 className="text-lg font-semibold text-gray-900">Welcome, Farmer</h1>
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+              <span>Online • All synced</span>
+            </div>
+          </div>
         </div>
-        <div className="text-right">
-          <p className="text-sm text-foreground amharic-text font-medium">
-            {userName} {t('home.userGreeting')}
-            {userProfile?.mobile_number ? `, ${userProfile.mobile_number}!` : '!'}
-          </p>
-          <p className="text-xs text-muted-foreground amharic-text">{t('home.currentDate')} • {currentDate}</p>
-        </div>
+        <button className="text-gray-500 hover:text-gray-700 p-2">
+          <LogOut className="w-5 h-5" />
+        </button>
       </div>
 
-      {/* Search Bar */}
-      <div className="px-4 py-4 bg-card border-b border-border">
-        <form onSubmit={handleSearch} className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder={t('home.searchPlaceholder')}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 h-11 bg-muted/50 border-border rounded-xl amharic-text focus:ring-primary focus:border-primary"
-          />
-        </form>
-      </div>
-
-      <div className="px-4 pb-20">
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 gap-4 py-4">
-          {/* Total Animals Card */}
+      <div className="px-4 py-6 space-y-6">
+        {/* Action Cards Grid */}
+        <div className="grid grid-cols-2 gap-4">
           <Card
-            className="farmer-card cursor-pointer touch-target-large"
-            onClick={() => handleCardNavigation('/animals')}
+            className="card-standard cursor-pointer interactive-lift group relative overflow-hidden"
+            onClick={() => handleCardNavigation('/record-milk')}
           >
-            <CardContent className="p-4 text-center">
-              <div className="w-8 h-8 mx-auto mb-2 text-primary">
-                <Home className="w-full h-full" />
-              </div>
-              <h3 className="text-sm font-medium text-foreground amharic-text mb-1">{t('home.totalAnimals')}</h3>
-              <p className="text-2xl font-bold text-primary">{stats.totalAnimals}</p>
+            <div className="absolute inset-0 bg-emerald-500 opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
+            <CardContent className="p-4 text-center relative z-10">
+              <Milk className="w-8 h-8 mx-auto mb-3 text-emerald-500 group-hover:scale-110 transition-transform duration-200" />
+              <h3 className="text-sm font-semibold text-gray-900 mb-1">Record Milk</h3>
+              <p className="text-xs text-gray-500">Quick entry</p>
+              {(dailyMilkStats?.today_liters || 0) > 0 && (
+                <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-xs font-medium">
+                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
+                  {dailyMilkStats?.today_liters || 0}L today
+                </div>
+              )}
             </CardContent>
           </Card>
 
-          {/* Favorites Card */}
           <Card
-            className="farmer-card cursor-pointer touch-target-large"
-            onClick={() => handleCardNavigation('/animals?filter=favorites')}
+            className="card-standard cursor-pointer interactive-lift group relative overflow-hidden"
+            onClick={handleAddAnimal}
           >
-            <CardContent className="p-4 text-center">
-              <div className="w-8 h-8 mx-auto mb-2 text-destructive">
-                <Heart className="w-full h-full" />
+            <div className="absolute inset-0 bg-orange-500 opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
+            <CardContent className="p-4 text-center relative z-10">
+              <Plus className="w-8 h-8 mx-auto mb-3 text-orange-500 group-hover:scale-110 transition-transform duration-200" />
+              <h3 className="text-sm font-semibold text-gray-900 mb-1">Add Animal</h3>
+              <p className="text-xs text-gray-500">New livestock</p>
+              <div className="mt-2">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full text-xs font-medium floating">
+                  <span>✨</span>
+                  Quick add
+                </span>
               </div>
-              <h3 className="text-sm font-medium text-foreground amharic-text mb-1">{t('home.favoriteAnimals')}</h3>
-              <p className="text-2xl font-bold text-primary">{stats.favoriteAnimals}</p>
             </CardContent>
           </Card>
 
-          {/* Appointments Card */}
           <Card
-            className="farmer-card cursor-pointer touch-target-large"
-            onClick={() => handleCardNavigation('/medical')}
+            className="card-standard cursor-pointer interactive-lift group relative overflow-hidden"
+            onClick={() => handleCardNavigation('/my-animals')}
           >
-            <CardContent className="p-4 text-center">
-              <div className="w-8 h-8 mx-auto mb-2 text-secondary">
-                <Calendar className="w-full h-full" />
-              </div>
-              <h3 className="text-sm font-medium text-foreground amharic-text mb-1">{t('home.upcomingAppointments')}</h3>
-              <p className="text-2xl font-bold text-primary">{stats.upcomingAppointments}</p>
+            <div className="absolute inset-0 bg-blue-500 opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
+            <CardContent className="p-4 text-center relative z-10">
+              <Beef className="w-8 h-8 mx-auto mb-3 text-blue-500 group-hover:scale-110 transition-transform duration-200" />
+              <h3 className="text-sm font-semibold text-gray-900 mb-1">My Animals</h3>
+              <p className="text-xs text-gray-500">{stats.totalAnimals} total</p>
+              {stats.totalAnimals > 0 && (
+                <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                  {stats.totalAnimals} active
+                </div>
+              )}
             </CardContent>
           </Card>
 
-          {/* Sales Card */}
           <Card
-            className="farmer-card cursor-pointer touch-target-large"
+            className="card-standard cursor-pointer interactive-lift group relative overflow-hidden"
             onClick={() => handleCardNavigation('/marketplace')}
           >
-            <CardContent className="p-4 text-center">
-              <div className="w-8 h-8 mx-auto mb-2 text-accent">
-                <ShoppingCart className="w-full h-full" />
-              </div>
-              <h3 className="text-sm font-medium text-foreground amharic-text mb-1">{t('home.sales')}</h3>
-              <p className="text-2xl font-bold text-primary">{stats.salesCount}</p>
+            <div className="absolute inset-0 bg-purple-500 opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
+            <CardContent className="p-4 text-center relative z-10">
+              <ShoppingCart className="w-8 h-8 mx-auto mb-3 text-purple-500 group-hover:scale-110 transition-transform duration-200" />
+              <h3 className="text-sm font-semibold text-gray-900 mb-1">Marketplace</h3>
+              <p className="text-xs text-gray-500">Buy & sell</p>
+              {stats.salesCount > 0 ? (
+                <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                  <span className="w-1.5 h-1.5 bg-purple-500 rounded-full"></span>
+                  {stats.salesCount} listings
+                </div>
+              ) : (
+                <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
+                  <span>💡</span>
+                  Get started
+                </span>
+              )}
             </CardContent>
           </Card>
         </div>
 
-        {/* Milk Production Card */}
-        <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 mt-6">
-          <CardContent className="p-6 text-center">
-            <div className="w-12 h-12 mx-auto mb-4 text-4xl">🥛</div>
-            <h3 className="text-lg font-bold text-foreground amharic-text mb-4">
-              የወተት ምርት / Milk Production
-            </h3>
+        {/* Today's Tasks Section */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">Today's Tasks</h2>
+            <span className="bg-emerald-100 text-emerald-700 text-xs font-medium px-2 py-1 rounded-full">
+              {stats.upcomingAppointments}
+            </span>
+          </div>
 
-            {/* Daily Stats Grid */}
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div className="bg-white/50 rounded-lg p-3">
-                <p className="text-xs text-gray-600 mb-1">ያለቀ ቀን / Yesterday</p>
-                <p className="text-xl font-bold text-gray-700">
-                  {dailyLoading ? '...' : `${dailyMilkStats?.yesterday_liters || 0} L`}
-                </p>
+          {/* Task Items */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between p-4 bg-white rounded-lg shadow-sm border border-gray-200">
+              <div className="flex items-center gap-3">
+                <Milk className="w-5 h-5 text-emerald-500" />
+                <div>
+                  <p className="text-sm font-medium text-gray-900">Record milk production</p>
+                  <p className="text-xs text-gray-500">Daily routine</p>
+                </div>
               </div>
-              <div className="bg-blue-100 rounded-lg p-3">
-                <p className="text-xs text-blue-600 mb-1">ያለቀ ቀን / Today</p>
-                <p className="text-2xl font-bold text-blue-600">
-                  {dailyLoading ? '...' : `${dailyMilkStats?.today_liters || 0} L`}
-                </p>
+              <span className="text-gray-400 text-xl">→</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Stats Section */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-gray-900">Quick Stats</h2>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 text-center relative overflow-hidden">
+              <div className="absolute top-2 right-2">
+                <TrendingUp className="w-4 h-4 text-green-500" />
+              </div>
+              <Beef className="w-6 h-6 mx-auto mb-2 text-blue-500" />
+              <p className="text-2xl font-bold text-gray-900">{stats.totalAnimals}</p>
+              <p className="text-xs text-gray-500">Total Animals</p>
+              {stats.totalAnimals > 0 && (
+                <div className="mt-1">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs">
+                    <span className="w-1 h-1 bg-green-500 rounded-full"></span>
+                    Active
+                  </span>
+                </div>
+              )}
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 text-center relative overflow-hidden">
+              <div className="absolute top-2 right-2">
+                {(dailyMilkStats?.today_liters || 0) > (dailyMilkStats?.yesterday_liters || 0) ? (
+                  <TrendingUp className="w-4 h-4 text-green-500" />
+                ) : (
+                  <TrendingUp className="w-4 h-4 text-orange-500 rotate-180" />
+                )}
+              </div>
+              <Milk className="w-6 h-6 mx-auto mb-2 text-emerald-500" />
+              <p className="text-2xl font-bold text-gray-900">{dailyLoading ? '...' : `${dailyMilkStats?.today_liters || 0}L`}</p>
+              <p className="text-xs text-gray-500">Today's Production</p>
+              <div className="mt-1">
+                <span className="text-xs text-gray-400">
+                  Yesterday: {dailyMilkStats?.yesterday_liters || 0}L
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Featured Stats with Trends */}
+          <div className="grid grid-cols-1 gap-4">
+            <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center">
+                    <Milk className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-emerald-900">Weekly Production</p>
+                    <p className="text-xs text-emerald-700">Last 7 days total</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-xl font-bold text-emerald-700">{milkAnalytics?.thisWeekTotal || 0}L</p>
+                  {milkAnalytics?.trendPercentage && (
+                    <div className="flex items-center gap-1 justify-end mt-1">
+                      <TrendingUp className="w-3 h-3 text-emerald-600" />
+                      <span className="text-xs text-emerald-600">
+                        {milkAnalytics.trendPercentage > 0 ? '+' : ''}{milkAnalytics.trendPercentage.toFixed(1)}%
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
-            {/* Weekly Summary */}
-            <div className="text-sm text-gray-600 mb-3">
-              በዚህ ሳምንት / This Week: {milkAnalytics?.thisWeekTotal || 0} L total
+            {/* Health & Tasks Overview */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                <Calendar className="w-5 h-5 mx-auto mb-2 text-blue-600" />
+                <p className="text-lg font-bold text-blue-700">{stats.upcomingAppointments}</p>
+                <p className="text-xs text-blue-600">Upcoming Tasks</p>
+              </div>
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 text-center">
+                <ShoppingCart className="w-5 h-5 mx-auto mb-2 text-purple-600" />
+                <p className="text-lg font-bold text-purple-700">{stats.salesCount}</p>
+                <p className="text-xs text-purple-600">Market Listings</p>
+              </div>
             </div>
-
-            {/* Action Button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xs text-muted-foreground"
-              onClick={() => handleCardNavigation('/milk-summary')}
-            >
-              የወተት ማጠቃለያ ይመልከቱ / View Milk Summary
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Empty State (shown when no animals) */}
-        {stats.totalAnimals === 0 && (
-          <Card className="mt-6 border-dashed border-2 border-muted-foreground/30">
-            <CardContent className="p-8 text-center space-y-4">
-              <div className="text-6xl mb-4">🐮</div>
-              <h3 className="text-lg font-bold text-foreground amharic-text">{t('home.noAnimalsTitle')}</h3>
-              <p className="text-sm text-muted-foreground amharic-text">{t('home.noAnimalsSubtitle')}</p>
-              <Button
-                onClick={handleAddAnimal}
-                className="farmer-button w-full"
-              >
-                {t('home.addFirstAnimal')}
-              </Button>
-            </CardContent>
-          </Card>
-        )}
-      </div>
-
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border px-4 py-2">
-        <div className="flex justify-around items-center">
-          <button
-            onClick={() => handleCardNavigation('/')}
-            className="flex flex-col items-center space-y-1 p-2 text-primary touch-target-large"
-          >
-            <Home className="w-5 h-5" />
-            <span className="text-xs font-bold amharic-text">{t('home.navigation.home')}</span>
-          </button>
-
-          <button
-            onClick={() => handleCardNavigation('/animals?filter=favorites')}
-            className="flex flex-col items-center space-y-1 p-2 text-muted-foreground hover:text-primary touch-target-large"
-          >
-            <Heart className="w-5 h-5" />
-            <span className="text-xs amharic-text">{t('home.navigation.favorites')}</span>
-          </button>
-
-          <button
-            onClick={() => handleCardNavigation('/marketplace')}
-            className="flex flex-col items-center space-y-1 p-2 text-muted-foreground hover:text-primary touch-target-large"
-          >
-            <ShoppingCart className="w-5 h-5" />
-            <span className="text-xs amharic-text">{t('home.navigation.sales')}</span>
-          </button>
-
-          <button
-            onClick={() => handleCardNavigation('/medical')}
-            className="flex flex-col items-center space-y-1 p-2 text-muted-foreground hover:text-primary touch-target-large"
-          >
-            <Stethoscope className="w-5 h-5" />
-            <span className="text-xs amharic-text">{t('home.navigation.health')}</span>
-          </button>
+          </div>
         </div>
       </div>
+
+      <BottomNavigation />
     </div>
-
   );
 };

@@ -16,13 +16,14 @@ type Config = {
 
 export function register(config?: Config) {
   if ('serviceWorker' in navigator) {
-    const publicUrl = new URL(process.env.PUBLIC_URL || '', window.location.href);
+    // Vite doesn't use PUBLIC_URL like CRA, so we use the current origin
+    const publicUrl = new URL(window.location.origin);
     if (publicUrl.origin !== window.location.origin) {
       return;
     }
 
     window.addEventListener('load', () => {
-      const swUrl = `${process.env.PUBLIC_URL || ''}/sw.js`;
+      const swUrl = `${window.location.origin}/sw.js`;
 
       if (isLocalhost) {
         checkValidServiceWorker(swUrl, config);

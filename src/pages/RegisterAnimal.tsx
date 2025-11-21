@@ -14,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContextMVP';
 import { toast } from 'sonner';
 import { compressImage } from '@/utils/imageOptimization';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 type Step = 1 | 2 | 3;
 
@@ -21,6 +22,7 @@ const RegisterAnimal = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { registerAnimal, isRegistering } = useAnimalRegistration();
+  const { trackFormSubmit, trackButtonClick } = useAnalytics();
 
   // Simple 3-step form state
   const [step, setStep] = useState<Step>(1);
@@ -37,6 +39,7 @@ const RegisterAnimal = () => {
   const handleTypeSelect = (type: AnimalType) => {
     setSelectedType(type);
     setSelectedSubtype(null); // Reset subtype when type changes
+    trackButtonClick(`animal_type_${type}`, 'registration');
     setTimeout(() => setStep(2), 300); // Auto-advance
   };
 
@@ -116,6 +119,7 @@ const RegisterAnimal = () => {
         return null;
       }
 
+      trackButtonClick('photo_upload', 'registration');
       toast.success('✓ ፎቶ ተስቀለ / Photo uploaded successfully');
 
       // Get public URL
@@ -158,6 +162,7 @@ const RegisterAnimal = () => {
       });
 
       if (result.success) {
+        trackFormSubmit('animal_registration');
         toast.success(`✓ እንስሳ ተመዝግበበት / Animal registered successfully`);
         navigate('/my-animals');
       }

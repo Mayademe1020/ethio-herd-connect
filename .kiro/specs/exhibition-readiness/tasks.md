@@ -154,6 +154,7 @@ This implementation plan breaks down the exhibition readiness work into discrete
   - Create simple dashboard showing real-time event count
   - Show top 5 actions in last 24 hours
   - Add to Profile page or create separate /analytics route
+  
   - _Requirements: 3.11, 3.12_
   - _Time: 45 minutes_
 

@@ -3,6 +3,7 @@
 import { useLocation } from 'react-router-dom';
 import { TopBar } from './TopBar';
 import { BottomNavigation } from './BottomNavigation';
+import { useScreenTracking } from '@/hooks/useScreenTracking';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -10,7 +11,10 @@ interface AppLayoutProps {
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
   const location = useLocation();
-  
+
+  // Track screen views
+  useScreenTracking();
+
   // Don't show navigation on login/onboarding pages
   const hideNavigation = ['/login', '/onboarding'].includes(location.pathname);
   

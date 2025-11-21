@@ -67,10 +67,10 @@ export async function recordPregnancy(params: RecordPregnancyParams): Promise<vo
     };
 
     // Append to pregnancy history
-    const pregnancyHistory = Array.isArray(animal?.pregnancy_data) 
-      ? animal.pregnancy_data 
+    const pregnancyHistory = Array.isArray(animal?.pregnancy_data)
+      ? animal.pregnancy_data
       : [];
-    
+
     const updatedHistory = [...pregnancyHistory, newPregnancyRecord];
 
     // Update animal with pregnancy status and data
@@ -88,10 +88,10 @@ export async function recordPregnancy(params: RecordPregnancyParams): Promise<vo
 
   } catch (error) {
     console.error('Error recording pregnancy:', error);
-    
+
     // Queue for offline sync
     await offlineQueue.addToQueue('pregnancy_record', params);
-    
+
     throw error;
   }
 }
@@ -121,10 +121,10 @@ export async function recordBirth(params: RecordBirthParams): Promise<void> {
     }
 
     // Update the most recent pregnancy record
-    const pregnancyHistory = Array.isArray(animal?.pregnancy_data) 
-      ? animal.pregnancy_data 
+    const pregnancyHistory = Array.isArray(animal?.pregnancy_data)
+      ? animal.pregnancy_data
       : [];
-    
+
     if (pregnancyHistory.length === 0) {
       throw new Error('No pregnancy record found');
     }
@@ -155,10 +155,10 @@ export async function recordBirth(params: RecordBirthParams): Promise<void> {
 
   } catch (error) {
     console.error('Error recording birth:', error);
-    
+
     // Queue for offline sync
     await offlineQueue.addToQueue('birth_record', params);
-    
+
     throw error;
   }
 }
@@ -189,10 +189,10 @@ export async function terminatePregnancy(
     }
 
     // Update the most recent pregnancy record
-    const pregnancyHistory = Array.isArray(animal?.pregnancy_data) 
-      ? animal.pregnancy_data 
+    const pregnancyHistory = Array.isArray(animal?.pregnancy_data)
+      ? animal.pregnancy_data
       : [];
-    
+
     if (pregnancyHistory.length === 0) {
       throw new Error('No pregnancy record found');
     }
@@ -221,10 +221,10 @@ export async function terminatePregnancy(
 
   } catch (error) {
     console.error('Error terminating pregnancy:', error);
-    
+
     // Queue for offline sync
     await offlineQueue.addToQueue('pregnancy_terminate', { animalId, reason });
-    
+
     throw error;
   }
 }
@@ -266,13 +266,13 @@ export async function getCurrentPregnancy(animalId: string): Promise<PregnancyRe
       return null;
     }
 
-    const pregnancyHistory = Array.isArray(animal?.pregnancy_data) 
-      ? animal.pregnancy_data 
+    const pregnancyHistory = Array.isArray(animal?.pregnancy_data)
+      ? animal.pregnancy_data
       : [];
-    
+
     // Return the most recent pregnancy
-    return pregnancyHistory.length > 0 
-      ? pregnancyHistory[pregnancyHistory.length - 1] 
+    return pregnancyHistory.length > 0
+      ? pregnancyHistory[pregnancyHistory.length - 1]
       : null;
   } catch (error) {
     console.error('Error fetching current pregnancy:', error);

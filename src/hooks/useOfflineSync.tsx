@@ -47,24 +47,28 @@ export const useOfflineSync = () => {
       showInfo(t('Offline mode'), t('Changes will be saved locally and synced when online.'));
     };
 
-    // Check connection stability
-    const checkConnectionStability = () => {
-      if (navigator.onLine) {
-        // Test connection by making a small request
-        fetch('/ping', { method: 'HEAD', cache: 'no-store' })
-          .then(() => {
-            if (!isOnline) {
-              setIsOnline(true);
-              showInfo(t('Connection restored'), t('Starting to sync pending changes...'));
-              syncAll();
-            }
-          })
-          .catch(() => {
-            if (isOnline) {
-              setIsOnline(false);
-              showWarning(t('Unstable connection'), t('Your connection appears unstable. Data will be saved locally.'));
-            }
-          });
+    // Check connection stability (HEAD + timeout). Ignore AbortError to avoid noisy logs.
+    const checkConnectionStability = async () => {
+      if (!navigator.onLine) return;
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 3000);
+      try {
+        await fetch('/favicon.ico', { method: 'HEAD', cache: 'no-store', signal: controller.signal });
+        if (!isOnline) {
+          setIsOnline(true);
+          showInfo(t('Connection restored'), t('Starting to sync pending changes...'));
+          syncAll();
+        }
+      } catch (err: any) {
+        // Silently ignore aborts; only warn on real connectivity issues
+        if (err?.name === 'AbortError') {
+          // Ignore aborted pings due to navigation
+        } else if (isOnline) {
+          setIsOnline(false);
+          showWarning(t('Unstable connection'), t('Your connection appears unstable. Data will be saved locally.'));
+        }
+      } finally {
+        clearTimeout(timeout);
       }
     };
 

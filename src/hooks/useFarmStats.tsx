@@ -13,11 +13,21 @@ export interface FarmStats {
 
 export const useFarmStats = () => {
   const { user } = useAuth();
+  const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
 
   const { data: stats, isLoading, error, refetch } = useQuery({
-    queryKey: ['farmStats', user?.id],
+    queryKey: ['farmStats', user?.id, isOnline],
     queryFn: async () => {
       if (!user) return null;
+      if (!isOnline) {
+        // Offline: provide minimal stats from last known values (if any)
+        return {
+          totalAnimals: 0,
+          milkLast30Days: 0,
+          activeListings: 0,
+          lastUpdated: new Date().toISOString()
+        } as FarmStats;
+      }
 
       try {
         // Count total animals for the user
@@ -73,12 +83,16 @@ export const useFarmStats = () => {
 
         console.log('Farm stats loaded successfully:', farmStats);
         return farmStats;
-      } catch (err) {
-        console.error('Farm stats fetch exception:', err);
+      } catch (err: any) {
+        const msg = String(err?.message || '').toLowerCase();
+        const isAborted = err?.name === 'AbortError' || msg.includes('abort') || msg.includes('cancel');
+        if (!isAborted) {
+          console.error('Farm stats fetch exception:', err);
+        }
         throw err;
       }
     },
-    enabled: !!user,
+    enabled: !!user && isOnline,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 60 * 60 * 1000, // 1 hour (formerly cacheTime)
     retry: 2,

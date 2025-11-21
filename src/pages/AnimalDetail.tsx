@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContextMVP';
 import { BackButton } from '@/components/BackButton';
 import { Button } from '@/components/ui/button';
+import { EnhancedButton } from '@/components/ui/enhanced-button';
 import { Card } from '@/components/ui/card';
 import { AnimalIdBadge } from '@/components/AnimalIdBadge';
 import { 
@@ -325,46 +326,48 @@ export const AnimalDetail = () => {
             {/* Action Buttons */}
             <div className="grid grid-cols-2 gap-3 pt-4">
               {canProduceMilk && (
-                <Button
+                <EnhancedButton
                   onClick={handleRecordMilk}
+                  variant="success"
                   className="bg-blue-500 hover:bg-blue-600 text-white"
                 >
                   <Milk className="w-4 h-4 mr-2" />
                   Record Milk
-                </Button>
+                </EnhancedButton>
               )}
               {canGetPregnant && (
-                <Button
+                <EnhancedButton
                   onClick={handleRecordPregnancy}
+                  variant="secondary"
                   className="bg-pink-500 hover:bg-pink-600 text-white"
                 >
                   <Heart className="w-4 h-4 mr-2" />
                   Record Pregnancy
-                </Button>
+                </EnhancedButton>
               )}
-              <Button
+              <EnhancedButton
                 onClick={handleEdit}
                 variant="outline"
               >
                 <Edit className="w-4 h-4 mr-2" />
                 Edit
-              </Button>
-              <Button
+              </EnhancedButton>
+              <EnhancedButton
                 onClick={handleListForSale}
                 variant="outline"
                 className="border-green-600 text-green-600 hover:bg-green-50"
               >
                 <ShoppingCart className="w-4 h-4 mr-2" />
                 List for Sale
-              </Button>
-              <Button
+              </EnhancedButton>
+              <EnhancedButton
                 onClick={handleDelete}
                 variant="outline"
                 className="border-red-600 text-red-600 hover:bg-red-50 col-span-2"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Delete Animal
-              </Button>
+              </EnhancedButton>
             </div>
           </div>
         </Card>
@@ -706,21 +709,22 @@ const DeleteConfirmationModal = ({ animalName, isDeleting, onConfirm, onCancel }
         ይህን እንስሳ ለመሰረዝ እርግጠኛ ነዎት? ይህ ድርጊት መልሰው ማግኘት አይችሉም።
       </p>
       <div className="flex gap-3">
-        <Button
+        <EnhancedButton
           onClick={onCancel}
           variant="outline"
           className="flex-1"
           disabled={isDeleting}
         >
           Cancel / ሰርዝ
-        </Button>
-        <Button
+        </EnhancedButton>
+        <EnhancedButton
           onClick={onConfirm}
-          className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+          variant="destructive"
+          className="flex-1"
           disabled={isDeleting}
         >
           {isDeleting ? 'Deleting...' : 'Delete / ሰርዝ'}
-        </Button>
+        </EnhancedButton>
       </div>
     </Card>
   </div>

@@ -9,6 +9,8 @@ import { SyncStatusIndicator } from '@/components/SyncStatusIndicator';
 import { useBackgroundSync } from '@/hooks/useBackgroundSync';
 import { useTranslation } from '@/hooks/useTranslation';
 import { NotificationDropdown } from '@/components/NotificationDropdown';
+import { EnhancedButton } from '@/components/ui/enhanced-button';
+import { NeutralCard, NeutralCardContent } from '@/components/ui/neutral-card';
 
 // Helper functions to avoid type issues
 const fetchAnimalsCount = async (userId: string): Promise<number> => {
@@ -31,6 +33,72 @@ const SimpleHome = () => {
   const { user, signOut } = useAuth();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const { t } = useTranslation();
+  const [reorderMode, setReorderMode] = useState(false);
+
+  type QuickAction = { id: string; label: string; emoji: string; path: string };
+  const buildDefaultActions = (): QuickAction[] => ([
+    { id: 'record-milk', label: t('home.recordMilk'), emoji: '🥛', path: '/record-milk' },
+    { id: 'add-animal', label: t('home.addAnimal'), emoji: '➕', path: '/register-animal' },
+    { id: 'my-animals', label: t('home.myAnimals'), emoji: '🐄', path: '/my-animals' },
+    { id: 'marketplace', label: t('home.marketplace'), emoji: '🛒', path: '/marketplace' },
+  ]);
+
+  const storageKey = `quick-actions-order-${user?.id || 'anon'}`;
+  const [actions, setActions] = useState<QuickAction[]>(buildDefaultActions());
+
+  useEffect(() => {
+    // Load persisted order; fall back to default
+    try {
+      const orderRaw = localStorage.getItem(storageKey);
+      const order = orderRaw ? JSON.parse(orderRaw) as string[] : null;
+      const defaults = buildDefaultActions();
+      if (order && Array.isArray(order)) {
+        const byId = new Map(defaults.map(a => [a.id, a]));
+        const merged = order
+          .map(id => byId.get(id))
+          .filter(Boolean) as QuickAction[];
+        // Include any new actions not in saved order
+        const remaining = defaults.filter(a => !order.includes(a.id));
+        setActions([...merged, ...remaining]);
+      } else {
+        setActions(defaults);
+      }
+    } catch {
+      setActions(buildDefaultActions());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, t]);
+
+  const persistOrder = (list: QuickAction[]) => {
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(list.map(a => a.id)));
+    } catch {}
+  };
+
+  const moveItem = (fromIndex: number, toIndex: number) => {
+    setActions(prev => {
+      const next = [...prev];
+      const [item] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, item);
+      persistOrder(next);
+      return next;
+    });
+  };
+
+  // Basic drag-and-drop for desktop; touch devices use arrow controls
+  const onDragStart = (index: number, e: React.DragEvent) => {
+    e.dataTransfer.setData('text/plain', String(index));
+  };
+  const onDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+  const onDrop = (index: number, e: React.DragEvent) => {
+    const fromIndexStr = e.dataTransfer.getData('text/plain');
+    const fromIndex = Number(fromIndexStr);
+    if (!Number.isNaN(fromIndex) && fromIndex !== index) {
+      moveItem(fromIndex, index);
+    }
+  };
 
   // Initialize background sync
   useBackgroundSync();
@@ -200,12 +268,15 @@ const SimpleHome = () => {
             </div>
             <div className="flex items-center gap-2">
               <NotificationDropdown />
-              <button
+              <EnhancedButton
                 onClick={signOut}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm"
+                variant="destructive"
+                size="sm"
+                aria-label={t('auth.logout')}
+                title={t('auth.logout')}
               >
                 {t('auth.logout')}
-              </button>
+              </EnhancedButton>
             </div>
           </div>
 
@@ -214,38 +285,50 @@ const SimpleHome = () => {
         </div>
 
         {/* Quick Actions */}
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-gray-800">{t('home.quickActions') || 'Quick Actions'}</h2>
+          <EnhancedButton
+            onClick={() => setReorderMode(v => !v)}
+            variant="outline"
+            size="sm"
+            aria-label={reorderMode ? 'Done' : 'Reorder'}
+            title={reorderMode ? 'Done' : 'Reorder'}
+          >
+            {reorderMode ? (t('common.done') || 'Done') : (t('common.reorder') || 'Reorder')}
+          </EnhancedButton>
+        </div>
         <div className="grid grid-cols-2 gap-4 mb-6">
-          <button
-            onClick={() => navigate('/record-milk')}
-            className="bg-blue-500 text-white p-6 sm:p-8 rounded-lg shadow-md hover:bg-blue-600 transition-colors active:scale-95 min-h-[120px] sm:min-h-[140px]"
-          >
-            <div className="text-4xl sm:text-5xl mb-2">🥛</div>
-            <div className="font-bold text-base sm:text-lg">{t('home.recordMilk')}</div>
-          </button>
-
-          <button
-            onClick={() => navigate('/register-animal')}
-            className="bg-green-500 text-white p-6 sm:p-8 rounded-lg shadow-md hover:bg-green-600 transition-colors active:scale-95 min-h-[120px] sm:min-h-[140px]"
-          >
-            <div className="text-4xl sm:text-5xl mb-2">➕</div>
-            <div className="font-bold text-base sm:text-lg">{t('home.addAnimal')}</div>
-          </button>
-
-          <button
-            onClick={() => navigate('/my-animals')}
-            className="bg-purple-500 text-white p-6 sm:p-8 rounded-lg shadow-md hover:bg-purple-600 transition-colors active:scale-95 min-h-[120px] sm:min-h-[140px]"
-          >
-            <div className="text-4xl sm:text-5xl mb-2">🐄</div>
-            <div className="font-bold text-base sm:text-lg">{t('home.myAnimals')}</div>
-          </button>
-
-          <button
-            onClick={() => navigate('/marketplace')}
-            className="bg-orange-500 text-white p-6 sm:p-8 rounded-lg shadow-md hover:bg-orange-600 transition-colors active:scale-95 min-h-[120px] sm:min-h-[140px]"
-          >
-            <div className="text-4xl sm:text-5xl mb-2">🛒</div>
-            <div className="font-bold text-base sm:text-lg">{t('home.marketplace')}</div>
-          </button>
+          {actions.map((action, index) => (
+            <NeutralCard
+              key={action.id}
+              asButton
+              onClick={() => !reorderMode && navigate(action.path)}
+              onDragStart={(e: any) => reorderMode && onDragStart(index, e)}
+              onDragOver={onDragOver}
+              onDrop={(e: any) => reorderMode && onDrop(index, e)}
+              draggable={reorderMode}
+              className={reorderMode ? 'opacity-90' : ''}
+            >
+              <NeutralCardContent className="p-6 sm:p-8 flex flex-col items-center">
+                <div className="text-4xl sm:text-5xl mb-2">{action.emoji}</div>
+                <div className="font-bold text-base sm:text-lg text-gray-800">{action.label}</div>
+                {reorderMode && (
+                  <div className="mt-3 flex gap-3">
+                    <EnhancedButton
+                      size="sm"
+                      variant="ghost"
+                      onClick={(e) => { e.stopPropagation(); moveItem(index, Math.max(0, index - 1)); }}
+                    >↑</EnhancedButton>
+                    <EnhancedButton
+                      size="sm"
+                      variant="ghost"
+                      onClick={(e) => { e.stopPropagation(); moveItem(index, Math.min(actions.length - 1, index + 1)); }}
+                    >↓</EnhancedButton>
+                  </div>
+                )}
+              </NeutralCardContent>
+            </NeutralCard>
+          ))}
         </div>
 
         {/* Today's Tasks Widget */}
@@ -256,18 +339,22 @@ const SimpleHome = () => {
           {todaysTasks.length > 0 ? (
             <div className="space-y-3">
               {todaysTasks.map((task) => (
-                <button
+                <EnhancedButton
                   key={task.id}
                   onClick={task.action}
+                  variant="outline"
+                  size="lg"
+                  aria-label={`${task.title} / ${task.titleAm}`}
+                  title={`${task.title} / ${task.titleAm}`}
                   className="w-full flex items-center gap-3 p-4 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors text-left border border-yellow-200"
                 >
                   <div className="text-2xl">{task.icon}</div>
-                  <div className="flex-1">
+                  <div className="flex-1 text-left">
                     <p className="font-medium text-gray-800">{task.title}</p>
                     <p className="text-sm text-gray-600">{task.titleAm}</p>
                   </div>
                   <div className="text-yellow-600">→</div>
-                </button>
+                </EnhancedButton>
               ))}
             </div>
           ) : (
@@ -279,12 +366,12 @@ const SimpleHome = () => {
         </div>
 
         {/* Quick Stats */}
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <NeutralCard className="p-6">
           <h2 className="text-lg font-bold mb-4 text-gray-800">
             {t('home.quickStats')}
           </h2>
           <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="text-center p-5 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border-2 border-green-200 hover:border-green-300 transition-colors">
+            <NeutralCard asButton className="p-5 text-center">
               <div className="text-3xl mb-2">🐄</div>
               <div className="text-5xl sm:text-6xl font-bold text-green-600 mb-2">
                 {animalsCount}
@@ -292,8 +379,8 @@ const SimpleHome = () => {
               <div className="text-sm sm:text-base text-gray-700 font-semibold">
                 {t('home.totalAnimals')}
               </div>
-            </div>
-            <div className="text-center p-5 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border-2 border-purple-200 hover:border-purple-300 transition-colors">
+            </NeutralCard>
+            <NeutralCard asButton className="p-5 text-center">
               <div className="text-3xl mb-2">🥛</div>
               <div className="text-5xl sm:text-6xl font-bold text-purple-600 mb-2">
                 {dailyMilkStats.yesterday}
@@ -302,10 +389,10 @@ const SimpleHome = () => {
               <div className="text-sm sm:text-base text-gray-700 font-semibold">
                 የትላንት / Yesterday
               </div>
-            </div>
+            </NeutralCard>
           </div>
           <div className="grid grid-cols-1 gap-4">
-            <div className="text-center p-5 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-200 hover:border-blue-300 transition-colors">
+            <NeutralCard asButton className="p-5 text-center">
               <div className="text-3xl mb-2">🥛</div>
               <div className="text-5xl sm:text-6xl font-bold text-blue-600 mb-2">
                 {dailyMilkStats.today}
@@ -314,9 +401,9 @@ const SimpleHome = () => {
               <div className="text-sm sm:text-base text-gray-700 font-semibold">
                 ዛሬ / Today
               </div>
-            </div>
+            </NeutralCard>
           </div>
-        </div>
+        </NeutralCard>
       </div>
     </div>
   );

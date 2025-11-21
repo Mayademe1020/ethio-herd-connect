@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContextMVP';
 import { useAdmin } from '@/contexts/AdminContext';
 import { useProfile } from '@/hooks/useProfile';
 

@@ -1,5 +1,3 @@
-// src/components/QuickActionsSection.tsx - Quick action buttons for profile page
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlusCircle, Droplet, ShoppingBag } from 'lucide-react';
@@ -16,6 +14,8 @@ interface QuickAction {
   labelKey: string;
   path: string;
   requiresAnimals: boolean;
+  gradient: string;
+  iconBg: string;
 }
 
 export const QuickActionsSection: React.FC<QuickActionsSectionProps> = ({ hasAnimals }) => {
@@ -24,22 +24,28 @@ export const QuickActionsSection: React.FC<QuickActionsSectionProps> = ({ hasAni
 
   const actions: QuickAction[] = [
     {
-      icon: <PlusCircle className="w-5 h-5" />,
+      icon: <PlusCircle className="w-7 h-7" />,
       labelKey: 'profile.registerAnimal',
       path: '/register-animal',
-      requiresAnimals: false
+      requiresAnimals: false,
+      gradient: 'bg-gradient-to-br from-emerald-500 to-emerald-600',
+      iconBg: 'bg-white/20 backdrop-blur-sm'
     },
     {
-      icon: <Droplet className="w-5 h-5" />,
+      icon: <Droplet className="w-7 h-7" />,
       labelKey: 'profile.recordMilk',
       path: '/record-milk',
-      requiresAnimals: true
+      requiresAnimals: true,
+      gradient: 'bg-gradient-to-br from-blue-500 to-blue-600',
+      iconBg: 'bg-white/20 backdrop-blur-sm'
     },
     {
-      icon: <ShoppingBag className="w-5 h-5" />,
+      icon: <ShoppingBag className="w-7 h-7" />,
       labelKey: 'profile.createListing',
       path: '/create-listing',
-      requiresAnimals: true
+      requiresAnimals: true,
+      gradient: 'bg-gradient-to-br from-purple-500 to-purple-600',
+      iconBg: 'bg-white/20 backdrop-blur-sm'
     }
   ];
 
@@ -57,22 +63,36 @@ export const QuickActionsSection: React.FC<QuickActionsSectionProps> = ({ hasAni
   return (
     <Card className="mb-6">
       <CardHeader>
-        <CardTitle>{t('profile.quickActions')}</CardTitle>
+        <CardTitle className="text-2xl font-bold text-gray-900">{t('profile.quickActions')}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-3 gap-6">
           {actions.map((action, index) => (
             <button
               key={index}
               onClick={() => handleAction(action)}
-              className="flex flex-col items-center p-4 rounded-lg border-2 border-gray-200 hover:border-green-500 hover:bg-green-50 transition-colors active:scale-95"
-              style={{ minWidth: '44px', minHeight: '44px' }}
+              className={`
+                ${action.gradient} rounded-xl p-6 shadow-lg hover:shadow-xl
+                interactive-lift btn-press
+                h-35 min-h-[140px] flex flex-col items-center justify-center
+              `}
+              style={{ maxHeight: '140px' }}
               aria-label={t(action.labelKey)}
             >
-              <div className="text-green-600 mb-2">{action.icon}</div>
-              <span className="text-sm text-center font-medium text-gray-700">
+              {/* Icon with glass morphism effect */}
+              <div className={`
+                w-14 h-14 rounded-xl ${action.iconBg}
+                flex items-center justify-center mb-4
+              `}>
+                <div className="text-white">
+                  {action.icon}
+                </div>
+              </div>
+              
+              {/* Text with proper hierarchy */}
+              <h3 className="text-lg font-semibold text-white text-center">
                 {t(action.labelKey)}
-              </span>
+              </h3>
             </button>
           ))}
         </div>

@@ -4,7 +4,7 @@
  */
 
 import { Wifi, WifiOff, Cloud, CloudOff, Loader2, AlertCircle } from 'lucide-react';
-import { useEnhancedOfflineSync } from '@/hooks/useEnhancedOfflineSync';
+import { useOfflineSync } from '@/hooks/useOfflineSync';
 import { useTranslations } from '@/hooks/useTranslations';
 import { cn } from '@/lib/utils';
 
@@ -17,7 +17,14 @@ export const OfflineStatusIndicator = ({
   variant = 'compact',
   className 
 }: OfflineStatusIndicatorProps) => {
-  const { syncStatus, getSyncStatusMessage } = useEnhancedOfflineSync();
+  const { isOnline, syncing, getSyncStatusMessage, pendingSync } = useOfflineSync();
+  const syncStatus = {
+    isOnline,
+    syncing,
+    status: syncing ? 'syncing' : 'idle',
+    pendingCount: pendingSync.length,
+    progress: { total: 0, completed: 0 }
+  } as any;
   const { t } = useTranslations();
 
   const getStatusIcon = () => {

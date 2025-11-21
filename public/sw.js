@@ -54,6 +54,11 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
+  // Skip cross-origin requests to avoid issues with external resources
+  if (!request.url.startsWith(self.location.origin)) {
+    return;
+  }
+
   // Handle API requests
   if (API_CACHE_PATTERNS.some(pattern => pattern.test(url.pathname))) {
     event.respondWith(

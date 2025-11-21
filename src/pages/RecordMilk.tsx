@@ -26,6 +26,7 @@ const RecordMilk = () => {
   const { user } = useAuth();
   const { isDemoMode, getDemoData } = useDemoMode();
   const { recordMilkAsync, isRecording } = useMilkRecording();
+  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
   const [selectedCow, setSelectedCow] = useState<Animal | null>(null);
   const [selectedAmount, setSelectedAmount] = useState<number | undefined>();
@@ -36,37 +37,55 @@ const RecordMilk = () => {
   const [reminderEnabled, setReminderEnabled] = useState(false);
   const [reminderLoading, setReminderLoading] = useState(true);
 
-  // Fetch cows (cattle with subtype 'Cow' or female animals that produce milk)
+  // Track online/offline to avoid aborted network noise and support offline-first UX
+  useEffect(() => {
+    const on = () => setIsOnline(true);
+    const off = () => setIsOnline(false);
+    window.addEventListener('online', on);
+    window.addEventListener('offline', off);
+    return () => {
+      window.removeEventListener('online', on);
+      window.removeEventListener('offline', off);
+    };
+  }, []);
+
+  // Fetch female animals that can produce milk
   const { data: cows = [], isLoading } = useQuery<Animal[]>({
-    queryKey: ['cows', user?.id],
+    queryKey: ['milk-producing-animals', user?.id],
     queryFn: async (): Promise<Animal[]> => {
       if (!user) return [];
+      if (!isOnline) return [];
 
       const { data, error } = await supabase
         .from('animals')
         .select('*')
-        .eq('user_id', user.id)
-        .eq('type', 'cattle');
+        .eq('user_id', user.id);
 
       if (error) {
-        console.error('Error fetching cows:', error);
+        const msg = String(error?.message || '').toLowerCase();
+        const isAborted = error?.name === 'AbortError' || msg.includes('abort') || msg.includes('cancel');
+        if (!isAborted) {
+          console.error('Error fetching animals:', error);
+        }
         return [];
       }
 
-      // Map to Animal format and filter for cows (female cattle that produce milk)
+      // Define female subtypes that can produce milk
+      const femaleMilkProducingSubtypes = ['Cow', 'Female Goat', 'Ewe', 'Female', 'Hen'];
+
+      // Map to Animal format and filter for female animals that produce milk
       return (data || []).map((animal: any) => ({
         id: animal.id,
+        animal_id: animal.animal_id,
         name: animal.name,
         type: animal.type,
-        subtype: animal.subtype || 'Cow',
+        subtype: animal.subtype,
         photo_url: animal.photo_url
-      })).filter((animal: Animal) => 
-        animal.subtype?.toLowerCase().includes('cow') ||
-        animal.subtype?.toLowerCase() === 'female' ||
-        !animal.subtype // If no subtype, assume it's a cow
+      })).filter((animal: Animal) =>
+        femaleMilkProducingSubtypes.includes(animal.subtype || '')
       );
     },
-    enabled: !!user
+    enabled: !!user && isOnline
   });
 
   const handleCowSelect = (cow: Animal) => {
@@ -221,26 +240,23 @@ const RecordMilk = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-blue-500 text-white p-4 sticky top-0 z-10 shadow-md">
-        <div className="max-w-4xl mx-auto flex items-center gap-3">
+      {/* Compact Header */}
+      <div className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10 shadow-sm" style={{ height: '56px' }}>
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
           <button
             onClick={handleBack}
-            className="p-2 hover:bg-blue-600 rounded-lg transition-colors active:scale-95"
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors active:scale-95"
           >
-            <ArrowLeft className="w-6 h-6" />
+            <ArrowLeft className="w-5 h-5 text-gray-600" />
           </button>
-          <div className="flex-1">
-            <h1 className="text-xl font-bold">
+          <div className="text-center flex-1">
+            <h1 className="text-lg font-semibold text-gray-900">
               {selectedCow ? 'Select Amount' : 'Record Milk'}
             </h1>
-            <p className="text-sm opacity-90">
-              {selectedCow ? 'መጠን ይምረጡ' : 'ወተት መዝግብ'}
-            </p>
           </div>
           {selectedCow && (
-            <div className="text-right">
-              <div className="text-sm opacity-90">Step 2 of 2</div>
+            <div className="text-sm text-gray-500">
+              Step 2 of 2
             </div>
           )}
         </div>
@@ -285,30 +301,54 @@ const RecordMilk = () => {
           </div>
         )}
 
-        {/* Loading State */}
+        {/* Enhanced Loading State */}
         {isLoading && (
-          <div className="flex flex-col items-center justify-center py-20">
-            <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-4" />
-            <p className="text-gray-600">እየጫነ ነው... / Loading...</p>
+          <div className="space-y-4">
+            {/* Skeleton for animal cards */}
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 skeleton rounded-lg flex-shrink-0"></div>
+                  <div className="flex-1 space-y-2">
+                    <div className="skeleton h-4 w-3/4"></div>
+                    <div className="skeleton h-3 w-1/2"></div>
+                    <div className="skeleton h-3 w-1/4"></div>
+                  </div>
+                  <div className="skeleton h-5 w-5 rounded-full"></div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
-        {/* No Cows State */}
+        {/* Enhanced Empty State */}
         {!isLoading && cows.length === 0 && (
-          <div className="bg-white rounded-lg shadow-md p-8 text-center">
-            <div className="text-6xl mb-4">🐄</div>
-            <h2 className="text-xl font-bold text-gray-800 mb-2">
-              ላም የለም / No Cows Found
+          <div className="flex flex-col items-center justify-center py-20 text-center px-4">
+            <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mb-6 animate-pulse">
+              <span className="text-4xl">🐄</span>
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              No Female Animals Found
             </h2>
-            <p className="text-gray-600 mb-6">
-              You need to register a cow first before recording milk.
+            <p className="text-gray-600 mb-8 max-w-sm leading-relaxed">
+              Register female animals (cows, goats, sheep) that produce milk to start tracking your production.
             </p>
-            <button
-              onClick={() => navigate('/register-animal')}
-              className="px-6 py-3 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 transition-colors"
-            >
-              ላም ያስመዝግቡ / Register Cow
-            </button>
+            <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
+              <button
+                onClick={() => navigate('/register-animal')}
+                className="btn-primary flex-1 flex items-center justify-center gap-2"
+              >
+                <span>➕</span>
+                <span>Register Animal</span>
+              </button>
+              <button
+                onClick={() => navigate('/my-animals')}
+                className="btn-secondary flex-1 flex items-center justify-center gap-2"
+              >
+                <span>👁️</span>
+                <span>View All</span>
+              </button>
+            </div>
           </div>
         )}
 
@@ -331,10 +371,10 @@ const RecordMilk = () => {
 
             <div className="bg-white rounded-lg shadow-md p-4">
               <h2 className="text-lg font-bold text-gray-800 mb-1">
-                ላም ይምረጡ / Select Cow
+                ሴት እንስሳ ይምረጡ / Select Female Animal
               </h2>
               <p className="text-sm text-gray-600">
-                Step 1 of 2 • Click on a cow to continue
+                Step 1 of 2 • Click on a female animal to continue
               </p>
             </div>
 
@@ -356,16 +396,16 @@ const RecordMilk = () => {
               });
 
               return (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-3">
                   {sortedCows.map((cow) => (
                     <div
                       key={cow.id}
                       onClick={() => handleCowSelect(cow)}
-                      className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-all active:scale-95 text-left border-2 border-transparent hover:border-blue-400 cursor-pointer"
+                      className="bg-white rounded-lg shadow-sm p-4 hover:shadow-md transition-all active:scale-98 cursor-pointer border border-gray-200"
                     >
                       <div className="flex items-center gap-4">
-                        {/* Photo or Icon */}
-                        <div className="w-20 h-20 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center flex-shrink-0 overflow-hidden relative">
+                        {/* Photo */}
+                        <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
                           {cow.photo_url ? (
                             <img
                               src={cow.photo_url}
@@ -373,47 +413,43 @@ const RecordMilk = () => {
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <span className="text-4xl">🐄</span>
+                            <span className="text-2xl">🐄</span>
                           )}
-
-                          {/* Favorite Star */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleFavorite(cow.id);
-                            }}
-                            className="absolute top-1 right-1 p-1 bg-white/80 rounded-full hover:bg-white transition-colors z-10"
-                            aria-label="Toggle favorite"
-                          >
-                            {favorites.has(cow.id) ? (
-                              <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                            ) : (
-                              <StarOff className="w-4 h-4 text-gray-400" />
-                            )}
-                          </button>
                         </div>
 
                         {/* Info */}
                         <div className="flex-1 min-w-0">
-                          <h3 className="text-lg font-bold text-gray-800 truncate">
+                          <h3 className="text-base font-semibold text-gray-900 truncate">
                             {cow.name}
                           </h3>
-                          {cow.animal_id && (
-                            <p className="text-xs text-gray-500 font-mono">
-                              {cow.animal_id}
-                            </p>
-                          )}
                           <p className="text-sm text-gray-600">
                             {cow.subtype || 'Cow'}
                           </p>
-                          <div className="mt-2 inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">
-                            <span>✓</span>
-                            <span>Ready to record</span>
-                          </div>
+                          {cow.animal_id && (
+                            <p className="text-xs text-gray-500 font-mono">
+                              ID: {cow.animal_id}
+                            </p>
+                          )}
                         </div>
 
+                        {/* Favorite Star */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleFavorite(cow.id);
+                          }}
+                          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                          aria-label="Toggle favorite"
+                        >
+                          {favorites.has(cow.id) ? (
+                            <Star className="w-5 h-5 text-yellow-500 fill-current" />
+                          ) : (
+                            <StarOff className="w-5 h-5 text-gray-400" />
+                          )}
+                        </button>
+
                         {/* Arrow */}
-                        <div className="text-blue-500 text-2xl">→</div>
+                        <div className="text-gray-400 text-xl">→</div>
                       </div>
                     </div>
                   ))}
@@ -425,11 +461,11 @@ const RecordMilk = () => {
 
         {/* Step 2: Select Amount */}
         {selectedCow && (
-          <div className="space-y-4">
-            {/* Selected Cow Info */}
-            <div className="bg-white rounded-lg shadow-md p-4">
+          <div className="space-y-6">
+            {/* Horizontal Animal Info Card */}
+            <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                <div className="w-20 h-20 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
                   {selectedCow.photo_url ? (
                     <img
                       src={selectedCow.photo_url}
@@ -437,48 +473,99 @@ const RecordMilk = () => {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <span className="text-3xl">🐄</span>
+                    <span className="text-4xl">🐄</span>
                   )}
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gray-800">
+                  <h3 className="text-lg font-semibold text-gray-900">
                     {selectedCow.name}
                   </h3>
                   <p className="text-sm text-gray-600">
                     {selectedCow.subtype || 'Cow'}
                   </p>
+                  {selectedCow.animal_id && (
+                    <p className="text-xs text-gray-500 font-mono">
+                      ID: {selectedCow.animal_id}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* Amount Selector */}
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <MilkAmountSelector
-                onAmountSelected={handleAmountSelected}
-                selectedAmount={selectedAmount}
-              />
-            </div>
+            {/* Amount Input Section */}
+            <div className="space-y-4">
+              <div className="text-center">
+                <h2 className="text-lg font-semibold text-gray-900 mb-2">How much milk?</h2>
+                <p className="text-sm text-gray-600">Enter amount in liters</p>
+              </div>
 
-            {/* Submit Button */}
-            {selectedAmount && (
-              <button
-                onClick={handleSubmit}
-                disabled={isRecording}
-                className="w-full py-4 bg-green-500 text-white rounded-lg font-bold text-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg active:scale-95 flex items-center justify-center gap-2"
-              >
-                {isRecording ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>እያስቀመጠ... / Saving...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>✓</span>
-                    <span>መዝግብ / Record Milk</span>
-                  </>
-                )}
-              </button>
-            )}
+              {/* Large Number Input */}
+              <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={selectedAmount || ''}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === '' || /^\d*\.?\d*$/.test(value)) {
+                      const amount = parseFloat(value);
+                      if (!isNaN(amount) && amount > 0 && amount <= 100) {
+                        handleAmountSelected(amount);
+                      } else if (value === '') {
+                        handleAmountSelected(undefined);
+                      }
+                    }
+                  }}
+                  placeholder="0.0"
+                  className="input-large-number w-full text-center"
+                  autoFocus
+                />
+                <div className="text-center mt-4">
+                  <span className="text-sm text-gray-500">L</span>
+                </div>
+              </div>
+
+              {/* Quick Select Buttons */}
+              <div className="space-y-2">
+                <p className="text-sm text-gray-600 text-center">Quick Select</p>
+                <div className="flex justify-center gap-2">
+                  {[2, 5, 10, 15, 20].map((amount) => (
+                    <button
+                      key={amount}
+                      onClick={() => handleAmountSelected(amount)}
+                      className={`px-4 py-2 rounded-lg border-2 transition-all active:scale-95 text-sm font-medium ${
+                        selectedAmount === amount
+                          ? 'bg-emerald-500 border-emerald-600 text-white'
+                          : 'bg-white border-gray-300 text-gray-700 hover:border-emerald-400'
+                      }`}
+                    >
+                      {amount}L
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Save Button */}
+              {selectedAmount && (
+                <button
+                  onClick={handleSubmit}
+                  disabled={isRecording}
+                  className="btn-primary w-full flex items-center justify-center gap-2"
+                >
+                  {isRecording ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>✓</span>
+                      <span>Save Record</span>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>

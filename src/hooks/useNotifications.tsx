@@ -22,6 +22,19 @@ export function useNotifications() {
     type?: NotificationType;
     isRead?: boolean;
   }>({});
+  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
+
+  // Track online/offline status for graceful handling
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // Fetch notifications
   const fetchNotifications = useCallback(async () => {
@@ -29,26 +42,45 @@ export function useNotifications() {
 
     try {
       setLoading(true);
+      if (!isOnline) {
+        // Offline: skip network, keep current cached list
+        setLoading(false);
+        return;
+      }
       const data = await getNotifications(filter);
       setNotifications(data);
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
+    } catch (error: any) {
+      // Ignore aborted network calls to prevent noisy logs
+      const msg = String(error?.message || '')
+        .toLowerCase();
+      const isAborted = error?.name === 'AbortError' || msg.includes('abort') || msg.includes('cancel');
+      if (!isAborted) {
+        console.error('Error fetching notifications:', error);
+      }
     } finally {
       setLoading(false);
     }
-  }, [user, filter]);
+  }, [user, filter, isOnline]);
 
   // Fetch unread count
   const fetchUnreadCount = useCallback(async () => {
     if (!user) return;
 
     try {
+      if (!isOnline) {
+        setUnreadCount(0);
+        return;
+      }
       const count = await getUnreadCount();
       setUnreadCount(count);
-    } catch (error) {
-      console.error('Error fetching unread count:', error);
+    } catch (error: any) {
+      const msg = String(error?.message || '').toLowerCase();
+      const isAborted = error?.name === 'AbortError' || msg.includes('abort') || msg.includes('cancel');
+      if (!isAborted) {
+        console.error('Error fetching unread count:', error);
+      }
     }
-  }, [user]);
+  }, [user, isOnline]);
 
   // Mark notification as read
   const handleMarkAsRead = useCallback(async (notificationId: string) => {
@@ -96,7 +128,7 @@ export function useNotifications() {
       fetchNotifications();
       fetchUnreadCount();
     }
-  }, [user, fetchNotifications, fetchUnreadCount]);
+  }, [user, isOnline, fetchNotifications, fetchUnreadCount]);
 
   // Subscribe to real-time updates
   useEffect(() => {

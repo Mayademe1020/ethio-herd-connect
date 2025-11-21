@@ -10,10 +10,11 @@ import { LanguageProvider } from '@/contexts/LanguageContext';
 import { DemoModeProvider } from '@/contexts/DemoModeContext';
 import { CalendarProvider } from '@/contexts/CalendarContext';
 import { ToastProvider } from '@/contexts/ToastContext';
+import { AnalyticsProvider } from '@/contexts/AnalyticsContext';
 
 // Components
-import AppLayout from '@/components/AppLayout';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import { AppLayout } from '@/components/AppLayout';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 // Pages
 import Index from '@/pages/Index';
@@ -21,7 +22,7 @@ import Auth from '@/pages/Auth';
 import LoginMVP from '@/pages/LoginMVP';
 import RegisterAnimal from '@/pages/RegisterAnimal';
 import MyAnimals from '@/pages/MyAnimals';
-import AnimalDetail from '@/pages/AnimalDetail';
+import { AnimalDetail } from '@/pages/AnimalDetail';
 import RecordMilk from '@/pages/RecordMilk';
 import MilkProductionRecords from '@/pages/MilkProductionRecords';
 import MarketplaceBrowse from '@/pages/MarketplaceBrowse';
@@ -32,12 +33,12 @@ import InterestInbox from '@/pages/InterestInbox';
 import Profile from '@/pages/Profile';
 import Onboarding from '@/pages/Onboarding';
 import SimpleHome from '@/pages/SimpleHome';
-import SyncStatus from '@/pages/SyncStatus';
+import { SyncStatus } from '@/pages/SyncStatus';
 import MilkAnalytics from '@/pages/MilkAnalytics';
 import MilkSummary from '@/pages/MilkSummary';
 import Favorites from '@/pages/Favorites';
 import PublicMarketplaceEnhanced from '@/pages/PublicMarketplaceEnhanced';
-import FeedRationing from '@/pages/FeedRationing';
+import AnalyticsDashboard from '@/pages/AnalyticsDashboard';
 
 // Admin Pages
 import AdminLogin from '@/pages/AdminLogin';
@@ -64,184 +65,182 @@ function App() {
             <CalendarProvider>
               <AuthProvider>
                 <AdminProvider>
-                  <ToastProvider>
-                    <div className="App">
-                      <Routes>
-                        {/* Public Routes */}
-                        <Route path="/auth" element={<Auth />} />
-                        <Route path="/login" element={<LoginMVP />} />
-                        <Route path="/admin/login" element={<AdminLogin />} />
-
-                        {/* Protected Routes */}
-                        <Route path="/" element={
-                          <ProtectedRoute>
-                            <AppLayout>
-                              <Index />
-                            </AppLayout>
-                          </ProtectedRoute>
-                        } />
-
-                        {/* Animal Management */}
-                        <Route path="/animals" element={
-                          <ProtectedRoute>
-                            <AppLayout>
-                              <MyAnimals />
-                            </AppLayout>
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/animals/register" element={
-                          <ProtectedRoute>
-                            <AppLayout>
-                              <RegisterAnimal />
-                            </AppLayout>
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/animals/:id" element={
-                          <ProtectedRoute>
-                            <AppLayout>
-                              <AnimalDetail />
-                            </AppLayout>
-                          </ProtectedRoute>
-                        } />
-
-                        {/* Milk Recording */}
-                        <Route path="/milk/record" element={
-                          <ProtectedRoute>
-                            <AppLayout>
-                              <RecordMilk />
-                            </AppLayout>
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/milk/records" element={
-                          <ProtectedRoute>
-                            <AppLayout>
-                              <MilkProductionRecords />
-                            </AppLayout>
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/milk/analytics" element={
-                          <ProtectedRoute>
-                            <AppLayout>
-                              <MilkAnalytics />
-                            </AppLayout>
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/milk/summary" element={
-                          <ProtectedRoute>
-                            <AppLayout>
-                              <MilkSummary />
-                            </AppLayout>
-                          </ProtectedRoute>
-                        } />
-
-                        {/* Marketplace */}
-                        <Route path="/marketplace" element={
-                          <ProtectedRoute>
-                            <AppLayout>
-                              <MarketplaceBrowse />
-                            </AppLayout>
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/marketplace/public" element={
-                          <ProtectedRoute>
-                            <AppLayout>
-                              <PublicMarketplaceEnhanced />
-                            </AppLayout>
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/marketplace/create" element={
-                          <ProtectedRoute>
-                            <AppLayout>
-                              <CreateListing />
-                            </AppLayout>
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/marketplace/listings" element={
-                          <ProtectedRoute>
-                            <AppLayout>
-                              <MyListings />
-                            </AppLayout>
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/marketplace/listings/:id" element={
-                          <ProtectedRoute>
-                            <AppLayout>
-                              <ListingDetail />
-                            </AppLayout>
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/marketplace/interests" element={
-                          <ProtectedRoute>
-                            <AppLayout>
-                              <InterestInbox />
-                            </AppLayout>
-                          </ProtectedRoute>
-                        } />
-
-                        {/* Feed Management */}
-                        <Route path="/feed" element={
-                          <ProtectedRoute>
-                            <AppLayout>
-                              <FeedRationing />
-                            </AppLayout>
-                          </ProtectedRoute>
-                        } />
-
-                        {/* User Profile & Settings */}
-                        <Route path="/profile" element={
-                          <ProtectedRoute>
-                            <AppLayout>
-                              <Profile />
-                            </AppLayout>
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/favorites" element={
-                          <ProtectedRoute>
-                            <AppLayout>
-                              <Favorites />
-                            </AppLayout>
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/sync" element={
-                          <ProtectedRoute>
-                            <AppLayout>
-                              <SyncStatus />
-                            </AppLayout>
-                          </ProtectedRoute>
-                        } />
-
-                        {/* Onboarding */}
-                        <Route path="/onboarding" element={
-                          <ProtectedRoute>
-                            <AppLayout>
-                              <Onboarding />
-                            </AppLayout>
-                          </ProtectedRoute>
-                        } />
-
-                        {/* Admin Routes */}
-                        <Route path="/admin" element={
-                          <ProtectedRoute adminOnly>
-                            <AdminDashboard />
-                          </ProtectedRoute>
-                        } />
-
-                        {/* Legacy/Simple Routes */}
-                        <Route path="/home" element={
-                          <ProtectedRoute>
-                            <AppLayout>
-                              <SimpleHome />
-                            </AppLayout>
-                          </ProtectedRoute>
-                        } />
-
-                        {/* Fallback */}
-                        <Route path="*" element={<Navigate to="/" replace />} />
-                      </Routes>
-                    </div>
-                    <Toaster position="top-right" />
-                  </ToastProvider>
-                </AdminProvider>
+                  <AnalyticsProvider>
+                    <ToastProvider>
+                      <div className="App">
+                        <Routes>
+                          {/* Public Routes */}
+                          <Route path="/auth" element={<Auth />} />
+                          <Route path="/login" element={<LoginMVP />} />
+                          <Route path="/admin/login" element={<AdminLogin />} />
+    
+                          {/* Protected Routes */}
+                          <Route path="/" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <Index />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+    
+                          {/* Animal Management */}
+                          <Route path="/animals" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <MyAnimals />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/animals/register" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <RegisterAnimal />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/animals/:id" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <AnimalDetail />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+    
+                          {/* Milk Recording */}
+                          <Route path="/milk/record" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <RecordMilk />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/milk/records" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <MilkProductionRecords />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/milk/analytics" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <MilkAnalytics />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/milk/summary" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <MilkSummary />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+    
+                          {/* Marketplace */}
+                          <Route path="/marketplace" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <MarketplaceBrowse />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/marketplace/public" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <PublicMarketplaceEnhanced />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/marketplace/create" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <CreateListing />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/marketplace/listings" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <MyListings />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/marketplace/listings/:id" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <ListingDetail />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/marketplace/interests" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <InterestInbox />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+    
+                          {/* User Profile & Settings */}
+                          <Route path="/profile" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <Profile />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/favorites" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <Favorites />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/sync" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <SyncStatus />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+    
+                          {/* Onboarding */}
+                          <Route path="/onboarding" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <Onboarding />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+    
+                          {/* Admin Routes */}
+                          <Route path="/admin" element={
+                            <ProtectedRoute adminOnly>
+                              <AdminDashboard />
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/admin/analytics" element={
+                            <ProtectedRoute adminOnly>
+                              <AnalyticsDashboard />
+                            </ProtectedRoute>
+                          } />
+    
+                          {/* Legacy/Simple Routes */}
+                          <Route path="/home" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <SimpleHome />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+    
+                          {/* Fallback */}
+                          <Route path="*" element={<Navigate to="/" replace />} />
+                        </Routes>
+                      </div>
+                      <Toaster position="top-right" />
+                    </ToastProvider>
+                </AnalyticsProvider>
+              </AdminProvider>
               </AuthProvider>
             </CalendarProvider>
           </LanguageProvider>

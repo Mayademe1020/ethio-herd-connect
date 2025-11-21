@@ -565,6 +565,18 @@
     "recordNow": "አሁን መዝግብ",
     "markAsLate": "እንደዘገየ ምልክት አድርግ"
   },
+  "feed": {
+    "feed": "ምግብ",
+    "feedCalculator": "የምግብ ማስሊያ",
+    "feedRequirements": "የምግብ ፍላጎቶች",
+    "dailyFeed": "የዕለት ምግብ",
+    "feedCost": "የምግብ ዋጋ",
+    "feedType": "የምግብ አይነት",
+    "feedAmount": "የምግብ መጠን",
+    "calculateFeed": "ምግብ አስላ",
+    "feedPlan": "የምግብ እቅድ",
+    "feedSchedule": "የምግብ መርሐግብር"
+  },
   "marketAlerts": {
     "preferences": "የገበያ ማንቂያ ምርጫዎች",
     "newListings": "አቅራቢያ አዲስ ዝርዝሮች",

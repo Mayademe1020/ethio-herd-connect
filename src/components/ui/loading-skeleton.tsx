@@ -85,3 +85,68 @@ export const LoadingSkeleton = ({
     </div>
   )
 }
+
+// Modern Loading Spinner Component
+interface LoadingSpinnerProps {
+  size?: 'sm' | 'md' | 'lg';
+  className?: string;
+  color?: 'primary' | 'white' | 'gray';
+}
+
+export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
+  size = 'md',
+  className = '',
+  color = 'primary'
+}) => {
+  const sizeClasses = {
+    sm: 'w-4 h-4',
+    md: 'w-8 h-8',
+    lg: 'w-12 h-12'
+  };
+
+  const colorClasses = {
+    primary: 'border-emerald-500',
+    white: 'border-white',
+    gray: 'border-gray-400'
+  };
+
+  return (
+    <div
+      className={cn(
+        'animate-spin rounded-full border-2 border-t-transparent',
+        sizeClasses[size],
+        colorClasses[color],
+        className
+      )}
+    />
+  );
+};
+
+// Modern Progress Bar Component
+interface ProgressBarProps {
+  progress: number;
+  className?: string;
+  showPercentage?: boolean;
+}
+
+export const ProgressBar: React.FC<ProgressBarProps> = ({
+  progress,
+  className = '',
+  showPercentage = false
+}) => {
+  return (
+    <div className={cn('w-full', className)}>
+      <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
+        <div
+          className="h-full bg-emerald-500 transition-all duration-500 ease-out"
+          style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
+        />
+      </div>
+      {showPercentage && (
+        <div className="text-xs text-gray-500 mt-1 text-center">
+          {Math.round(progress)}%
+        </div>
+      )}
+    </div>
+  );
+};

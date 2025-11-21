@@ -565,6 +565,18 @@
     "recordNow": "Record Now",
     "markAsLate": "Mark as Late Entry"
   },
+  "feed": {
+    "feed": "Feed",
+    "feedCalculator": "Feed Calculator",
+    "feedRequirements": "Feed Requirements",
+    "dailyFeed": "Daily Feed",
+    "feedCost": "Feed Cost",
+    "feedType": "Feed Type",
+    "feedAmount": "Feed Amount",
+    "calculateFeed": "Calculate Feed",
+    "feedPlan": "Feed Plan",
+    "feedSchedule": "Feed Schedule"
+  },
   "marketAlerts": {
     "preferences": "Market Alert Preferences",
     "newListings": "New Listings Nearby",

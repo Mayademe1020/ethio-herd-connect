@@ -201,27 +201,113 @@ export const ListSkeleton: React.FC<{ count?: number }> = ({ count = 3 }) => {
 };
 
 /**
- * Empty state component
- * Shows when no items are available
+ * Enhanced Empty State Component
+ * Modern design with clear messaging and call-to-action
  */
 export const EmptyState: React.FC<{
   title: string;
   description: string;
   icon?: React.ReactNode;
   action?: React.ReactNode;
-}> = ({ title, description, icon, action }) => {
+  variant?: 'default' | 'welcome' | 'error' | 'search';
+}> = ({
+  title,
+  description,
+  icon,
+  action,
+  variant = 'default'
+}) => {
+  const getVariantStyles = () => {
+    switch (variant) {
+      case 'welcome':
+        return {
+          iconBg: 'bg-emerald-50',
+          iconColor: 'text-emerald-600',
+          cardBg: 'bg-gradient-to-br from-emerald-50 to-blue-50'
+        };
+      case 'error':
+        return {
+          iconBg: 'bg-red-50',
+          iconColor: 'text-red-600',
+          cardBg: 'bg-red-50'
+        };
+      case 'search':
+        return {
+          iconBg: 'bg-blue-50',
+          iconColor: 'text-blue-600',
+          cardBg: 'bg-blue-50'
+        };
+      default:
+        return {
+          iconBg: 'bg-gray-50',
+          iconColor: 'text-gray-400',
+          cardBg: 'bg-gray-50'
+        };
+    }
+  };
+
+  const styles = getVariantStyles();
+
   return (
     <div className="flex flex-col items-center justify-center py-12 sm:py-16 px-4">
-      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-        {icon || <AlertCircle className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />}
+      <div className={`
+        w-20 h-20 sm:w-24 sm:h-24 rounded-2xl ${styles.iconBg}
+        flex items-center justify-center mb-6 card-hover
+      `}>
+        <div className={styles.iconColor}>
+          {icon || <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12" />}
+        </div>
       </div>
-      <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-2 text-center">
-        {title}
-      </h3>
-      <p className="text-sm sm:text-base text-gray-600 mb-6 text-center max-w-md">
-        {description}
-      </p>
-      {action && <div>{action}</div>}
+      
+      <div className="text-center max-w-md">
+        <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">
+          {title}
+        </h3>
+        <p className="text-base text-gray-600 mb-8 leading-relaxed">
+          {description}
+        </p>
+        
+        {action && (
+          <div className="animate-fadeIn">
+            {action}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
+
+// Specialized empty state variants for common use cases
+export const WelcomeEmptyState: React.FC<{
+  title: string;
+  description: string;
+  action: React.ReactNode;
+}> = ({ title, description, action }) => (
+  <EmptyState
+    title={title}
+    description={description}
+    action={action}
+    variant="welcome"
+  />
+);
+
+export const SearchEmptyState: React.FC<{
+  query: string;
+  onClearSearch?: () => void;
+}> = ({ query, onClearSearch }) => (
+  <EmptyState
+    title="No results found"
+    description={`We couldn't find any items matching "${query}". Try adjusting your search terms.`}
+    action={
+      onClearSearch && (
+        <button
+          onClick={onClearSearch}
+          className="btn-primary"
+        >
+          Clear search
+        </button>
+      )
+    }
+    variant="search"
+  />
+);

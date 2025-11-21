@@ -5,8 +5,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProviderMVP } from "@/contexts/AuthContextMVP";
+import { AdminProvider } from "@/contexts/AdminContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ToastProvider } from "@/contexts/ToastContext";
+import { AnalyticsProvider } from "@/contexts/AnalyticsContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { CalendarProvider } from "@/contexts/CalendarContext";
 import { DemoModeProvider } from "@/contexts/DemoModeContext";
@@ -25,6 +27,9 @@ const RegisterAnimal = lazy(() => import("./pages/RegisterAnimal").then(m => ({ 
 const MyAnimals = lazy(() => import("./pages/MyAnimals").then(m => ({ default: m.default })));
 const AnimalDetail = lazy(() => import("./pages/AnimalDetail").then(m => ({ default: m.AnimalDetail })));
 const RecordMilk = lazy(() => import("./pages/RecordMilk").then(m => ({ default: m.default })));
+const MilkProductionRecords = lazy(() => import("./pages/MilkProductionRecords").then(m => ({ default: m.default })));
+const MilkAnalytics = lazy(() => import("./pages/MilkAnalytics").then(m => ({ default: m.default })));
+const MilkSummary = lazy(() => import("./pages/MilkSummary").then(m => ({ default: m.default })));
 const MarketplaceBrowse = lazy(() => import("./pages/MarketplaceBrowse").then(m => ({ default: m.default })));
 const ListingDetail = lazy(() => import("./pages/ListingDetail").then(m => ({ default: m.default })));
 const CreateListing = lazy(() => import("./pages/CreateListing").then(m => ({ default: m.default })));
@@ -71,13 +76,15 @@ function AppMVP() {
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <AuthProviderMVP>
-          <CalendarProvider>
-            <DemoModeProvider>
-              <ToastProvider>
-                <BrowserRouter>
-                  <Suspense fallback={<LoadingFallback />}>
-                    <AppLayout>
-                      <Routes>
+          <AdminProvider>
+            <CalendarProvider>
+              <DemoModeProvider>
+                <ToastProvider>
+                  <AnalyticsProvider>
+                    <BrowserRouter>
+                      <Suspense fallback={<LoadingFallback />}>
+                        <AppLayout>
+                          <Routes>
                       {/* Public Routes */}
                       <Route path="/login" element={<LoginMVP />} />
                       <Route path="/onboarding" element={<Onboarding />} />
@@ -108,6 +115,14 @@ function AppMVP() {
                         }
                       />
                       <Route
+                        path="/animals"
+                        element={
+                          <ProtectedRoute>
+                            <MyAnimals />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
                         path="/animals/:id"
                         element={
                           <ProtectedRoute>
@@ -120,6 +135,38 @@ function AppMVP() {
                         element={
                           <ProtectedRoute>
                             <RecordMilk />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/milk/record"
+                        element={
+                          <ProtectedRoute>
+                            <RecordMilk />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/milk/records"
+                        element={
+                          <ProtectedRoute>
+                            <MilkProductionRecords />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/milk/analytics"
+                        element={
+                          <ProtectedRoute>
+                            <MilkAnalytics />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/milk/summary"
+                        element={
+                          <ProtectedRoute>
+                            <MilkSummary />
                           </ProtectedRoute>
                         }
                       />
@@ -163,14 +210,16 @@ function AppMVP() {
                           </ProtectedRoute>
                         }
                       />
-                      </Routes>
-                    </AppLayout>
-                  </Suspense>
-                </BrowserRouter>
-                <Sonner />
-              </ToastProvider>
-            </DemoModeProvider>
-          </CalendarProvider>
+                          </Routes>
+                        </AppLayout>
+                      </Suspense>
+                    </BrowserRouter>
+                  </AnalyticsProvider>
+                  <Sonner />
+                </ToastProvider>
+              </DemoModeProvider>
+            </CalendarProvider>
+          </AdminProvider>
         </AuthProviderMVP>
       </LanguageProvider>
     </QueryClientProvider>
