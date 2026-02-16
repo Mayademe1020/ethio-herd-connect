@@ -28,6 +28,35 @@ export const AuthProviderMVP: React.FC<{ children: React.ReactNode }> = ({ child
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check for demo user first (DEVELOPMENT ONLY - disabled in production)
+    const demoUserJson = localStorage.getItem('demo-user');
+    if (import.meta.env.DEV && demoUserJson) {
+      try {
+        const demoUser = JSON.parse(demoUserJson);
+        // Create a mock User object
+        const mockUser: User = {
+          id: demoUser.id,
+          email: demoUser.email,
+          user_metadata: demoUser.user_metadata,
+          app_metadata: {},
+          aud: 'authenticated',
+          created_at: new Date().toISOString(),
+          confirmed_at: new Date().toISOString(),
+          last_sign_in_at: new Date().toISOString(),
+          role: 'authenticated',
+          updated_at: new Date().toISOString(),
+        } as User;
+        
+        setUser(mockUser);
+        setLoading(false);
+        console.log('Demo user loaded:', mockUser.id);
+        return;
+      } catch (e) {
+        console.error('Failed to parse demo user:', e);
+        localStorage.removeItem('demo-user');
+      }
+    }
+
     // Check for existing session on mount
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -60,6 +89,19 @@ export const AuthProviderMVP: React.FC<{ children: React.ReactNode }> = ({ child
 
   const signOut = async () => {
     try {
+      // Clear demo user if exists
+      const demoUser = localStorage.getItem('demo-user');
+      if (demoUser) {
+        localStorage.removeItem('demo-user');
+        localStorage.removeItem('sb-pbtaolycccmmqmwurinp-auth-token');
+        setUser(null);
+        setSession(null);
+        toast.success('✓ Demo mode ended / ዴሞ ጨረሰ', {
+          description: 'You have been signed out'
+        });
+        return;
+      }
+      
       await supabase.auth.signOut();
     } catch (error) {
       console.error('Sign out error:', error);
