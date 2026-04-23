@@ -1,0 +1,274 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from 'sonner';
+
+// Contexts
+import { AuthProvider } from '@/contexts/AuthContextMVP';
+import { AdminProvider } from '@/contexts/AdminContext';
+import { LanguageProvider } from '@/contexts/LanguageContext';
+import { DemoModeProvider } from '@/contexts/DemoModeContext';
+import { CalendarProvider } from '@/contexts/CalendarContext';
+import { ToastProvider } from '@/contexts/ToastContext';
+import { AnalyticsProvider } from '@/contexts/AnalyticsContext';
+
+// Components
+import { AppLayout } from '@/components/AppLayout';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+
+// Pages
+import Index from '@/pages/Index';
+import Auth from '@/pages/Auth';
+import LoginMVP from '@/pages/LoginMVP';
+import RegisterAnimal from '@/pages/RegisterAnimal';
+import MyAnimals from '@/pages/MyAnimals';
+import { AnimalDetail } from '@/pages/AnimalDetail';
+import RecordMilk from '@/pages/RecordMilk';
+import MilkProductionRecords from '@/pages/MilkProductionRecords';
+import MarketplaceBrowse from '@/pages/MarketplaceBrowse';
+import CreateListing from '@/pages/CreateListing';
+import MyListings from '@/pages/MyListings';
+import ListingDetail from '@/pages/ListingDetail';
+import InterestInbox from '@/pages/InterestInbox';
+import Profile from '@/pages/Profile';
+import Onboarding from '@/pages/Onboarding';
+import SimpleHome from '@/pages/SimpleHome';
+import { SyncStatus } from '@/pages/SyncStatus';
+import MilkAnalytics from '@/pages/MilkAnalytics';
+import MilkSummary from '@/pages/MilkSummary';
+import Favorites from '@/pages/Favorites';
+import PublicMarketplaceEnhanced from '@/pages/PublicMarketplaceEnhanced';
+import AnalyticsDashboard from '@/pages/AnalyticsDashboard';
+
+// Admin Pages
+import AdminLogin from '@/pages/AdminLogin';
+import AdminDashboard from '@/pages/AdminDashboard';
+
+// Styles
+import './App.css';
+
+// Optimized TanStack Query configuration for offline-first behavior
+// Critical for Ethiopian farmers with intermittent connectivity
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Data is considered fresh for 5 minutes
+      staleTime: 1000 * 60 * 5,
+      // Cache data for 24 hours for offline access (formerly cacheTime)
+      gcTime: 1000 * 60 * 60 * 24,
+      // Retry failed requests 3 times with exponential backoff
+      retry: 3,
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+      // Skip query when app is offline (will use cached data)
+      networkMode: 'offlineFirst',
+      // Refetch on window focus for critical data
+      refetchOnWindowFocus: false,
+      // Keep previous data while fetching new data (better UX)
+      placeholderData: (previousData) => previousData,
+    },
+    mutations: {
+      // Mutations should retry too for better offline support
+      retry: 2,
+      networkMode: 'offlineFirst',
+    },
+  },
+});
+
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <DemoModeProvider>
+          <LanguageProvider>
+            <CalendarProvider>
+              <AuthProvider>
+                <AdminProvider>
+                  <AnalyticsProvider>
+                    <ToastProvider>
+                      <div className="App">
+                        <ErrorBoundary>
+                        <Routes>
+                          {/* Public Routes */}
+                          <Route path="/auth" element={<Auth />} />
+                          <Route path="/login" element={<LoginMVP />} />
+                          <Route path="/admin/login" element={<AdminLogin />} />
+    
+                          {/* Protected Routes */}
+                          <Route path="/" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <Index />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+    
+                          {/* Animal Management */}
+                          <Route path="/animals" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <MyAnimals />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/animals/register" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <RegisterAnimal />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/animals/:id" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <AnimalDetail />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+    
+                          {/* Milk Recording */}
+                          <Route path="/milk/record" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <RecordMilk />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/milk/records" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <MilkProductionRecords />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/milk/analytics" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <MilkAnalytics />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/milk/summary" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <MilkSummary />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+    
+                          {/* Marketplace */}
+                          <Route path="/marketplace" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <MarketplaceBrowse />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/marketplace/public" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <PublicMarketplaceEnhanced />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/marketplace/create" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <CreateListing />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/marketplace/listings" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <MyListings />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/marketplace/listings/:id" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <ListingDetail />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/marketplace/interests" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <InterestInbox />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+    
+                          {/* User Profile & Settings */}
+                          <Route path="/profile" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <Profile />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/favorites" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <Favorites />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/sync" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <SyncStatus />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+    
+                          {/* Onboarding */}
+                          <Route path="/onboarding" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <Onboarding />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+    
+                          {/* Admin Routes */}
+                          <Route path="/admin" element={
+                            <ProtectedRoute adminOnly>
+                              <AdminDashboard />
+                            </ProtectedRoute>
+                          } />
+                          <Route path="/admin/analytics" element={
+                            <ProtectedRoute adminOnly>
+                              <AnalyticsDashboard />
+                            </ProtectedRoute>
+                          } />
+    
+                          {/* Legacy/Simple Routes */}
+                          <Route path="/home" element={
+                            <ProtectedRoute>
+                              <AppLayout>
+                                <SimpleHome />
+                              </AppLayout>
+                            </ProtectedRoute>
+                          } />
+    
+                          {/* Fallback */}
+                          <Route path="*" element={<Navigate to="/" replace />} />
+                        </Routes>
+                        </ErrorBoundary>
+                      </div>
+                      <Toaster position="top-right" />
+                    </ToastProvider>
+                </AnalyticsProvider>
+              </AdminProvider>
+              </AuthProvider>
+            </CalendarProvider>
+          </LanguageProvider>
+        </DemoModeProvider>
+      </Router>
+    </QueryClientProvider>
+  );
+}
+
+export default App;

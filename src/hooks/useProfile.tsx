@@ -11,6 +11,11 @@ export interface UserProfile {
   farm_name: string | null;
   created_at: string;
   updated_at: string;
+  email?: string;
+  farm_profile?: {
+    location: string | null;
+    farm_prefix: string | null;
+  } | null;
 }
 
 interface UpdateProfileData {
@@ -45,20 +50,21 @@ export const useProfile = () => {
       if (!user) return null;
 
       try {
-        const { data, error } = await supabase
+        // Fetch profile data
+        const { data: profileData, error: profileError } = await supabase
           .from('profiles' as any)
           .select('*')
           .eq('id', user.id)
           .maybeSingle();
 
-        if (error) {
+        if (profileError) {
           // Handle 406 Not Acceptable error specifically
-          if (error.message?.includes('406') || error.code === '406') {
+          if (profileError.message?.includes('406') || profileError.code === '406') {
             console.error('Profile fetch 406 error:', {
-              code: error.code,
-              message: error.message,
-              details: error.details,
-              hint: error.hint,
+              code: profileError.code,
+              message: profileError.message,
+              details: profileError.details,
+              hint: profileError.hint,
               userId: user.id
             });
             throw new Error('Unable to load profile. Please check your connection and try again.');
@@ -66,24 +72,39 @@ export const useProfile = () => {
           
           // Log other errors with details
           console.error('Profile fetch error:', {
-            code: error.code,
-            message: error.message,
-            details: error.details,
-            hint: error.hint,
+            code: profileError.code,
+            message: profileError.message,
+            details: profileError.details,
+            hint: profileError.hint,
             userId: user.id
           });
           
-          throw error;
+          throw profileError;
         }
 
         // maybeSingle() returns null if no row found (not an error)
-        if (!data) {
+        if (!profileData) {
           console.log('Profile not found for user:', user.id);
           return null;
         }
 
+        // Fetch farm profile separately (if exists)
+        const { data: farmProfileData } = await supabase
+          .from('farm_profiles' as any)
+          .select('location, farm_prefix')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
         console.log('Profile loaded successfully for user:', user.id);
-        return data as unknown as UserProfile;
+        
+        // Merge profile data with auth email and farm profile
+        const profileWithEmail = {
+          ...profileData,
+          email: user.email || profileData.phone, // Use auth email or fallback to phone
+          farm_profile: farmProfileData || null
+        } as unknown as UserProfile;
+        
+        return profileWithEmail;
       } catch (err) {
         console.error('Profile fetch exception:', err);
         throw err;

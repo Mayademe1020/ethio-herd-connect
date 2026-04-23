@@ -71,6 +71,22 @@ export const useAnimalRegistration = (): UseAnimalRegistrationReturn => {
       // Generate unique Animal ID
       const animalId = await generateAnimalId(data.type, data.subtype, user.id);
 
+      // Try to get user's farm_id (non-blocking - if it fails, animal still registers)
+      let farmId: string | undefined;
+      try {
+        const { data: membership } = await supabase
+          .from('farm_members' as any)
+          .select('farm_id')
+          .eq('user_id', user.id)
+          .eq('is_active', true)
+          .order('role', { ascending: true })
+          .limit(1)
+          .maybeSingle();
+        farmId = (membership as any)?.farm_id;
+      } catch (_) {
+        // Farm membership lookup failed - continue without farm_id
+      }
+
       const animalData = {
         id: tempId,
         user_id: user.id,
@@ -80,7 +96,8 @@ export const useAnimalRegistration = (): UseAnimalRegistrationReturn => {
         subtype: data.subtype,
         photo_url: data.photo_url,
         registration_date: new Date().toISOString(),
-        status: 'active' // Professional status system
+        status: 'active', // Professional status system
+        ...(farmId ? { farm_id: farmId } : {}),
       } as any; // Type assertion to bypass outdated Supabase types
 
       // Optimistic update - add to local cache immediately

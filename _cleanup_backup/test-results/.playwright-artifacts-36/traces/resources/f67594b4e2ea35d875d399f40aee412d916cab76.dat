@@ -1,0 +1,171 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/components/ProtectedRoute.tsx");if (!window.$RefreshReg$) throw new Error("React refresh preamble was not loaded. Something is wrong.");
+const prevRefreshReg = window.$RefreshReg$;
+const prevRefreshSig = window.$RefreshSig$;
+window.$RefreshReg$ = RefreshRuntime.getRefreshReg("D:/ethio-herd-connect/src/components/ProtectedRoute.tsx");
+window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+
+import * as RefreshRuntime from "/@react-refresh";
+
+// src/components/ProtectedRoute.tsx - MVP Protected Route Wrapper
+import __vite__cjsImport1_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=0165465e"; const _jsxDEV = __vite__cjsImport1_react_jsxDevRuntime["jsxDEV"]; const _Fragment = __vite__cjsImport1_react_jsxDevRuntime["Fragment"];
+var _s = $RefreshSig$();
+import __vite__cjsImport2_react from "/node_modules/.vite/deps/react.js?v=0165465e"; const React = __vite__cjsImport2_react.__esModule ? __vite__cjsImport2_react.default : __vite__cjsImport2_react;
+import { Navigate, useLocation } from "/node_modules/.vite/deps/react-router-dom.js?v=0165465e";
+import { useAuth } from "/src/contexts/AuthContextMVP.tsx";
+import { useAdmin } from "/src/contexts/AdminContext.tsx";
+export const ProtectedRoute = ({ children, adminOnly = false })=>{
+    _s();
+    const { user, loading: authLoading } = useAuth();
+    const { isAdmin, loading: adminLoading } = useAdmin();
+    const location = useLocation();
+    // Show loading while checking auth
+    if (authLoading || adminLoading) {
+        return /*#__PURE__*/ _jsxDEV("div", {
+            "data-lov-id": "src\\components\\ProtectedRoute.tsx:21:6",
+            "data-lov-name": "div",
+            "data-component-path": "src\\components\\ProtectedRoute.tsx",
+            "data-component-line": "21",
+            "data-component-file": "ProtectedRoute.tsx",
+            "data-component-name": "div",
+            "data-component-content": "%7B%22className%22%3A%22min-h-screen%20flex%20items-center%20justify-center%20bg-gray-50%22%7D",
+            className: "min-h-screen flex items-center justify-center bg-gray-50",
+            children: /*#__PURE__*/ _jsxDEV("div", {
+                "data-lov-id": "src\\components\\ProtectedRoute.tsx:22:8",
+                "data-lov-name": "div",
+                "data-component-path": "src\\components\\ProtectedRoute.tsx",
+                "data-component-line": "22",
+                "data-component-file": "ProtectedRoute.tsx",
+                "data-component-name": "div",
+                "data-component-content": "%7B%22className%22%3A%22text-center%22%7D",
+                className: "text-center",
+                children: [
+                    /*#__PURE__*/ _jsxDEV("div", {
+                        "data-lov-id": "src\\components\\ProtectedRoute.tsx:23:10",
+                        "data-lov-name": "div",
+                        "data-component-path": "src\\components\\ProtectedRoute.tsx",
+                        "data-component-line": "23",
+                        "data-component-file": "ProtectedRoute.tsx",
+                        "data-component-name": "div",
+                        "data-component-content": "%7B%22className%22%3A%22animate-spin%20rounded-full%20h-16%20w-16%20border-b-4%20border-green-600%20mx-auto%20mb-4%22%7D",
+                        className: "animate-spin rounded-full h-16 w-16 border-b-4 border-green-600 mx-auto mb-4"
+                    }, void 0, false, {
+                        fileName: "D:/ethio-herd-connect/src/components/ProtectedRoute.tsx",
+                        lineNumber: 23,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ _jsxDEV("p", {
+                        "data-lov-id": "src\\components\\ProtectedRoute.tsx:24:10",
+                        "data-lov-name": "p",
+                        "data-component-path": "src\\components\\ProtectedRoute.tsx",
+                        "data-component-line": "24",
+                        "data-component-file": "ProtectedRoute.tsx",
+                        "data-component-name": "p",
+                        "data-component-content": "%7B%22text%22%3A%22%E1%8A%A5%E1%89%A3%E1%8A%AD%E1%8B%8E%20%E1%8B%AD%E1%8C%A0%E1%89%A5%E1%89%81...%20%2F%20Loading...%22%2C%22className%22%3A%22text-gray-600%20text-lg%22%7D",
+                        className: "text-gray-600 text-lg",
+                        children: "እባክዎ ይጠብቁ... / Loading..."
+                    }, void 0, false, {
+                        fileName: "D:/ethio-herd-connect/src/components/ProtectedRoute.tsx",
+                        lineNumber: 24,
+                        columnNumber: 11
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "D:/ethio-herd-connect/src/components/ProtectedRoute.tsx",
+                lineNumber: 22,
+                columnNumber: 9
+            }, this)
+        }, void 0, false, {
+            fileName: "D:/ethio-herd-connect/src/components/ProtectedRoute.tsx",
+            lineNumber: 21,
+            columnNumber: 7
+        }, this);
+    }
+    // Redirect to login if not authenticated
+    if (!user) {
+        return /*#__PURE__*/ _jsxDEV(Navigate, {
+            "data-lov-id": "src\\components\\ProtectedRoute.tsx:32:11",
+            "data-lov-name": "Navigate",
+            "data-component-path": "src\\components\\ProtectedRoute.tsx",
+            "data-component-line": "32",
+            "data-component-file": "ProtectedRoute.tsx",
+            "data-component-name": "Navigate",
+            "data-component-content": "%7B%7D",
+            to: "/login",
+            replace: true
+        }, void 0, false, {
+            fileName: "D:/ethio-herd-connect/src/components/ProtectedRoute.tsx",
+            lineNumber: 32,
+            columnNumber: 12
+        }, this);
+    }
+    // For admin-only routes, check if user is admin
+    if (adminOnly && !isAdmin) {
+        return /*#__PURE__*/ _jsxDEV(Navigate, {
+            "data-lov-id": "src\\components\\ProtectedRoute.tsx:37:11",
+            "data-lov-name": "Navigate",
+            "data-component-path": "src\\components\\ProtectedRoute.tsx",
+            "data-component-line": "37",
+            "data-component-file": "ProtectedRoute.tsx",
+            "data-component-name": "Navigate",
+            "data-component-content": "%7B%7D",
+            to: "/admin/login",
+            state: {
+                from: location
+            },
+            replace: true
+        }, void 0, false, {
+            fileName: "D:/ethio-herd-connect/src/components/ProtectedRoute.tsx",
+            lineNumber: 37,
+            columnNumber: 12
+        }, this);
+    }
+    // NEW USER FLOW: Always show onboarding first for new users
+    // User must complete onboarding (name/farm) before accessing the app
+    const hasCompletedOnboarding = localStorage.getItem('onboarding_completed');
+    if (!hasCompletedOnboarding && location.pathname !== '/onboarding' && !location.pathname.startsWith('/admin')) {
+        console.log('New user - redirecting to onboarding');
+        return /*#__PURE__*/ _jsxDEV(Navigate, {
+            "data-lov-id": "src\\components\\ProtectedRoute.tsx:46:11",
+            "data-lov-name": "Navigate",
+            "data-component-path": "src\\components\\ProtectedRoute.tsx",
+            "data-component-line": "46",
+            "data-component-file": "ProtectedRoute.tsx",
+            "data-component-name": "Navigate",
+            "data-component-content": "%7B%7D",
+            to: "/onboarding",
+            replace: true
+        }, void 0, false, {
+            fileName: "D:/ethio-herd-connect/src/components/ProtectedRoute.tsx",
+            lineNumber: 46,
+            columnNumber: 12
+        }, this);
+    }
+    return /*#__PURE__*/ _jsxDEV(_Fragment, {
+        children: children
+    }, void 0, false);
+};
+_s(ProtectedRoute, "OmfTvN/nBvNuOOg+aCx+PTbPKs4=", false, function() {
+    return [
+        useAuth,
+        useAdmin,
+        useLocation
+    ];
+});
+_c = ProtectedRoute;
+var _c;
+$RefreshReg$(_c, "ProtectedRoute");
+
+
+window.$RefreshReg$ = prevRefreshReg;
+window.$RefreshSig$ = prevRefreshSig;
+
+RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+  RefreshRuntime.registerExportsForReactRefresh("D:/ethio-herd-connect/src/components/ProtectedRoute.tsx", currentExports);
+  import.meta.hot.accept((nextExports) => {
+    if (!nextExports) return;
+    const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("D:/ethio-herd-connect/src/components/ProtectedRoute.tsx", currentExports, nextExports);
+    if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+  });
+});
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7QUFBQSxrRUFBaUU7OztBQUVqRSxPQUFPQSxXQUFXLFFBQU87QUFDekIsU0FBU0MsUUFBUSxFQUFFQyxXQUFXLFFBQVEsbUJBQWtCO0FBQ3hELFNBQVNDLE9BQU8sUUFBUSw0QkFBMkI7QUFDbkQsU0FBU0MsUUFBUSxRQUFRLDBCQUF5QjtBQU9sRCxPQUFPLE1BQU1DLGlCQUFnRCxDQUFDLEVBQUVDLFFBQVEsRUFBRUMsWUFBWSxLQUFLLEVBQUU7O0lBQzNGLE1BQU0sRUFBRUMsSUFBSSxFQUFFQyxTQUFTQyxXQUFXLEVBQUUsR0FBR1A7SUFDdkMsTUFBTSxFQUFFUSxPQUFPLEVBQUVGLFNBQVNHLFlBQVksRUFBRSxHQUFHUjtJQUMzQyxNQUFNUyxXQUFXWDtJQUVqQixtQ0FBa0M7SUFDbEMsSUFBSVEsZUFBZUUsY0FBYztRQUMvQixxQkFDRSxRQUFDRTtZQUFFQyxlQUFBO1lBQUFDLGlCQUFBO1lBQUFDLHVCQUFBO1lBQUFDLHVCQUFBO1lBQUFDLHVCQUFBO1lBQUFDLHVCQUFBO1lBQUFDLDBCQUFBO1lBQUVDLFdBQVU7c0JBQ2Isc0JBQUNSO2dCQUFFQyxlQUFBO2dCQUFBQyxpQkFBQTtnQkFBQUMsdUJBQUE7Z0JBQUFDLHVCQUFBO2dCQUFBQyx1QkFBQTtnQkFBQUMsdUJBQUE7Z0JBQUFDLDBCQUFBO2dCQUFFQyxXQUFVOztrQ0FDYixRQUFDUjt3QkFBRUMsZUFBQTt3QkFBQUMsaUJBQUE7d0JBQUFDLHVCQUFBO3dCQUFBQyx1QkFBQTt3QkFBQUMsdUJBQUE7d0JBQUFDLHVCQUFBO3dCQUFBQywwQkFBQTt3QkFBRUMsV0FBVTs7Ozs7O2tDQUNmLFFBQUNDO3dCQUFBUixlQUFBO3dCQUFBQyxpQkFBQTt3QkFBQUMsdUJBQUE7d0JBQUFDLHVCQUFBO3dCQUFBQyx1QkFBQTt3QkFBQUMsdUJBQUE7d0JBQUFDLDBCQUFBO3dCQUFFQyxXQUFVO2tDQUF3Qjs7Ozs7Ozs7Ozs7Ozs7Ozs7SUFJN0M7SUFFQSx5Q0FBd0M7SUFDeEMsSUFBSSxDQUFDZCxNQUFNO1FBQ1QscUJBQU8sUUFBQ1A7WUFBT2MsZUFBQTtZQUFBQyxpQkFBQTtZQUFBQyx1QkFBQTtZQUFBQyx1QkFBQTtZQUFBQyx1QkFBQTtZQUFBQyx1QkFBQTtZQUFBQywwQkFBQTtZQUFFRyxJQUFHO1lBQVNDLE9BQU87Ozs7OztJQUN0QztJQUVBLGdEQUErQztJQUMvQyxJQUFJbEIsYUFBYSxDQUFDSSxTQUFTO1FBQ3pCLHFCQUFPLFFBQUNWO1lBQU9jLGVBQUE7WUFBQUMsaUJBQUE7WUFBQUMsdUJBQUE7WUFBQUMsdUJBQUE7WUFBQUMsdUJBQUE7WUFBQUMsdUJBQUE7WUFBQUMsMEJBQUE7WUFBRUcsSUFBRztZQUFlRSxPQUFPO2dCQUFFQyxNQUFNZDtZQUFTO1lBQUdZLE9BQU87Ozs7OztJQUN2RTtJQUVBLDREQUEyRDtJQUMzRCxxRUFBb0U7SUFDcEUsTUFBTUcseUJBQXlCQyxhQUFhQyxPQUFPLENBQUM7SUFFcEQsSUFBSSxDQUFDRiwwQkFBMEJmLFNBQVNrQixRQUFRLEtBQUssaUJBQWlCLENBQUNsQixTQUFTa0IsUUFBUSxDQUFDQyxVQUFVLENBQUMsV0FBVztRQUM3R0MsUUFBUUMsR0FBRyxDQUFDO1FBQ1oscUJBQU8sUUFBQ2pDO1lBQU9jLGVBQUE7WUFBQUMsaUJBQUE7WUFBQUMsdUJBQUE7WUFBQUMsdUJBQUE7WUFBQUMsdUJBQUE7WUFBQUMsdUJBQUE7WUFBQUMsMEJBQUE7WUFBRUcsSUFBRztZQUFjQyxPQUFPOzs7Ozs7SUFDM0M7SUFFQSxxQkFBTztrQkFBR25COztBQUNaLEVBQUM7R0FyQ1lEOztRQUM0QkY7UUFDSUM7UUFDMUJGOzs7S0FITkciLCJuYW1lcyI6WyJSZWFjdCIsIk5hdmlnYXRlIiwidXNlTG9jYXRpb24iLCJ1c2VBdXRoIiwidXNlQWRtaW4iLCJQcm90ZWN0ZWRSb3V0ZSIsImNoaWxkcmVuIiwiYWRtaW5Pbmx5IiwidXNlciIsImxvYWRpbmciLCJhdXRoTG9hZGluZyIsImlzQWRtaW4iLCJhZG1pbkxvYWRpbmciLCJsb2NhdGlvbiIsImRpdiIsImRhdGEtbG92LWlkIiwiZGF0YS1sb3YtbmFtZSIsImRhdGEtY29tcG9uZW50LXBhdGgiLCJkYXRhLWNvbXBvbmVudC1saW5lIiwiZGF0YS1jb21wb25lbnQtZmlsZSIsImRhdGEtY29tcG9uZW50LW5hbWUiLCJkYXRhLWNvbXBvbmVudC1jb250ZW50IiwiY2xhc3NOYW1lIiwicCIsInRvIiwicmVwbGFjZSIsInN0YXRlIiwiZnJvbSIsImhhc0NvbXBsZXRlZE9uYm9hcmRpbmciLCJsb2NhbFN0b3JhZ2UiLCJnZXRJdGVtIiwicGF0aG5hbWUiLCJzdGFydHNXaXRoIiwiY29uc29sZSIsImxvZyJdLCJpZ25vcmVMaXN0IjpbXSwic291cmNlcyI6WyJQcm90ZWN0ZWRSb3V0ZS50c3giXSwic291cmNlc0NvbnRlbnQiOlsiLy8gc3JjL2NvbXBvbmVudHMvUHJvdGVjdGVkUm91dGUudHN4IC0gTVZQIFByb3RlY3RlZCBSb3V0ZSBXcmFwcGVyXG5cbmltcG9ydCBSZWFjdCBmcm9tICdyZWFjdCc7XG5pbXBvcnQgeyBOYXZpZ2F0ZSwgdXNlTG9jYXRpb24gfSBmcm9tICdyZWFjdC1yb3V0ZXItZG9tJztcbmltcG9ydCB7IHVzZUF1dGggfSBmcm9tICdAL2NvbnRleHRzL0F1dGhDb250ZXh0TVZQJztcbmltcG9ydCB7IHVzZUFkbWluIH0gZnJvbSAnQC9jb250ZXh0cy9BZG1pbkNvbnRleHQnO1xuXG5pbnRlcmZhY2UgUHJvdGVjdGVkUm91dGVQcm9wcyB7XG4gIGNoaWxkcmVuOiBSZWFjdC5SZWFjdE5vZGU7XG4gIGFkbWluT25seT86IGJvb2xlYW47XG59XG5cbmV4cG9ydCBjb25zdCBQcm90ZWN0ZWRSb3V0ZTogUmVhY3QuRkM8UHJvdGVjdGVkUm91dGVQcm9wcz4gPSAoeyBjaGlsZHJlbiwgYWRtaW5Pbmx5ID0gZmFsc2UgfSkgPT4ge1xuICBjb25zdCB7IHVzZXIsIGxvYWRpbmc6IGF1dGhMb2FkaW5nIH0gPSB1c2VBdXRoKCk7XG4gIGNvbnN0IHsgaXNBZG1pbiwgbG9hZGluZzogYWRtaW5Mb2FkaW5nIH0gPSB1c2VBZG1pbigpO1xuICBjb25zdCBsb2NhdGlvbiA9IHVzZUxvY2F0aW9uKCk7XG5cbiAgLy8gU2hvdyBsb2FkaW5nIHdoaWxlIGNoZWNraW5nIGF1dGhcbiAgaWYgKGF1dGhMb2FkaW5nIHx8IGFkbWluTG9hZGluZykge1xuICAgIHJldHVybiAoXG4gICAgICA8ZGl2IGNsYXNzTmFtZT1cIm1pbi1oLXNjcmVlbiBmbGV4IGl0ZW1zLWNlbnRlciBqdXN0aWZ5LWNlbnRlciBiZy1ncmF5LTUwXCI+XG4gICAgICAgIDxkaXYgY2xhc3NOYW1lPVwidGV4dC1jZW50ZXJcIj5cbiAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImFuaW1hdGUtc3BpbiByb3VuZGVkLWZ1bGwgaC0xNiB3LTE2IGJvcmRlci1iLTQgYm9yZGVyLWdyZWVuLTYwMCBteC1hdXRvIG1iLTRcIj48L2Rpdj5cbiAgICAgICAgICA8cCBjbGFzc05hbWU9XCJ0ZXh0LWdyYXktNjAwIHRleHQtbGdcIj7hiqXhiaPhiq3hi44g4Yut4Yyg4Yml4YmBLi4uIC8gTG9hZGluZy4uLjwvcD5cbiAgICAgICAgPC9kaXY+XG4gICAgICA8L2Rpdj5cbiAgICApO1xuICB9XG5cbiAgLy8gUmVkaXJlY3QgdG8gbG9naW4gaWYgbm90IGF1dGhlbnRpY2F0ZWRcbiAgaWYgKCF1c2VyKSB7XG4gICAgcmV0dXJuIDxOYXZpZ2F0ZSB0bz1cIi9sb2dpblwiIHJlcGxhY2UgLz47XG4gIH1cblxuICAvLyBGb3IgYWRtaW4tb25seSByb3V0ZXMsIGNoZWNrIGlmIHVzZXIgaXMgYWRtaW5cbiAgaWYgKGFkbWluT25seSAmJiAhaXNBZG1pbikge1xuICAgIHJldHVybiA8TmF2aWdhdGUgdG89XCIvYWRtaW4vbG9naW5cIiBzdGF0ZT17eyBmcm9tOiBsb2NhdGlvbiB9fSByZXBsYWNlIC8+O1xuICB9XG5cbiAgLy8gTkVXIFVTRVIgRkxPVzogQWx3YXlzIHNob3cgb25ib2FyZGluZyBmaXJzdCBmb3IgbmV3IHVzZXJzXG4gIC8vIFVzZXIgbXVzdCBjb21wbGV0ZSBvbmJvYXJkaW5nIChuYW1lL2Zhcm0pIGJlZm9yZSBhY2Nlc3NpbmcgdGhlIGFwcFxuICBjb25zdCBoYXNDb21wbGV0ZWRPbmJvYXJkaW5nID0gbG9jYWxTdG9yYWdlLmdldEl0ZW0oJ29uYm9hcmRpbmdfY29tcGxldGVkJyk7XG4gIFxuICBpZiAoIWhhc0NvbXBsZXRlZE9uYm9hcmRpbmcgJiYgbG9jYXRpb24ucGF0aG5hbWUgIT09ICcvb25ib2FyZGluZycgJiYgIWxvY2F0aW9uLnBhdGhuYW1lLnN0YXJ0c1dpdGgoJy9hZG1pbicpKSB7XG4gICAgY29uc29sZS5sb2coJ05ldyB1c2VyIC0gcmVkaXJlY3RpbmcgdG8gb25ib2FyZGluZycpO1xuICAgIHJldHVybiA8TmF2aWdhdGUgdG89XCIvb25ib2FyZGluZ1wiIHJlcGxhY2UgLz47XG4gIH1cblxuICByZXR1cm4gPD57Y2hpbGRyZW59PC8+O1xufTtcbiJdLCJmaWxlIjoiRDovZXRoaW8taGVyZC1jb25uZWN0L3NyYy9jb21wb25lbnRzL1Byb3RlY3RlZFJvdXRlLnRzeCJ9

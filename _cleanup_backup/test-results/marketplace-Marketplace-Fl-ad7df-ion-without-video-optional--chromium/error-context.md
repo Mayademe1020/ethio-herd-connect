@@ -1,0 +1,52 @@
+# Page snapshot
+
+```yaml
+- main [ref=e3]:
+  - generic [ref=e5]:
+    - region "Brand introduction" [ref=e6]:
+      - generic [ref=e7]:
+        - generic [ref=e8]:
+          - generic [ref=e10]: 🐄
+          - generic "Ethiopian flag" [ref=e11]: 🇪🇹
+        - heading "እንኳን ደህና መጡ" [level=1] [ref=e12]
+        - paragraph [ref=e13]: Ethio Herd Connect
+        - list [ref=e14]:
+          - listitem [ref=e15]: Designed for basic smartphones first; optimized for small screens
+          - listitem [ref=e16]: Bilingual labels (Amharic/English) with clear, simple wording
+          - listitem [ref=e17]: "Low-bandwidth friendly: efficient caching and minimal transfers"
+        - generic [ref=e18]:
+          - generic [ref=e19]: 🐄 🐐 🐑
+          - paragraph [ref=e20]: Track • Manage • Sell
+          - paragraph [ref=e21]: Your livestock, organized
+    - region "Login" [ref=e22]:
+      - generic [ref=e23]:
+        - generic [ref=e24]:
+          - generic [ref=e26]: 🐄
+          - heading "እንኳን ደህና መጡ" [level=2] [ref=e27]
+          - paragraph [ref=e28]: Ethio Herd Connect
+        - generic [ref=e30]:
+          - generic [ref=e31]:
+            - generic [ref=e32]: ስልክ ቁጥር / Phone Number
+            - generic [ref=e33]:
+              - generic [ref=e34]: "+251"
+              - textbox "ስልክ ቁጥር / Phone Number" [active] [ref=e35]:
+                - /placeholder: "911234567"
+            - generic [ref=e36]:
+              - paragraph [ref=e37]: 9 አሃዞች (9 ወይም 7 ይጀምር) / Enter 9 digits (e.g., 911234567)
+              - generic [ref=e38]: 0/9
+          - generic [ref=e39]:
+            - generic [ref=e40]: ፒን / PIN
+            - generic [ref=e41]:
+              - textbox "ፒን / PIN" [ref=e42]:
+                - /placeholder: ••••••
+              - button "Hide PIN" [ref=e43] [cursor=pointer]:
+                - img [ref=e44]
+            - generic [ref=e49]:
+              - paragraph [ref=e50]: ቢያንስ 6 አሃዞች / At least 6 digits
+              - generic [ref=e51]: 0/6
+          - button "Enter 9 more digits" [ref=e52]
+          - button "ፒን አስታወሰ? / Forgot your PIN?" [ref=e54] [cursor=pointer]
+          - paragraph [ref=e56]: 💡 አዲስ ተጠቃሚ? / New user? Just enter your phone and create a PIN to get started!
+        - paragraph [ref=e58]: Made for Ethiopian farmers 🌾
+      - paragraph [ref=e60]: ✓ Works offline • ✓ Amharic support • ✓ Free to use
+```

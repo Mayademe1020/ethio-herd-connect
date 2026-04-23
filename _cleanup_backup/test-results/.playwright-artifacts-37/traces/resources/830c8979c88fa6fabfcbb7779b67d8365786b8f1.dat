@@ -1,0 +1,107 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/contexts/CalendarContext.tsx");if (!window.$RefreshReg$) throw new Error("React refresh preamble was not loaded. Something is wrong.");
+const prevRefreshReg = window.$RefreshReg$;
+const prevRefreshSig = window.$RefreshSig$;
+window.$RefreshReg$ = RefreshRuntime.getRefreshReg("D:/ethio-herd-connect/src/contexts/CalendarContext.tsx");
+window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+
+import * as RefreshRuntime from "/@react-refresh";
+
+/**
+ * Calendar Preference Context
+ * Manages user's calendar system preference (Gregorian or Ethiopian)
+ */ import __vite__cjsImport1_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=0165465e"; const _jsxDEV = __vite__cjsImport1_react_jsxDevRuntime["jsxDEV"];
+var _s = $RefreshSig$(), _s1 = $RefreshSig$();
+import __vite__cjsImport2_react from "/node_modules/.vite/deps/react.js?v=0165465e"; const React = __vite__cjsImport2_react.__esModule ? __vite__cjsImport2_react.default : __vite__cjsImport2_react; const createContext = __vite__cjsImport2_react["createContext"]; const useContext = __vite__cjsImport2_react["useContext"]; const useState = __vite__cjsImport2_react["useState"]; const useEffect = __vite__cjsImport2_react["useEffect"];
+import { useAuth } from "/src/contexts/AuthContextMVP.tsx";
+import { logger } from "/src/utils/logger.ts";
+const CalendarContext = /*#__PURE__*/ createContext(undefined);
+export const CalendarProvider = ({ children })=>{
+    _s();
+    const { user } = useAuth();
+    const [calendarSystem, setCalendarSystemState] = useState('gregorian');
+    const [isLoading, setIsLoading] = useState(true);
+    // Load user's calendar preference from localStorage
+    useEffect(()=>{
+        const loadCalendarPreference = ()=>{
+            try {
+                const saved = localStorage.getItem('calendar_preference');
+                if (saved === 'gregorian' || saved === 'ethiopian') {
+                    setCalendarSystemState(saved);
+                } else {
+                    // Default to Gregorian
+                    setCalendarSystemState('gregorian');
+                }
+            } catch (error) {
+                logger.error('Error loading calendar preference', error);
+                setCalendarSystemState('gregorian');
+            } finally{
+                setIsLoading(false);
+            }
+        };
+        loadCalendarPreference();
+    }, []);
+    // Save calendar preference to localStorage
+    const setCalendarSystem = async (system)=>{
+        try {
+            setCalendarSystemState(system);
+            localStorage.setItem('calendar_preference', system);
+            logger.info('Calendar preference updated', {
+                system
+            });
+        } catch (error) {
+            logger.error('Failed to save calendar preference', error);
+            throw error;
+        }
+    };
+    return /*#__PURE__*/ _jsxDEV(CalendarContext.Provider, {
+        "data-lov-id": "src\\contexts\\CalendarContext.tsx:65:4",
+        "data-lov-name": "CalendarContext.Provider",
+        "data-component-path": "src\\contexts\\CalendarContext.tsx",
+        "data-component-line": "65",
+        "data-component-file": "CalendarContext.tsx",
+        "data-component-name": "CalendarContext.Provider",
+        "data-component-content": "%7B%7D",
+        value: {
+            calendarSystem,
+            setCalendarSystem,
+            isLoading
+        },
+        children: children
+    }, void 0, false, {
+        fileName: "D:/ethio-herd-connect/src/contexts/CalendarContext.tsx",
+        lineNumber: 65,
+        columnNumber: 5
+    }, this);
+};
+_s(CalendarProvider, "04VOiOW+eJKhVmrbMX2aQ1USo5Q=", false, function() {
+    return [
+        useAuth
+    ];
+});
+_c = CalendarProvider;
+export const useCalendar = ()=>{
+    _s1();
+    const context = useContext(CalendarContext);
+    if (context === undefined) {
+        throw new Error('useCalendar must be used within a CalendarProvider');
+    }
+    return context;
+};
+_s1(useCalendar, "b9L3QQ+jgeyIrH0NfHrJ8nn7VMU=");
+var _c;
+$RefreshReg$(_c, "CalendarProvider");
+
+
+window.$RefreshReg$ = prevRefreshReg;
+window.$RefreshSig$ = prevRefreshSig;
+
+RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+  RefreshRuntime.registerExportsForReactRefresh("D:/ethio-herd-connect/src/contexts/CalendarContext.tsx", currentExports);
+  import.meta.hot.accept((nextExports) => {
+    if (!nextExports) return;
+    const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("D:/ethio-herd-connect/src/contexts/CalendarContext.tsx", currentExports, nextExports);
+    if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+  });
+});
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7QUFBQTs7O0NBR0M7O0FBRUQsT0FBT0EsU0FBU0MsYUFBYSxFQUFFQyxVQUFVLEVBQUVDLFFBQVEsRUFBRUMsU0FBUyxRQUFtQixRQUFRO0FBRXpGLFNBQVNDLE9BQU8sUUFBUSw0QkFBNEI7QUFDcEQsU0FBU0MsTUFBTSxRQUFRLGlCQUFpQjtBQVV4QyxNQUFNQyxnQ0FBa0JOLGNBQStDTztBQU12RSxPQUFPLE1BQU1DLG1CQUFvRCxDQUFDLEVBQUVDLFFBQVEsRUFBRTs7SUFDNUUsTUFBTSxFQUFFQyxJQUFJLEVBQUUsR0FBR047SUFDakIsTUFBTSxDQUFDTyxnQkFBZ0JDLHVCQUF1QixHQUFHVixTQUF5QjtJQUMxRSxNQUFNLENBQUNXLFdBQVdDLGFBQWEsR0FBR1osU0FBUztJQUUzQyxvREFBb0Q7SUFDcERDLFVBQVU7UUFDUixNQUFNWSx5QkFBeUI7WUFDN0IsSUFBSTtnQkFDRixNQUFNQyxRQUFRQyxhQUFhQyxPQUFPLENBQUM7Z0JBQ25DLElBQUlGLFVBQVUsZUFBZUEsVUFBVSxhQUFhO29CQUNsREosdUJBQXVCSTtnQkFDekIsT0FBTztvQkFDTCx1QkFBdUI7b0JBQ3ZCSix1QkFBdUI7Z0JBQ3pCO1lBQ0YsRUFBRSxPQUFPTyxPQUFPO2dCQUNkZCxPQUFPYyxLQUFLLENBQUMscUNBQXFDQTtnQkFDbERQLHVCQUF1QjtZQUN6QixTQUFVO2dCQUNSRSxhQUFhO1lBQ2Y7UUFDRjtRQUVBQztJQUNGLEdBQUcsRUFBRTtJQUVMLDJDQUEyQztJQUMzQyxNQUFNSyxvQkFBb0IsT0FBT0M7UUFDL0IsSUFBSTtZQUNGVCx1QkFBdUJTO1lBQ3ZCSixhQUFhSyxPQUFPLENBQUMsdUJBQXVCRDtZQUM1Q2hCLE9BQU9rQixJQUFJLENBQUMsK0JBQStCO2dCQUFFRjtZQUFPO1FBQ3RELEVBQUUsT0FBT0YsT0FBTztZQUNkZCxPQUFPYyxLQUFLLENBQUMsc0NBQXNDQTtZQUNuRCxNQUFNQTtRQUNSO0lBQ0Y7SUFFQSxxQkFDRSxRQUFDYixnQkFBZ0JrQixRQUFPO1FBQUFDLGVBQUE7UUFBQUMsaUJBQUE7UUFBQUMsdUJBQUE7UUFBQUMsdUJBQUE7UUFBQUMsdUJBQUE7UUFBQUMsdUJBQUE7UUFBQUMsMEJBQUE7UUFDdEJDLE9BQU87WUFDTHJCO1lBQ0FTO1lBQ0FQO1FBQ0Y7a0JBRUNKOzs7Ozs7QUFHUCxFQUFFO0dBbERXRDs7UUFDTUo7OztLQUROSTtBQW9EYixPQUFPLE1BQU15QixjQUFjOztJQUN6QixNQUFNQyxVQUFVakMsV0FBV0s7SUFDM0IsSUFBSTRCLFlBQVkzQixXQUFXO1FBQ3pCLE1BQU0sSUFBSTRCLE1BQU07SUFDbEI7SUFDQSxPQUFPRDtBQUNULEVBQUU7SUFOV0QiLCJuYW1lcyI6WyJSZWFjdCIsImNyZWF0ZUNvbnRleHQiLCJ1c2VDb250ZXh0IiwidXNlU3RhdGUiLCJ1c2VFZmZlY3QiLCJ1c2VBdXRoIiwibG9nZ2VyIiwiQ2FsZW5kYXJDb250ZXh0IiwidW5kZWZpbmVkIiwiQ2FsZW5kYXJQcm92aWRlciIsImNoaWxkcmVuIiwidXNlciIsImNhbGVuZGFyU3lzdGVtIiwic2V0Q2FsZW5kYXJTeXN0ZW1TdGF0ZSIsImlzTG9hZGluZyIsInNldElzTG9hZGluZyIsImxvYWRDYWxlbmRhclByZWZlcmVuY2UiLCJzYXZlZCIsImxvY2FsU3RvcmFnZSIsImdldEl0ZW0iLCJlcnJvciIsInNldENhbGVuZGFyU3lzdGVtIiwic3lzdGVtIiwic2V0SXRlbSIsImluZm8iLCJQcm92aWRlciIsImRhdGEtbG92LWlkIiwiZGF0YS1sb3YtbmFtZSIsImRhdGEtY29tcG9uZW50LXBhdGgiLCJkYXRhLWNvbXBvbmVudC1saW5lIiwiZGF0YS1jb21wb25lbnQtZmlsZSIsImRhdGEtY29tcG9uZW50LW5hbWUiLCJkYXRhLWNvbXBvbmVudC1jb250ZW50IiwidmFsdWUiLCJ1c2VDYWxlbmRhciIsImNvbnRleHQiLCJFcnJvciJdLCJpZ25vcmVMaXN0IjpbXSwic291cmNlcyI6WyJDYWxlbmRhckNvbnRleHQudHN4Il0sInNvdXJjZXNDb250ZW50IjpbIi8qKlxyXG4gKiBDYWxlbmRhciBQcmVmZXJlbmNlIENvbnRleHRcclxuICogTWFuYWdlcyB1c2VyJ3MgY2FsZW5kYXIgc3lzdGVtIHByZWZlcmVuY2UgKEdyZWdvcmlhbiBvciBFdGhpb3BpYW4pXHJcbiAqL1xyXG5cclxuaW1wb3J0IFJlYWN0LCB7IGNyZWF0ZUNvbnRleHQsIHVzZUNvbnRleHQsIHVzZVN0YXRlLCB1c2VFZmZlY3QsIFJlYWN0Tm9kZSB9IGZyb20gJ3JlYWN0JztcclxuaW1wb3J0IHsgc3VwYWJhc2UgfSBmcm9tICdAL2ludGVncmF0aW9ucy9zdXBhYmFzZS9jbGllbnQnO1xyXG5pbXBvcnQgeyB1c2VBdXRoIH0gZnJvbSAnQC9jb250ZXh0cy9BdXRoQ29udGV4dE1WUCc7XHJcbmltcG9ydCB7IGxvZ2dlciB9IGZyb20gJ0AvdXRpbHMvbG9nZ2VyJztcclxuXHJcbmV4cG9ydCB0eXBlIENhbGVuZGFyU3lzdGVtID0gJ2dyZWdvcmlhbicgfCAnZXRoaW9waWFuJztcclxuXHJcbmludGVyZmFjZSBDYWxlbmRhckNvbnRleHRUeXBlIHtcclxuICBjYWxlbmRhclN5c3RlbTogQ2FsZW5kYXJTeXN0ZW07XHJcbiAgc2V0Q2FsZW5kYXJTeXN0ZW06IChzeXN0ZW06IENhbGVuZGFyU3lzdGVtKSA9PiBQcm9taXNlPHZvaWQ+O1xyXG4gIGlzTG9hZGluZzogYm9vbGVhbjtcclxufVxyXG5cclxuY29uc3QgQ2FsZW5kYXJDb250ZXh0ID0gY3JlYXRlQ29udGV4dDxDYWxlbmRhckNvbnRleHRUeXBlIHwgdW5kZWZpbmVkPih1bmRlZmluZWQpO1xyXG5cclxuaW50ZXJmYWNlIENhbGVuZGFyUHJvdmlkZXJQcm9wcyB7XHJcbiAgY2hpbGRyZW46IFJlYWN0Tm9kZTtcclxufVxyXG5cclxuZXhwb3J0IGNvbnN0IENhbGVuZGFyUHJvdmlkZXI6IFJlYWN0LkZDPENhbGVuZGFyUHJvdmlkZXJQcm9wcz4gPSAoeyBjaGlsZHJlbiB9KSA9PiB7XHJcbiAgY29uc3QgeyB1c2VyIH0gPSB1c2VBdXRoKCk7XHJcbiAgY29uc3QgW2NhbGVuZGFyU3lzdGVtLCBzZXRDYWxlbmRhclN5c3RlbVN0YXRlXSA9IHVzZVN0YXRlPENhbGVuZGFyU3lzdGVtPignZ3JlZ29yaWFuJyk7XHJcbiAgY29uc3QgW2lzTG9hZGluZywgc2V0SXNMb2FkaW5nXSA9IHVzZVN0YXRlKHRydWUpO1xyXG5cclxuICAvLyBMb2FkIHVzZXIncyBjYWxlbmRhciBwcmVmZXJlbmNlIGZyb20gbG9jYWxTdG9yYWdlXHJcbiAgdXNlRWZmZWN0KCgpID0+IHtcclxuICAgIGNvbnN0IGxvYWRDYWxlbmRhclByZWZlcmVuY2UgPSAoKSA9PiB7XHJcbiAgICAgIHRyeSB7XHJcbiAgICAgICAgY29uc3Qgc2F2ZWQgPSBsb2NhbFN0b3JhZ2UuZ2V0SXRlbSgnY2FsZW5kYXJfcHJlZmVyZW5jZScpO1xyXG4gICAgICAgIGlmIChzYXZlZCA9PT0gJ2dyZWdvcmlhbicgfHwgc2F2ZWQgPT09ICdldGhpb3BpYW4nKSB7XHJcbiAgICAgICAgICBzZXRDYWxlbmRhclN5c3RlbVN0YXRlKHNhdmVkKTtcclxuICAgICAgICB9IGVsc2Uge1xyXG4gICAgICAgICAgLy8gRGVmYXVsdCB0byBHcmVnb3JpYW5cclxuICAgICAgICAgIHNldENhbGVuZGFyU3lzdGVtU3RhdGUoJ2dyZWdvcmlhbicpO1xyXG4gICAgICAgIH1cclxuICAgICAgfSBjYXRjaCAoZXJyb3IpIHtcclxuICAgICAgICBsb2dnZXIuZXJyb3IoJ0Vycm9yIGxvYWRpbmcgY2FsZW5kYXIgcHJlZmVyZW5jZScsIGVycm9yKTtcclxuICAgICAgICBzZXRDYWxlbmRhclN5c3RlbVN0YXRlKCdncmVnb3JpYW4nKTtcclxuICAgICAgfSBmaW5hbGx5IHtcclxuICAgICAgICBzZXRJc0xvYWRpbmcoZmFsc2UpO1xyXG4gICAgICB9XHJcbiAgICB9O1xyXG5cclxuICAgIGxvYWRDYWxlbmRhclByZWZlcmVuY2UoKTtcclxuICB9LCBbXSk7XHJcblxyXG4gIC8vIFNhdmUgY2FsZW5kYXIgcHJlZmVyZW5jZSB0byBsb2NhbFN0b3JhZ2VcclxuICBjb25zdCBzZXRDYWxlbmRhclN5c3RlbSA9IGFzeW5jIChzeXN0ZW06IENhbGVuZGFyU3lzdGVtKSA9PiB7XHJcbiAgICB0cnkge1xyXG4gICAgICBzZXRDYWxlbmRhclN5c3RlbVN0YXRlKHN5c3RlbSk7XHJcbiAgICAgIGxvY2FsU3RvcmFnZS5zZXRJdGVtKCdjYWxlbmRhcl9wcmVmZXJlbmNlJywgc3lzdGVtKTtcclxuICAgICAgbG9nZ2VyLmluZm8oJ0NhbGVuZGFyIHByZWZlcmVuY2UgdXBkYXRlZCcsIHsgc3lzdGVtIH0pO1xyXG4gICAgfSBjYXRjaCAoZXJyb3IpIHtcclxuICAgICAgbG9nZ2VyLmVycm9yKCdGYWlsZWQgdG8gc2F2ZSBjYWxlbmRhciBwcmVmZXJlbmNlJywgZXJyb3IpO1xyXG4gICAgICB0aHJvdyBlcnJvcjtcclxuICAgIH1cclxuICB9O1xyXG5cclxuICByZXR1cm4gKFxyXG4gICAgPENhbGVuZGFyQ29udGV4dC5Qcm92aWRlclxyXG4gICAgICB2YWx1ZT17e1xyXG4gICAgICAgIGNhbGVuZGFyU3lzdGVtLFxyXG4gICAgICAgIHNldENhbGVuZGFyU3lzdGVtLFxyXG4gICAgICAgIGlzTG9hZGluZyxcclxuICAgICAgfX1cclxuICAgID5cclxuICAgICAge2NoaWxkcmVufVxyXG4gICAgPC9DYWxlbmRhckNvbnRleHQuUHJvdmlkZXI+XHJcbiAgKTtcclxufTtcclxuXHJcbmV4cG9ydCBjb25zdCB1c2VDYWxlbmRhciA9ICgpOiBDYWxlbmRhckNvbnRleHRUeXBlID0+IHtcclxuICBjb25zdCBjb250ZXh0ID0gdXNlQ29udGV4dChDYWxlbmRhckNvbnRleHQpO1xyXG4gIGlmIChjb250ZXh0ID09PSB1bmRlZmluZWQpIHtcclxuICAgIHRocm93IG5ldyBFcnJvcigndXNlQ2FsZW5kYXIgbXVzdCBiZSB1c2VkIHdpdGhpbiBhIENhbGVuZGFyUHJvdmlkZXInKTtcclxuICB9XHJcbiAgcmV0dXJuIGNvbnRleHQ7XHJcbn07XHJcbiJdLCJmaWxlIjoiRDovZXRoaW8taGVyZC1jb25uZWN0L3NyYy9jb250ZXh0cy9DYWxlbmRhckNvbnRleHQudHN4In0=

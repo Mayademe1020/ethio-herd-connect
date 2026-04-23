@@ -135,19 +135,11 @@ export const executeSyncOperation = async (
         break;
 
       case 'update':
-        result = await supabase
-          .from(table as any)
-          .update(data)
-          .eq('id', data.id)
-          .eq('user_id', data.user_id);
+        result = await supabase.from(table as any).update(data).eq('id', data.id);
         break;
 
       case 'delete':
-        result = await supabase
-          .from(table as any)
-          .delete()
-          .eq('id', data.id)
-          .eq('user_id', data.user_id);
+        result = await supabase.from(table as any).delete().eq('id', data.id);
         break;
 
       default:

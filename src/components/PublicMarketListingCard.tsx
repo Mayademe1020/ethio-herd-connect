@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { MapPin, Shield, Lock, Eye } from 'lucide-react';
 import { Language } from '@/types';
 import { useDateDisplay } from '@/hooks/useDateDisplay';
+import { OfflineFirstImage } from '@/components/OfflineFirstImage';
 
 interface PublicMarketListingCardProps {
   listing: {
@@ -23,7 +24,7 @@ interface PublicMarketListingCardProps {
   onViewDetails: (listingId: string) => void;
 }
 
-export const PublicMarketListingCard = ({ 
+export const PublicMarketListingCard = React.memo(({ 
   listing, 
   language, 
   isAuthenticated,
@@ -70,11 +71,11 @@ export const PublicMarketListingCard = ({
             </Badge>
           )}
           {listing.photos && listing.photos.length > 0 ? (
-            <img 
+            <OfflineFirstImage 
               src={listing.photos[0]} 
               alt={listing.title}
               className="w-full h-full object-cover"
-              loading="lazy"
+              fallbackIcon="🐄"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -139,4 +140,4 @@ export const PublicMarketListingCard = ({
       </CardContent>
     </Card>
   );
-};
+});

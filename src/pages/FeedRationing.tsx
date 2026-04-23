@@ -5,6 +5,7 @@ import { FeedSelector } from '@/components/FeedSelector';
 import { FeedErrorBoundary } from '@/components/FeedErrorBoundary';
 import { useFeedCalculator } from '@/hooks/useFeedCalculator';
 import { useTranslations } from '@/hooks/useTranslations';
+import { usePaginatedAnimals } from '@/hooks/usePaginatedAnimals';
 import { BackButton } from '@/components/BackButton';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,9 +36,13 @@ const FeedRationing = () => {
   const [currentMode, setCurrentMode] = useState<Mode>('selection');
   const [feedMode, setFeedMode] = useState<FeedMode | null>(null);
   const [selectedAnimal, setSelectedAnimal] = useState('');
+  const [selectedAnimalId, setSelectedAnimalId] = useState(''); // Specific animal from user's animals
   const [productionGoal, setProductionGoal] = useState('');
   const [selectedFeedIds, setSelectedFeedIds] = useState<string[]>([]);
   const [calculationResult, setCalculationResult] = useState<any>(null);
+
+  // Fetch user's animals for selection
+  const { animals, isLoading: animalsLoading } = usePaginatedAnimals({ pageSize: 100 });
 
   // Load seasonal feeds on mount
   useEffect(() => {
@@ -91,9 +96,14 @@ const FeedRationing = () => {
   const handleSavePlan = async () => {
     if (!calculationResult?.ration) return;
 
+    if (!selectedAnimalId) {
+      toast.error(t('feed.selectAnimalFirst') || 'Please select a specific animal to save this plan');
+      return;
+    }
+
     try {
       await savePlan(
-        'temp-animal-id', // TODO: Get from animal selection
+        selectedAnimalId,
         calculationResult.ration.id,
         feedMode === 'user_feeds' ? 'user_driven' : 'app_driven',
         selectedFeedIds,
@@ -154,6 +164,29 @@ const FeedRationing = () => {
             <option value="high_milk">🥛 {t('feed.highMilk') || 'High Milk Production'}</option>
             <option value="fattening">📈 {t('feed.fattening') || 'Fattening'}</option>
           </select>
+        </div>
+
+        {/* Specific Animal Selection (Optional) */}
+        <div>
+          <label className="block text-sm font-medium mb-2">
+            {t('feed.selectSpecificAnimal') || 'Select Specific Animal (Optional)'}
+          </label>
+          <select
+            value={selectedAnimalId}
+            onChange={(e) => setSelectedAnimalId(e.target.value)}
+            disabled={animalsLoading}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 disabled:bg-gray-100"
+          >
+            <option value="">{t('feed.noSpecificAnimal') || 'No specific animal (general plan)'}</option>
+            {animals?.map((animal) => (
+              <option key={animal.id} value={animal.id}>
+                {animal.name} ({animal.animal_code || animal.id.slice(0, 8)})
+              </option>
+            ))}
+          </select>
+          {animalsLoading && (
+            <p className="text-xs text-gray-500 mt-1">{t('feed.loadingAnimals') || 'Loading your animals...'}</p>
+          )}
         </div>
 
         {/* Current Season Info */}

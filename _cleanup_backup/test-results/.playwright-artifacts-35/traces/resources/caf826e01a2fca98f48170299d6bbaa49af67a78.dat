@@ -1,0 +1,168 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/components/AppLayout.tsx");if (!window.$RefreshReg$) throw new Error("React refresh preamble was not loaded. Something is wrong.");
+const prevRefreshReg = window.$RefreshReg$;
+const prevRefreshSig = window.$RefreshSig$;
+window.$RefreshReg$ = RefreshRuntime.getRefreshReg("D:/ethio-herd-connect/src/components/AppLayout.tsx");
+window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+
+import * as RefreshRuntime from "/@react-refresh";
+
+// src/components/AppLayout.tsx - Main app layout with navigation
+import __vite__cjsImport1_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=0165465e"; const _jsxDEV = __vite__cjsImport1_react_jsxDevRuntime["jsxDEV"]; const _Fragment = __vite__cjsImport1_react_jsxDevRuntime["Fragment"];
+var _s = $RefreshSig$();
+import { useLocation } from "/node_modules/.vite/deps/react-router-dom.js?v=0165465e";
+import { TopBar } from "/src/components/TopBar.tsx";
+import { BottomNavigation } from "/src/components/BottomNavigation.tsx";
+import { FeedbackWidget } from "/src/components/FeedbackWidget.tsx";
+import { OfflineBanner, OnlineIndicator } from "/src/components/OfflineBanner.tsx";
+import { GuidedExperience } from "/src/components/GuidedExperience.tsx";
+import { useScreenTracking } from "/src/hooks/useScreenTracking.ts";
+import { cn } from "/src/lib/utils.ts";
+export const AppLayout = ({ children })=>{
+    _s();
+    const location = useLocation();
+    // Track screen views
+    useScreenTracking();
+    // Don't show navigation on login/onboarding pages
+    const hideNavigation = [
+        '/login',
+        '/onboarding'
+    ].includes(location.pathname);
+    if (hideNavigation) {
+        return /*#__PURE__*/ _jsxDEV(_Fragment, {
+            children: children
+        }, void 0, false);
+    }
+    return /*#__PURE__*/ _jsxDEV("div", {
+        "data-lov-id": "src\\components\\AppLayout.tsx:30:4",
+        "data-lov-name": "div",
+        "data-component-path": "src\\components\\AppLayout.tsx",
+        "data-component-line": "30",
+        "data-component-file": "AppLayout.tsx",
+        "data-component-name": "div",
+        "data-component-content": "%7B%22className%22%3A%22min-h-screen%22%7D",
+        className: "min-h-screen",
+        children: [
+            !hideNavigation && /*#__PURE__*/ _jsxDEV(OfflineBanner, {
+                "data-lov-id": "src\\components\\AppLayout.tsx:32:26",
+                "data-lov-name": "OfflineBanner",
+                "data-component-path": "src\\components\\AppLayout.tsx",
+                "data-component-line": "32",
+                "data-component-file": "AppLayout.tsx",
+                "data-component-name": "OfflineBanner",
+                "data-component-content": "%7B%7D"
+            }, void 0, false, {
+                fileName: "D:/ethio-herd-connect/src/components/AppLayout.tsx",
+                lineNumber: 32,
+                columnNumber: 27
+            }, this),
+            !hideNavigation && /*#__PURE__*/ _jsxDEV(OnlineIndicator, {
+                "data-lov-id": "src\\components\\AppLayout.tsx:35:26",
+                "data-lov-name": "OnlineIndicator",
+                "data-component-path": "src\\components\\AppLayout.tsx",
+                "data-component-line": "35",
+                "data-component-file": "AppLayout.tsx",
+                "data-component-name": "OnlineIndicator",
+                "data-component-content": "%7B%7D"
+            }, void 0, false, {
+                fileName: "D:/ethio-herd-connect/src/components/AppLayout.tsx",
+                lineNumber: 35,
+                columnNumber: 27
+            }, this),
+            /*#__PURE__*/ _jsxDEV(TopBar, {
+                "data-lov-id": "src\\components\\AppLayout.tsx:38:6",
+                "data-lov-name": "TopBar",
+                "data-component-path": "src\\components\\AppLayout.tsx",
+                "data-component-line": "38",
+                "data-component-file": "AppLayout.tsx",
+                "data-component-name": "TopBar",
+                "data-component-content": "%7B%7D"
+            }, void 0, false, {
+                fileName: "D:/ethio-herd-connect/src/components/AppLayout.tsx",
+                lineNumber: 38,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV("div", {
+                "data-lov-id": "src\\components\\AppLayout.tsx:41:6",
+                "data-lov-name": "div",
+                "data-component-path": "src\\components\\AppLayout.tsx",
+                "data-component-line": "41",
+                "data-component-file": "AppLayout.tsx",
+                "data-component-name": "div",
+                "data-component-content": "%7B%7D",
+                className: cn("pb-20", !hideNavigation && "pt-14"),
+                children: children
+            }, void 0, false, {
+                fileName: "D:/ethio-herd-connect/src/components/AppLayout.tsx",
+                lineNumber: 41,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV(BottomNavigation, {
+                "data-lov-id": "src\\components\\AppLayout.tsx:46:6",
+                "data-lov-name": "BottomNavigation",
+                "data-component-path": "src\\components\\AppLayout.tsx",
+                "data-component-line": "46",
+                "data-component-file": "AppLayout.tsx",
+                "data-component-name": "BottomNavigation",
+                "data-component-content": "%7B%7D"
+            }, void 0, false, {
+                fileName: "D:/ethio-herd-connect/src/components/AppLayout.tsx",
+                lineNumber: 46,
+                columnNumber: 7
+            }, this),
+            !hideNavigation && /*#__PURE__*/ _jsxDEV(FeedbackWidget, {
+                "data-lov-id": "src\\components\\AppLayout.tsx:49:26",
+                "data-lov-name": "FeedbackWidget",
+                "data-component-path": "src\\components\\AppLayout.tsx",
+                "data-component-line": "49",
+                "data-component-file": "AppLayout.tsx",
+                "data-component-name": "FeedbackWidget",
+                "data-component-content": "%7B%7D"
+            }, void 0, false, {
+                fileName: "D:/ethio-herd-connect/src/components/AppLayout.tsx",
+                lineNumber: 49,
+                columnNumber: 27
+            }, this),
+            !hideNavigation && /*#__PURE__*/ _jsxDEV(GuidedExperience, {
+                "data-lov-id": "src\\components\\AppLayout.tsx:52:26",
+                "data-lov-name": "GuidedExperience",
+                "data-component-path": "src\\components\\AppLayout.tsx",
+                "data-component-line": "52",
+                "data-component-file": "AppLayout.tsx",
+                "data-component-name": "GuidedExperience",
+                "data-component-content": "%7B%7D"
+            }, void 0, false, {
+                fileName: "D:/ethio-herd-connect/src/components/AppLayout.tsx",
+                lineNumber: 52,
+                columnNumber: 27
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "D:/ethio-herd-connect/src/components/AppLayout.tsx",
+        lineNumber: 30,
+        columnNumber: 5
+    }, this);
+};
+_s(AppLayout, "8ntVEch7+ETPeFcKxOzPpl6+35g=", false, function() {
+    return [
+        useLocation,
+        useScreenTracking
+    ];
+});
+_c = AppLayout;
+var _c;
+$RefreshReg$(_c, "AppLayout");
+
+
+window.$RefreshReg$ = prevRefreshReg;
+window.$RefreshSig$ = prevRefreshSig;
+
+RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+  RefreshRuntime.registerExportsForReactRefresh("D:/ethio-herd-connect/src/components/AppLayout.tsx", currentExports);
+  import.meta.hot.accept((nextExports) => {
+    if (!nextExports) return;
+    const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("D:/ethio-herd-connect/src/components/AppLayout.tsx", currentExports, nextExports);
+    if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+  });
+});
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7QUFBQSxpRUFBZ0U7OztBQUVoRSxTQUFTQSxXQUFXLFFBQVEsbUJBQWtCO0FBQzlDLFNBQVNDLE1BQU0sUUFBUSxXQUFVO0FBQ2pDLFNBQVNDLGdCQUFnQixRQUFRLHFCQUFvQjtBQUNyRCxTQUFTQyxjQUFjLFFBQVEsbUJBQWtCO0FBQ2pELFNBQVNDLGFBQWEsRUFBRUMsZUFBZSxRQUFRLGtCQUFpQjtBQUNoRSxTQUFTQyxnQkFBZ0IsUUFBUSxxQkFBb0I7QUFDckQsU0FBU0MsaUJBQWlCLFFBQVEsNEJBQTJCO0FBQzdELFNBQVNDLEVBQUUsUUFBUSxjQUFhO0FBTWhDLE9BQU8sTUFBTUMsWUFBWSxDQUFDLEVBQUVDLFFBQVEsRUFBa0I7O0lBQ3BELE1BQU1DLFdBQVdYO0lBRWpCLHFCQUFxQjtJQUNyQk87SUFFQSxrREFBa0Q7SUFDbEQsTUFBTUssaUJBQWlCO1FBQUM7UUFBVTtLQUFjLENBQUNDLFFBQVEsQ0FBQ0YsU0FBU0csUUFBUTtJQUUzRSxJQUFJRixnQkFBZ0I7UUFDbEIscUJBQU87c0JBQUdGOztJQUNaO0lBRUEscUJBQ0UsUUFBQ0s7UUFBRUMsZUFBQTtRQUFBQyxpQkFBQTtRQUFBQyx1QkFBQTtRQUFBQyx1QkFBQTtRQUFBQyx1QkFBQTtRQUFBQyx1QkFBQTtRQUFBQywwQkFBQTtRQUFFQyxXQUFVOztZQUVaLENBQUNYLGdDQUFrQixRQUFDUjtnQkFBWVksZUFBQTtnQkFBQUMsaUJBQUE7Z0JBQUFDLHVCQUFBO2dCQUFBQyx1QkFBQTtnQkFBQUMsdUJBQUE7Z0JBQUFDLHVCQUFBO2dCQUFBQywwQkFBQTs7Ozs7O1lBR2hDLENBQUNWLGdDQUFrQixRQUFDUDtnQkFBY1csZUFBQTtnQkFBQUMsaUJBQUE7Z0JBQUFDLHVCQUFBO2dCQUFBQyx1QkFBQTtnQkFBQUMsdUJBQUE7Z0JBQUFDLHVCQUFBO2dCQUFBQywwQkFBQTs7Ozs7OzBCQUduQyxRQUFDckI7Z0JBQUtlLGVBQUE7Z0JBQUFDLGlCQUFBO2dCQUFBQyx1QkFBQTtnQkFBQUMsdUJBQUE7Z0JBQUFDLHVCQUFBO2dCQUFBQyx1QkFBQTtnQkFBQUMsMEJBQUE7Ozs7OzswQkFHTixRQUFDUDtnQkFBRUMsZUFBQTtnQkFBQUMsaUJBQUE7Z0JBQUFDLHVCQUFBO2dCQUFBQyx1QkFBQTtnQkFBQUMsdUJBQUE7Z0JBQUFDLHVCQUFBO2dCQUFBQywwQkFBQTtnQkFBRUMsV0FBV2YsR0FBRyxTQUFTLENBQUNJLGtCQUFrQjswQkFDNUNGOzs7Ozs7MEJBSUgsUUFBQ1I7Z0JBQWVjLGVBQUE7Z0JBQUFDLGlCQUFBO2dCQUFBQyx1QkFBQTtnQkFBQUMsdUJBQUE7Z0JBQUFDLHVCQUFBO2dCQUFBQyx1QkFBQTtnQkFBQUMsMEJBQUE7Ozs7OztZQUdmLENBQUNWLGdDQUFrQixRQUFDVDtnQkFBYWEsZUFBQTtnQkFBQUMsaUJBQUE7Z0JBQUFDLHVCQUFBO2dCQUFBQyx1QkFBQTtnQkFBQUMsdUJBQUE7Z0JBQUFDLHVCQUFBO2dCQUFBQywwQkFBQTs7Ozs7O1lBR2pDLENBQUNWLGdDQUFrQixRQUFDTjtnQkFBZVUsZUFBQTtnQkFBQUMsaUJBQUE7Z0JBQUFDLHVCQUFBO2dCQUFBQyx1QkFBQTtnQkFBQUMsdUJBQUE7Z0JBQUFDLHVCQUFBO2dCQUFBQywwQkFBQTs7Ozs7Ozs7Ozs7O0FBRzFDLEVBQUM7R0F2Q1liOztRQUNNVDtRQUdqQk87OztLQUpXRSIsIm5hbWVzIjpbInVzZUxvY2F0aW9uIiwiVG9wQmFyIiwiQm90dG9tTmF2aWdhdGlvbiIsIkZlZWRiYWNrV2lkZ2V0IiwiT2ZmbGluZUJhbm5lciIsIk9ubGluZUluZGljYXRvciIsIkd1aWRlZEV4cGVyaWVuY2UiLCJ1c2VTY3JlZW5UcmFja2luZyIsImNuIiwiQXBwTGF5b3V0IiwiY2hpbGRyZW4iLCJsb2NhdGlvbiIsImhpZGVOYXZpZ2F0aW9uIiwiaW5jbHVkZXMiLCJwYXRobmFtZSIsImRpdiIsImRhdGEtbG92LWlkIiwiZGF0YS1sb3YtbmFtZSIsImRhdGEtY29tcG9uZW50LXBhdGgiLCJkYXRhLWNvbXBvbmVudC1saW5lIiwiZGF0YS1jb21wb25lbnQtZmlsZSIsImRhdGEtY29tcG9uZW50LW5hbWUiLCJkYXRhLWNvbXBvbmVudC1jb250ZW50IiwiY2xhc3NOYW1lIl0sImlnbm9yZUxpc3QiOltdLCJzb3VyY2VzIjpbIkFwcExheW91dC50c3giXSwic291cmNlc0NvbnRlbnQiOlsiLy8gc3JjL2NvbXBvbmVudHMvQXBwTGF5b3V0LnRzeCAtIE1haW4gYXBwIGxheW91dCB3aXRoIG5hdmlnYXRpb25cblxuaW1wb3J0IHsgdXNlTG9jYXRpb24gfSBmcm9tICdyZWFjdC1yb3V0ZXItZG9tJztcbmltcG9ydCB7IFRvcEJhciB9IGZyb20gJy4vVG9wQmFyJztcbmltcG9ydCB7IEJvdHRvbU5hdmlnYXRpb24gfSBmcm9tICcuL0JvdHRvbU5hdmlnYXRpb24nO1xuaW1wb3J0IHsgRmVlZGJhY2tXaWRnZXQgfSBmcm9tICcuL0ZlZWRiYWNrV2lkZ2V0JztcbmltcG9ydCB7IE9mZmxpbmVCYW5uZXIsIE9ubGluZUluZGljYXRvciB9IGZyb20gJy4vT2ZmbGluZUJhbm5lcic7XG5pbXBvcnQgeyBHdWlkZWRFeHBlcmllbmNlIH0gZnJvbSAnLi9HdWlkZWRFeHBlcmllbmNlJztcbmltcG9ydCB7IHVzZVNjcmVlblRyYWNraW5nIH0gZnJvbSAnQC9ob29rcy91c2VTY3JlZW5UcmFja2luZyc7XG5pbXBvcnQgeyBjbiB9IGZyb20gJ0AvbGliL3V0aWxzJztcblxyXG5pbnRlcmZhY2UgQXBwTGF5b3V0UHJvcHMge1xyXG4gIGNoaWxkcmVuOiBSZWFjdC5SZWFjdE5vZGU7XHJcbn1cclxuXHJcbmV4cG9ydCBjb25zdCBBcHBMYXlvdXQgPSAoeyBjaGlsZHJlbiB9OiBBcHBMYXlvdXRQcm9wcykgPT4ge1xyXG4gIGNvbnN0IGxvY2F0aW9uID0gdXNlTG9jYXRpb24oKTtcclxuXHJcbiAgLy8gVHJhY2sgc2NyZWVuIHZpZXdzXHJcbiAgdXNlU2NyZWVuVHJhY2tpbmcoKTtcclxuXHJcbiAgLy8gRG9uJ3Qgc2hvdyBuYXZpZ2F0aW9uIG9uIGxvZ2luL29uYm9hcmRpbmcgcGFnZXNcclxuICBjb25zdCBoaWRlTmF2aWdhdGlvbiA9IFsnL2xvZ2luJywgJy9vbmJvYXJkaW5nJ10uaW5jbHVkZXMobG9jYXRpb24ucGF0aG5hbWUpO1xyXG4gIFxyXG4gIGlmIChoaWRlTmF2aWdhdGlvbikge1xyXG4gICAgcmV0dXJuIDw+e2NoaWxkcmVufTwvPjtcclxuICB9XHJcbiAgXHJcbiAgcmV0dXJuIChcbiAgICA8ZGl2IGNsYXNzTmFtZT1cIm1pbi1oLXNjcmVlblwiPlxuICAgICAgey8qIE9mZmxpbmUgaW5kaWNhdG9yICovfVxuICAgICAgeyFoaWRlTmF2aWdhdGlvbiAmJiA8T2ZmbGluZUJhbm5lciAvPn1cbiAgICAgIFxuICAgICAgey8qIE9ubGluZSBpbmRpY2F0b3IgKi99XG4gICAgICB7IWhpZGVOYXZpZ2F0aW9uICYmIDxPbmxpbmVJbmRpY2F0b3IgLz59XG4gICAgICBcbiAgICAgIHsvKiBUb3AgYmFyIHdpdGggbGFuZ3VhZ2UgdG9nZ2xlICovfVxuICAgICAgPFRvcEJhciAvPlxuICAgICAgXG4gICAgICB7LyogTWFpbiBjb250ZW50IHdpdGggcGFkZGluZyBmb3IgdG9wIGFuZCBib3R0b20gYmFycyAqL31cbiAgICAgIDxkaXYgY2xhc3NOYW1lPXtjbihcInBiLTIwXCIsICFoaWRlTmF2aWdhdGlvbiAmJiBcInB0LTE0XCIpfT5cbiAgICAgICAge2NoaWxkcmVufVxuICAgICAgPC9kaXY+XG4gICAgICBcbiAgICAgIHsvKiBCb3R0b20gbmF2aWdhdGlvbiAqL31cbiAgICAgIDxCb3R0b21OYXZpZ2F0aW9uIC8+XG4gICAgICBcbiAgICAgIHsvKiBGZWVkYmFjayB3aWRnZXQgLSBvbmx5IHNob3cgb24gYXV0aGVudGljYXRlZCBwYWdlcyAqL31cbiAgICAgIHshaGlkZU5hdmlnYXRpb24gJiYgPEZlZWRiYWNrV2lkZ2V0IC8+fVxuICAgICAgXG4gICAgICB7LyogT25ib2FyZGluZyBUb3VyICYgRmlyc3QgQW5pbWFsIFdpemFyZCAtIFNtYXJ0IGRldGVjdGlvbiAqL31cbiAgICAgIHshaGlkZU5hdmlnYXRpb24gJiYgPEd1aWRlZEV4cGVyaWVuY2UgLz59XG4gICAgPC9kaXY+XG4gICk7XG59O1xuIl0sImZpbGUiOiJEOi9ldGhpby1oZXJkLWNvbm5lY3Qvc3JjL2NvbXBvbmVudHMvQXBwTGF5b3V0LnRzeCJ9

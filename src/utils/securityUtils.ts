@@ -7,15 +7,19 @@
 import CryptoJS from 'crypto-js';
 import { logger } from './logger';
 
-// Secret key for encryption (must be set in environment)
-const ENCRYPTION_KEY = import.meta.env.VITE_ENCRYPTION_KEY;
+// Secret key for encryption (required in production)
+const getEncryptionKey = (): string => {
+  const key = import.meta.env.VITE_ENCRYPTION_KEY;
+  if (!key || key.trim() === '') {
+    if (import.meta.env.PROD) {
+      throw new Error('VITE_ENCRYPTION_KEY is required in production. Set this environment variable.');
+    }
+    return 'dev-fallback-key-not-for-production';
+  }
+  return key;
+};
 
-if (!ENCRYPTION_KEY) {
-  throw new Error(
-    'VITE_ENCRYPTION_KEY environment variable is required. ' +
-    'Please set a secure encryption key in your .env file.'
-  );
-}
+const ENCRYPTION_KEY = getEncryptionKey();
 
 /**
  * Encrypt data using AES encryption

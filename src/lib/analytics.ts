@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 export const ANALYTICS_EVENTS = {
   ANIMAL_REGISTERED: 'animal_registered',
   MILK_RECORDED: 'milk_recorded',
+  HEALTH_RECORDED: 'health_recorded',
   LISTING_CREATED: 'listing_created',
   LISTING_VIEWED: 'listing_viewed',
   INTEREST_EXPRESSED: 'interest_expressed',

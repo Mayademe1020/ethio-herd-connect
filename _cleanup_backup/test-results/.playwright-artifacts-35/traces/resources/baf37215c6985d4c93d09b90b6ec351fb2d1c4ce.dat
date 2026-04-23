@@ -1,0 +1,287 @@
+// src/config/onboarding.config.ts
+// Centralized configuration for all onboarding content
+// Edit this file to change tour steps, wizard flow, or translations
+// Tour steps - 3 step tour
+export const tourSteps = [
+    {
+        id: 'welcome',
+        target: '[data-tour="dashboard-stats"]',
+        title: {
+            am: 'እንኳን ወደ ቤት ደህና መጡ!',
+            en: 'Welcome to Your Farm!',
+            or: 'Baga Nagaan Dhuftan!',
+            sw: 'Karibu kwenye Shamba Lako!'
+        },
+        description: {
+            am: 'ይህ የእርስዎ የቤት ዳሽቦርድ ነው። ሁሉንም እንስሳት እና ዕለታዊ የወተት ምርት በአንድ ጭምር ይመልከቱ።',
+            en: 'This is your farm dashboard. See all your animals and daily milk production at a glance.',
+            or: 'Kun daashboordii qotaa keessanii dha. Hundi horii keessanii fi oomishii aannanii guyyaa tokkoo ilaala.',
+            sw: 'Hii dashibodi yako ya shamba. Tazama wanyama wako na uzalishaji wa maziwa kila siku kwa mtazamo mmoja.'
+        },
+        position: 'bottom',
+        action: 'highlight'
+    },
+    {
+        id: 'register-animal',
+        target: '[data-tour="add-animal-btn"]',
+        title: {
+            am: 'እንስሳ ይጨምሩ',
+            en: 'Add Your Animals',
+            or: 'Horii Dabali',
+            sw: 'Ongeza Wanyama Wako'
+        },
+        description: {
+            am: 'እዚህ የመጀመሪያ እንስሳዎን ያኑሩ። ልዩ መታወቂያ እናገኝሎታለን እና ጤና እና ምርትዎን ለመከታተል እንረዳዎታለን።',
+            en: 'Add your first animal here. We\'ll generate a unique ID and help you track its health and production.',
+            or: 'Hoo xiqqoo tokko asitti dabali. ID adda ta\'e uumna fi fayyina isaa fi oomishii isaa hordofannu si gargaarna.',
+            sw: 'Ongeza mnyama wako wa kwanza hapa. Tutatengeneza kitambulisho cha kipekee na kukusaidia kufuatilia afya na uzalishaji wake.'
+        },
+        position: 'left',
+        action: 'navigate',
+        path: '/register-animal'
+    },
+    {
+        id: 'record-milk',
+        target: '[data-tour="record-milk-btn"]',
+        title: {
+            am: 'ወተት ይመዝግቡ',
+            en: 'Record Milk',
+            or: 'Aannan Galmeessi',
+            sw: 'Rekodi Maziwa'
+        },
+        description: {
+            am: 'ከእያንዳንዱ የወተት ማሰራጫ በኋላ ወተት ይመዝግቡ። ለጠዋት እና ለማታ 2 ጊዜ ብቻ!',
+            en: 'Record milk after each milking. Just 2 clicks for morning and evening!',
+            or: 'Aannan erga sa\'a\'iwwan booda galmeessi. Kilikii 2 qofaaf garaa bahuu fi galgalaaf!',
+            sw: 'Rekodi maziwa baada ya kukama kila wakati. Bofya mara 2 tu kwa asubuhi na jioni!'
+        },
+        position: 'top',
+        action: 'navigate',
+        path: '/record-milk'
+    }
+];
+// Wizard steps - 5 step first animal wizard
+export const wizardSteps = [
+    {
+        id: 'intro',
+        title: {
+            am: 'እንኳን ወደ እንስሳ መመዝገቢያ ጣቢያ በደህና መጡ!',
+            en: 'Welcome to Ethio Herd Connect!',
+            or: 'Baga Nagaan Dhuftan!',
+            sw: 'Karibu kwenye Ethio Herd Connect!'
+        },
+        description: {
+            am: 'የመጀመሪያ እንስሳዎን ለማከል ይህ ሁሉንም ሂደት ይወስዳል። ይህ 2 ደቂቃ ብቻ ይወስዳል።',
+            en: 'Let\'s add your first animal to get started. This will only take 2 minutes.',
+            or: 'Hoo xiqqoo tokko jedhuu jalqabnu. Kun daqiiqaa 2 qofa fudhata.',
+            sw: 'Hebu tuongeze mnyama wako wa kwanza kuanzia. Hii itachukua dakika 2 tu.'
+        },
+        component: 'type-selection'
+    },
+    {
+        id: 'type-selection',
+        title: {
+            am: 'የእንስሳውን አይነት ይምረጡ',
+            en: 'Choose Animal Type',
+            or: 'Gosa Hoo Filadhu',
+            sw: 'Chagua Aina ya Mnyama'
+        },
+        description: {
+            am: 'እባክዎ የሚጨምሩት እንስሳ ምን ዓይነት እንደሆነ ይምረጡ',
+            en: 'What type of animal are you adding?',
+            or: 'Hoo gosa kamtuu itti dabaltaa jirta?',
+            sw: 'Unaongeza mnyama wa aina gani?'
+        },
+        component: 'type-selection'
+    },
+    {
+        id: 'basic-info',
+        title: {
+            am: 'መሰረታዊ መረጃ',
+            en: 'Basic Information',
+            or: 'Odeeffannoo Bu\'uura',
+            sw: 'Taarifa za Msingi'
+        },
+        description: {
+            am: 'ስም እና ዘር ያክሉ (አማራጭ)',
+            en: 'Add name and breed (optional)',
+            or: 'Maqaa fi gosa dabali (filannoo)',
+            sw: 'Ongeza jina na mbari (hiari)'
+        },
+        component: 'basic-info',
+        fields: [
+            'name',
+            'breed',
+            'birthDate'
+        ]
+    },
+    {
+        id: 'photo',
+        title: {
+            am: 'ፎቶ ያክሉ',
+            en: 'Add a Photo',
+            or: 'Suuraa Dabali',
+            sw: 'Ongeza Picha'
+        },
+        description: {
+            am: 'ለማንኳኳት ፎቶ ያክሉ (አማራጭ ግን በጣም ይመከራል)',
+            en: 'Upload a photo for identification (optional but recommended)',
+            or: 'Suuraa beekamtii vuuftuuf olkaa\'i (filannoo yoo ta\'uulusi yaamamuu)',
+            sw: 'Pakia picha kwa utambuzi (hiari lakini inapendekezwa)'
+        },
+        component: 'photo-upload'
+    },
+    {
+        id: 'review',
+        title: {
+            am: 'እናረጋግጥ',
+            en: 'Review',
+            or: 'Ilaali',
+            sw: 'Hakiki'
+        },
+        description: {
+            am: 'ሁሉም ነገር ትክክል መሆኑን ያረጋግጡ',
+            en: 'Make sure everything looks correct',
+            or: 'Hundi sirrii ta\'ee akka ilaaltu mirkaneessi',
+            sw: 'Hakikisha kila kitu kinaonekana sawa'
+        },
+        component: 'review'
+    },
+    {
+        id: 'success',
+        title: {
+            am: 'እንኳን ደስ አላችሁ!',
+            en: 'Congratulations!',
+            or: 'Baga Gammaddan!',
+            sw: 'Hongera!'
+        },
+        description: {
+            am: 'የመጀመሪያ እንስሳዎ ተመዝግቧል',
+            en: 'Your first animal is registered',
+            or: 'Hoo kee jalqaba galmeessameera',
+            sw: 'Mnyama wako wa kwanza amesajiliwa'
+        },
+        component: 'success'
+    }
+];
+// Help content for tooltips
+export const helpContent = [
+    {
+        key: 'animal-name',
+        title: {
+            am: 'ስም (አማራጭ)',
+            en: 'Name (Optional)',
+            or: 'Maqaa (Filannoo)',
+            sw: 'Jina (Hiari)'
+        },
+        content: {
+            am: 'ለእንስሳዎ ልዩ ስም ይስጡ። ይህ ለማንኳኳት ይረዳል።',
+            en: 'Give your animal a friendly name. This helps with identification.',
+            or: 'Hoo keessaf maqaa mi\'aawaa kenni. Kun beekamtii gargaara.',
+            sw: 'Mpa mnyama wako jina la kirafiki. Hii husaidia kutambua.'
+        }
+    },
+    {
+        key: 'animal-type',
+        title: {
+            am: 'የእንስሳው አይነት',
+            en: 'Animal Type',
+            or: 'Gosa Hoo',
+            sw: 'Aina ya Mnyama'
+        },
+        content: {
+            am: 'እንስሳው ላም፣ ፍየል ወይም በግ ነው?',
+            en: 'Is your animal cattle, goat, or sheep?',
+            or: 'Hoo kee sa\'a, re\'ee ykn hooxi dha?',
+            sw: 'Mnyama wako ni ng\'ombe, mbuzi, au kondoo?'
+        }
+    },
+    {
+        key: 'milk-morning',
+        title: {
+            am: 'የጠዋት ወተት',
+            en: 'Morning Milk',
+            or: 'Aannan Ganamaa',
+            sw: 'Maziwa ya Asubuhi'
+        },
+        content: {
+            am: 'ከጠዋት 12:00 በፊት የተጠበቀ ወተት ይመዝግቡ',
+            en: 'Record milk collected before 12:00 PM',
+            or: 'Aannan sa\'aatii 12:00 dura funaaname galmeessi',
+            sw: 'Rekodi maziwa yaliyokusanywa kabla ya saa 12:00 mchana'
+        }
+    },
+    {
+        key: 'milk-evening',
+        title: {
+            am: 'የማታ ወተት',
+            en: 'Evening Milk',
+            or: 'Aannan Galgalaa',
+            sw: 'Maziwa ya Jioni'
+        },
+        content: {
+            am: 'ከ12:00 በኋላ የተጠበቀ ወተት ይመዝግቡ',
+            en: 'Record milk collected after 12:00 PM',
+            or: 'Aannan sa\'aatii 12:00 booda funaaname galmeessi',
+            sw: 'Rekodi maziwa yaliyokusanywa baada ya saa 12:00 mchana'
+        }
+    },
+    {
+        key: 'marketplace-price',
+        title: {
+            am: 'ዋጋ መወሰን',
+            en: 'Setting Price',
+            or: 'Gatii Murteessuu',
+            sw: 'Kuweka Bei'
+        },
+        content: {
+            am: 'ዕድሜ፣ ክብደት እና ጤና ላይ በመመስረት ትክክለኛ ዋጋ ያዘጋጁ',
+            en: 'Set a fair price based on age, weight, and health',
+            or: 'Gatii qindaa\'inaa garaa, ciminaa, fi fayyina irratti hundaa\'e kenni',
+            sw: 'Weka bei ya haki kulingana na umri, uzito, na afya'
+        }
+    }
+];
+// Animal type options for wizard
+export const animalTypes = [
+    {
+        type: 'cattle',
+        emoji: '🐄',
+        label: {
+            am: 'ላም',
+            en: 'Cattle',
+            or: 'Saa\'a',
+            sw: 'Ng\'ombe'
+        }
+    },
+    {
+        type: 'goat',
+        emoji: '🐐',
+        label: {
+            am: 'ፍየል',
+            en: 'Goat',
+            or: 'Re\'ee',
+            sw: 'Mbuzi'
+        }
+    },
+    {
+        type: 'sheep',
+        emoji: '🐑',
+        label: {
+            am: 'በግ',
+            en: 'Sheep',
+            or: 'Hooxi',
+            sw: 'Kondoo'
+        }
+    }
+];
+// Storage keys
+export const STORAGE_KEYS = {
+    ONBOARDING_COMPLETED: 'ethio_herd_onboarding_completed',
+    ONBOARDING_SKIPPED: 'ethio_herd_onboarding_skipped',
+    ONBOARDING_STEP: 'ethio_herd_onboarding_step',
+    WIZARD_COMPLETED: 'ethio_herd_wizard_completed',
+    HELP_DISMISSED: 'ethio_herd_help_dismissed'
+};
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIm9uYm9hcmRpbmcuY29uZmlnLnRzIl0sInNvdXJjZXNDb250ZW50IjpbIi8vIHNyYy9jb25maWcvb25ib2FyZGluZy5jb25maWcudHNcbi8vIENlbnRyYWxpemVkIGNvbmZpZ3VyYXRpb24gZm9yIGFsbCBvbmJvYXJkaW5nIGNvbnRlbnRcbi8vIEVkaXQgdGhpcyBmaWxlIHRvIGNoYW5nZSB0b3VyIHN0ZXBzLCB3aXphcmQgZmxvdywgb3IgdHJhbnNsYXRpb25zXG5cbmV4cG9ydCB0eXBlIExhbmd1YWdlID0gJ2FtJyB8ICdlbicgfCAnb3InIHwgJ3N3JztcblxuLy8gVG91ciBzdGVwIGNvbmZpZ3VyYXRpb25cbmV4cG9ydCBpbnRlcmZhY2UgVG91clN0ZXAge1xuICBpZDogc3RyaW5nO1xuICB0YXJnZXQ6IHN0cmluZzsgLy8gQ1NTIHNlbGVjdG9yIGZvciB0aGUgZWxlbWVudCB0byBoaWdobGlnaHRcbiAgdGl0bGU6IFJlY29yZDxMYW5ndWFnZSwgc3RyaW5nPjtcbiAgZGVzY3JpcHRpb246IFJlY29yZDxMYW5ndWFnZSwgc3RyaW5nPjtcbiAgcG9zaXRpb246ICd0b3AnIHwgJ2JvdHRvbScgfCAnbGVmdCcgfCAncmlnaHQnO1xuICBhY3Rpb24/OiAnbmF2aWdhdGUnIHwgJ2hpZ2hsaWdodCc7XG4gIHBhdGg/OiBzdHJpbmc7IC8vIEZvciBuYXZpZ2F0aW9uIHN0ZXBzXG59XG5cbi8vIFdpemFyZCBzdGVwIGNvbmZpZ3VyYXRpb25cbmV4cG9ydCBpbnRlcmZhY2UgV2l6YXJkU3RlcCB7XG4gIGlkOiBzdHJpbmc7XG4gIHRpdGxlOiBSZWNvcmQ8TGFuZ3VhZ2UsIHN0cmluZz47XG4gIGRlc2NyaXB0aW9uOiBSZWNvcmQ8TGFuZ3VhZ2UsIHN0cmluZz47XG4gIGNvbXBvbmVudDogJ3R5cGUtc2VsZWN0aW9uJyB8ICdiYXNpYy1pbmZvJyB8ICdwaG90by11cGxvYWQnIHwgJ3JldmlldycgfCAnc3VjY2Vzcyc7XG4gIGZpZWxkcz86IHN0cmluZ1tdO1xufVxuXG4vLyBIZWxwIHRvb2x0aXAgY29uZmlndXJhdGlvblxuZXhwb3J0IGludGVyZmFjZSBIZWxwQ29udGVudCB7XG4gIGtleTogc3RyaW5nO1xuICB0aXRsZTogUmVjb3JkPExhbmd1YWdlLCBzdHJpbmc+O1xuICBjb250ZW50OiBSZWNvcmQ8TGFuZ3VhZ2UsIHN0cmluZz47XG59XG5cbi8vIFRvdXIgc3RlcHMgLSAzIHN0ZXAgdG91clxuZXhwb3J0IGNvbnN0IHRvdXJTdGVwczogVG91clN0ZXBbXSA9IFtcbiAge1xuICAgIGlkOiAnd2VsY29tZScsXG4gICAgdGFyZ2V0OiAnW2RhdGEtdG91cj1cImRhc2hib2FyZC1zdGF0c1wiXScsXG4gICAgdGl0bGU6IHtcbiAgICAgIGFtOiAn4Yql4YqV4Yqz4YqVIOGLiOGLsCDhiaThibUg4Yuw4YiF4YqTIOGImOGMoSEnLFxuICAgICAgZW46ICdXZWxjb21lIHRvIFlvdXIgRmFybSEnLFxuICAgICAgb3I6ICdCYWdhIE5hZ2FhbiBEaHVmdGFuIScsXG4gICAgICBzdzogJ0thcmlidSBrd2VueWUgU2hhbWJhIExha28hJ1xuICAgIH0sXG4gICAgZGVzY3JpcHRpb246IHtcbiAgICAgIGFtOiAn4Yut4YiFIOGLqOGKpeGIreGIteGLjiDhi6jhiaThibUg4Yuz4Yi94Ymm4Yit4Yu1IOGKkOGLjeGNoiDhiIHhiInhipXhiJ0g4Yql4YqV4Yi14Yiz4Ym1IOGKpeGKkyDhi5XhiIjhibPhi4og4Yuo4YuI4Ymw4Ym1IOGIneGIreGJtSDhiaDhiqDhipXhi7Ug4Yyt4Yid4YitIOGLreGImOGIjeGKqOGJseGNoicsXG4gICAgICBlbjogJ1RoaXMgaXMgeW91ciBmYXJtIGRhc2hib2FyZC4gU2VlIGFsbCB5b3VyIGFuaW1hbHMgYW5kIGRhaWx5IG1pbGsgcHJvZHVjdGlvbiBhdCBhIGdsYW5jZS4nLFxuICAgICAgb3I6ICdLdW4gZGFhc2hib29yZGlpIHFvdGFhIGtlZXNzYW5paSBkaGEuIEh1bmRpIGhvcmlpIGtlZXNzYW5paSBmaSBvb21pc2hpaSBhYW5uYW5paSBndXl5YWEgdG9ra29vIGlsYWFsYS4nLFxuICAgICAgc3c6ICdIaWkgZGFzaGlib2RpIHlha28geWEgc2hhbWJhLiBUYXphbWEgd2FueWFtYSB3YWtvIG5hIHV6YWxpc2hhamkgd2EgbWF6aXdhIGtpbGEgc2lrdSBrd2EgbXRhemFtbyBtbW9qYS4nXG4gICAgfSxcbiAgICBwb3NpdGlvbjogJ2JvdHRvbScsXG4gICAgYWN0aW9uOiAnaGlnaGxpZ2h0J1xuICB9LFxuICB7XG4gICAgaWQ6ICdyZWdpc3Rlci1hbmltYWwnLFxuICAgIHRhcmdldDogJ1tkYXRhLXRvdXI9XCJhZGQtYW5pbWFsLWJ0blwiXScsXG4gICAgdGl0bGU6IHtcbiAgICAgIGFtOiAn4Yql4YqV4Yi14YizIOGLreGMqOGIneGIqScsXG4gICAgICBlbjogJ0FkZCBZb3VyIEFuaW1hbHMnLFxuICAgICAgb3I6ICdIb3JpaSBEYWJhbGknLFxuICAgICAgc3c6ICdPbmdlemEgV2FueWFtYSBXYWtvJ1xuICAgIH0sXG4gICAgZGVzY3JpcHRpb246IHtcbiAgICAgIGFtOiAn4Yql4Yua4YiFIOGLqOGImOGMgOGImOGIquGLqyDhiqXhipXhiLXhiLPhi47hipUg4Yur4YqR4Yip4Y2iIOGIjeGLqSDhiJjhibPhi4jhiYLhi6sg4Yql4YqT4YyI4Yqd4YiO4Ymz4YiI4YqVIOGKpeGKkyDhjKThipMg4Yql4YqTIOGIneGIreGJteGLjuGKlSDhiIjhiJjhiqjhibPhibDhiI0g4Yql4YqV4Yio4Yuz4YuO4Ymz4YiI4YqV4Y2iJyxcbiAgICAgIGVuOiAnQWRkIHlvdXIgZmlyc3QgYW5pbWFsIGhlcmUuIFdlXFwnbGwgZ2VuZXJhdGUgYSB1bmlxdWUgSUQgYW5kIGhlbHAgeW91IHRyYWNrIGl0cyBoZWFsdGggYW5kIHByb2R1Y3Rpb24uJyxcbiAgICAgIG9yOiAnSG9vIHhpcXFvbyB0b2trbyBhc2l0dGkgZGFiYWxpLiBJRCBhZGRhIHRhXFwnZSB1dW1uYSBmaSBmYXl5aW5hIGlzYWEgZmkgb29taXNoaWkgaXNhYSBob3Jkb2Zhbm51IHNpIGdhcmdhYXJuYS4nLFxuICAgICAgc3c6ICdPbmdlemEgbW55YW1hIHdha28gd2Ega3dhbnphIGhhcGEuIFR1dGF0ZW5nZW5lemEga2l0YW1idWxpc2hvIGNoYSBraXBla2VlIG5hIGt1a3VzYWlkaWEga3VmdWF0aWxpYSBhZnlhIG5hIHV6YWxpc2hhamkgd2FrZS4nXG4gICAgfSxcbiAgICBwb3NpdGlvbjogJ2xlZnQnLFxuICAgIGFjdGlvbjogJ25hdmlnYXRlJyxcbiAgICBwYXRoOiAnL3JlZ2lzdGVyLWFuaW1hbCdcbiAgfSxcbiAge1xuICAgIGlkOiAncmVjb3JkLW1pbGsnLFxuICAgIHRhcmdldDogJ1tkYXRhLXRvdXI9XCJyZWNvcmQtbWlsay1idG5cIl0nLFxuICAgIHRpdGxlOiB7XG4gICAgICBhbTogJ+GLiOGJsOGJtSDhi63hiJjhi53hjI3hiaEnLFxuICAgICAgZW46ICdSZWNvcmQgTWlsaycsXG4gICAgICBvcjogJ0Fhbm5hbiBHYWxtZWVzc2knLFxuICAgICAgc3c6ICdSZWtvZGkgTWF6aXdhJ1xuICAgIH0sXG4gICAgZGVzY3JpcHRpb246IHtcbiAgICAgIGFtOiAn4Yqo4Yql4Yur4YqV4Yuz4YqV4YuxIOGLqOGLiOGJsOGJtSDhiJvhiLDhiKvhjKsg4Ymg4YqL4YiLIOGLiOGJsOGJtSDhi63hiJjhi53hjI3hiaHhjaIg4YiI4Yyg4YuL4Ym1IOGKpeGKkyDhiIjhiJvhibMgMiDhjIrhi5wg4Yml4Ym7IScsXG4gICAgICBlbjogJ1JlY29yZCBtaWxrIGFmdGVyIGVhY2ggbWlsa2luZy4gSnVzdCAyIGNsaWNrcyBmb3IgbW9ybmluZyBhbmQgZXZlbmluZyEnLFxuICAgICAgb3I6ICdBYW5uYW4gZXJnYSBzYVxcJ2FcXCdpd3dhbiBib29kYSBnYWxtZWVzc2kuIEtpbGlraWkgMiBxb2ZhYWYgZ2FyYWEgYmFodXUgZmkgZ2FsZ2FsYWFmIScsXG4gICAgICBzdzogJ1Jla29kaSBtYXppd2EgYmFhZGEgeWEga3VrYW1hIGtpbGEgd2FrYXRpLiBCb2Z5YSBtYXJhIDIgdHUga3dhIGFzdWJ1aGkgbmEgamlvbmkhJ1xuICAgIH0sXG4gICAgcG9zaXRpb246ICd0b3AnLFxuICAgIGFjdGlvbjogJ25hdmlnYXRlJyxcbiAgICBwYXRoOiAnL3JlY29yZC1taWxrJ1xuICB9XG5dO1xuXG4vLyBXaXphcmQgc3RlcHMgLSA1IHN0ZXAgZmlyc3QgYW5pbWFsIHdpemFyZFxuZXhwb3J0IGNvbnN0IHdpemFyZFN0ZXBzOiBXaXphcmRTdGVwW10gPSBbXG4gIHtcbiAgICBpZDogJ2ludHJvJyxcbiAgICB0aXRsZToge1xuICAgICAgYW06ICfhiqXhipXhirPhipUg4YuI4YuwIOGKpeGKleGIteGIsyDhiJjhiJjhi53hjIjhiaLhi6sg4Yyj4Ymi4YurIOGJoOGLsOGIheGKkyDhiJjhjKEhJyxcbiAgICAgIGVuOiAnV2VsY29tZSB0byBFdGhpbyBIZXJkIENvbm5lY3QhJyxcbiAgICAgIG9yOiAnQmFnYSBOYWdhYW4gRGh1ZnRhbiEnLFxuICAgICAgc3c6ICdLYXJpYnUga3dlbnllIEV0aGlvIEhlcmQgQ29ubmVjdCEnXG4gICAgfSxcbiAgICBkZXNjcmlwdGlvbjoge1xuICAgICAgYW06ICfhi6jhiJjhjIDhiJjhiKrhi6sg4Yql4YqV4Yi14Yiz4YuO4YqVIOGIiOGIm+GKqOGIjSDhi63hiIUg4YiB4YiJ4YqV4YidIOGIguGLsOGJtSDhi63hi4jhiLXhi7PhiI3hjaIg4Yut4YiFIDIg4Yuw4YmC4YmDIOGJpeGJuyDhi63hi4jhiLXhi7PhiI3hjaInLFxuICAgICAgZW46ICdMZXRcXCdzIGFkZCB5b3VyIGZpcnN0IGFuaW1hbCB0byBnZXQgc3RhcnRlZC4gVGhpcyB3aWxsIG9ubHkgdGFrZSAyIG1pbnV0ZXMuJyxcbiAgICAgIG9yOiAnSG9vIHhpcXFvbyB0b2trbyBqZWRodXUgamFscWFibnUuIEt1biBkYXFpaXFhYSAyIHFvZmEgZnVkaGF0YS4nLFxuICAgICAgc3c6ICdIZWJ1IHR1b25nZXplIG1ueWFtYSB3YWtvIHdhIGt3YW56YSBrdWFuemlhLiBIaWkgaXRhY2h1a3VhIGRha2lrYSAyIHR1LidcbiAgICB9LFxuICAgIGNvbXBvbmVudDogJ3R5cGUtc2VsZWN0aW9uJ1xuICB9LFxuICB7XG4gICAgaWQ6ICd0eXBlLXNlbGVjdGlvbicsXG4gICAgdGl0bGU6IHtcbiAgICAgIGFtOiAn4Yuo4Yql4YqV4Yi14Yiz4YuN4YqVIOGKoOGLreGKkOGJtSDhi63hiJ3hiKjhjKEnLFxuICAgICAgZW46ICdDaG9vc2UgQW5pbWFsIFR5cGUnLFxuICAgICAgb3I6ICdHb3NhIEhvbyBGaWxhZGh1JyxcbiAgICAgIHN3OiAnQ2hhZ3VhIEFpbmEgeWEgTW55YW1hJ1xuICAgIH0sXG4gICAgZGVzY3JpcHRpb246IHtcbiAgICAgIGFtOiAn4Yql4Ymj4Yqt4YuOIOGLqOGImuGMqOGIneGIqeGJtSDhiqXhipXhiLXhiLMg4Yid4YqVIOGLk+GLreGKkOGJtSDhiqXhipXhi7DhiIbhipAg4Yut4Yid4Yio4YyhJyxcbiAgICAgIGVuOiAnV2hhdCB0eXBlIG9mIGFuaW1hbCBhcmUgeW91IGFkZGluZz8nLFxuICAgICAgb3I6ICdIb28gZ29zYSBrYW10dXUgaXR0aSBkYWJhbHRhYSBqaXJ0YT8nLFxuICAgICAgc3c6ICdVbmFvbmdlemEgbW55YW1hIHdhIGFpbmEgZ2FuaT8nXG4gICAgfSxcbiAgICBjb21wb25lbnQ6ICd0eXBlLXNlbGVjdGlvbidcbiAgfSxcbiAge1xuICAgIGlkOiAnYmFzaWMtaW5mbycsXG4gICAgdGl0bGU6IHtcbiAgICAgIGFtOiAn4YiY4Yiw4Yio4Ymz4YuKIOGImOGIqOGMgycsXG4gICAgICBlbjogJ0Jhc2ljIEluZm9ybWF0aW9uJyxcbiAgICAgIG9yOiAnT2RlZWZmYW5ub28gQnVcXCd1dXJhJyxcbiAgICAgIHN3OiAnVGFhcmlmYSB6YSBNc2luZ2knXG4gICAgfSxcbiAgICBkZXNjcmlwdGlvbjoge1xuICAgICAgYW06ICfhiLXhiJ0g4Yql4YqTIOGLmOGIrSDhi6vhiq3hiIkgKOGKoOGIm+GIq+GMrSknLFxuICAgICAgZW46ICdBZGQgbmFtZSBhbmQgYnJlZWQgKG9wdGlvbmFsKScsXG4gICAgICBvcjogJ01hcWFhIGZpIGdvc2EgZGFiYWxpIChmaWxhbm5vbyknLFxuICAgICAgc3c6ICdPbmdlemEgamluYSBuYSBtYmFyaSAoaGlhcmkpJ1xuICAgIH0sXG4gICAgY29tcG9uZW50OiAnYmFzaWMtaW5mbycsXG4gICAgZmllbGRzOiBbJ25hbWUnLCAnYnJlZWQnLCAnYmlydGhEYXRlJ11cbiAgfSxcbiAge1xuICAgIGlkOiAncGhvdG8nLFxuICAgIHRpdGxlOiB7XG4gICAgICBhbTogJ+GNjuGJtiDhi6vhiq3hiIknLFxuICAgICAgZW46ICdBZGQgYSBQaG90bycsXG4gICAgICBvcjogJ1N1dXJhYSBEYWJhbGknLFxuICAgICAgc3c6ICdPbmdlemEgUGljaGEnXG4gICAgfSxcbiAgICBkZXNjcmlwdGlvbjoge1xuICAgICAgYW06ICfhiIjhiJvhipXhirPhirPhibUg4Y2O4Ym2IOGLq+GKreGIiSAo4Yqg4Yib4Yir4YytIOGMjeGKlSDhiaDhjKPhiJ0g4Yut4YiY4Yqo4Yir4YiNKScsXG4gICAgICBlbjogJ1VwbG9hZCBhIHBob3RvIGZvciBpZGVudGlmaWNhdGlvbiAob3B0aW9uYWwgYnV0IHJlY29tbWVuZGVkKScsXG4gICAgICBvcjogJ1N1dXJhYSBiZWVrYW10aWkgdnV1ZnR1dWYgb2xrYWFcXCdpIChmaWxhbm5vbyB5b28gdGFcXCd1dWx1c2kgeWFhbWFtdXUpJyxcbiAgICAgIHN3OiAnUGFraWEgcGljaGEga3dhIHV0YW1idXppIChoaWFyaSBsYWtpbmkgaW5hcGVuZGVrZXp3YSknXG4gICAgfSxcbiAgICBjb21wb25lbnQ6ICdwaG90by11cGxvYWQnXG4gIH0sXG4gIHtcbiAgICBpZDogJ3JldmlldycsXG4gICAgdGl0bGU6IHtcbiAgICAgIGFtOiAn4Yql4YqT4Yio4YyL4YyN4YylJyxcbiAgICAgIGVuOiAnUmV2aWV3JyxcbiAgICAgIG9yOiAnSWxhYWxpJyxcbiAgICAgIHN3OiAnSGFraWtpJ1xuICAgIH0sXG4gICAgZGVzY3JpcHRpb246IHtcbiAgICAgIGFtOiAn4YiB4YiJ4YidIOGKkOGMiOGIrSDhibXhiq3hiq3hiI0g4YiY4YiG4YqR4YqVIOGLq+GIqOGMi+GMjeGMoScsXG4gICAgICBlbjogJ01ha2Ugc3VyZSBldmVyeXRoaW5nIGxvb2tzIGNvcnJlY3QnLFxuICAgICAgb3I6ICdIdW5kaSBzaXJyaWkgdGFcXCdlZSBha2thIGlsYWFsdHUgbWlya2FuZWVzc2knLFxuICAgICAgc3c6ICdIYWtpa2lzaGEga2lsYSBraXR1IGtpbmFvbmVrYW5hIHNhd2EnXG4gICAgfSxcbiAgICBjb21wb25lbnQ6ICdyZXZpZXcnXG4gIH0sXG4gIHtcbiAgICBpZDogJ3N1Y2Nlc3MnLFxuICAgIHRpdGxlOiB7XG4gICAgICBhbTogJ+GKpeGKleGKs+GKlSDhi7DhiLUg4Yqg4YiL4Ym94YiBIScsXG4gICAgICBlbjogJ0NvbmdyYXR1bGF0aW9ucyEnLFxuICAgICAgb3I6ICdCYWdhIEdhbW1hZGRhbiEnLFxuICAgICAgc3c6ICdIb25nZXJhISdcbiAgICB9LFxuICAgIGRlc2NyaXB0aW9uOiB7XG4gICAgICBhbTogJ+GLqOGImOGMgOGImOGIquGLqyDhiqXhipXhiLXhiLPhi44g4Ymw4YiY4Yud4YyN4Ymn4YiNJyxcbiAgICAgIGVuOiAnWW91ciBmaXJzdCBhbmltYWwgaXMgcmVnaXN0ZXJlZCcsXG4gICAgICBvcjogJ0hvbyBrZWUgamFscWFiYSBnYWxtZWVzc2FtZWVyYScsXG4gICAgICBzdzogJ01ueWFtYSB3YWtvIHdhIGt3YW56YSBhbWVzYWppbGl3YSdcbiAgICB9LFxuICAgIGNvbXBvbmVudDogJ3N1Y2Nlc3MnXG4gIH1cbl07XG5cbi8vIEhlbHAgY29udGVudCBmb3IgdG9vbHRpcHNcbmV4cG9ydCBjb25zdCBoZWxwQ29udGVudDogSGVscENvbnRlbnRbXSA9IFtcbiAge1xuICAgIGtleTogJ2FuaW1hbC1uYW1lJyxcbiAgICB0aXRsZToge1xuICAgICAgYW06ICfhiLXhiJ0gKOGKoOGIm+GIq+GMrSknLFxuICAgICAgZW46ICdOYW1lIChPcHRpb25hbCknLFxuICAgICAgb3I6ICdNYXFhYSAoRmlsYW5ub28pJyxcbiAgICAgIHN3OiAnSmluYSAoSGlhcmkpJ1xuICAgIH0sXG4gICAgY29udGVudDoge1xuICAgICAgYW06ICfhiIjhiqXhipXhiLXhiLPhi44g4YiN4YupIOGIteGInSDhi63hiLXhjKHhjaIg4Yut4YiFIOGIiOGIm+GKleGKs+GKs+GJtSDhi63hiKjhi7PhiI3hjaInLFxuICAgICAgZW46ICdHaXZlIHlvdXIgYW5pbWFsIGEgZnJpZW5kbHkgbmFtZS4gVGhpcyBoZWxwcyB3aXRoIGlkZW50aWZpY2F0aW9uLicsXG4gICAgICBvcjogJ0hvbyBrZWVzc2FmIG1hcWFhIG1pXFwnYWF3YWEga2VubmkuIEt1biBiZWVrYW10aWkgZ2FyZ2FhcmEuJyxcbiAgICAgIHN3OiAnTXBhIG1ueWFtYSB3YWtvIGppbmEgbGEga2lyYWZpa2kuIEhpaSBodXNhaWRpYSBrdXRhbWJ1YS4nXG4gICAgfVxuICB9LFxuICB7XG4gICAga2V5OiAnYW5pbWFsLXR5cGUnLFxuICAgIHRpdGxlOiB7XG4gICAgICBhbTogJ+GLqOGKpeGKleGIteGIs+GLjSDhiqDhi63hipDhibUnLFxuICAgICAgZW46ICdBbmltYWwgVHlwZScsXG4gICAgICBvcjogJ0dvc2EgSG9vJyxcbiAgICAgIHN3OiAnQWluYSB5YSBNbnlhbWEnXG4gICAgfSxcbiAgICBjb250ZW50OiB7XG4gICAgICBhbTogJ+GKpeGKleGIteGIs+GLjSDhiIvhiJ3hjaMg4Y2N4Yuo4YiNIOGLiOGLreGInSDhiaDhjI0g4YqQ4YuNPycsXG4gICAgICBlbjogJ0lzIHlvdXIgYW5pbWFsIGNhdHRsZSwgZ29hdCwgb3Igc2hlZXA/JyxcbiAgICAgIG9yOiAnSG9vIGtlZSBzYVxcJ2EsIHJlXFwnZWUgeWtuIGhvb3hpIGRoYT8nLFxuICAgICAgc3c6ICdNbnlhbWEgd2FrbyBuaSBuZ1xcJ29tYmUsIG1idXppLCBhdSBrb25kb28/J1xuICAgIH1cbiAgfSxcbiAge1xuICAgIGtleTogJ21pbGstbW9ybmluZycsXG4gICAgdGl0bGU6IHtcbiAgICAgIGFtOiAn4Yuo4Yyg4YuL4Ym1IOGLiOGJsOGJtScsXG4gICAgICBlbjogJ01vcm5pbmcgTWlsaycsXG4gICAgICBvcjogJ0Fhbm5hbiBHYW5hbWFhJyxcbiAgICAgIHN3OiAnTWF6aXdhIHlhIEFzdWJ1aGknXG4gICAgfSxcbiAgICBjb250ZW50OiB7XG4gICAgICBhbTogJ+GKqOGMoOGLi+GJtSAxMjowMCDhiaDhjYrhibUg4Yuo4Ymw4Yyg4Ymg4YmAIOGLiOGJsOGJtSDhi63hiJjhi53hjI3hiaEnLFxuICAgICAgZW46ICdSZWNvcmQgbWlsayBjb2xsZWN0ZWQgYmVmb3JlIDEyOjAwIFBNJyxcbiAgICAgIG9yOiAnQWFubmFuIHNhXFwnYWF0aWkgMTI6MDAgZHVyYSBmdW5hYW5hbWUgZ2FsbWVlc3NpJyxcbiAgICAgIHN3OiAnUmVrb2RpIG1heml3YSB5YWxpeW9rdXNhbnl3YSBrYWJsYSB5YSBzYWEgMTI6MDAgbWNoYW5hJ1xuICAgIH1cbiAgfSxcbiAge1xuICAgIGtleTogJ21pbGstZXZlbmluZycsXG4gICAgdGl0bGU6IHtcbiAgICAgIGFtOiAn4Yuo4Yib4YmzIOGLiOGJsOGJtScsXG4gICAgICBlbjogJ0V2ZW5pbmcgTWlsaycsXG4gICAgICBvcjogJ0Fhbm5hbiBHYWxnYWxhYScsXG4gICAgICBzdzogJ01heml3YSB5YSBKaW9uaSdcbiAgICB9LFxuICAgIGNvbnRlbnQ6IHtcbiAgICAgIGFtOiAn4YqoMTI6MDAg4Ymg4YqL4YiLIOGLqOGJsOGMoOGJoOGJgCDhi4jhibDhibUg4Yut4YiY4Yud4YyN4YmhJyxcbiAgICAgIGVuOiAnUmVjb3JkIG1pbGsgY29sbGVjdGVkIGFmdGVyIDEyOjAwIFBNJyxcbiAgICAgIG9yOiAnQWFubmFuIHNhXFwnYWF0aWkgMTI6MDAgYm9vZGEgZnVuYWFuYW1lIGdhbG1lZXNzaScsXG4gICAgICBzdzogJ1Jla29kaSBtYXppd2EgeWFsaXlva3VzYW55d2EgYmFhZGEgeWEgc2FhIDEyOjAwIG1jaGFuYSdcbiAgICB9XG4gIH0sXG4gIHtcbiAgICBrZXk6ICdtYXJrZXRwbGFjZS1wcmljZScsXG4gICAgdGl0bGU6IHtcbiAgICAgIGFtOiAn4YuL4YyLIOGImOGLiOGIsOGKlScsXG4gICAgICBlbjogJ1NldHRpbmcgUHJpY2UnLFxuICAgICAgb3I6ICdHYXRpaSBNdXJ0ZWVzc3V1JyxcbiAgICAgIHN3OiAnS3V3ZWthIEJlaSdcbiAgICB9LFxuICAgIGNvbnRlbnQ6IHtcbiAgICAgIGFtOiAn4YuV4Yu14Yic4Y2jIOGKreGJpeGLsOGJtSDhiqXhipMg4Yyk4YqTIOGIi+GLrSDhiaDhiJjhiJjhiLXhiKjhibUg4Ym14Yqt4Yqt4YiI4YqbIOGLi+GMiyDhi6vhi5jhjIvhjIEnLFxuICAgICAgZW46ICdTZXQgYSBmYWlyIHByaWNlIGJhc2VkIG9uIGFnZSwgd2VpZ2h0LCBhbmQgaGVhbHRoJyxcbiAgICAgIG9yOiAnR2F0aWkgcWluZGFhXFwnaW5hYSBnYXJhYSwgY2ltaW5hYSwgZmkgZmF5eWluYSBpcnJhdHRpIGh1bmRhYVxcJ2Uga2VubmknLFxuICAgICAgc3c6ICdXZWthIGJlaSB5YSBoYWtpIGt1bGluZ2FuYSBuYSB1bXJpLCB1eml0bywgbmEgYWZ5YSdcbiAgICB9XG4gIH1cbl07XG5cbi8vIEFuaW1hbCB0eXBlIG9wdGlvbnMgZm9yIHdpemFyZFxuZXhwb3J0IGNvbnN0IGFuaW1hbFR5cGVzID0gW1xuICB7XG4gICAgdHlwZTogJ2NhdHRsZScgYXMgY29uc3QsXG4gICAgZW1vamk6ICfwn5CEJyxcbiAgICBsYWJlbDoge1xuICAgICAgYW06ICfhiIvhiJ0nLFxuICAgICAgZW46ICdDYXR0bGUnLFxuICAgICAgb3I6ICdTYWFcXCdhJyxcbiAgICAgIHN3OiAnTmdcXCdvbWJlJ1xuICAgIH1cbiAgfSxcbiAge1xuICAgIHR5cGU6ICdnb2F0JyBhcyBjb25zdCxcbiAgICBlbW9qaTogJ/CfkJAnLFxuICAgIGxhYmVsOiB7XG4gICAgICBhbTogJ+GNjeGLqOGIjScsXG4gICAgICBlbjogJ0dvYXQnLFxuICAgICAgb3I6ICdSZVxcJ2VlJyxcbiAgICAgIHN3OiAnTWJ1emknXG4gICAgfVxuICB9LFxuICB7XG4gICAgdHlwZTogJ3NoZWVwJyBhcyBjb25zdCxcbiAgICBlbW9qaTogJ/CfkJEnLFxuICAgIGxhYmVsOiB7XG4gICAgICBhbTogJ+GJoOGMjScsXG4gICAgICBlbjogJ1NoZWVwJyxcbiAgICAgIG9yOiAnSG9veGknLFxuICAgICAgc3c6ICdLb25kb28nXG4gICAgfVxuICB9XG5dO1xuXG4vLyBTdG9yYWdlIGtleXNcbmV4cG9ydCBjb25zdCBTVE9SQUdFX0tFWVMgPSB7XG4gIE9OQk9BUkRJTkdfQ09NUExFVEVEOiAnZXRoaW9faGVyZF9vbmJvYXJkaW5nX2NvbXBsZXRlZCcsXG4gIE9OQk9BUkRJTkdfU0tJUFBFRDogJ2V0aGlvX2hlcmRfb25ib2FyZGluZ19za2lwcGVkJyxcbiAgT05CT0FSRElOR19TVEVQOiAnZXRoaW9faGVyZF9vbmJvYXJkaW5nX3N0ZXAnLFxuICBXSVpBUkRfQ09NUExFVEVEOiAnZXRoaW9faGVyZF93aXphcmRfY29tcGxldGVkJyxcbiAgSEVMUF9ESVNNSVNTRUQ6ICdldGhpb19oZXJkX2hlbHBfZGlzbWlzc2VkJ1xufTtcbiJdLCJuYW1lcyI6WyJ0b3VyU3RlcHMiLCJpZCIsInRhcmdldCIsInRpdGxlIiwiYW0iLCJlbiIsIm9yIiwic3ciLCJkZXNjcmlwdGlvbiIsInBvc2l0aW9uIiwiYWN0aW9uIiwicGF0aCIsIndpemFyZFN0ZXBzIiwiY29tcG9uZW50IiwiZmllbGRzIiwiaGVscENvbnRlbnQiLCJrZXkiLCJjb250ZW50IiwiYW5pbWFsVHlwZXMiLCJ0eXBlIiwiZW1vamkiLCJsYWJlbCIsIlNUT1JBR0VfS0VZUyIsIk9OQk9BUkRJTkdfQ09NUExFVEVEIiwiT05CT0FSRElOR19TS0lQUEVEIiwiT05CT0FSRElOR19TVEVQIiwiV0laQVJEX0NPTVBMRVRFRCIsIkhFTFBfRElTTUlTU0VEIl0sIm1hcHBpbmdzIjoiQUFBQSxrQ0FBa0M7QUFDbEMsdURBQXVEO0FBQ3ZELG9FQUFvRTtBQStCcEUsMkJBQTJCO0FBQzNCLE9BQU8sTUFBTUEsWUFBd0I7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

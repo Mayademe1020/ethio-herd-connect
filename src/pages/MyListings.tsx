@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContextMVP';
 import { useTranslations } from '@/hooks/useTranslations';
 import { useMarketplaceListing } from '@/hooks/useMarketplaceListing';
 import { EditListingModal } from '@/components/EditListingModal';
+import { VerifyAnimalForSaleModal } from '@/components/VerifyAnimalForSaleModal';
 import { supabase } from '@/integrations/supabase/client';
 import { BackButton } from '@/components/BackButton';
 import { Card, CardContent } from '@/components/ui/card';
@@ -50,6 +51,7 @@ const MyListings = () => {
   const { markAsSold, cancelListing, updateListing, isUpdating } = useMarketplaceListing();
   const [editingListing, setEditingListing] = useState<Listing | null>(null);
   const [buyerInterestsCount, setBuyerInterestsCount] = useState(0);
+  const [verifyingListing, setVerifyingListing] = useState<Listing | null>(null);
 
   // Fetch user's listings
   const { data: listings, isLoading, refetch } = useQuery({
@@ -111,6 +113,10 @@ const MyListings = () => {
       console.error('Error marking as sold:', error);
       showToast(t('errors.unknownError'), 'error');
     }
+  };
+
+  const handleVerifyAndMarkSold = (listing: Listing) => {
+    setVerifyingListing(listing);
   };
 
   const handleCancelListing = async (listingId: string) => {
@@ -362,7 +368,7 @@ const MyListings = () => {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => handleMarkAsSold(listing.id)}
+                              onClick={() => handleVerifyAndMarkSold(listing)}
                               disabled={isUpdating}
                               className="flex-1"
                             >
@@ -390,6 +396,20 @@ const MyListings = () => {
           </div>
         )}
       </div>
+
+      {/* Verify Animal for Sale Modal */}
+      {verifyingListing && (
+        <VerifyAnimalForSaleModal
+          open={!!verifyingListing}
+          onClose={() => setVerifyingListing(null)}
+          animalId={verifyingListing.animal_id}
+          animalName={verifyingListing.animals?.name}
+          onVerifySuccess={async () => {
+            await handleMarkAsSold(verifyingListing.id);
+            setVerifyingListing(null);
+          }}
+        />
+      )}
     </div>
   );
 };

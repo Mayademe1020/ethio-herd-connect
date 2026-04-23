@@ -1,0 +1,48 @@
+/**
+ * Name Validation Utility
+ * 
+ * Validates Ethiopian naming conventions where users must provide
+ * at least two names: first name and father's name.
+ * Supports both Latin and Amharic scripts.
+ */ /**
+ * Validates that a full name contains at least two parts (first name + father's name)
+ * and that each part meets minimum length requirements.
+ * 
+ * @param name - The full name to validate
+ * @returns NameValidationResult with validation status and bilingual error messages
+ */ export const validateFullName = (name)=>{
+    const trimmed = name.trim();
+    // Check if empty
+    if (!trimmed) {
+        return {
+            isValid: false,
+            error: "Name is required",
+            errorAm: "ስም ያስፈልጋል"
+        };
+    }
+    // Split by whitespace (handles both Latin and Amharic)
+    // This regex matches one or more whitespace characters
+    const parts = trimmed.split(/\s+/);
+    // Must have at least 2 parts (first name + father's name)
+    if (parts.length < 2) {
+        return {
+            isValid: false,
+            error: "Please enter your full name (first name and father's name)",
+            errorAm: "እባክዎ ሙሉ ስምዎን ያስገቡ (ስም እና የአባት ስም)"
+        };
+    }
+    // Each part must have at least 2 characters
+    const hasShortPart = parts.some((part)=>part.length < 2);
+    if (hasShortPart) {
+        return {
+            isValid: false,
+            error: "Each name part must be at least 2 characters",
+            errorAm: "እያንዳንዱ የስም ክፍል ቢያንስ 2 ፊደላት ሊኖረው ይገባል"
+        };
+    }
+    return {
+        isValid: true
+    };
+};
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIm5hbWVWYWxpZGF0aW9uLnRzIl0sInNvdXJjZXNDb250ZW50IjpbIi8qKlxyXG4gKiBOYW1lIFZhbGlkYXRpb24gVXRpbGl0eVxyXG4gKiBcclxuICogVmFsaWRhdGVzIEV0aGlvcGlhbiBuYW1pbmcgY29udmVudGlvbnMgd2hlcmUgdXNlcnMgbXVzdCBwcm92aWRlXHJcbiAqIGF0IGxlYXN0IHR3byBuYW1lczogZmlyc3QgbmFtZSBhbmQgZmF0aGVyJ3MgbmFtZS5cclxuICogU3VwcG9ydHMgYm90aCBMYXRpbiBhbmQgQW1oYXJpYyBzY3JpcHRzLlxyXG4gKi9cclxuXHJcbmV4cG9ydCBpbnRlcmZhY2UgTmFtZVZhbGlkYXRpb25SZXN1bHQge1xyXG4gIGlzVmFsaWQ6IGJvb2xlYW47XHJcbiAgZXJyb3I/OiBzdHJpbmc7ICAgICAgLy8gRW5nbGlzaCBlcnJvciBtZXNzYWdlXHJcbiAgZXJyb3JBbT86IHN0cmluZzsgICAgLy8gQW1oYXJpYyBlcnJvciBtZXNzYWdlXHJcbn1cclxuXHJcbi8qKlxyXG4gKiBWYWxpZGF0ZXMgdGhhdCBhIGZ1bGwgbmFtZSBjb250YWlucyBhdCBsZWFzdCB0d28gcGFydHMgKGZpcnN0IG5hbWUgKyBmYXRoZXIncyBuYW1lKVxyXG4gKiBhbmQgdGhhdCBlYWNoIHBhcnQgbWVldHMgbWluaW11bSBsZW5ndGggcmVxdWlyZW1lbnRzLlxyXG4gKiBcclxuICogQHBhcmFtIG5hbWUgLSBUaGUgZnVsbCBuYW1lIHRvIHZhbGlkYXRlXHJcbiAqIEByZXR1cm5zIE5hbWVWYWxpZGF0aW9uUmVzdWx0IHdpdGggdmFsaWRhdGlvbiBzdGF0dXMgYW5kIGJpbGluZ3VhbCBlcnJvciBtZXNzYWdlc1xyXG4gKi9cclxuZXhwb3J0IGNvbnN0IHZhbGlkYXRlRnVsbE5hbWUgPSAobmFtZTogc3RyaW5nKTogTmFtZVZhbGlkYXRpb25SZXN1bHQgPT4ge1xyXG4gIGNvbnN0IHRyaW1tZWQgPSBuYW1lLnRyaW0oKTtcclxuICBcclxuICAvLyBDaGVjayBpZiBlbXB0eVxyXG4gIGlmICghdHJpbW1lZCkge1xyXG4gICAgcmV0dXJuIHtcclxuICAgICAgaXNWYWxpZDogZmFsc2UsXHJcbiAgICAgIGVycm9yOiBcIk5hbWUgaXMgcmVxdWlyZWRcIixcclxuICAgICAgZXJyb3JBbTogXCLhiLXhiJ0g4Yur4Yi14Y2I4YiN4YyL4YiNXCJcclxuICAgIH07XHJcbiAgfVxyXG4gIFxyXG4gIC8vIFNwbGl0IGJ5IHdoaXRlc3BhY2UgKGhhbmRsZXMgYm90aCBMYXRpbiBhbmQgQW1oYXJpYylcclxuICAvLyBUaGlzIHJlZ2V4IG1hdGNoZXMgb25lIG9yIG1vcmUgd2hpdGVzcGFjZSBjaGFyYWN0ZXJzXHJcbiAgY29uc3QgcGFydHMgPSB0cmltbWVkLnNwbGl0KC9cXHMrLyk7XHJcbiAgXHJcbiAgLy8gTXVzdCBoYXZlIGF0IGxlYXN0IDIgcGFydHMgKGZpcnN0IG5hbWUgKyBmYXRoZXIncyBuYW1lKVxyXG4gIGlmIChwYXJ0cy5sZW5ndGggPCAyKSB7XHJcbiAgICByZXR1cm4ge1xyXG4gICAgICBpc1ZhbGlkOiBmYWxzZSxcclxuICAgICAgZXJyb3I6IFwiUGxlYXNlIGVudGVyIHlvdXIgZnVsbCBuYW1lIChmaXJzdCBuYW1lIGFuZCBmYXRoZXIncyBuYW1lKVwiLFxyXG4gICAgICBlcnJvckFtOiBcIuGKpeGJo+GKreGLjiDhiJnhiIkg4Yi14Yid4YuO4YqVIOGLq+GIteGMiOGJoSAo4Yi14YidIOGKpeGKkyDhi6jhiqDhiaPhibUg4Yi14YidKVwiXHJcbiAgICB9O1xyXG4gIH1cclxuICBcclxuICAvLyBFYWNoIHBhcnQgbXVzdCBoYXZlIGF0IGxlYXN0IDIgY2hhcmFjdGVyc1xyXG4gIGNvbnN0IGhhc1Nob3J0UGFydCA9IHBhcnRzLnNvbWUocGFydCA9PiBwYXJ0Lmxlbmd0aCA8IDIpO1xyXG4gIGlmIChoYXNTaG9ydFBhcnQpIHtcclxuICAgIHJldHVybiB7XHJcbiAgICAgIGlzVmFsaWQ6IGZhbHNlLFxyXG4gICAgICBlcnJvcjogXCJFYWNoIG5hbWUgcGFydCBtdXN0IGJlIGF0IGxlYXN0IDIgY2hhcmFjdGVyc1wiLFxyXG4gICAgICBlcnJvckFtOiBcIuGKpeGLq+GKleGLs+GKleGLsSDhi6jhiLXhiJ0g4Yqt4Y2N4YiNIOGJouGLq+GKleGItSAyIOGNiuGLsOGIi+GJtSDhiIrhipbhiKjhi40g4Yut4YyI4Ymj4YiNXCJcclxuICAgIH07XHJcbiAgfVxyXG4gIFxyXG4gIHJldHVybiB7IGlzVmFsaWQ6IHRydWUgfTtcclxufTtcclxuIl0sIm5hbWVzIjpbInZhbGlkYXRlRnVsbE5hbWUiLCJuYW1lIiwidHJpbW1lZCIsInRyaW0iLCJpc1ZhbGlkIiwiZXJyb3IiLCJlcnJvckFtIiwicGFydHMiLCJzcGxpdCIsImxlbmd0aCIsImhhc1Nob3J0UGFydCIsInNvbWUiLCJwYXJ0Il0sIm1hcHBpbmdzIjoiQUFBQTs7Ozs7O0NBTUMsR0FRRDs7Ozs7O0NBTUMsR0FDRCxPQUFPLE1BQU1BLG1CQUFtQixDQUFDQztJQUMvQixNQUFNQyxVQUFVRCxLQUFLRSxJQUFJO0lBRXpCLGlCQUFpQjtJQUNqQixJQUFJLENBQUNELFNBQVM7UUFDWixPQUFPO1lBQ0xFLFNBQVM7WUFDVEMsT0FBTztZQUNQQyxTQUFTO1FBQ1g7SUFDRjtJQUVBLHVEQUF1RDtJQUN2RCx1REFBdUQ7SUFDdkQsTUFBTUMsUUFBUUwsUUFBUU0sS0FBSyxDQUFDO0lBRTVCLDBEQUEwRDtJQUMxRCxJQUFJRCxNQUFNRSxNQUFNLEdBQUcsR0FBRztRQUNwQixPQUFPO1lBQ0xMLFNBQVM7WUFDVEMsT0FBTztZQUNQQyxTQUFTO1FBQ1g7SUFDRjtJQUVBLDRDQUE0QztJQUM1QyxNQUFNSSxlQUFlSCxNQUFNSSxJQUFJLENBQUNDLENBQUFBLE9BQVFBLEtBQUtILE1BQU0sR0FBRztJQUN0RCxJQUFJQyxjQUFjO1FBQ2hCLE9BQU87WUFDTE4sU0FBUztZQUNUQyxPQUFPO1lBQ1BDLFNBQVM7UUFDWDtJQUNGO0lBRUEsT0FBTztRQUFFRixTQUFTO0lBQUs7QUFDekIsRUFBRSJ9

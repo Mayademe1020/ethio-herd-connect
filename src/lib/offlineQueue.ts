@@ -1,7 +1,7 @@
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
 
 // Queue action types
-export type QueueActionType = 
+export type QueueActionType =
   | 'animal_registration'
   | 'animal_update'
   | 'milk_record'
@@ -14,7 +14,12 @@ export type QueueActionType =
   | 'pregnancy_terminate'
   | 'create_notification'
   | 'mark_notification_read'
-  | 'mark_all_notifications_read';
+  | 'mark_all_notifications_read'
+  | 'muzzle_registration'
+  | 'muzzle_duplicate_event'
+  | 'health_record'
+  | 'update_health_record'
+  | 'delete_health_record';
 
 // Queue item interface
 export interface QueueItem {
@@ -274,6 +279,151 @@ class OfflineQueueManager {
           .insert(payload)
           .select()
           .single();
+
+        if (error) throw error;
+        break;
+      }
+
+      case 'muzzle_registration': {
+        const { data, error } = await supabase
+          .from('muzzle_registrations' as any)
+          .insert(payload)
+          .select()
+          .single();
+
+        if (error) throw error;
+        break;
+      }
+
+      case 'muzzle_duplicate_event': {
+        const { data, error } = await supabase
+          .from('muzzle_duplicate_events' as any)
+          .insert(payload)
+          .select()
+          .single();
+
+        if (error) throw error;
+        break;
+      }
+
+      case 'animal_update': {
+        const { error } = await supabase
+          .from('animals')
+          .update(payload)
+          .eq('id', payload.id)
+          .eq('user_id', payload.user_id);
+        
+        if (error) throw error;
+        break;
+      }
+
+      case 'update_milk_record': {
+        const { error } = await supabase
+          .from('milk_production')
+          .update(payload)
+          .eq('id', payload.id)
+          .eq('user_id', payload.user_id);
+        
+        if (error) throw error;
+        break;
+      }
+
+      case 'listing_update': {
+        const { error } = await supabase
+          .from('market_listings')
+          .update(payload)
+          .eq('id', payload.id)
+          .eq('user_id', payload.user_id);
+        
+        if (error) throw error;
+        break;
+      }
+
+      case 'pregnancy_record': {
+        const { error } = await supabase
+          .from('pregnancy_records' as any)
+          .insert(payload);
+        
+        if (error) throw error;
+        break;
+      }
+
+      case 'birth_record': {
+        const { error } = await supabase
+          .from('animals')
+          .insert(payload);
+        
+        if (error) throw error;
+        break;
+      }
+
+      case 'pregnancy_terminate': {
+        const { error } = await supabase
+          .from('pregnancy_records' as any)
+          .update({ status: 'terminated' })
+          .eq('id', payload.id)
+          .eq('user_id', payload.user_id);
+        
+        if (error) throw error;
+        break;
+      }
+
+      case 'create_notification': {
+        const { error } = await supabase
+          .from('notifications' as any)
+          .insert(payload);
+        
+        if (error) throw error;
+        break;
+      }
+
+      case 'mark_notification_read': {
+        const { error } = await supabase
+          .from('notifications' as any)
+          .update({ is_read: true })
+          .eq('id', payload.id)
+          .eq('user_id', payload.user_id);
+        
+        if (error) throw error;
+        break;
+      }
+
+      case 'mark_all_notifications_read': {
+        const { error } = await supabase
+          .from('notifications' as any)
+          .update({ is_read: true })
+          .eq('user_id', payload.user_id);
+        
+        if (error) throw error;
+        break;
+      }
+
+      case 'health_record': {
+        const { error } = await supabase
+          .from('health_records')
+          .insert(payload);
+        
+        if (error) throw error;
+        break;
+      }
+
+      case 'update_health_record': {
+        const { error } = await supabase
+          .from('health_records')
+          .update(payload)
+          .eq('id', payload.id)
+          .eq('user_id', payload.user_id);
+        
+        if (error) throw error;
+        break;
+      }
+
+      case 'delete_health_record': {
+        const { error } = await supabase
+          .from('health_records')
+          .delete()
+          .eq('id', payload.id)
+          .eq('user_id', payload.user_id);
         
         if (error) throw error;
         break;

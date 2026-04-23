@@ -1,4 +1,4 @@
-
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -6,6 +6,7 @@ import { Edit, Trash2, Syringe, TrendingUp, ShoppingCart, Calendar, Scale, Dropl
 import { Language, AnimalData } from '@/types';
 import { useDateDisplay } from '@/hooks/useDateDisplay';
 import { BreedRegistryService } from '@/utils/breedRegistry';
+import { OptimizedImage } from '@/components/OptimizedImage';
 
 export type AnimalCardVariant = 'compact' | 'full' | 'list' | 'marketplace';
 
@@ -31,7 +32,7 @@ interface EnhancedAnimalCardProps {
   photos?: string[] | null;
 }
 
-export const EnhancedAnimalCard = ({
+export const EnhancedAnimalCard = React.memo(({
   animal,
   language,
   variant = 'full',
@@ -164,11 +165,11 @@ export const EnhancedAnimalCard = ({
           {/* Image Container */}
           <div className="aspect-[4/3] sm:aspect-[3/2] bg-gradient-to-br from-green-50 to-emerald-100 relative overflow-hidden">
             {photos && photos.length > 0 ? (
-              <img 
+              <OptimizedImage 
                 src={photos[0]} 
                 alt={animal.name}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                loading="lazy"
+                fallbackIcon="🐄"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-green-300">
@@ -547,4 +548,4 @@ export const EnhancedAnimalCard = ({
       </CardContent>
     </Card>
   );
-};
+});

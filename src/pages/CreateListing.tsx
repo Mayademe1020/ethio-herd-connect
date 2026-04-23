@@ -13,8 +13,9 @@ import { FemaleAnimalFields, FemaleAnimalData } from '@/components/FemaleAnimalF
 import { HealthDisclaimerCheckbox } from '@/components/HealthDisclaimerCheckbox';
 import { BackButtonConfirmation } from '@/components/BackButtonConfirmation';
 import { BackButton } from '@/components/BackButton';
-import { ArrowRight, ArrowLeft, Check } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Check, Loader2, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/useToast';
+import { getMuzzleEmbedding } from '@/utils/muzzleIndexedDB';
 
 interface Animal {
   id: string;
@@ -57,13 +58,33 @@ const CreateListing = () => {
   // Loading state
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Muzzle verification state
+  const [hasMuzzleRegistered, setHasMuzzleRegistered] = useState(false);
+  const [isCheckingMuzzle, setIsCheckingMuzzle] = useState(false);
+
   const totalSteps = 4;
+
+  // Check if selected animal has muzzle registered
+  const checkMuzzleRegistration = async (animal: Animal) => {
+    if (!user || !animal.id) return;
+
+    setIsCheckingMuzzle(true);
+    try {
+      const embedding = await getMuzzleEmbedding(animal.id, user.id);
+      setHasMuzzleRegistered(!!embedding);
+    } catch (error) {
+      console.error('Error checking muzzle:', error);
+      setHasMuzzleRegistered(false);
+    } finally {
+      setIsCheckingMuzzle(false);
+    }
+  };
 
   // Check if current step is valid (without side effects)
   const isStepValid = (step: number): boolean => {
     switch (step) {
       case 1:
-        return selectedAnimal !== null;
+        return selectedAnimal !== null && hasMuzzleRegistered;
       case 2:
         return price >= 100 && price <= 1000000;
       case 3:
@@ -207,8 +228,46 @@ const CreateListing = () => {
             <h2 className="text-xl font-bold">{t('marketplace.selectAnimal')}</h2>
             <AnimalSelectorForListing
               selectedAnimalId={selectedAnimal?.id}
-              onSelect={setSelectedAnimal}
+              onSelect={(animal) => {
+                setSelectedAnimal(animal);
+                checkMuzzleRegistration(animal);
+              }}
             />
+
+            {selectedAnimal && isCheckingMuzzle && (
+              <div className="flex items-center justify-center py-4">
+                <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                <span className="text-gray-600">Checking muzzle registration...</span>
+              </div>
+            )}
+
+            {selectedAnimal && !isCheckingMuzzle && !hasMuzzleRegistered && (
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mt-4">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="w-5 h-5 text-orange-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-medium text-orange-800">Muzzle verification required</p>
+                    <p className="text-sm text-orange-700 mt-1">
+                      This animal needs muzzle verification before it can be listed.
+                      Please register the muzzle first in the animal profile.
+                    </p>
+                    <Button
+                      onClick={() => navigate(`/register-animal?edit=${selectedAnimal.id}`)}
+                      className="mt-3 bg-orange-600 hover:bg-orange-700 text-white"
+                    >
+                      Register Muzzle
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {selectedAnimal && hasMuzzleRegistered && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3 mt-4 flex items-center gap-2">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <span className="text-green-800 font-medium">Muzzle verified - ready to list</span>
+              </div>
+            )}
           </div>
         );
 
@@ -251,7 +310,7 @@ const CreateListing = () => {
         return (
           <div className="space-y-6">
             <h2 className="text-xl font-bold">{t('marketplace.additionalDetails')}</h2>
-            
+
             {selectedAnimal && (
               <FemaleAnimalFields
                 animalSubtype={selectedAnimal.subtype || ''}
@@ -344,7 +403,7 @@ const CreateListing = () => {
             >
               {(isSubmitting || isCreating) ? (
                 <>
-                  <span className="animate-spin mr-2">⏳</span>
+                  <span className="animate-spin mr-2">&#8987;</span>
                   {t('common.submitting')}
                 </>
               ) : (

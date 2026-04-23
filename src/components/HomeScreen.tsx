@@ -216,7 +216,7 @@ export const HomeScreen = () => {
 
       <div className="px-4 py-6 space-y-6">
         {/* Action Cards Grid */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <Card
             className="card-standard cursor-pointer interactive-lift group relative overflow-hidden"
             onClick={() => handleCardNavigation('/record-milk')}
@@ -248,6 +248,24 @@ export const HomeScreen = () => {
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full text-xs font-medium floating">
                   <span>✨</span>
                   Quick add
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card
+            className="card-standard cursor-pointer interactive-lift group relative overflow-hidden"
+            onClick={() => handleCardNavigation('/identify')}
+          >
+            <div className="absolute inset-0 bg-indigo-500 opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
+            <CardContent className="p-4 text-center relative z-10">
+              <Search className="w-8 h-8 mx-auto mb-3 text-indigo-500 group-hover:scale-110 transition-transform duration-200" />
+              <h3 className="text-sm font-semibold text-gray-900 mb-1">Identify Animal</h3>
+              <p className="text-xs text-gray-500">Muzzle recognition</p>
+              <div className="mt-2">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-full text-xs font-medium">
+                  <span>🔍</span>
+                  AI-powered
                 </span>
               </div>
             </CardContent>
@@ -289,7 +307,7 @@ export const HomeScreen = () => {
                 <div className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">
                   <span>💡</span>
                   Get started
-                </span>
+                </div>
               )}
             </CardContent>
           </Card>

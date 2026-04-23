@@ -9,8 +9,10 @@ import { AnimalCard } from '@/components/AnimalCard';
 import { AnimalSearchBar } from '@/components/AnimalSearchBar';
 import { useAnimalSearch } from '@/hooks/useAnimalSearch';
 import { Button } from '@/components/ui/button';
-import { Plus, RefreshCw, Search } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Plus, RefreshCw, Search, Users } from 'lucide-react';
 import { toast } from 'sonner';
+import { BulkAnimalEntryModal } from '@/components/BulkAnimalEntryModal';
 
 type AnimalType = 'all' | 'cattle' | 'goat' | 'sheep';
 
@@ -36,6 +38,7 @@ export const MyAnimals = () => {
   const [page] = useState(0); // Pagination support (currently showing first page only)
   const ITEMS_PER_PAGE = 20;
   const [isOnline, setIsOnline] = useState<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
+  const [showBulkModal, setShowBulkModal] = useState(false);
 
   // Track online/offline status to support intermittent connectivity
   useEffect(() => {
@@ -257,17 +260,17 @@ export const MyAnimals = () => {
         {isLoading ? (
           <div className="space-y-3">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="skeleton-card" style={{ height: '140px' }}>
-                <div className="flex items-center gap-4 h-full">
-                  <div className="w-16 h-16 skeleton-avatar flex-shrink-0"></div>
+              <div key={i} className="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
+                <div className="flex items-center gap-4">
+                  <Skeleton className="w-16 h-16 rounded-full flex-shrink-0" />
                   <div className="flex-1 space-y-2">
-                    <div className="skeleton-text h-4 w-3/4"></div>
-                    <div className="skeleton-text h-3 w-1/2"></div>
-                    <div className="skeleton-text h-3 w-1/4"></div>
+                    <Skeleton className="h-5 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-3 w-1/4" />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <div className="w-10 h-10 skeleton rounded-lg"></div>
-                    <div className="w-10 h-10 skeleton rounded-lg"></div>
+                    <Skeleton className="w-10 h-10 rounded-lg" />
+                    <Skeleton className="w-10 h-10 rounded-lg" />
                   </div>
                 </div>
               </div>
@@ -298,14 +301,32 @@ export const MyAnimals = () => {
         )}
       </div>
 
-      {/* Floating Action Button */}
-      <button
-        onClick={handleAddAnimal}
-        className="fixed bottom-24 right-6 w-14 h-14 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95 z-20"
-        aria-label="Add Animal"
-      >
-        <Plus className="w-6 h-6" />
-      </button>
+      {/* Floating Action Buttons */}
+      <div className="fixed bottom-24 right-6 flex flex-col gap-3 z-20">
+        {/* Bulk Entry Button */}
+        <button
+          onClick={() => setShowBulkModal(true)}
+          className="w-12 h-12 bg-orange-500 hover:bg-orange-600 text-white rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95"
+          aria-label="Add Multiple Animals"
+        >
+          <Users className="w-5 h-5" />
+        </button>
+        {/* Single Entry Button */}
+        <button
+          onClick={handleAddAnimal}
+          className="w-14 h-14 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-105 active:scale-95"
+          aria-label="Add Animal"
+        >
+          <Plus className="w-6 h-6" />
+        </button>
+      </div>
+
+      {/* Bulk Animal Entry Modal */}
+      <BulkAnimalEntryModal
+        isOpen={showBulkModal}
+        onClose={() => setShowBulkModal(false)}
+        onSuccess={() => refetch()}
+      />
     </div>
   );
 };

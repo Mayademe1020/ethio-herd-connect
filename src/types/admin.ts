@@ -407,3 +407,65 @@ export interface TestCoverage {
   lines: number;
   timestamp: string;
 }
+
+// Audit Log Types
+export type AuditAction = 
+  | 'login' | 'logout'
+  | 'view' | 'create' | 'update' | 'delete'
+  | 'ban' | 'unban' | 'suspend' | 'activate'
+  | 'approve' | 'reject' | 'escalate' | 'resolve'
+  | 'export' | 'import'
+  | 'configure' | 'deploy'
+  | 'manual';
+
+export type AuditResourceType = 
+  | 'user' | 'ticket' | 'announcement' | 'report' | 'animal'
+  | 'listing' | 'milk_record' | 'health_record' | 'breeding_record'
+  | 'system' | 'database' | 'configuration';
+
+export type AuditSeverity = 'debug' | 'info' | 'warning' | 'critical';
+
+export interface AuditLog {
+  id: string;
+  admin_id: string;
+  admin_email?: string;
+  admin_role?: string;
+  action: AuditAction;
+  resource_type: AuditResourceType;
+  resource_id?: string;
+  resource_name?: string;
+  details?: Record<string, unknown>;
+  old_value?: Record<string, unknown>;
+  new_value?: Record<string, unknown>;
+  ip_address?: string;
+  user_agent?: string;
+  severity: AuditSeverity;
+  created_at: string;
+}
+
+export interface AuditLogFilters {
+  admin_id?: string;
+  admin_email?: string;
+  action?: AuditAction[];
+  resource_type?: AuditResourceType[];
+  severity?: AuditSeverity[];
+  date_from?: string;
+  date_to?: string;
+  search?: string;
+}
+
+export interface PaginatedAuditLogs {
+  data: AuditLog[];
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+}
+
+export interface AuditLogStats {
+  total: number;
+  by_action: Record<AuditAction, number>;
+  by_resource: Record<AuditResourceType, number>;
+  by_severity: Record<AuditSeverity, number>;
+  by_admin: { admin_email: string; count: number }[];
+}

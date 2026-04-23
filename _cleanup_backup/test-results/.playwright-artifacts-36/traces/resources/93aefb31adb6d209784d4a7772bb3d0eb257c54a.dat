@@ -1,0 +1,755 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/components/OtpAuthForm.tsx");if (!window.$RefreshReg$) throw new Error("React refresh preamble was not loaded. Something is wrong.");
+const prevRefreshReg = window.$RefreshReg$;
+const prevRefreshSig = window.$RefreshSig$;
+window.$RefreshReg$ = RefreshRuntime.getRefreshReg("D:/ethio-herd-connect/src/components/OtpAuthForm.tsx");
+window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+
+import * as RefreshRuntime from "/@react-refresh";
+
+// src/components/OtpAuthForm.tsx - Phone + PIN Authentication (Ethiopia Only)
+import __vite__cjsImport1_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=0165465e"; const _jsxDEV = __vite__cjsImport1_react_jsxDevRuntime["jsxDEV"];
+var _s = $RefreshSig$();
+import __vite__cjsImport2_react from "/node_modules/.vite/deps/react.js?v=0165465e"; const useEffect = __vite__cjsImport2_react["useEffect"]; const useState = __vite__cjsImport2_react["useState"];
+import { useNavigate } from "/node_modules/.vite/deps/react-router-dom.js?v=0165465e";
+import { supabase } from "/src/integrations/supabase/client.ts";
+import { toast } from "/node_modules/.vite/deps/sonner.js?v=0165465e";
+import { ETHIOPIA_CONSTANTS } from "/src/constants/ethiopia.ts";
+import { Eye, EyeOff } from "/node_modules/.vite/deps/lucide-react.js?v=0165465e";
+export function OtpAuthForm() {
+    _s();
+    const navigate = useNavigate();
+    const [phoneNumber, setPhoneNumber] = useState('');
+    const [pin, setPin] = useState('');
+    const [showPin, setShowPin] = useState(true); // PIN visible by default - farmers need to see what they type
+    const [loading, setLoading] = useState(false);
+    const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
+    const [phoneError, setPhoneError] = useState(undefined);
+    const [pinError, setPinError] = useState(undefined);
+    // Lightweight online/offline detection for Ethiopia's intermittent connectivity
+    useEffect(()=>{
+        const handleOnline = ()=>setIsOnline(true);
+        const handleOffline = ()=>setIsOnline(false);
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+        return ()=>{
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
+    // Clean and validate Ethiopian phone number using constants
+    const validatePhone = (phone)=>{
+        // Remove all non-digits
+        const cleaned = phone.replace(/\D/g, '');
+        // Remove leading 0 if present (0911234567 → 911234567)
+        const withoutLeadingZero = cleaned.startsWith('0') ? cleaned.slice(1) : cleaned;
+        // Use Ethiopia constants for validation
+        if (withoutLeadingZero.length !== ETHIOPIA_CONSTANTS.PHONE_VALIDATION.MIN_LENGTH) {
+            return {
+                valid: false,
+                cleaned: withoutLeadingZero,
+                error: 'ስልክ ቁጥር 9 አሃዞች መሆን አለበት / Phone must be 9 digits'
+            };
+        }
+        // Must start with 9 or 7 (Ethiopian mobile numbers)
+        const validPrefixes = ETHIOPIA_CONSTANTS.PHONE_VALIDATION.STARTS_WITH;
+        const startsWithValid = validPrefixes.some((prefix)=>withoutLeadingZero.startsWith(prefix));
+        if (!startsWithValid) {
+            return {
+                valid: false,
+                cleaned: withoutLeadingZero,
+                error: 'ስልክ ቁጥር በ 9 ወይም 7 መጀመር አለበት / Phone must start with 9 or 7'
+            };
+        }
+        return {
+            valid: true,
+            cleaned: withoutLeadingZero
+        };
+    };
+    const signInWithPhonePin = async ()=>{
+        setLoading(true);
+        try {
+            // Validate phone number
+            const { valid, cleaned, error } = validatePhone(phoneNumber);
+            if (!valid) {
+                setPhoneError(error);
+                toast.error(error || 'Invalid phone number');
+                setLoading(false);
+                return;
+            }
+            // Validate PIN
+            if (pin.length < 6) {
+                const msg = 'ፒን በጣም አጭር ነው / PIN too short';
+                setPinError(msg);
+                toast.error(msg, {
+                    description: 'PIN must be at least 6 digits'
+                });
+                setLoading(false);
+                return;
+            }
+            // Block interactive auth when offline; show friendly guidance
+            if (!isOnline) {
+                toast.info('Offline mode: You can browse, but login needs internet.', {
+                    description: 'የመግባት ሂደት ኢንተርኔት ያስፈልጋል / Login requires connectivity'
+                });
+                setLoading(false);
+                return;
+            }
+            // Create email format from phone: 911234567@ethioherd.app
+            const email = `${cleaned}@ethioherd.app`;
+            const password = pin;
+            // Enhanced error handling for authentication
+            try {
+                // Try to sign in first
+                const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                if (signInError) {
+                    console.log('Sign in error:', signInError.message);
+                    // If user doesn't exist, create account
+                    if (signInError.message.includes('Invalid login credentials') || signInError.message.includes('Email not confirmed')) {
+                        console.log('Creating new account...');
+                        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+                            email: email,
+                            password: password,
+                            options: {
+                                emailRedirectTo: undefined
+                            }
+                        });
+                        if (signUpError) {
+                            console.error('Sign up error:', signUpError);
+                            // If user already exists, try to sign in again
+                            if (signUpError.message.includes('already registered')) {
+                                const { error: retrySignInError } = await supabase.auth.signInWithPassword({
+                                    email: email,
+                                    password: password
+                                });
+                                if (!retrySignInError) {
+                                    toast.success('✓ እንኳን ደህና መጡ! / Welcome back!', {
+                                        description: `Phone: +251${cleaned}`
+                                    });
+                                    setTimeout(()=>navigate('/', {
+                                            replace: true
+                                        }), 500);
+                                    return;
+                                }
+                            }
+                            throw signUpError;
+                        }
+                        // Auto-create profile for new user
+                        if (signUpData.user) {
+                            const { error: profileError } = await supabase.from('profiles').insert({
+                                id: signUpData.user.id,
+                                phone: cleaned,
+                                farmer_name: 'Farmer',
+                                farm_name: null,
+                                created_at: new Date().toISOString(),
+                                updated_at: new Date().toISOString()
+                            });
+                            if (profileError) {
+                                console.error('Profile creation error:', profileError);
+                            // Don't throw - user can still complete onboarding
+                            }
+                        }
+                        toast.success('✓ መለያ ተፈጥሯል! / Account created!', {
+                            description: `Welcome! Phone: +251${cleaned}`
+                        });
+                        // Navigate after successful signup
+                        setTimeout(()=>{
+                            navigate('/', {
+                                replace: true
+                            });
+                        }, 500);
+                    } else {
+                        throw signInError;
+                    }
+                } else {
+                    toast.success('✓ እንኳን ደህና መጡ! / Welcome back!', {
+                        description: `Phone: +251${cleaned}`
+                    });
+                    // Navigate after successful login
+                    setTimeout(()=>{
+                        navigate('/', {
+                            replace: true
+                        });
+                    }, 500);
+                }
+            } catch (authError) {
+                console.error('Authentication error:', authError);
+                throw authError;
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            toast.error('መግባት አልተቻለም / Login failed', {
+                description: error.message || 'Please try again'
+            });
+        } finally{
+            setLoading(false);
+        }
+    };
+    // Handle phone input - only allow digits, max 9
+    const handlePhoneChange = (e)=>{
+        const value = e.target.value.replace(/\D/g, '').slice(0, 9); // Only digits, max 9
+        setPhoneNumber(value);
+        setPhoneError(undefined);
+    };
+    // Handle PIN input - only allow digits
+    const handlePinChange = (e)=>{
+        const value = e.target.value.replace(/\D/g, ''); // Only digits
+        setPin(value);
+        setPinError(undefined);
+    };
+    // Form submission handler with validation
+    const handleSubmit = async (e)=>{
+        e.preventDefault();
+        if (loading) return;
+        // Validate phone number
+        if (phoneNumber.length !== 9) {
+            setPhoneError('ስልክ ቁጥር 9 አሃዞች መሆን አለበት / Phone must be exactly 9 digits');
+            toast.error('Please enter exactly 9 digits for phone number');
+            return;
+        }
+        // Ethiopian phone numbers start with 7 (Safaricom) or 9 (Ethio Telecom)
+        if (!phoneNumber.startsWith('7') && !phoneNumber.startsWith('9')) {
+            setPhoneError('ስልክ ቁጥር በ 7 ወይም በ 9 መጀመር አለበት / Phone must start with 7 or 9');
+            toast.error('Phone number must start with 7 or 9');
+            return;
+        }
+        // Validate PIN
+        if (pin.length < 6) {
+            setPinError('ፒን ቢያንስ 6 አሃዞች መሆን አለበት / PIN must be at least 6 digits');
+            toast.error('PIN must be at least 6 digits');
+            return;
+        }
+        // All validations passed, proceed with login
+        await signInWithPhonePin();
+    };
+    return /*#__PURE__*/ _jsxDEV("div", {
+        "data-lov-id": "src\\components\\OtpAuthForm.tsx:236:4",
+        "data-lov-name": "div",
+        "data-component-path": "src\\components\\OtpAuthForm.tsx",
+        "data-component-line": "236",
+        "data-component-file": "OtpAuthForm.tsx",
+        "data-component-name": "div",
+        "data-component-content": "%7B%22className%22%3A%22w-full%22%7D",
+        className: "w-full",
+        children: /*#__PURE__*/ _jsxDEV("form", {
+            "data-lov-id": "src\\components\\OtpAuthForm.tsx:237:6",
+            "data-lov-name": "form",
+            "data-component-path": "src\\components\\OtpAuthForm.tsx",
+            "data-component-line": "237",
+            "data-component-file": "OtpAuthForm.tsx",
+            "data-component-name": "form",
+            "data-component-content": "%7B%22className%22%3A%22space-y-6%22%7D",
+            className: "space-y-6",
+            onSubmit: handleSubmit,
+            children: [
+                /*#__PURE__*/ _jsxDEV("div", {
+                    "data-lov-id": "src\\components\\OtpAuthForm.tsx:238:8",
+                    "data-lov-name": "div",
+                    "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                    "data-component-line": "238",
+                    "data-component-file": "OtpAuthForm.tsx",
+                    "data-component-name": "div",
+                    "data-component-content": "%7B%7D",
+                    children: [
+                        /*#__PURE__*/ _jsxDEV("label", {
+                            "data-lov-id": "src\\components\\OtpAuthForm.tsx:239:10",
+                            "data-lov-name": "label",
+                            "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                            "data-component-line": "239",
+                            "data-component-file": "OtpAuthForm.tsx",
+                            "data-component-name": "label",
+                            "data-component-content": "%7B%22text%22%3A%22%E1%88%B5%E1%88%8D%E1%8A%AD%20%E1%89%81%E1%8C%A5%E1%88%AD%20%2F%20Phone%20Number%22%2C%22className%22%3A%22block%20text-base%20font-medium%20mb-2%20text-gray-800%22%7D",
+                            htmlFor: "phone-input",
+                            className: "block text-base font-medium mb-2 text-gray-800",
+                            children: "ስልክ ቁጥር / Phone Number"
+                        }, void 0, false, {
+                            fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                            lineNumber: 239,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            "data-lov-id": "src\\components\\OtpAuthForm.tsx:242:10",
+                            "data-lov-name": "div",
+                            "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                            "data-component-line": "242",
+                            "data-component-file": "OtpAuthForm.tsx",
+                            "data-component-name": "div",
+                            "data-component-content": "%7B%22className%22%3A%22flex%20items-center%20gap-2%22%7D",
+                            className: "flex items-center gap-2",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    "data-lov-id": "src\\components\\OtpAuthForm.tsx:243:12",
+                                    "data-lov-name": "div",
+                                    "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                                    "data-component-line": "243",
+                                    "data-component-file": "OtpAuthForm.tsx",
+                                    "data-component-name": "div",
+                                    "data-component-content": "%7B%22className%22%3A%22flex%20items-center%20bg-gray-100%20px-3%20py-3%20border-2%20border-gray-300%20rounded-lg%20text-lg%20font-medium%20text-gray-700%20select-none%22%7D",
+                                    className: "flex items-center bg-gray-100 px-3 py-3 border-2 border-gray-300 rounded-lg text-lg font-medium text-gray-700 select-none",
+                                    children: ETHIOPIA_CONSTANTS.PHONE_COUNTRY_CODE
+                                }, void 0, false, {
+                                    fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                                    lineNumber: 243,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("input", {
+                                    "data-lov-id": "src\\components\\OtpAuthForm.tsx:246:12",
+                                    "data-lov-name": "input",
+                                    "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                                    "data-component-line": "246",
+                                    "data-component-file": "OtpAuthForm.tsx",
+                                    "data-component-name": "input",
+                                    "data-component-content": "%7B%22placeholder%22%3A%22911234567%22%2C%22className%22%3A%22flex-1%20px-4%20py-3%20border-2%20border-gray-300%20rounded-lg%20focus%3Aoutline-none%20focus%3Aborder-green-600%20text-lg%20leading-6%20placeholder%3Atext-gray-400%22%7D",
+                                    id: "phone-input",
+                                    type: "tel",
+                                    inputMode: "numeric",
+                                    pattern: "[0-9]*",
+                                    autoComplete: "tel-national",
+                                    value: phoneNumber,
+                                    onChange: handlePhoneChange,
+                                    placeholder: "911234567",
+                                    maxLength: 9,
+                                    "aria-invalid": !!phoneError,
+                                    "aria-describedby": "phone-help",
+                                    className: "flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-green-600 text-lg leading-6 placeholder:text-gray-400",
+                                    style: {
+                                        minHeight: '48px'
+                                    },
+                                    autoFocus: true
+                                }, void 0, false, {
+                                    fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                                    lineNumber: 246,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                            lineNumber: 242,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            "data-lov-id": "src\\components\\OtpAuthForm.tsx:263:10",
+                            "data-lov-name": "div",
+                            "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                            "data-component-line": "263",
+                            "data-component-file": "OtpAuthForm.tsx",
+                            "data-component-name": "div",
+                            "data-component-content": "%7B%22className%22%3A%22flex%20justify-between%20items-center%20mt-2%22%7D",
+                            className: "flex justify-between items-center mt-2",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("p", {
+                                    "data-lov-id": "src\\components\\OtpAuthForm.tsx:264:12",
+                                    "data-lov-name": "p",
+                                    "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                                    "data-component-line": "264",
+                                    "data-component-file": "OtpAuthForm.tsx",
+                                    "data-component-name": "p",
+                                    "data-component-content": "%7B%22text%22%3A%229%20%E1%8A%A0%E1%88%83%E1%8B%9E%E1%89%BD%20(9%20%E1%8B%88%E1%8B%AD%E1%88%9D%207%20%E1%8B%AD%E1%8C%80%E1%88%9D%E1%88%AD)%20%2F%20Enter%209%20digits%20(e.g.%2C%20911234567)%22%2C%22className%22%3A%22text-sm%20text-gray-600%22%7D",
+                                    id: "phone-help",
+                                    className: "text-sm text-gray-600",
+                                    "aria-live": "polite",
+                                    children: "9 አሃዞች (9 ወይም 7 ይጀምር) / Enter 9 digits (e.g., 911234567)"
+                                }, void 0, false, {
+                                    fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                                    lineNumber: 264,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("span", {
+                                    "data-lov-id": "src\\components\\OtpAuthForm.tsx:267:12",
+                                    "data-lov-name": "span",
+                                    "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                                    "data-component-line": "267",
+                                    "data-component-file": "OtpAuthForm.tsx",
+                                    "data-component-name": "span",
+                                    "data-component-content": "%7B%22text%22%3A%22%2F9%22%7D",
+                                    className: `text-sm font-medium ${phoneNumber.length === 9 ? 'text-green-600' : 'text-gray-500'}`,
+                                    children: [
+                                        phoneNumber.length,
+                                        "/9"
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                                    lineNumber: 267,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                            lineNumber: 263,
+                            columnNumber: 11
+                        }, this),
+                        phoneError && /*#__PURE__*/ _jsxDEV("p", {
+                            "data-lov-id": "src\\components\\OtpAuthForm.tsx:274:12",
+                            "data-lov-name": "p",
+                            "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                            "data-component-line": "274",
+                            "data-component-file": "OtpAuthForm.tsx",
+                            "data-component-name": "p",
+                            "data-component-content": "%7B%22className%22%3A%22text-sm%20text-red-600%20mt-1%22%7D",
+                            className: "text-sm text-red-600 mt-1",
+                            role: "alert",
+                            children: phoneError
+                        }, void 0, false, {
+                            fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                            lineNumber: 274,
+                            columnNumber: 13
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                    lineNumber: 238,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ _jsxDEV("div", {
+                    "data-lov-id": "src\\components\\OtpAuthForm.tsx:278:8",
+                    "data-lov-name": "div",
+                    "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                    "data-component-line": "278",
+                    "data-component-file": "OtpAuthForm.tsx",
+                    "data-component-name": "div",
+                    "data-component-content": "%7B%7D",
+                    children: [
+                        /*#__PURE__*/ _jsxDEV("label", {
+                            "data-lov-id": "src\\components\\OtpAuthForm.tsx:279:10",
+                            "data-lov-name": "label",
+                            "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                            "data-component-line": "279",
+                            "data-component-file": "OtpAuthForm.tsx",
+                            "data-component-name": "label",
+                            "data-component-content": "%7B%22text%22%3A%22%E1%8D%92%E1%8A%95%20%2F%20PIN%22%2C%22className%22%3A%22block%20text-base%20font-medium%20mb-2%20text-gray-800%22%7D",
+                            htmlFor: "pin-input",
+                            className: "block text-base font-medium mb-2 text-gray-800",
+                            children: "ፒን / PIN"
+                        }, void 0, false, {
+                            fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                            lineNumber: 279,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            "data-lov-id": "src\\components\\OtpAuthForm.tsx:282:10",
+                            "data-lov-name": "div",
+                            "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                            "data-component-line": "282",
+                            "data-component-file": "OtpAuthForm.tsx",
+                            "data-component-name": "div",
+                            "data-component-content": "%7B%22className%22%3A%22relative%22%7D",
+                            className: "relative",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("input", {
+                                    "data-lov-id": "src\\components\\OtpAuthForm.tsx:283:12",
+                                    "data-lov-name": "input",
+                                    "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                                    "data-component-line": "283",
+                                    "data-component-file": "OtpAuthForm.tsx",
+                                    "data-component-name": "input",
+                                    "data-component-content": "%7B%22placeholder%22%3A%22%E2%80%A2%E2%80%A2%E2%80%A2%E2%80%A2%E2%80%A2%E2%80%A2%22%2C%22className%22%3A%22w-full%20px-4%20py-3%20pr-12%20border-2%20border-gray-300%20rounded-lg%20focus%3Aoutline-none%20focus%3Aborder-green-600%20text-lg%20leading-6%20text-center%20tracking-widest%20placeholder%3Atext-gray-400%22%7D",
+                                    id: "pin-input",
+                                    type: showPin ? "text" : "password",
+                                    inputMode: "numeric",
+                                    pattern: "[0-9]*",
+                                    autoComplete: "current-password",
+                                    value: pin,
+                                    onChange: handlePinChange,
+                                    placeholder: "••••••",
+                                    maxLength: 6,
+                                    "aria-invalid": !!pinError,
+                                    "aria-describedby": "pin-help",
+                                    className: "w-full px-4 py-3 pr-12 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-green-600 text-lg leading-6 text-center tracking-widest placeholder:text-gray-400",
+                                    style: {
+                                        minHeight: '48px'
+                                    }
+                                }, void 0, false, {
+                                    fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                                    lineNumber: 283,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("button", {
+                                    "data-lov-id": "src\\components\\OtpAuthForm.tsx:298:12",
+                                    "data-lov-name": "button",
+                                    "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                                    "data-component-line": "298",
+                                    "data-component-file": "OtpAuthForm.tsx",
+                                    "data-component-name": "button",
+                                    "data-component-content": "%7B%22className%22%3A%22absolute%20right-3%20top-1%2F2%20-translate-y-1%2F2%20p-2%20text-gray-500%20hover%3Atext-gray-700%20focus%3Aoutline-none%20focus%3Aring-2%20focus%3Aring-green-500%20rounded%22%7D",
+                                    type: "button",
+                                    onClick: ()=>setShowPin(!showPin),
+                                    className: "absolute right-3 top-1/2 -translate-y-1/2 p-2 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 rounded",
+                                    "aria-label": showPin ? "Hide PIN" : "Show PIN",
+                                    tabIndex: -1,
+                                    children: showPin ? /*#__PURE__*/ _jsxDEV(EyeOff, {
+                                        "data-lov-id": "src\\components\\OtpAuthForm.tsx:305:25",
+                                        "data-lov-name": "EyeOff",
+                                        "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                                        "data-component-line": "305",
+                                        "data-component-file": "OtpAuthForm.tsx",
+                                        "data-component-name": "EyeOff",
+                                        "data-component-content": "%7B%22className%22%3A%22w-5%20h-5%22%7D",
+                                        className: "w-5 h-5"
+                                    }, void 0, false, {
+                                        fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                                        lineNumber: 305,
+                                        columnNumber: 26
+                                    }, this) : /*#__PURE__*/ _jsxDEV(Eye, {
+                                        "data-lov-id": "src\\components\\OtpAuthForm.tsx:305:58",
+                                        "data-lov-name": "Eye",
+                                        "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                                        "data-component-line": "305",
+                                        "data-component-file": "OtpAuthForm.tsx",
+                                        "data-component-name": "Eye",
+                                        "data-component-content": "%7B%22className%22%3A%22w-5%20h-5%22%7D",
+                                        className: "w-5 h-5"
+                                    }, void 0, false, {
+                                        fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                                        lineNumber: 305,
+                                        columnNumber: 346
+                                    }, this)
+                                }, void 0, false, {
+                                    fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                                    lineNumber: 298,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                            lineNumber: 282,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            "data-lov-id": "src\\components\\OtpAuthForm.tsx:308:10",
+                            "data-lov-name": "div",
+                            "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                            "data-component-line": "308",
+                            "data-component-file": "OtpAuthForm.tsx",
+                            "data-component-name": "div",
+                            "data-component-content": "%7B%22className%22%3A%22flex%20justify-between%20items-center%20mt-2%22%7D",
+                            className: "flex justify-between items-center mt-2",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("p", {
+                                    "data-lov-id": "src\\components\\OtpAuthForm.tsx:309:12",
+                                    "data-lov-name": "p",
+                                    "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                                    "data-component-line": "309",
+                                    "data-component-file": "OtpAuthForm.tsx",
+                                    "data-component-name": "p",
+                                    "data-component-content": "%7B%22text%22%3A%22%E1%89%A2%E1%8B%AB%E1%8A%95%E1%88%B5%206%20%E1%8A%A0%E1%88%83%E1%8B%9E%E1%89%BD%20%2F%20At%20least%206%20digits%22%2C%22className%22%3A%22text-sm%20text-gray-600%22%7D",
+                                    id: "pin-help",
+                                    className: "text-sm text-gray-600",
+                                    "aria-live": "polite",
+                                    children: "ቢያንስ 6 አሃዞች / At least 6 digits"
+                                }, void 0, false, {
+                                    fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                                    lineNumber: 309,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("span", {
+                                    "data-lov-id": "src\\components\\OtpAuthForm.tsx:312:12",
+                                    "data-lov-name": "span",
+                                    "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                                    "data-component-line": "312",
+                                    "data-component-file": "OtpAuthForm.tsx",
+                                    "data-component-name": "span",
+                                    "data-component-content": "%7B%22text%22%3A%22%2F6%22%7D",
+                                    className: `text-sm font-medium ${pin.length >= 6 ? 'text-green-600' : 'text-gray-500'}`,
+                                    children: [
+                                        pin.length,
+                                        "/6"
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                                    lineNumber: 312,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                            lineNumber: 308,
+                            columnNumber: 11
+                        }, this),
+                        pinError && /*#__PURE__*/ _jsxDEV("p", {
+                            "data-lov-id": "src\\components\\OtpAuthForm.tsx:319:12",
+                            "data-lov-name": "p",
+                            "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                            "data-component-line": "319",
+                            "data-component-file": "OtpAuthForm.tsx",
+                            "data-component-name": "p",
+                            "data-component-content": "%7B%22className%22%3A%22text-sm%20text-red-600%20mt-1%22%7D",
+                            className: "text-sm text-red-600 mt-1",
+                            role: "alert",
+                            children: pinError
+                        }, void 0, false, {
+                            fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                            lineNumber: 319,
+                            columnNumber: 13
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                    lineNumber: 278,
+                    columnNumber: 9
+                }, this),
+                !isOnline && /*#__PURE__*/ _jsxDEV("div", {
+                    "data-lov-id": "src\\components\\OtpAuthForm.tsx:324:10",
+                    "data-lov-name": "div",
+                    "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                    "data-component-line": "324",
+                    "data-component-file": "OtpAuthForm.tsx",
+                    "data-component-name": "div",
+                    "data-component-content": "%7B%22className%22%3A%22bg-yellow-50%20border%20border-yellow-200%20rounded-lg%20p-3%22%7D",
+                    className: "bg-yellow-50 border border-yellow-200 rounded-lg p-3",
+                    role: "status",
+                    "aria-live": "polite",
+                    children: /*#__PURE__*/ _jsxDEV("p", {
+                        "data-lov-id": "src\\components\\OtpAuthForm.tsx:325:12",
+                        "data-lov-name": "p",
+                        "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                        "data-component-line": "325",
+                        "data-component-file": "OtpAuthForm.tsx",
+                        "data-component-name": "p",
+                        "data-component-content": "%7B%22text%22%3A%22%E2%9A%A0%EF%B8%8F%20Offline%20mode%3A%20You%20can%20browse%2C%20but%20login%20needs%20internet.%20%E1%8B%A8%E1%88%98%E1%8C%8D%E1%89%A3%E1%89%B5%20%E1%88%82%E1%8B%B0%E1%89%B5%20%E1%8A%A2%E1%8A%95%E1%89%B0%E1%88%AD%E1%8A%94%E1%89%B5%20%E1%8B%AB%E1%88%B5%E1%8D%88%E1%88%8D%E1%8C%8B%E1%88%8D%22%2C%22className%22%3A%22text-sm%20text-yellow-800%22%7D",
+                        className: "text-sm text-yellow-800",
+                        children: [
+                            "⚠️ Offline mode: You can browse, but login needs internet.",
+                            /*#__PURE__*/ _jsxDEV("br", {
+                                "data-lov-id": "src\\components\\OtpAuthForm.tsx:327:14",
+                                "data-lov-name": "br",
+                                "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                                "data-component-line": "327",
+                                "data-component-file": "OtpAuthForm.tsx",
+                                "data-component-name": "br",
+                                "data-component-content": "%7B%7D"
+                            }, void 0, false, {
+                                fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                                lineNumber: 327,
+                                columnNumber: 15
+                            }, this),
+                            " የመግባት ሂደት ኢንተርኔት ያስፈልጋል"
+                        ]
+                    }, void 0, true, {
+                        fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                        lineNumber: 325,
+                        columnNumber: 13
+                    }, this)
+                }, void 0, false, {
+                    fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                    lineNumber: 324,
+                    columnNumber: 11
+                }, this),
+                /*#__PURE__*/ _jsxDEV("button", {
+                    "data-lov-id": "src\\components\\OtpAuthForm.tsx:332:8",
+                    "data-lov-name": "button",
+                    "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                    "data-component-line": "332",
+                    "data-component-file": "OtpAuthForm.tsx",
+                    "data-component-name": "button",
+                    "data-component-content": "%7B%7D",
+                    type: "submit",
+                    disabled: loading || !isOnline,
+                    "aria-disabled": loading || !isOnline,
+                    className: `w-full py-4 rounded-lg font-bold text-lg transition-colors shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-600 ${phoneNumber.length === 9 && pin.length >= 6 ? 'bg-green-600 text-white hover:bg-green-700 cursor-pointer' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`,
+                    style: {
+                        minHeight: '56px'
+                    },
+                    children: loading ? 'እባክዎ ይጠብቁ... / Please wait...' : phoneNumber.length < 9 ? `Enter ${9 - phoneNumber.length} more digits` : pin.length < 6 ? `PIN needs ${6 - pin.length} more digits` : '✓ ግባ / Login'
+                }, void 0, false, {
+                    fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                    lineNumber: 332,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ _jsxDEV("div", {
+                    "data-lov-id": "src\\components\\OtpAuthForm.tsx:349:8",
+                    "data-lov-name": "div",
+                    "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                    "data-component-line": "349",
+                    "data-component-file": "OtpAuthForm.tsx",
+                    "data-component-name": "div",
+                    "data-component-content": "%7B%22className%22%3A%22text-center%22%7D",
+                    className: "text-center",
+                    children: /*#__PURE__*/ _jsxDEV("button", {
+                        "data-lov-id": "src\\components\\OtpAuthForm.tsx:350:10",
+                        "data-lov-name": "button",
+                        "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                        "data-component-line": "350",
+                        "data-component-file": "OtpAuthForm.tsx",
+                        "data-component-name": "button",
+                        "data-component-content": "%7B%22text%22%3A%22%E1%8D%92%E1%8A%95%20%E1%8A%A0%E1%88%B5%E1%89%B3%E1%8B%88%E1%88%B0%3F%20%2F%20Forgot%20your%20PIN%3F%22%2C%22className%22%3A%22text-sm%20text-emerald-600%20hover%3Atext-emerald-700%20font-medium%20underline%22%7D",
+                        type: "button",
+                        onClick: ()=>navigate('/forgot-password'),
+                        className: "text-sm text-emerald-600 hover:text-emerald-700 font-medium underline",
+                        children: "ፒን አስታወሰ? / Forgot your PIN?"
+                    }, void 0, false, {
+                        fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                        lineNumber: 350,
+                        columnNumber: 11
+                    }, this)
+                }, void 0, false, {
+                    fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                    lineNumber: 349,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ _jsxDEV("div", {
+                    "data-lov-id": "src\\components\\OtpAuthForm.tsx:359:8",
+                    "data-lov-name": "div",
+                    "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                    "data-component-line": "359",
+                    "data-component-file": "OtpAuthForm.tsx",
+                    "data-component-name": "div",
+                    "data-component-content": "%7B%22className%22%3A%22bg-blue-50%20border%20border-blue-200%20rounded-lg%20p-3%22%7D",
+                    className: "bg-blue-50 border border-blue-200 rounded-lg p-3",
+                    children: /*#__PURE__*/ _jsxDEV("p", {
+                        "data-lov-id": "src\\components\\OtpAuthForm.tsx:360:10",
+                        "data-lov-name": "p",
+                        "data-component-path": "src\\components\\OtpAuthForm.tsx",
+                        "data-component-line": "360",
+                        "data-component-file": "OtpAuthForm.tsx",
+                        "data-component-name": "p",
+                        "data-component-content": "%7B%22text%22%3A%22%F0%9F%92%A1%20%E1%8A%A0%E1%8B%B2%E1%88%B5%20%E1%89%B0%E1%8C%A0%E1%89%83%E1%88%9A%3F%20%2F%20New%20user%3F%20Just%20enter%20your%20phone%20and%20create%20a%20PIN%20to%20get%20started!%22%2C%22className%22%3A%22text-sm%20text-blue-800%22%7D",
+                        className: "text-sm text-blue-800",
+                        children: "💡 አዲስ ተጠቃሚ? / New user? Just enter your phone and create a PIN to get started!"
+                    }, void 0, false, {
+                        fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                        lineNumber: 360,
+                        columnNumber: 11
+                    }, this)
+                }, void 0, false, {
+                    fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+                    lineNumber: 359,
+                    columnNumber: 9
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+            lineNumber: 237,
+            columnNumber: 7
+        }, this)
+    }, void 0, false, {
+        fileName: "D:/ethio-herd-connect/src/components/OtpAuthForm.tsx",
+        lineNumber: 236,
+        columnNumber: 5
+    }, this);
+}
+_s(OtpAuthForm, "aA1OgCxg98z9Rn0jl++vZvd9XYo=", false, function() {
+    return [
+        useNavigate
+    ];
+});
+_c = OtpAuthForm;
+export default OtpAuthForm;
+var _c;
+$RefreshReg$(_c, "OtpAuthForm");
+
+
+window.$RefreshReg$ = prevRefreshReg;
+window.$RefreshSig$ = prevRefreshSig;
+
+RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+  RefreshRuntime.registerExportsForReactRefresh("D:/ethio-herd-connect/src/components/OtpAuthForm.tsx", currentExports);
+  import.meta.hot.accept((nextExports) => {
+    if (!nextExports) return;
+    const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("D:/ethio-herd-connect/src/components/OtpAuthForm.tsx", currentExports, nextExports);
+    if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+  });
+});
+
+//# sourceMappingURL=data:application/json;base64,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dUI7d0JBQUs5QixlQUFBO3dCQUFBQyxpQkFBQTt3QkFBQUMsdUJBQUE7d0JBQUFDLHVCQUFBO3dCQUFBQyx1QkFBQTt3QkFBQUMsdUJBQUE7d0JBQUFDLDBCQUFBO3dCQUNKUSxNQUFLO3dCQUNMaUIsU0FBUyxJQUFNbEgsU0FBUzt3QkFDeEIwRixXQUFVO2tDQUNaOzs7Ozs7Ozs7Ozs4QkFLRixRQUFDUjtvQkFBRUMsZUFBQTtvQkFBQUMsaUJBQUE7b0JBQUFDLHVCQUFBO29CQUFBQyx1QkFBQTtvQkFBQUMsdUJBQUE7b0JBQUFDLHVCQUFBO29CQUFBQywwQkFBQTtvQkFBRUMsV0FBVTs4QkFDYixzQkFBQ21CO3dCQUFBMUIsZUFBQTt3QkFBQUMsaUJBQUE7d0JBQUFDLHVCQUFBO3dCQUFBQyx1QkFBQTt3QkFBQUMsdUJBQUE7d0JBQUFDLHVCQUFBO3dCQUFBQywwQkFBQTt3QkFBRUMsV0FBVTtrQ0FBdUI7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFPOUM7R0FyV2dCM0Y7O1FBQ0dOOzs7S0FESE07QUF1V2hCLGVBQWVBLFlBQVciLCJuYW1lcyI6WyJ1c2VFZmZlY3QiLCJ1c2VTdGF0ZSIsInVzZU5hdmlnYXRlIiwic3VwYWJhc2UiLCJ0b2FzdCIsIkVUSElPUElBX0NPTlNUQU5UUyIsIkV5ZSIsIkV5ZU9mZiIsIk90cEF1dGhGb3JtIiwibmF2aWdhdGUiLCJwaG9uZU51bWJlciIsInNldFBob25lTnVtYmVyIiwicGluIiwic2V0UGluIiwic2hvd1BpbiIsInNldFNob3dQaW4iLCJsb2FkaW5nIiwic2V0TG9hZGluZyIsImlzT25saW5lIiwic2V0SXNPbmxpbmUiLCJuYXZpZ2F0b3IiLCJvbkxpbmUiLCJwaG9uZUVycm9yIiwic2V0UGhvbmVFcnJvciIsInVuZGVmaW5lZCIsInBpbkVycm9yIiwic2V0UGluRXJyb3IiLCJoYW5kbGVPbmxpbmUiLCJoYW5kbGVPZmZsaW5lIiwid2luZG93IiwiYWRkRXZlbnRMaXN0ZW5lciIsInJlbW92ZUV2ZW50TGlzdGVuZXIiLCJ2YWxpZGF0ZVBob25lIiwicGhvbmUiLCJjbGVhbmVkIiwicmVwbGFjZSIsIndpdGhvdXRMZWFkaW5nWmVybyIsInN0YXJ0c1dpdGgiLCJzbGljZSIsImxlbmd0aCIsIlBIT05FX1ZBTElEQVRJT04iLCJNSU5fTEVOR1RIIiwidmFsaWQiLCJlcnJvciIsInZhbGlkUHJlZml4ZXMiLCJTVEFSVFNfV0lUSCIsInN0YXJ0c1dpdGhWYWxpZCIsInNvbWUiLCJwcmVmaXgiLCJzaWduSW5XaXRoUGhvbmVQaW4iLCJtc2ciLCJkZXNjcmlwdGlvbiIsImluZm8iLCJlbWFpbCIsInBhc3N3b3JkIiwiZGF0YSIsInNpZ25JbkRhdGEiLCJzaWduSW5FcnJvciIsImF1dGgiLCJzaWduSW5XaXRoUGFzc3dvcmQiLCJjb25zb2xlIiwibG9nIiwibWVzc2FnZSIsImluY2x1ZGVzIiwic2lnblVwRGF0YSIsInNpZ25VcEVycm9yIiwic2lnblVwIiwib3B0aW9ucyIsImVtYWlsUmVkaXJlY3RUbyIsInJldHJ5U2lnbkluRXJyb3IiLCJzdWNjZXNzIiwic2V0VGltZW91dCIsInVzZXIiLCJwcm9maWxlRXJyb3IiLCJmcm9tIiwiaW5zZXJ0IiwiaWQiLCJmYXJtZXJfbmFtZSIsImZhcm1fbmFtZSIsImNyZWF0ZWRfYXQiLCJEYXRlIiwidG9JU09TdHJpbmciLCJ1cGRhdGVkX2F0IiwiYXV0aEVycm9yIiwiaGFuZGxlUGhvbmVDaGFuZ2UiLCJlIiwidmFsdWUiLCJ0YXJnZXQiLCJoYW5kbGVQaW5DaGFuZ2UiLCJoYW5kbGVTdWJtaXQiLCJwcmV2ZW50RGVmYXVsdCIsImRpdiIsImRhdGEtbG92LWlkIiwiZGF0YS1sb3YtbmFtZSIsImRhdGEtY29tcG9uZW50LXBhdGgiLCJkYXRhLWNvbXBvbmVudC1saW5lIiwiZGF0YS1jb21wb25lbnQtZmlsZSIsImRhdGEtY29tcG9uZW50LW5hbWUiLCJkYXRhLWNvbXBvbmVudC1jb250ZW50IiwiY2xhc3NOYW1lIiwiZm9ybSIsIm9uU3VibWl0IiwibGFiZWwiLCJodG1sRm9yIiwiUEhPTkVfQ09VTlRSWV9DT0RFIiwiaW5wdXQiLCJ0eXBlIiwiaW5wdXRNb2RlIiwicGF0dGVybiIsImF1dG9Db21wbGV0ZSIsIm9uQ2hhbmdlIiwicGxhY2Vob2xkZXIiLCJtYXhMZW5ndGgiLCJhcmlhLWludmFsaWQiLCJhcmlhLWRlc2NyaWJlZGJ5Iiwic3R5bGUiLCJtaW5IZWlnaHQiLCJhdXRvRm9jdXMiLCJwIiwiYXJpYS1saXZlIiwic3BhbiIsInJvbGUiLCJidXR0b24iLCJvbkNsaWNrIiwiYXJpYS1sYWJlbCIsInRhYkluZGV4IiwiYnIiLCJkaXNhYmxlZCIsImFyaWEtZGlzYWJsZWQiXSwiaWdub3JlTGlzdCI6W10sInNvdXJjZXMiOlsiT3RwQXV0aEZvcm0udHN4Il0sInNvdXJjZXNDb250ZW50IjpbIi8vIHNyYy9jb21wb25lbnRzL090cEF1dGhGb3JtLnRzeCAtIFBob25lICsgUElOIEF1dGhlbnRpY2F0aW9uIChFdGhpb3BpYSBPbmx5KVxuXG5pbXBvcnQgeyB1c2VFZmZlY3QsIHVzZVN0YXRlIH0gZnJvbSAncmVhY3QnO1xuaW1wb3J0IHsgdXNlTmF2aWdhdGUgfSBmcm9tICdyZWFjdC1yb3V0ZXItZG9tJztcbmltcG9ydCB7IHN1cGFiYXNlIH0gZnJvbSAnQC9pbnRlZ3JhdGlvbnMvc3VwYWJhc2UvY2xpZW50JztcbmltcG9ydCB7IHRvYXN0IH0gZnJvbSAnc29ubmVyJztcbmltcG9ydCB7IEVUSElPUElBX0NPTlNUQU5UUyB9IGZyb20gJ0AvY29uc3RhbnRzL2V0aGlvcGlhJztcbmltcG9ydCB7IEV5ZSwgRXllT2ZmIH0gZnJvbSAnbHVjaWRlLXJlYWN0JztcblxuZXhwb3J0IGZ1bmN0aW9uIE90cEF1dGhGb3JtKCkge1xuICBjb25zdCBuYXZpZ2F0ZSA9IHVzZU5hdmlnYXRlKCk7XG4gIGNvbnN0IFtwaG9uZU51bWJlciwgc2V0UGhvbmVOdW1iZXJdID0gdXNlU3RhdGUoJycpO1xuICBjb25zdCBbcGluLCBzZXRQaW5dID0gdXNlU3RhdGUoJycpO1xuICBjb25zdCBbc2hvd1Bpbiwgc2V0U2hvd1Bpbl0gPSB1c2VTdGF0ZSh0cnVlKTsgLy8gUElOIHZpc2libGUgYnkgZGVmYXVsdCAtIGZhcm1lcnMgbmVlZCB0byBzZWUgd2hhdCB0aGV5IHR5cGVcbiAgY29uc3QgW2xvYWRpbmcsIHNldExvYWRpbmddID0gdXNlU3RhdGUoZmFsc2UpO1xuICBjb25zdCBbaXNPbmxpbmUsIHNldElzT25saW5lXSA9IHVzZVN0YXRlPGJvb2xlYW4+KHR5cGVvZiBuYXZpZ2F0b3IgIT09ICd1bmRlZmluZWQnID8gbmF2aWdhdG9yLm9uTGluZSA6IHRydWUpO1xuICBjb25zdCBbcGhvbmVFcnJvciwgc2V0UGhvbmVFcnJvcl0gPSB1c2VTdGF0ZTxzdHJpbmcgfCB1bmRlZmluZWQ+KHVuZGVmaW5lZCk7XG4gIGNvbnN0IFtwaW5FcnJvciwgc2V0UGluRXJyb3JdID0gdXNlU3RhdGU8c3RyaW5nIHwgdW5kZWZpbmVkPih1bmRlZmluZWQpO1xuXG4gIC8vIExpZ2h0d2VpZ2h0IG9ubGluZS9vZmZsaW5lIGRldGVjdGlvbiBmb3IgRXRoaW9waWEncyBpbnRlcm1pdHRlbnQgY29ubmVjdGl2aXR5XG4gIHVzZUVmZmVjdCgoKSA9PiB7XG4gICAgY29uc3QgaGFuZGxlT25saW5lID0gKCkgPT4gc2V0SXNPbmxpbmUodHJ1ZSk7XG4gICAgY29uc3QgaGFuZGxlT2ZmbGluZSA9ICgpID0+IHNldElzT25saW5lKGZhbHNlKTtcbiAgICB3aW5kb3cuYWRkRXZlbnRMaXN0ZW5lcignb25saW5lJywgaGFuZGxlT25saW5lKTtcbiAgICB3aW5kb3cuYWRkRXZlbnRMaXN0ZW5lcignb2ZmbGluZScsIGhhbmRsZU9mZmxpbmUpO1xuICAgIHJldHVybiAoKSA9PiB7XG4gICAgICB3aW5kb3cucmVtb3ZlRXZlbnRMaXN0ZW5lcignb25saW5lJywgaGFuZGxlT25saW5lKTtcbiAgICAgIHdpbmRvdy5yZW1vdmVFdmVudExpc3RlbmVyKCdvZmZsaW5lJywgaGFuZGxlT2ZmbGluZSk7XG4gICAgfTtcbiAgfSwgW10pO1xuXG4gIC8vIENsZWFuIGFuZCB2YWxpZGF0ZSBFdGhpb3BpYW4gcGhvbmUgbnVtYmVyIHVzaW5nIGNvbnN0YW50c1xuICBjb25zdCB2YWxpZGF0ZVBob25lID0gKHBob25lOiBzdHJpbmcpOiB7IHZhbGlkOiBib29sZWFuOyBjbGVhbmVkOiBzdHJpbmc7IGVycm9yPzogc3RyaW5nIH0gPT4ge1xuICAgIC8vIFJlbW92ZSBhbGwgbm9uLWRpZ2l0c1xuICAgIGNvbnN0IGNsZWFuZWQgPSBwaG9uZS5yZXBsYWNlKC9cXEQvZywgJycpO1xuXG4gICAgLy8gUmVtb3ZlIGxlYWRpbmcgMCBpZiBwcmVzZW50ICgwOTExMjM0NTY3IOKGkiA5MTEyMzQ1NjcpXG4gICAgY29uc3Qgd2l0aG91dExlYWRpbmdaZXJvID0gY2xlYW5lZC5zdGFydHNXaXRoKCcwJykgPyBjbGVhbmVkLnNsaWNlKDEpIDogY2xlYW5lZDtcblxuICAgIC8vIFVzZSBFdGhpb3BpYSBjb25zdGFudHMgZm9yIHZhbGlkYXRpb25cbiAgICBpZiAod2l0aG91dExlYWRpbmdaZXJvLmxlbmd0aCAhPT0gRVRISU9QSUFfQ09OU1RBTlRTLlBIT05FX1ZBTElEQVRJT04uTUlOX0xFTkdUSCkge1xuICAgICAgcmV0dXJuIHsgdmFsaWQ6IGZhbHNlLCBjbGVhbmVkOiB3aXRob3V0TGVhZGluZ1plcm8sIGVycm9yOiAn4Yi14YiN4YqtIOGJgeGMpeGIrSA5IOGKoOGIg+GLnuGJvSDhiJjhiIbhipUg4Yqg4YiI4Ymg4Ym1IC8gUGhvbmUgbXVzdCBiZSA5IGRpZ2l0cycgfTtcbiAgICB9XG5cbiAgICAvLyBNdXN0IHN0YXJ0IHdpdGggOSBvciA3IChFdGhpb3BpYW4gbW9iaWxlIG51bWJlcnMpXG4gICAgY29uc3QgdmFsaWRQcmVmaXhlcyA9IEVUSElPUElBX0NPTlNUQU5UUy5QSE9ORV9WQUxJREFUSU9OLlNUQVJUU19XSVRIO1xuICAgIGNvbnN0IHN0YXJ0c1dpdGhWYWxpZCA9IHZhbGlkUHJlZml4ZXMuc29tZShwcmVmaXggPT4gd2l0aG91dExlYWRpbmdaZXJvLnN0YXJ0c1dpdGgocHJlZml4KSk7XG4gICAgaWYgKCFzdGFydHNXaXRoVmFsaWQpIHtcbiAgICAgIHJldHVybiB7IHZhbGlkOiBmYWxzZSwgY2xlYW5lZDogd2l0aG91dExlYWRpbmdaZXJvLCBlcnJvcjogJ+GIteGIjeGKrSDhiYHhjKXhiK0g4YmgIDkg4YuI4Yut4YidIDcg4YiY4YyA4YiY4YitIOGKoOGIiOGJoOGJtSAvIFBob25lIG11c3Qgc3RhcnQgd2l0aCA5IG9yIDcnIH07XG4gICAgfVxuXG4gICAgcmV0dXJuIHsgdmFsaWQ6IHRydWUsIGNsZWFuZWQ6IHdpdGhvdXRMZWFkaW5nWmVybyB9O1xuICB9O1xuXG4gIGNvbnN0IHNpZ25JbldpdGhQaG9uZVBpbiA9IGFzeW5jICgpID0+IHtcbiAgICBzZXRMb2FkaW5nKHRydWUpO1xuICAgIHRyeSB7XG4gICAgICAvLyBWYWxpZGF0ZSBwaG9uZSBudW1iZXJcbiAgICAgIGNvbnN0IHsgdmFsaWQsIGNsZWFuZWQsIGVycm9yIH0gPSB2YWxpZGF0ZVBob25lKHBob25lTnVtYmVyKTtcbiAgICAgIGlmICghdmFsaWQpIHtcbiAgICAgICAgc2V0UGhvbmVFcnJvcihlcnJvcik7XG4gICAgICAgIHRvYXN0LmVycm9yKGVycm9yIHx8ICdJbnZhbGlkIHBob25lIG51bWJlcicpO1xuICAgICAgICBzZXRMb2FkaW5nKGZhbHNlKTtcbiAgICAgICAgcmV0dXJuO1xuICAgICAgfVxuXG4gICAgICAvLyBWYWxpZGF0ZSBQSU5cbiAgICAgIGlmIChwaW4ubGVuZ3RoIDwgNikge1xuICAgICAgICBjb25zdCBtc2cgPSAn4Y2S4YqVIOGJoOGMo+GInSDhiqDhjK3hiK0g4YqQ4YuNIC8gUElOIHRvbyBzaG9ydCc7XG4gICAgICAgIHNldFBpbkVycm9yKG1zZyk7XG4gICAgICAgIHRvYXN0LmVycm9yKG1zZywge1xuICAgICAgICAgIGRlc2NyaXB0aW9uOiAnUElOIG11c3QgYmUgYXQgbGVhc3QgNiBkaWdpdHMnXG4gICAgICAgIH0pO1xuICAgICAgICBzZXRMb2FkaW5nKGZhbHNlKTtcbiAgICAgICAgcmV0dXJuO1xuICAgICAgfVxuXG4gICAgICAvLyBCbG9jayBpbnRlcmFjdGl2ZSBhdXRoIHdoZW4gb2ZmbGluZTsgc2hvdyBmcmllbmRseSBndWlkYW5jZVxuICAgICAgaWYgKCFpc09ubGluZSkge1xuICAgICAgICB0b2FzdC5pbmZvKCdPZmZsaW5lIG1vZGU6IFlvdSBjYW4gYnJvd3NlLCBidXQgbG9naW4gbmVlZHMgaW50ZXJuZXQuJywge1xuICAgICAgICAgIGRlc2NyaXB0aW9uOiAn4Yuo4YiY4YyN4Ymj4Ym1IOGIguGLsOGJtSDhiqLhipXhibDhiK3hipThibUg4Yur4Yi14Y2I4YiN4YyL4YiNIC8gTG9naW4gcmVxdWlyZXMgY29ubmVjdGl2aXR5J1xuICAgICAgICB9KTtcbiAgICAgICAgc2V0TG9hZGluZyhmYWxzZSk7XG4gICAgICAgIHJldHVybjtcbiAgICAgIH1cblxuICAgICAgLy8gQ3JlYXRlIGVtYWlsIGZvcm1hdCBmcm9tIHBob25lOiA5MTEyMzQ1NjdAZXRoaW9oZXJkLmFwcFxuICAgICAgY29uc3QgZW1haWwgPSBgJHtjbGVhbmVkfUBldGhpb2hlcmQuYXBwYDtcbiAgICAgIGNvbnN0IHBhc3N3b3JkID0gcGluO1xuXG4gICAgICAvLyBFbmhhbmNlZCBlcnJvciBoYW5kbGluZyBmb3IgYXV0aGVudGljYXRpb25cbiAgICAgIHRyeSB7XG4gICAgICAgIC8vIFRyeSB0byBzaWduIGluIGZpcnN0XG4gICAgICAgIGNvbnN0IHsgZGF0YTogc2lnbkluRGF0YSwgZXJyb3I6IHNpZ25JbkVycm9yIH0gPSBhd2FpdCBzdXBhYmFzZS5hdXRoLnNpZ25JbldpdGhQYXNzd29yZCh7XG4gICAgICAgICAgZW1haWw6IGVtYWlsLFxuICAgICAgICAgIHBhc3N3b3JkOiBwYXNzd29yZCxcbiAgICAgICAgfSk7XG5cbiAgICAgICAgaWYgKHNpZ25JbkVycm9yKSB7XG4gICAgICAgICAgY29uc29sZS5sb2coJ1NpZ24gaW4gZXJyb3I6Jywgc2lnbkluRXJyb3IubWVzc2FnZSk7XG4gICAgICAgICAgXG4gICAgICAgICAgLy8gSWYgdXNlciBkb2Vzbid0IGV4aXN0LCBjcmVhdGUgYWNjb3VudFxuICAgICAgICAgIGlmIChzaWduSW5FcnJvci5tZXNzYWdlLmluY2x1ZGVzKCdJbnZhbGlkIGxvZ2luIGNyZWRlbnRpYWxzJykgfHxcbiAgICAgICAgICAgICAgc2lnbkluRXJyb3IubWVzc2FnZS5pbmNsdWRlcygnRW1haWwgbm90IGNvbmZpcm1lZCcpKSB7XG4gICAgICAgICAgICBcbiAgICAgICAgICAgIGNvbnNvbGUubG9nKCdDcmVhdGluZyBuZXcgYWNjb3VudC4uLicpO1xuICAgICAgICAgICAgY29uc3QgeyBkYXRhOiBzaWduVXBEYXRhLCBlcnJvcjogc2lnblVwRXJyb3IgfSA9IGF3YWl0IHN1cGFiYXNlLmF1dGguc2lnblVwKHtcbiAgICAgICAgICAgICAgZW1haWw6IGVtYWlsLFxuICAgICAgICAgICAgICBwYXNzd29yZDogcGFzc3dvcmQsXG4gICAgICAgICAgICAgIG9wdGlvbnM6IHtcbiAgICAgICAgICAgICAgICBlbWFpbFJlZGlyZWN0VG86IHVuZGVmaW5lZCwgLy8gU2tpcCBlbWFpbCBjb25maXJtYXRpb25cbiAgICAgICAgICAgICAgfVxuICAgICAgICAgICAgfSk7XG5cbiAgICAgICAgICAgIGlmIChzaWduVXBFcnJvcikge1xuICAgICAgICAgICAgICBjb25zb2xlLmVycm9yKCdTaWduIHVwIGVycm9yOicsIHNpZ25VcEVycm9yKTtcbiAgICAgICAgICAgICAgXG4gICAgICAgICAgICAgIC8vIElmIHVzZXIgYWxyZWFkeSBleGlzdHMsIHRyeSB0byBzaWduIGluIGFnYWluXG4gICAgICAgICAgICAgIGlmIChzaWduVXBFcnJvci5tZXNzYWdlLmluY2x1ZGVzKCdhbHJlYWR5IHJlZ2lzdGVyZWQnKSkge1xuICAgICAgICAgICAgICAgIGNvbnN0IHsgZXJyb3I6IHJldHJ5U2lnbkluRXJyb3IgfSA9IGF3YWl0IHN1cGFiYXNlLmF1dGguc2lnbkluV2l0aFBhc3N3b3JkKHtcbiAgICAgICAgICAgICAgICAgIGVtYWlsOiBlbWFpbCxcbiAgICAgICAgICAgICAgICAgIHBhc3N3b3JkOiBwYXNzd29yZCxcbiAgICAgICAgICAgICAgICB9KTtcbiAgICAgICAgICAgICAgICBcbiAgICAgICAgICAgICAgICBpZiAoIXJldHJ5U2lnbkluRXJyb3IpIHtcbiAgICAgICAgICAgICAgICAgIHRvYXN0LnN1Y2Nlc3MoJ+KckyDhiqXhipXhirPhipUg4Yuw4YiF4YqTIOGImOGMoSEgLyBXZWxjb21lIGJhY2shJywge1xuICAgICAgICAgICAgICAgICAgICBkZXNjcmlwdGlvbjogYFBob25lOiArMjUxJHtjbGVhbmVkfWBcbiAgICAgICAgICAgICAgICAgIH0pO1xuICAgICAgICAgICAgICAgICAgc2V0VGltZW91dCgoKSA9PiBuYXZpZ2F0ZSgnLycsIHsgcmVwbGFjZTogdHJ1ZSB9KSwgNTAwKTtcbiAgICAgICAgICAgICAgICAgIHJldHVybjtcbiAgICAgICAgICAgICAgICB9XG4gICAgICAgICAgICAgIH1cbiAgICAgICAgICAgICAgdGhyb3cgc2lnblVwRXJyb3I7XG4gICAgICAgICAgICB9XG5cbiAgICAgICAgICAgIC8vIEF1dG8tY3JlYXRlIHByb2ZpbGUgZm9yIG5ldyB1c2VyXG4gICAgICAgICAgICBpZiAoc2lnblVwRGF0YS51c2VyKSB7XG4gICAgICAgICAgICAgIGNvbnN0IHsgZXJyb3I6IHByb2ZpbGVFcnJvciB9ID0gYXdhaXQgc3VwYWJhc2VcbiAgICAgICAgICAgICAgICAuZnJvbSgncHJvZmlsZXMnIGFzIGFueSlcbiAgICAgICAgICAgICAgICAuaW5zZXJ0KHtcbiAgICAgICAgICAgICAgICAgIGlkOiBzaWduVXBEYXRhLnVzZXIuaWQsXG4gICAgICAgICAgICAgICAgICBwaG9uZTogY2xlYW5lZCwgLy8gU3RvcmUgbG9jYWwgZm9ybWF0OyBvbmJvYXJkaW5nIGNhbiB1cGRhdGVcbiAgICAgICAgICAgICAgICAgIGZhcm1lcl9uYW1lOiAnRmFybWVyJywgLy8gRGVmYXVsdCBuYW1lIHJlcXVpcmVkIG9ubHlcbiAgICAgICAgICAgICAgICAgIGZhcm1fbmFtZTogbnVsbCwgLy8gT3B0aW9uYWwgZmllbGRcbiAgICAgICAgICAgICAgICAgIGNyZWF0ZWRfYXQ6IG5ldyBEYXRlKCkudG9JU09TdHJpbmcoKSxcbiAgICAgICAgICAgICAgICAgIHVwZGF0ZWRfYXQ6IG5ldyBEYXRlKCkudG9JU09TdHJpbmcoKVxuICAgICAgICAgICAgICAgIH0pO1xuXG4gICAgICAgICAgICAgIGlmIChwcm9maWxlRXJyb3IpIHtcbiAgICAgICAgICAgICAgICBjb25zb2xlLmVycm9yKCdQcm9maWxlIGNyZWF0aW9uIGVycm9yOicsIHByb2ZpbGVFcnJvcik7XG4gICAgICAgICAgICAgICAgLy8gRG9uJ3QgdGhyb3cgLSB1c2VyIGNhbiBzdGlsbCBjb21wbGV0ZSBvbmJvYXJkaW5nXG4gICAgICAgICAgICAgIH1cbiAgICAgICAgICAgIH1cblxuICAgICAgICAgICAgdG9hc3Quc3VjY2Vzcygn4pyTIOGImOGIiOGLqyDhibDhjYjhjKXhiK/hiI0hIC8gQWNjb3VudCBjcmVhdGVkIScsIHtcbiAgICAgICAgICAgICAgZGVzY3JpcHRpb246IGBXZWxjb21lISBQaG9uZTogKzI1MSR7Y2xlYW5lZH1gXG4gICAgICAgICAgICB9KTtcbiAgICAgICAgICAgIFxuICAgICAgICAgICAgLy8gTmF2aWdhdGUgYWZ0ZXIgc3VjY2Vzc2Z1bCBzaWdudXBcbiAgICAgICAgICAgIHNldFRpbWVvdXQoKCkgPT4ge1xuICAgICAgICAgICAgICBuYXZpZ2F0ZSgnLycsIHsgcmVwbGFjZTogdHJ1ZSB9KTtcbiAgICAgICAgICAgIH0sIDUwMCk7XG4gICAgICAgICAgfSBlbHNlIHtcbiAgICAgICAgICAgIHRocm93IHNpZ25JbkVycm9yO1xuICAgICAgICAgIH1cbiAgICAgICAgfSBlbHNlIHtcbiAgICAgICAgICB0b2FzdC5zdWNjZXNzKCfinJMg4Yql4YqV4Yqz4YqVIOGLsOGIheGKkyDhiJjhjKEhIC8gV2VsY29tZSBiYWNrIScsIHtcbiAgICAgICAgICAgIGRlc2NyaXB0aW9uOiBgUGhvbmU6ICsyNTEke2NsZWFuZWR9YFxuICAgICAgICAgIH0pO1xuICAgICAgICAgIFxuICAgICAgICAgIC8vIE5hdmlnYXRlIGFmdGVyIHN1Y2Nlc3NmdWwgbG9naW5cbiAgICAgICAgICBzZXRUaW1lb3V0KCgpID0+IHtcbiAgICAgICAgICAgIG5hdmlnYXRlKCcvJywgeyByZXBsYWNlOiB0cnVlIH0pO1xuICAgICAgICAgIH0sIDUwMCk7XG4gICAgICAgIH1cbiAgICAgIH0gY2F0Y2ggKGF1dGhFcnJvcjogYW55KSB7XG4gICAgICAgIGNvbnNvbGUuZXJyb3IoJ0F1dGhlbnRpY2F0aW9uIGVycm9yOicsIGF1dGhFcnJvcik7XG4gICAgICAgIHRocm93IGF1dGhFcnJvcjtcbiAgICAgIH1cbiAgICB9IGNhdGNoIChlcnJvcjogYW55KSB7XG4gICAgICBjb25zb2xlLmVycm9yKCdMb2dpbiBlcnJvcjonLCBlcnJvcik7XG4gICAgICB0b2FzdC5lcnJvcign4YiY4YyN4Ymj4Ym1IOGKoOGIjeGJsOGJu+GIiOGInSAvIExvZ2luIGZhaWxlZCcsIHtcbiAgICAgICAgZGVzY3JpcHRpb246IGVycm9yLm1lc3NhZ2UgfHwgJ1BsZWFzZSB0cnkgYWdhaW4nXG4gICAgICB9KTtcbiAgICB9IGZpbmFsbHkge1xuICAgICAgc2V0TG9hZGluZyhmYWxzZSk7XG4gICAgfVxuICB9O1xuXG4gIC8vIEhhbmRsZSBwaG9uZSBpbnB1dCAtIG9ubHkgYWxsb3cgZGlnaXRzLCBtYXggOVxuICBjb25zdCBoYW5kbGVQaG9uZUNoYW5nZSA9IChlOiBSZWFjdC5DaGFuZ2VFdmVudDxIVE1MSW5wdXRFbGVtZW50PikgPT4ge1xuICAgIGNvbnN0IHZhbHVlID0gZS50YXJnZXQudmFsdWUucmVwbGFjZSgvXFxEL2csICcnKS5zbGljZSgwLCA5KTsgLy8gT25seSBkaWdpdHMsIG1heCA5XG4gICAgc2V0UGhvbmVOdW1iZXIodmFsdWUpO1xuICAgIHNldFBob25lRXJyb3IodW5kZWZpbmVkKTtcbiAgfTtcblxuICAvLyBIYW5kbGUgUElOIGlucHV0IC0gb25seSBhbGxvdyBkaWdpdHNcbiAgY29uc3QgaGFuZGxlUGluQ2hhbmdlID0gKGU6IFJlYWN0LkNoYW5nZUV2ZW50PEhUTUxJbnB1dEVsZW1lbnQ+KSA9PiB7XG4gICAgY29uc3QgdmFsdWUgPSBlLnRhcmdldC52YWx1ZS5yZXBsYWNlKC9cXEQvZywgJycpOyAvLyBPbmx5IGRpZ2l0c1xuICAgIHNldFBpbih2YWx1ZSk7XG4gICAgc2V0UGluRXJyb3IodW5kZWZpbmVkKTtcbiAgfTtcblxuICAvLyBGb3JtIHN1Ym1pc3Npb24gaGFuZGxlciB3aXRoIHZhbGlkYXRpb25cbiAgY29uc3QgaGFuZGxlU3VibWl0ID0gYXN5bmMgKGU6IFJlYWN0LkZvcm1FdmVudCkgPT4ge1xuICAgIGUucHJldmVudERlZmF1bHQoKTtcbiAgICBcbiAgICBpZiAobG9hZGluZykgcmV0dXJuO1xuICAgIFxuICAgIC8vIFZhbGlkYXRlIHBob25lIG51bWJlclxuICAgIGlmIChwaG9uZU51bWJlci5sZW5ndGggIT09IDkpIHtcbiAgICAgIHNldFBob25lRXJyb3IoJ+GIteGIjeGKrSDhiYHhjKXhiK0gOSDhiqDhiIPhi57hib0g4YiY4YiG4YqVIOGKoOGIiOGJoOGJtSAvIFBob25lIG11c3QgYmUgZXhhY3RseSA5IGRpZ2l0cycpO1xuICAgICAgdG9hc3QuZXJyb3IoJ1BsZWFzZSBlbnRlciBleGFjdGx5IDkgZGlnaXRzIGZvciBwaG9uZSBudW1iZXInKTtcbiAgICAgIHJldHVybjtcbiAgICB9XG4gICAgXG4gICAgLy8gRXRoaW9waWFuIHBob25lIG51bWJlcnMgc3RhcnQgd2l0aCA3IChTYWZhcmljb20pIG9yIDkgKEV0aGlvIFRlbGVjb20pXG4gICAgaWYgKCFwaG9uZU51bWJlci5zdGFydHNXaXRoKCc3JykgJiYgIXBob25lTnVtYmVyLnN0YXJ0c1dpdGgoJzknKSkge1xuICAgICAgc2V0UGhvbmVFcnJvcign4Yi14YiN4YqtIOGJgeGMpeGIrSDhiaAgNyDhi4jhi63hiJ0g4YmgIDkg4YiY4YyA4YiY4YitIOGKoOGIiOGJoOGJtSAvIFBob25lIG11c3Qgc3RhcnQgd2l0aCA3IG9yIDknKTtcbiAgICAgIHRvYXN0LmVycm9yKCdQaG9uZSBudW1iZXIgbXVzdCBzdGFydCB3aXRoIDcgb3IgOScpO1xuICAgICAgcmV0dXJuO1xuICAgIH1cbiAgICBcbiAgICAvLyBWYWxpZGF0ZSBQSU5cbiAgICBpZiAocGluLmxlbmd0aCA8IDYpIHtcbiAgICAgIHNldFBpbkVycm9yKCfhjZLhipUg4Ymi4Yur4YqV4Yi1IDYg4Yqg4YiD4Yue4Ym9IOGImOGIhuGKlSDhiqDhiIjhiaDhibUgLyBQSU4gbXVzdCBiZSBhdCBsZWFzdCA2IGRpZ2l0cycpO1xuICAgICAgdG9hc3QuZXJyb3IoJ1BJTiBtdXN0IGJlIGF0IGxlYXN0IDYgZGlnaXRzJyk7XG4gICAgICByZXR1cm47XG4gICAgfVxuICAgIFxuICAgIC8vIEFsbCB2YWxpZGF0aW9ucyBwYXNzZWQsIHByb2NlZWQgd2l0aCBsb2dpblxuICAgIGF3YWl0IHNpZ25JbldpdGhQaG9uZVBpbigpO1xuICB9O1xuXG4gIHJldHVybiAoXG4gICAgPGRpdiBjbGFzc05hbWU9XCJ3LWZ1bGxcIj5cbiAgICAgIDxmb3JtIGNsYXNzTmFtZT1cInNwYWNlLXktNlwiIG9uU3VibWl0PXtoYW5kbGVTdWJtaXR9PlxuICAgICAgICA8ZGl2PlxuICAgICAgICAgIDxsYWJlbCBodG1sRm9yPVwicGhvbmUtaW5wdXRcIiBjbGFzc05hbWU9XCJibG9jayB0ZXh0LWJhc2UgZm9udC1tZWRpdW0gbWItMiB0ZXh0LWdyYXktODAwXCI+XG4gICAgICAgICAgICDhiLXhiI3hiq0g4YmB4Yyl4YitIC8gUGhvbmUgTnVtYmVyXG4gICAgICAgICAgPC9sYWJlbD5cbiAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIGdhcC0yXCI+XG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZsZXggaXRlbXMtY2VudGVyIGJnLWdyYXktMTAwIHB4LTMgcHktMyBib3JkZXItMiBib3JkZXItZ3JheS0zMDAgcm91bmRlZC1sZyB0ZXh0LWxnIGZvbnQtbWVkaXVtIHRleHQtZ3JheS03MDAgc2VsZWN0LW5vbmVcIj5cbiAgICAgICAgICAgICAge0VUSElPUElBX0NPTlNUQU5UUy5QSE9ORV9DT1VOVFJZX0NPREV9XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDxpbnB1dFxuICAgICAgICAgICAgICBpZD1cInBob25lLWlucHV0XCJcbiAgICAgICAgICAgICAgdHlwZT1cInRlbFwiXG4gICAgICAgICAgICAgIGlucHV0TW9kZT1cIm51bWVyaWNcIlxuICAgICAgICAgICAgICBwYXR0ZXJuPVwiWzAtOV0qXCJcbiAgICAgICAgICAgICAgYXV0b0NvbXBsZXRlPVwidGVsLW5hdGlvbmFsXCJcbiAgICAgICAgICAgICAgdmFsdWU9e3Bob25lTnVtYmVyfVxuICAgICAgICAgICAgICBvbkNoYW5nZT17aGFuZGxlUGhvbmVDaGFuZ2V9XG4gICAgICAgICAgICAgIHBsYWNlaG9sZGVyPVwiOTExMjM0NTY3XCJcbiAgICAgICAgICAgICAgbWF4TGVuZ3RoPXs5fVxuICAgICAgICAgICAgICBhcmlhLWludmFsaWQ9eyEhcGhvbmVFcnJvcn1cbiAgICAgICAgICAgICAgYXJpYS1kZXNjcmliZWRieT1cInBob25lLWhlbHBcIlxuICAgICAgICAgICAgICBjbGFzc05hbWU9XCJmbGV4LTEgcHgtNCBweS0zIGJvcmRlci0yIGJvcmRlci1ncmF5LTMwMCByb3VuZGVkLWxnIGZvY3VzOm91dGxpbmUtbm9uZSBmb2N1czpib3JkZXItZ3JlZW4tNjAwIHRleHQtbGcgbGVhZGluZy02IHBsYWNlaG9sZGVyOnRleHQtZ3JheS00MDBcIlxuICAgICAgICAgICAgICBzdHlsZT17eyBtaW5IZWlnaHQ6ICc0OHB4JyB9fVxuICAgICAgICAgICAgICBhdXRvRm9jdXNcbiAgICAgICAgICAgIC8+XG4gICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJmbGV4IGp1c3RpZnktYmV0d2VlbiBpdGVtcy1jZW50ZXIgbXQtMlwiPlxuICAgICAgICAgICAgPHAgaWQ9XCJwaG9uZS1oZWxwXCIgY2xhc3NOYW1lPVwidGV4dC1zbSB0ZXh0LWdyYXktNjAwXCIgYXJpYS1saXZlPVwicG9saXRlXCI+XG4gICAgICAgICAgICAgIDkg4Yqg4YiD4Yue4Ym9ICg5IOGLiOGLreGInSA3IOGLreGMgOGIneGIrSkgLyBFbnRlciA5IGRpZ2l0cyAoZS5nLiwgOTExMjM0NTY3KVxuICAgICAgICAgICAgPC9wPlxuICAgICAgICAgICAgPHNwYW4gY2xhc3NOYW1lPXtgdGV4dC1zbSBmb250LW1lZGl1bSAke1xuICAgICAgICAgICAgICBwaG9uZU51bWJlci5sZW5ndGggPT09IDkgPyAndGV4dC1ncmVlbi02MDAnIDogJ3RleHQtZ3JheS01MDAnXG4gICAgICAgICAgICB9YH0+XG4gICAgICAgICAgICAgIHtwaG9uZU51bWJlci5sZW5ndGh9LzlcbiAgICAgICAgICAgIDwvc3Bhbj5cbiAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICB7cGhvbmVFcnJvciAmJiAoXG4gICAgICAgICAgICA8cCBjbGFzc05hbWU9XCJ0ZXh0LXNtIHRleHQtcmVkLTYwMCBtdC0xXCIgcm9sZT1cImFsZXJ0XCI+e3Bob25lRXJyb3J9PC9wPlxuICAgICAgICAgICl9XG4gICAgICAgIDwvZGl2PlxuXG4gICAgICAgIDxkaXY+XG4gICAgICAgICAgPGxhYmVsIGh0bWxGb3I9XCJwaW4taW5wdXRcIiBjbGFzc05hbWU9XCJibG9jayB0ZXh0LWJhc2UgZm9udC1tZWRpdW0gbWItMiB0ZXh0LWdyYXktODAwXCI+XG4gICAgICAgICAgICDhjZLhipUgLyBQSU5cbiAgICAgICAgICA8L2xhYmVsPlxuICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwicmVsYXRpdmVcIj5cbiAgICAgICAgICAgIDxpbnB1dFxuICAgICAgICAgICAgICBpZD1cInBpbi1pbnB1dFwiXG4gICAgICAgICAgICAgIHR5cGU9e3Nob3dQaW4gPyBcInRleHRcIiA6IFwicGFzc3dvcmRcIn1cbiAgICAgICAgICAgICAgaW5wdXRNb2RlPVwibnVtZXJpY1wiXG4gICAgICAgICAgICAgIHBhdHRlcm49XCJbMC05XSpcIlxuICAgICAgICAgICAgICBhdXRvQ29tcGxldGU9XCJjdXJyZW50LXBhc3N3b3JkXCJcbiAgICAgICAgICAgICAgdmFsdWU9e3Bpbn1cbiAgICAgICAgICAgICAgb25DaGFuZ2U9e2hhbmRsZVBpbkNoYW5nZX1cbiAgICAgICAgICAgICAgcGxhY2Vob2xkZXI9XCLigKLigKLigKLigKLigKLigKJcIlxuICAgICAgICAgICAgICBtYXhMZW5ndGg9ezZ9XG4gICAgICAgICAgICAgIGFyaWEtaW52YWxpZD17ISFwaW5FcnJvcn1cbiAgICAgICAgICAgICAgYXJpYS1kZXNjcmliZWRieT1cInBpbi1oZWxwXCJcbiAgICAgICAgICAgICAgY2xhc3NOYW1lPVwidy1mdWxsIHB4LTQgcHktMyBwci0xMiBib3JkZXItMiBib3JkZXItZ3JheS0zMDAgcm91bmRlZC1sZyBmb2N1czpvdXRsaW5lLW5vbmUgZm9jdXM6Ym9yZGVyLWdyZWVuLTYwMCB0ZXh0LWxnIGxlYWRpbmctNiB0ZXh0LWNlbnRlciB0cmFja2luZy13aWRlc3QgcGxhY2Vob2xkZXI6dGV4dC1ncmF5LTQwMFwiXG4gICAgICAgICAgICAgIHN0eWxlPXt7IG1pbkhlaWdodDogJzQ4cHgnIH19XG4gICAgICAgICAgICAvPlxuICAgICAgICAgICAgPGJ1dHRvblxuICAgICAgICAgICAgICB0eXBlPVwiYnV0dG9uXCJcbiAgICAgICAgICAgICAgb25DbGljaz17KCkgPT4gc2V0U2hvd1Bpbighc2hvd1Bpbil9XG4gICAgICAgICAgICAgIGNsYXNzTmFtZT1cImFic29sdXRlIHJpZ2h0LTMgdG9wLTEvMiAtdHJhbnNsYXRlLXktMS8yIHAtMiB0ZXh0LWdyYXktNTAwIGhvdmVyOnRleHQtZ3JheS03MDAgZm9jdXM6b3V0bGluZS1ub25lIGZvY3VzOnJpbmctMiBmb2N1czpyaW5nLWdyZWVuLTUwMCByb3VuZGVkXCJcbiAgICAgICAgICAgICAgYXJpYS1sYWJlbD17c2hvd1BpbiA/IFwiSGlkZSBQSU5cIiA6IFwiU2hvdyBQSU5cIn1cbiAgICAgICAgICAgICAgdGFiSW5kZXg9ey0xfVxuICAgICAgICAgICAgPlxuICAgICAgICAgICAgICB7c2hvd1BpbiA/IDxFeWVPZmYgY2xhc3NOYW1lPVwidy01IGgtNVwiIC8+IDogPEV5ZSBjbGFzc05hbWU9XCJ3LTUgaC01XCIgLz59XG4gICAgICAgICAgICA8L2J1dHRvbj5cbiAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImZsZXgganVzdGlmeS1iZXR3ZWVuIGl0ZW1zLWNlbnRlciBtdC0yXCI+XG4gICAgICAgICAgICA8cCBpZD1cInBpbi1oZWxwXCIgY2xhc3NOYW1lPVwidGV4dC1zbSB0ZXh0LWdyYXktNjAwXCIgYXJpYS1saXZlPVwicG9saXRlXCI+XG4gICAgICAgICAgICAgIOGJouGLq+GKleGItSA2IOGKoOGIg+GLnuGJvSAvIEF0IGxlYXN0IDYgZGlnaXRzXG4gICAgICAgICAgICA8L3A+XG4gICAgICAgICAgICA8c3BhbiBjbGFzc05hbWU9e2B0ZXh0LXNtIGZvbnQtbWVkaXVtICR7XG4gICAgICAgICAgICAgIHBpbi5sZW5ndGggPj0gNiA/ICd0ZXh0LWdyZWVuLTYwMCcgOiAndGV4dC1ncmF5LTUwMCdcbiAgICAgICAgICAgIH1gfT5cbiAgICAgICAgICAgICAge3Bpbi5sZW5ndGh9LzZcbiAgICAgICAgICAgIDwvc3Bhbj5cbiAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICB7cGluRXJyb3IgJiYgKFxuICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1zbSB0ZXh0LXJlZC02MDAgbXQtMVwiIHJvbGU9XCJhbGVydFwiPntwaW5FcnJvcn08L3A+XG4gICAgICAgICAgKX1cbiAgICAgICAgPC9kaXY+XG5cbiAgICAgICAgeyFpc09ubGluZSAmJiAoXG4gICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJiZy15ZWxsb3ctNTAgYm9yZGVyIGJvcmRlci15ZWxsb3ctMjAwIHJvdW5kZWQtbGcgcC0zXCIgcm9sZT1cInN0YXR1c1wiIGFyaWEtbGl2ZT1cInBvbGl0ZVwiPlxuICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1zbSB0ZXh0LXllbGxvdy04MDBcIj5cbiAgICAgICAgICAgICAg4pqg77iPIE9mZmxpbmUgbW9kZTogWW91IGNhbiBicm93c2UsIGJ1dCBsb2dpbiBuZWVkcyBpbnRlcm5ldC5cbiAgICAgICAgICAgICAgPGJyIC8+IOGLqOGImOGMjeGJo+GJtSDhiILhi7DhibUg4Yqi4YqV4Ymw4Yit4YqU4Ym1IOGLq+GIteGNiOGIjeGMi+GIjVxuICAgICAgICAgICAgPC9wPlxuICAgICAgICAgIDwvZGl2PlxuICAgICAgICApfVxuXG4gICAgICAgIDxidXR0b25cbiAgICAgICAgICB0eXBlPVwic3VibWl0XCJcbiAgICAgICAgICBkaXNhYmxlZD17bG9hZGluZyB8fCAhaXNPbmxpbmV9XG4gICAgICAgICAgYXJpYS1kaXNhYmxlZD17bG9hZGluZyB8fCAhaXNPbmxpbmV9XG4gICAgICAgICAgY2xhc3NOYW1lPXtgdy1mdWxsIHB5LTQgcm91bmRlZC1sZyBmb250LWJvbGQgdGV4dC1sZyB0cmFuc2l0aW9uLWNvbG9ycyBzaGFkb3ctbWQgZm9jdXMtdmlzaWJsZTpvdXRsaW5lLW5vbmUgZm9jdXMtdmlzaWJsZTpyaW5nLTIgZm9jdXMtdmlzaWJsZTpyaW5nLW9mZnNldC0yIGZvY3VzLXZpc2libGU6cmluZy1ncmVlbi02MDAgJHtcbiAgICAgICAgICAgIHBob25lTnVtYmVyLmxlbmd0aCA9PT0gOSAmJiBwaW4ubGVuZ3RoID49IDZcbiAgICAgICAgICAgICAgPyAnYmctZ3JlZW4tNjAwIHRleHQtd2hpdGUgaG92ZXI6YmctZ3JlZW4tNzAwIGN1cnNvci1wb2ludGVyJ1xuICAgICAgICAgICAgICA6ICdiZy1ncmF5LTMwMCB0ZXh0LWdyYXktNTAwIGN1cnNvci1ub3QtYWxsb3dlZCdcbiAgICAgICAgICB9YH1cbiAgICAgICAgICBzdHlsZT17eyBtaW5IZWlnaHQ6ICc1NnB4JyB9fVxuICAgICAgICA+XG4gICAgICAgICAge2xvYWRpbmcgPyAn4Yql4Ymj4Yqt4YuOIOGLreGMoOGJpeGJgS4uLiAvIFBsZWFzZSB3YWl0Li4uJyA6IFxuICAgICAgICAgICBwaG9uZU51bWJlci5sZW5ndGggPCA5ID8gYEVudGVyICR7OSAtIHBob25lTnVtYmVyLmxlbmd0aH0gbW9yZSBkaWdpdHNgIDpcbiAgICAgICAgICAgcGluLmxlbmd0aCA8IDYgPyBgUElOIG5lZWRzICR7NiAtIHBpbi5sZW5ndGh9IG1vcmUgZGlnaXRzYCA6XG4gICAgICAgICAgICfinJMg4YyN4YmjIC8gTG9naW4nfVxuICAgICAgICAgPC9idXR0b24+XG5cbiAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJ0ZXh0LWNlbnRlclwiPlxuICAgICAgICAgIDxidXR0b24gXG4gICAgICAgICAgICB0eXBlPVwiYnV0dG9uXCJcbiAgICAgICAgICAgIG9uQ2xpY2s9eygpID0+IG5hdmlnYXRlKCcvZm9yZ290LXBhc3N3b3JkJyl9XG4gICAgICAgICAgICBjbGFzc05hbWU9XCJ0ZXh0LXNtIHRleHQtZW1lcmFsZC02MDAgaG92ZXI6dGV4dC1lbWVyYWxkLTcwMCBmb250LW1lZGl1bSB1bmRlcmxpbmVcIlxuICAgICAgICAgID5cbiAgICAgICAgICAgIOGNkuGKlSDhiqDhiLXhibPhi4jhiLA/IC8gRm9yZ290IHlvdXIgUElOP1xuICAgICAgICAgIDwvYnV0dG9uPlxuICAgICAgICA8L2Rpdj5cblxuICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImJnLWJsdWUtNTAgYm9yZGVyIGJvcmRlci1ibHVlLTIwMCByb3VuZGVkLWxnIHAtM1wiPlxuICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtc20gdGV4dC1ibHVlLTgwMFwiPlxuICAgICAgICAgICAg8J+SoSDhiqDhi7LhiLUg4Ymw4Yyg4YmD4YiaPyAvIE5ldyB1c2VyPyBKdXN0IGVudGVyIHlvdXIgcGhvbmUgYW5kIGNyZWF0ZSBhIFBJTiB0byBnZXQgc3RhcnRlZCFcbiAgICAgICAgICA8L3A+XG4gICAgICAgIDwvZGl2PlxuICAgICAgPC9mb3JtPlxuICAgIDwvZGl2PlxuICApO1xufVxuXG5leHBvcnQgZGVmYXVsdCBPdHBBdXRoRm9ybTsiXSwiZmlsZSI6IkQ6L2V0aGlvLWhlcmQtY29ubmVjdC9zcmMvY29tcG9uZW50cy9PdHBBdXRoRm9ybS50c3gifQ==

@@ -171,14 +171,14 @@ export const useOfflineQueue = () => {
           .eq('id', item.payload.id);
         break;
       case 'record_milk':
-        await supabase.from('milk_records' as any).insert(item.payload);
+        await supabase.from('milk_production' as any).insert(item.payload);
         break;
       case 'create_listing':
-        await supabase.from('marketplace_listings' as any).insert(item.payload);
+        await supabase.from('market_listings' as any).insert(item.payload);
         break;
       case 'update_listing':
         await supabase
-          .from('marketplace_listings' as any)
+          .from('market_listings' as any)
           .update(item.payload)
           .eq('id', item.payload.id);
         break;

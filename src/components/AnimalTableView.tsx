@@ -122,11 +122,7 @@ export const AnimalTableView = ({
     if (!user) return;
     const originalAnimals = useAnimalStore.getState().animals;
     removeAnimalFromStore(animalId);
-    const { error } = await supabase
-      .from('animals')
-      .delete()
-      .eq('id', animalId)
-      .eq('user_id', user.id);
+    const { error } = await supabase.from('animals').delete().eq('id', animalId);
     if (error) {
       useAnimalStore.setState({ animals: originalAnimals });
       toast.error("Failed to delete animal.");

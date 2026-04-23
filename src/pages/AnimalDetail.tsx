@@ -17,7 +17,8 @@ import {
   ShoppingCart,
   Calendar,
   Heart,
-  Activity
+  Activity,
+  ShieldCheck
 } from 'lucide-react';
 import { formatDistanceToNow, differenceInMonths, differenceInDays, format } from 'date-fns';
 import { toast } from 'sonner';
@@ -29,6 +30,7 @@ import { milkQueries } from '@/lib/milkQueries';
 import { PregnancyTracker } from '@/components/PregnancyTracker';
 import { PregnancyAlert } from '@/components/PregnancyAlert';
 import { RecordBirthModal } from '@/components/RecordBirthModal';
+import { TransferOwnershipModal } from '@/components/TransferOwnershipModal';
 import { recordPregnancy, recordBirth, getCurrentPregnancy, getPregnancyHistory, type PregnancyRecord } from '@/services/pregnancyService';
 import { calculateDaysRemaining, isDeliverySoon, canBePregnant } from '@/utils/pregnancyCalculations';
 
@@ -66,6 +68,7 @@ export const AnimalDetail = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showPregnancyTracker, setShowPregnancyTracker] = useState(false);
   const [showBirthModal, setShowBirthModal] = useState(false);
+  const [showTransferModal, setShowTransferModal] = useState(false);
   const { deleteAnimal, isDeleting } = useAnimalDeletion();
   const { updateAnimal, isUpdating } = useAnimalUpdate();
 
@@ -352,14 +355,22 @@ export const AnimalDetail = () => {
                 <Edit className="w-4 h-4 mr-2" />
                 Edit
               </EnhancedButton>
-              <EnhancedButton
-                onClick={handleListForSale}
-                variant="outline"
-                className="border-green-600 text-green-600 hover:bg-green-50"
-              >
-                <ShoppingCart className="w-4 h-4 mr-2" />
-                List for Sale
-              </EnhancedButton>
+               <EnhancedButton
+                 onClick={handleListForSale}
+                 variant="outline"
+                 className="border-green-600 text-green-600 hover:bg-green-50"
+               >
+                 <ShoppingCart className="w-4 h-4 mr-2" />
+                 List for Sale
+               </EnhancedButton>
+               <EnhancedButton
+                 onClick={() => setShowTransferModal(true)}
+                 variant="outline"
+                 className="border-blue-600 text-blue-600 hover:bg-blue-50"
+               >
+                 <ShieldCheck className="w-4 h-4 mr-2" />
+                 Transfer Ownership
+               </EnhancedButton>
               <EnhancedButton
                 onClick={handleDelete}
                 variant="outline"
@@ -665,6 +676,20 @@ export const AnimalDetail = () => {
           animalName={animal.name}
           expectedDelivery={currentPregnancy.expected_delivery}
           onRecordBirth={handleRecordBirth}
+        />
+      )}
+
+      {/* Transfer Ownership Modal */}
+      {showTransferModal && id && (
+        <TransferOwnershipModal
+          open={showTransferModal}
+          onClose={() => setShowTransferModal(false)}
+          animalId={id}
+          animalName={animal?.name}
+          onTransferComplete={() => {
+            setShowTransferModal(false);
+            navigate('/my-animals');
+          }}
         />
       )}
     </div>

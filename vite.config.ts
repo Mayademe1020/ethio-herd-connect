@@ -25,18 +25,16 @@ export default defineConfig(({ mode }) => ({
       name: 'html-transform-csp',
       transformIndexHtml(html: string) {
         if (mode === 'development') {
-          // Lenient CSP for development (allows HMR, DevTools, and external resources)
+          // Lenient CSP for development
           return html.replace(
             '<meta name="viewport"',
-            `<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-eval' 'unsafe-inline'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' ws: wss: https://pbtaolycccmmqmwurinp.supabase.co; img-src 'self' data: https: blob:;">
-    <meta name="viewport"`
+            '<meta http-equiv="Content-Security-Policy" content="default-src \'self\' \'unsafe-eval\' \'unsafe-inline\'; script-src \'self\' \'unsafe-eval\' \'unsafe-inline\'; style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com; font-src \'self\' data: https://fonts.gstatic.com; connect-src \'self\' ws: wss: https://pbtaolycccmmqmwurinp.supabase.co; img-src \'self\' data: https: blob:;">\n    <meta name="viewport"'
           );
         }
-        // Strict CSP for production (no unsafe-eval, but allows Google Fonts)
+        // Strict CSP for production
         return html.replace(
           '<meta name="viewport"',
-          `<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://pbtaolycccmmqmwurinp.supabase.co; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
-    <meta name="viewport"`
+          '<meta http-equiv="Content-Security-Policy" content="default-src \'self\'; script-src \'self\' \'unsafe-inline\'; style-src \'self\' \'unsafe-inline\' https://fonts.googleapis.com; font-src \'self\' data: https://fonts.gstatic.com; img-src \'self\' data: https: blob:; connect-src \'self\' https://pbtaolycccmmqmwurinp.supabase.co; frame-src \'none\'; object-src \'none\'; base-uri \'self\'; form-action \'self\';">\n    <meta name="viewport"'
         );
       }
     },
@@ -50,69 +48,30 @@ export default defineConfig(({ mode }) => ({
     // Enable brotli compression for smaller file sizes
     brotliSize: true,
     // Optimize chunk size for Ethiopian low-bandwidth conditions
-    chunkSizeWarningLimit: 500, // Target < 500KB per chunk
+    // TARGET: <300KB initial load total
+    chunkSizeWarningLimit: 250, // Reduced from 500KB to 250KB per chunk
     rollupOptions: {
       output: {
         // Customize chunk filenames
         chunkFileNames: 'assets/js/[name]-[hash].js',
         entryFileNames: 'assets/js/[name]-[hash].js',
         assetFileNames: 'assets/[ext]/[name]-[hash].[ext]',
-        // Group common dependencies into shared chunks - optimized for Ethiopian farmers
+        // Simple chunking - only heavy libraries that should be lazy loaded
         manualChunks: (id) => {
-          // Core React libraries (keep small)
-          if (id.includes('node_modules/react') ||
-              id.includes('node_modules/react-dom')) {
-            return 'vendor-core';
+          // ML models - lazy load, don't block initial render
+          if (id.includes('node_modules/@tensorflow')) {
+            return 'vendor-ml';
           }
-
-          // Routing (separate for better caching)
-          if (id.includes('node_modules/react-router-dom')) {
-            return 'vendor-router';
-          }
-
-          // UI components (Radix UI is heavy, separate it)
-          if (id.includes('node_modules/@radix-ui')) {
-            return 'vendor-radix';
-          }
-
-          // Icons (small, can stay with UI)
-          if (id.includes('node_modules/lucide-react')) {
-            return 'vendor-icons';
-          }
-
-          // Forms (separate chunk)
-          if (id.includes('node_modules/react-hook-form') ||
-              id.includes('node_modules/zod')) {
-            return 'vendor-forms';
-          }
-
-          // Supabase (large, separate chunk)
-          if (id.includes('node_modules/@supabase')) {
-            return 'vendor-supabase';
-          }
-
-          // React Query (separate for caching strategies)
-          if (id.includes('node_modules/@tanstack/react-query')) {
-            return 'vendor-query';
-          }
-
-          // Date utilities (can be lazy loaded)
-          if (id.includes('node_modules/date-fns')) {
-            return 'vendor-date';
-          }
-
-          // Utility libraries (split further)
-          if (id.includes('node_modules/uuid') ||
-              id.includes('node_modules/crypto-js') ||
-              id.includes('node_modules/dompurify')) {
-            return 'vendor-utils';
-          }
-
-          // Everything else goes to misc (should be smaller now)
-          if (id.includes('node_modules')) {
-            return 'vendor-misc';
+          // Charts - lazy load
+          if (id.includes('node_modules/recharts') || id.includes('node_modules/chart.js')) {
+            return 'vendor-charts';
           }
         }
+      },
+      // Tree shaking - disable aggressive mode that removes needed code
+      treeshake: {
+        moduleSideEffects: true,
+        propertyReadSideEffects: true
       }
     },
     // Minimize for production
@@ -123,6 +82,10 @@ export default defineConfig(({ mode }) => ({
     sourcemap: mode === 'development',
     // CSS code splitting
     cssCodeSplit: true,
+    // Report compressed sizes
+    reportCompressedSize: true,
+    // Asset inlining threshold (inline small assets)
+    assetsInlineLimit: 4096, // 4KB
   },
   // Optimize for low-end devices in Ethiopia
   optimizeDeps: {

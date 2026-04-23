@@ -1,5 +1,5 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToastNotifications } from '@/hooks/useToastNotifications';
 import { sanitizeInput } from '@/utils/animalIdGenerator';
@@ -32,6 +32,10 @@ export const useOfflineSync = () => {
   const [lastSyncTime, setLastSyncTime] = useState<number | null>(null);
   const { showSuccess, showError, showInfo, showWarning } = useToastNotifications();
   const { t } = useTranslations();
+  const pendingSyncRef = useRef(pendingSync);
+  const isOnlineRef = useRef(isOnline);
+  pendingSyncRef.current = pendingSync;
+  isOnlineRef.current = isOnline;
 
   useEffect(() => {
     const handleOnline = () => {
@@ -79,7 +83,7 @@ export const useOfflineSync = () => {
     
     // Set up periodic sync
     const syncInterval = setInterval(() => {
-      if (isOnline && pendingSync.filter(item => !item.synced).length > 0) {
+      if (isOnlineRef.current && pendingSyncRef.current.filter(item => !item.synced).length > 0) {
         syncAll();
       }
     }, SYNC_INTERVAL);
@@ -93,7 +97,7 @@ export const useOfflineSync = () => {
       clearInterval(syncInterval);
       clearInterval(stabilityCheckInterval);
     };
-  }, [isOnline, pendingSync]);
+  }, []);
 
   const loadPendingSync = useCallback(() => {
     const stored = localStorage.getItem(SYNC_STORAGE_KEY);

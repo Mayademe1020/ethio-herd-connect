@@ -163,7 +163,7 @@ export const SystemHealthCard: React.FC<SystemHealthCardProps> = ({ className })
                 </div>
                 <Progress value={systemHealth?.cpu_usage || 0} className="h-2" />
                 <p className="text-xs text-muted-foreground">
-                  Threshold: < 80%
+                  Threshold: {'<'} 80%
                 </p>
               </div>
             </CardContent>
@@ -182,7 +182,7 @@ export const SystemHealthCard: React.FC<SystemHealthCardProps> = ({ className })
                 </div>
                 <Progress value={systemHealth?.memory_usage || 0} className="h-2" />
                 <p className="text-xs text-muted-foreground">
-                  Threshold: < 85%
+                  Threshold: {'<'} 85%
                 </p>
               </div>
             </CardContent>
@@ -201,7 +201,7 @@ export const SystemHealthCard: React.FC<SystemHealthCardProps> = ({ className })
                 </div>
                 <Progress value={systemHealth?.disk_usage || 0} className="h-2" />
                 <p className="text-xs text-muted-foreground">
-                  Threshold: < 90%
+                  Threshold: {'<'} 90%
                 </p>
               </div>
             </CardContent>

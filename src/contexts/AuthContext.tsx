@@ -1,25 +1,12 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useToastNotifications } from '@/hooks/useToastNotifications';
 import { useInputSanitization } from '@/hooks/useInputSanitization';
-// Simple replacements for removed security utils
-const encryptData = (data: any) => btoa(JSON.stringify(data));
-const decryptData = (data: string) => {
-  try {
-    return JSON.parse(atob(data));
-  } catch {
-    return null;
-  }
-};
-const secureLocalStorage = {
-  setItem: (key: string, data: any) => localStorage.setItem(key, encryptData(data)),
-  getItem: (key: string) => decryptData(localStorage.getItem(key) || ''),
-  removeItem: (key: string) => localStorage.removeItem(key)
-};
-const hashData = (data: string) => btoa(data).replace(/=/g, '');
+// Security utilities import
+import { encryptData, decryptData, hashData, secureLocalStorage } from '@/utils/securityUtils';
 import { logger } from '@/utils/logger';
 
 interface UserProfile {
@@ -44,8 +31,6 @@ interface AuthContextType {
   isOnline: boolean;
   lastSyncTime: string | null;
   syncUserData: () => Promise<void>;
-  sendVerificationCode: (params: { method: 'sms'; phone: string } | { method: 'email'; email: string }) => Promise<{ error: any }>;
-  verifyCode: (params: { method: 'sms'; phone: string; code: string } | { method: 'email'; email: string; code: string }) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -71,7 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { sanitizeEmail, sanitizeText } = useInputSanitization();
 
   // Fetch user profile data from farm_profiles table
-  const fetchUserProfile = async (userId: string) => {
+  const fetchUserProfile = useCallback(async (userId: string) => {
     try {
       const { data, error } = await supabase
         .from('farm_profiles')
@@ -85,7 +70,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       if (data) {
-        // Map farm_profiles data to UserProfile structure
         setUserProfile({
           id: data.user_id,
           email: user?.email || '',
@@ -98,7 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error) {
       console.error('Error fetching user profile:', error);
     }
-  };
+  }, [user?.email]);
 
   // Monitor online status
   useEffect(() => {
@@ -177,7 +161,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
-  const signIn = async (email: string, password: string, remember = false) => {
+  const signIn = useCallback(async (email: string, password: string, remember = false) => {
     try {
       const sanitizedEmail = sanitizeEmail(email);
       setRememberMe(remember);
@@ -192,9 +176,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Sign in error:', error);
       return { error };
     }
-  };
+  }, [sanitizeEmail, setRememberMe]);
 
-  const signUp = async (email: string, password: string, mobileNumber: string, fullName?: string) => {
+  const signUp = useCallback(async (email: string, password: string, mobileNumber: string, fullName?: string) => {
     try {
       const sanitizedEmail = sanitizeEmail(email);
       const sanitizedFullName = fullName ? sanitizeText(fullName, { maxLength: 100 }) : undefined;
@@ -214,9 +198,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       });
 
-      // Create farm profile record if signup successful
       if (!error && data.user) {
-        // Generate a simple farm prefix from the user's name or email
         const farmPrefix = (sanitizedFullName || sanitizedEmail.split('@')[0]).toUpperCase().substring(0, 3);
         
         const { error: profileError } = await supabase
@@ -243,61 +225,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Sign up error:', error);
       return { error };
     }
-  };
+  }, [sanitizeEmail, sanitizeText]);
 
-  const sendVerificationCode = async (params: { method: 'sms'; phone: string } | { method: 'email'; email: string }) => {
-    try {
-      if (params.method === 'sms') {
-        const phone = sanitizeText(params.phone, { maxLength: 20, allowSpecialChars: true });
-        const { error } = await supabase.auth.signInWithOtp({ phone, options: { channel: 'sms' } });
-        return { error };
-      } else {
-        const email = sanitizeEmail(params.email);
-        const redirectUrl = `${window.location.origin}/marketplace`;
-        const { error } = await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectUrl } });
-        return { error };
-      }
-    } catch (error) {
-      console.error('Send verification code error:', error);
-      return { error };
-    }
-  };
-
-  const verifyCode = async (params: { method: 'sms'; phone: string; code: string } | { method: 'email'; email: string; code: string }) => {
-    try {
-      if (params.method === 'sms') {
-        const phone = sanitizeText(params.phone, { maxLength: 20, allowSpecialChars: true });
-        const token = params.code.trim();
-        const { error } = await supabase.auth.verifyOtp({ phone, token, type: 'sms' });
-        return { error };
-      } else {
-        const email = sanitizeEmail(params.email);
-        const token = params.code.trim();
-        const { error } = await supabase.auth.verifyOtp({ email, token, type: 'email' });
-        return { error };
-      }
-    } catch (error) {
-      console.error('Verify code error:', error);
-      return { error };
-    }
-  };
-
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     try {
       await supabase.auth.signOut();
       setRememberMe(false);
     } catch (error) {
       console.error('Sign out error:', error);
     }
-  };
+  }, [setRememberMe]);
 
-  const updateProfile = async (profileUpdates: Partial<UserProfile>) => {
+  const updateProfile = useCallback(async (profileUpdates: Partial<UserProfile>) => {
     try {
       if (!user) {
         return { error: new Error('No user logged in') };
       }
 
-      // Sanitize profile updates
       const sanitizedUpdates = {
         owner_name: profileUpdates.full_name ? sanitizeText(profileUpdates.full_name, { maxLength: 100 }) : undefined,
         phone: profileUpdates.mobile_number ? sanitizeText(profileUpdates.mobile_number, { maxLength: 20 }) : undefined,
@@ -305,7 +249,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         farm_prefix: profileUpdates.farm_prefix ? sanitizeText(profileUpdates.farm_prefix, { maxLength: 10 }) : undefined
       };
 
-      // Remove undefined values
       const cleanUpdates = Object.fromEntries(
         Object.entries(sanitizedUpdates).filter(([_, v]) => v !== undefined)
       );
@@ -328,27 +271,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Update profile error:', error);
       return { error };
     }
-  };
+  }, [user, sanitizeText, showSuccess]);
 
-  // Offline authentication function
-  const offlineSignIn = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+  const offlineSignIn = useCallback(async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       if (isOnline) {
-        // If online, use regular sign in
         const { error } = await signIn(email, password, true);
         return { success: !error, error: error?.message };
       }
       
-      // Check for stored offline credentials
       const storedCreds = secureLocalStorage.getItem('bet-gitosa-offline-auth');
       if (!storedCreds || !storedCreds.email) {
         return { success: false, error: 'No offline credentials found. You must sign in online at least once.' };
       }
       
-      // Simple offline validation - just check if email matches
-      // In a real implementation, we would use a secure hash comparison
       if (storedCreds.email.toLowerCase() === email.toLowerCase()) {
-        // Create a temporary user object for offline mode
         const offlineUser = {
           id: 'offline-' + hashData(email).substring(0, 8),
           email: email,
@@ -358,7 +295,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         setUser(offlineUser as unknown as User);
         
-        // Try to load cached profile data
         const cachedProfile = secureLocalStorage.getItem('bet-gitosa-user-profile');
         if (cachedProfile) {
           setUserProfile(cachedProfile);
@@ -377,27 +313,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Offline sign in error:', error);
       return { success: false, error: 'An error occurred during offline sign in' };
     }
-  };
-  
-  // Sync user data when coming back online
-  const syncUserData = async () => {
+  }, [isOnline, signIn, showSuccess]);
+
+  const syncUserData = useCallback(async () => {
     if (!isOnline || !user) return;
     
     try {
-      // Refresh the session
       const { data, error } = await supabase.auth.refreshSession();
       if (error) throw error;
       
-      // Fetch latest profile data
       if (data.session?.user) {
         await fetchUserProfile(data.session.user.id);
       }
       
-      // Update last sync time
       const now = new Date().toISOString();
       setLastSyncTime(now);
       
-      // Store profile for offline use
       if (userProfile) {
         secureLocalStorage.setItem('bet-gitosa-user-profile', userProfile);
       }
@@ -407,7 +338,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Sync error:', error);
       showError('Sync failed', 'Could not synchronize your data. Please try again later.');
     }
-  };
+  }, [isOnline, user, userProfile, fetchUserProfile, setLastSyncTime, showSuccess, showError]);
   
   // Auto-sync when coming back online
   useEffect(() => {
@@ -416,7 +347,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [isOnline]);
 
-  const value = {
+  const value = useMemo(() => ({
     user,
     session,
     userProfile,
@@ -428,10 +359,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     offlineSignIn,
     isOnline,
     lastSyncTime,
-    syncUserData,
-    sendVerificationCode,
-    verifyCode
-  };
+    syncUserData
+  }), [user, session, userProfile, loading, signIn, signUp, signOut, updateProfile, offlineSignIn, isOnline, lastSyncTime, syncUserData]);
 
   return (
     <AuthContext.Provider value={value}>

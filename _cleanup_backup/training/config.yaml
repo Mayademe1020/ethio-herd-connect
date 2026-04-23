@@ -1,0 +1,112 @@
+# Ethio Herd Connect - Muzzle Identification Training Config
+# ============================================================
+
+# Dataset Configuration
+dataset:
+  # Path to raw dataset (you will collect photos here)
+  raw_path: "dataset/raw"
+  
+  # Path to processed dataset
+  processed_path: "dataset/processed"
+  
+  # Minimum images per animal for training
+  min_images_per_animal: 3
+  
+  # Image size for training (will be resized)
+  image_size: 640
+  
+  # Number of classes (animals)
+  num_animals: 50  # Update after collecting data
+
+# YOLOv8 Muzzle Detector Config
+detector:
+  model_name: "yolov8n"  # nano version (smallest, fastest)
+  # Options: yolov8n, yolov8s, yolov8m, yolov8l, yolov8x
+  
+  # Training params
+  epochs: 100
+  batch_size: 16
+  image_size: 640
+  patience: 20  # Early stopping patience
+  
+  # Learning rate
+  lr0: 0.01
+  lrf: 0.01
+  
+  # Data augmentation
+  hsv_h: 0.015
+  hsv_s: 0.7
+  hsv_v: 0.4
+  degrees: 10
+  translate: 0.1
+  scale: 0.5
+  flipud: 0.0  # Don't flip vertically (muzzles have orientation)
+  fliplr: 0.5
+  mosaic: 0.5
+  
+  # Output
+  output_path: "output/detector"
+
+# CNN Feature Extractor Config
+feature_extractor:
+  # Model architecture
+  backbone: "mobilenet_v3_small"  # Lightweight for 2GB phones
+  # Options: mobilenet_v3_small, mobilenet_v3_large, efficientnet_b0
+  
+  embedding_dim: 128  # Size of feature vector
+  
+  # Training params
+  epochs: 50
+  batch_size: 32
+  image_size: 224
+  
+  # Optimizer
+  optimizer: "adam"
+  learning_rate: 0.001
+  
+  # Loss function - ArcFace for face/muzzle recognition
+  loss_type: "arcface"
+  margin: 0.5
+  scale: 30
+  
+  # Output
+  output_path: "output/extractor"
+
+# Model Conversion (for browser deployment)
+conversion:
+  # TensorFlow.js conversion
+  tfjs_output: "../src/models/tfjs"
+  
+  # Quantization for mobile
+  quantize: true
+  quantize_dtype: "float16"  # Options: float16, uint8
+  
+  # Target size (should be < 10MB for mobile)
+  max_size_mb: 8
+
+# Paths
+paths:
+  # Dataset
+  train_images: "dataset/train/images"
+  train_labels: "dataset/train/labels"
+  val_images: "dataset/val/images"
+  val_labels: "dataset/val/labels"
+  
+  # Models
+  detector_weights: "models/detector.pt"
+  extractor_weights: "models/extractor.h5"
+  
+  # Output
+  browser_model: "output/browser_model"
+
+# Training Schedule
+schedule:
+  step_1_detector: true   # Train YOLOv8 to detect muzzle region
+  step_2_extractor: true  # Train CNN to extract features
+  step_3_convert: true     # Convert to TF.js format
+
+# Hardware
+hardware:
+  gpu: true  # Set false if no GPU
+  gpu_device: 0
+  num_workers: 4

@@ -8,6 +8,7 @@ import { Heart, MapPin, Calendar, Plus, MoreHorizontal } from 'lucide-react';
 import { AnimalData, Language } from '@/types';
 import { cn } from '@/lib/utils';
 import { useDateDisplay } from '@/hooks/useDateDisplay';
+import { OfflineFirstImage } from '@/components/OfflineFirstImage';
 
 interface EnhancedAnimalGridProps {
   animals: AnimalData[];
@@ -139,16 +140,18 @@ export const EnhancedAnimalGrid: React.FC<EnhancedAnimalGridProps> = ({
               {/* Animal Image */}
               <div className="aspect-square bg-gradient-to-br from-green-50 to-emerald-50 relative overflow-hidden">
                 {animal.photos && animal.photos.length > 0 ? (
-                  <img
+                  <OfflineFirstImage
                     src={animal.photos[0]}
                     alt={animal.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    fallbackIcon="🐄"
                   />
                 ) : animal.photo_url ? (
-                  <img
+                  <OfflineFirstImage
                     src={animal.photo_url}
                     alt={animal.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    fallbackIcon="🐄"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">

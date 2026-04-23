@@ -12,9 +12,11 @@ import { AnalyticsProvider } from "@/contexts/AnalyticsContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { CalendarProvider } from "@/contexts/CalendarContext";
 import { DemoModeProvider } from "@/contexts/DemoModeContext";
+import { NetworkStatusProvider } from "@/contexts/NetworkStatusContext";
 import { memoryMonitor } from "@/utils/memoryMonitor";
 import { animationOptimizer } from "@/utils/animationOptimizer";
 import { register as registerServiceWorker } from "@/utils/serviceWorker";
+import { useFarmInvitationChecker } from "@/hooks/useFarmInvitationChecker";
 
 // Eager load critical routes
 import LoginMVP from "./pages/LoginMVP";
@@ -35,6 +37,10 @@ const ListingDetail = lazy(() => import("./pages/ListingDetail").then(m => ({ de
 const CreateListing = lazy(() => import("./pages/CreateListing").then(m => ({ default: m.default })));
 const MyListings = lazy(() => import("./pages/MyListings").then(m => ({ default: m.default })));
 const ProfilePage = lazy(() => import("./pages/Profile").then(m => ({ default: m.default })));
+
+// Admin Routes
+const AdminLogin = lazy(() => import("./pages/AdminLogin").then(m => ({ default: m.default })));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard").then(m => ({ default: m.default })));
 
 // Preload critical routes after initial load
 const preloadCriticalRoutes = () => {
@@ -65,6 +71,12 @@ const LoadingFallback = () => (
   </div>
 );
 
+// Runs inside auth context to check for farm invitations on login
+const FarmInvitationHandler = ({ children }: { children: React.ReactNode }) => {
+  useFarmInvitationChecker();
+  return <>{children}</>;
+};
+
 function AppMVP() {
   // Preload critical routes and register service worker after initial render
   React.useEffect(() => {
@@ -76,17 +88,20 @@ function AppMVP() {
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <AuthProviderMVP>
-          <AdminProvider>
-            <CalendarProvider>
-              <DemoModeProvider>
-                <ToastProvider>
-                  <AnalyticsProvider>
+          <FarmInvitationHandler>
+          <NetworkStatusProvider>
+            <AdminProvider>
+              <CalendarProvider>
+                <DemoModeProvider>
+                  <ToastProvider>
+                    <AnalyticsProvider>
                     <BrowserRouter>
                       <Suspense fallback={<LoadingFallback />}>
                         <AppLayout>
                           <Routes>
                       {/* Public Routes */}
                       <Route path="/login" element={<LoginMVP />} />
+                      <Route path="/admin/login" element={<AdminLogin />} />
                       <Route path="/onboarding" element={<Onboarding />} />
 
                       {/* Protected Routes */}
@@ -210,6 +225,15 @@ function AppMVP() {
                           </ProtectedRoute>
                         }
                       />
+                      {/* Admin Routes */}
+                      <Route
+                        path="/admin"
+                        element={
+                          <ProtectedRoute adminOnly>
+                            <AdminDashboard />
+                          </ProtectedRoute>
+                        }
+                      />
                           </Routes>
                         </AppLayout>
                       </Suspense>
@@ -220,6 +244,8 @@ function AppMVP() {
               </DemoModeProvider>
             </CalendarProvider>
           </AdminProvider>
+          </NetworkStatusProvider>
+          </FarmInvitationHandler>
         </AuthProviderMVP>
       </LanguageProvider>
     </QueryClientProvider>

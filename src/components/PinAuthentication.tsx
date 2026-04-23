@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToastNotifications } from '@/hooks/useToastNotifications';
 import { useTranslations } from '@/hooks/useTranslations';
-import { secureLocalStorage, hashData } from '@/utils/securityUtils';
+import { secureLocalStorage, hashData, verifyPassword } from '@/utils/securityUtils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Lock, Fingerprint, Eye, EyeOff } from 'lucide-react';

@@ -1,7 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { offlineQueue } from '@/lib/offlineQueue';
 
-export type NotificationType = 'buyer_interest' | 'milk_reminder' | 'market_alert' | 'pregnancy_alert';
+export type NotificationType = 'buyer_interest' | 'milk_reminder' | 'market_alert' | 'pregnancy_alert' | 'ownership_transfer';
 export type NotificationPriority = 'high' | 'medium' | 'low';
 
 export interface Notification {

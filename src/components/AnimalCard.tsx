@@ -1,3 +1,4 @@
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -37,7 +38,7 @@ const ANIMAL_ICONS = {
 
 const MILK_PRODUCING_SUBTYPES = ['Cow', 'Female Goat', 'Ewe'];
 
-export const AnimalCard = ({
+export const AnimalCard = React.memo(({
   id,
   animal_id,
   name,
@@ -178,4 +179,4 @@ export const AnimalCard = ({
       </div>
     </Card>
   );
-};
+});

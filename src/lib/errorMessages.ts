@@ -17,7 +17,6 @@ export interface ErrorMessage {
 export type ErrorType =
   | 'network'
   | 'auth_expired'
-  | 'auth_invalid_otp'
   | 'auth_phone_invalid'
   | 'photo_too_large'
   | 'photo_upload_failed'
@@ -44,11 +43,6 @@ export const ERROR_MESSAGES: Record<ErrorType, Omit<ErrorMessage, 'action'>> = {
     amharic: 'ክፍለ ጊዜዎ አልቋል። እባክዎ እንደገና ይግቡ።',
     english: 'Your session expired. Please log in again.',
     icon: '🔐',
-  },
-  auth_invalid_otp: {
-    amharic: 'የተሳሳተ ኮድ። እባክዎ እንደገና ይሞክሩ።',
-    english: 'Invalid code. Please try again.',
-    icon: '❌',
   },
   auth_phone_invalid: {
     amharic: 'የተሳሳተ ስልክ ቁጥር። እባክዎ ያረጋግጡ።',
@@ -141,8 +135,8 @@ export function mapTechnicalError(error: any): ErrorType {
     return 'auth_expired';
   }
 
-  if (error?.message?.includes('Invalid login credentials') || error?.message?.includes('OTP')) {
-    return 'auth_invalid_otp';
+  if (error?.message?.includes('Invalid login credentials')) {
+    return 'auth_expired';
   }
 
   // Supabase RLS errors
@@ -251,6 +245,21 @@ export const SUCCESS_MESSAGES = {
     amharic: 'የወተት መዝገብ በተሳካ ሁኔታ ተዘምኗል!',
     english: 'Milk record updated successfully!',
     icon: '✓',
+  },
+  health_record_created: {
+    amharic: 'የጤና መዝገብ በተሳካ ሁኔታ ተፈጥሯል!',
+    english: 'Health record created successfully!',
+    icon: '💉',
+  },
+  health_record_updated: {
+    amharic: 'የጤና መዝገብ በተሳካ ሁኔታ ተዘምኗል!',
+    english: 'Health record updated successfully!',
+    icon: '✓',
+  },
+  health_record_deleted: {
+    amharic: 'የጤና መዝገብ ተሰርዟል።',
+    english: 'Health record deleted.',
+    icon: '🗑️',
   },
 } as const;
 

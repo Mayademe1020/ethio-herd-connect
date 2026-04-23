@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import ListingCard from '@/components/ListingCard';
 import { EnhancedButton } from '@/components/ui/enhanced-button';
+import { MarketplaceBrowseSkeleton } from '@/components/MarketplaceBrowseSkeleton';
 import { ArrowLeft } from 'lucide-react';
 
 type AnimalType = 'all' | 'cattle' | 'goat' | 'sheep';
@@ -159,12 +160,7 @@ const MarketplaceBrowse = () => {
 
       {/* Listings Grid */}
       <div className="max-w-4xl mx-auto p-4">
-        {isLoading && (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
-            <p className="mt-4 text-gray-600">Loading listings...</p>
-          </div>
-        )}
+        {isLoading && <MarketplaceBrowseSkeleton />}
 
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">

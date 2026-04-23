@@ -1,0 +1,50 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - main [ref=e3]:
+    - generic [ref=e5]:
+      - region "Brand introduction" [ref=e6]:
+        - generic [ref=e7]:
+          - generic [ref=e8]:
+            - generic [ref=e10]: 🐄
+            - generic "Ethiopian flag" [ref=e11]: 🇪🇹
+          - heading "እንኳን ደህና መጡ" [level=1] [ref=e12]
+          - paragraph [ref=e13]: Ethio Herd Connect
+          - list [ref=e14]:
+            - listitem [ref=e15]: Designed for basic smartphones first; optimized for small screens
+            - listitem [ref=e16]: Bilingual labels (Amharic/English) with clear, simple wording
+            - listitem [ref=e17]: "Low-bandwidth friendly: efficient caching and minimal transfers"
+          - img "Livestock iconography" [ref=e19]
+      - region "Login" [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e22]:
+            - generic [ref=e24]: 🐄
+            - heading "እንኳን ደህና መጡ" [level=2] [ref=e25]
+            - paragraph [ref=e26]: Ethio Herd Connect
+          - generic [ref=e28]:
+            - generic [ref=e29]:
+              - generic [ref=e30]: ስልክ ቁጥር / Phone Number
+              - generic [ref=e31]:
+                - generic [ref=e32]: "+251"
+                - textbox "ስልክ ቁጥር / Phone Number" [ref=e33]:
+                  - /placeholder: "911234567"
+                  - text: "123456789"
+              - paragraph [ref=e34]: 9 አሃዞች ያስገቡ / Enter 9 digits (e.g., 911234567)
+              - alert [ref=e35]: ስልክ ቁጥር በ 9 መጀመር አለበት / Phone must start with 9
+            - generic [ref=e36]:
+              - generic [ref=e37]: ፒን / PIN
+              - textbox "ፒን / PIN" [ref=e38]:
+                - /placeholder: ••••••
+                - text: "123456"
+              - paragraph [ref=e39]: ቢያንስ 6 አሃዞች / At least 6 digits
+            - button "✓ ግባ / Login" [active] [ref=e40] [cursor=pointer]
+            - paragraph [ref=e42]: 💡 አዲስ ተጠቃሚ? / New user? Just enter your phone and create a PIN to get started!
+          - paragraph [ref=e44]: Made for Ethiopian farmers 🌾
+        - paragraph [ref=e46]: ✓ Works offline • ✓ Amharic support • ✓ Free to use
+  - region "Notifications alt+T":
+    - list:
+      - status [ref=e47]:
+        - img [ref=e49]
+        - generic [ref=e52]: ስልክ ቁጥር በ 9 መጀመር አለበት / Phone must start with 9
+```

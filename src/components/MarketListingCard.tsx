@@ -7,6 +7,7 @@ import { Heart, MapPin, MessageSquare, Shield } from 'lucide-react';
 import { Language } from '@/types';
 import { useDateDisplay } from '@/hooks/useDateDisplay';
 import { useMarketListingManagement } from '@/hooks/useMarketListingManagement';
+import { OfflineFirstImage } from '@/components/OfflineFirstImage';
 
 interface MarketListingCardProps {
   listing: {
@@ -31,7 +32,7 @@ interface MarketListingCardProps {
   onToggleFavorite?: (listingId: string) => void;
 }
 
-export const MarketListingCard = ({ 
+export const MarketListingCard = React.memo(({ 
   listing, 
   language, 
   currentUserId,
@@ -40,7 +41,7 @@ export const MarketListingCard = ({
   onToggleFavorite
 }: MarketListingCardProps) => {
   const isOwner = currentUserId && listing.user_id === currentUserId;
-+  const { updateStatus, isUpdating } = useMarketListingManagement();
+  const { updateStatus, isUpdating } = useMarketListingManagement();
   const translations = {
     am: {
       contact: 'ፍላጎት ያሳዩ',
@@ -134,18 +135,18 @@ export const MarketListingCard = ({
             </Button>
           )}
           {listing.photos && listing.photos.length > 0 ? (
-            <img 
+            <OfflineFirstImage 
               src={listing.photos[0]} 
               alt={listing.title}
               className="w-full h-full object-cover"
-              loading="lazy"
+              fallbackIcon="🐄"
             />
           ) : listing.photo ? (
-            <img 
+            <OfflineFirstImage 
               src={listing.photo} 
               alt={listing.title}
               className="w-full h-full object-cover"
-              loading="lazy"
+              fallbackIcon="🐄"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -210,4 +211,4 @@ export const MarketListingCard = ({
       </CardContent>
     </Card>
   );
-};
+});

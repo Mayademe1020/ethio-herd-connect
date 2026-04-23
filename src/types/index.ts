@@ -1,4 +1,6 @@
 
+import type { MuzzleStatus } from './muzzle';
+
 export interface AnimalData {
   id: string;
   animal_code: string;
@@ -30,6 +32,10 @@ export interface AnimalData {
   status?: string; // Professional status system
   vaccination_records?: VaccinationRecord[];
   weight_records?: WeightRecord[];
+  // Muzzle identification
+  muzzle_status?: MuzzleStatus;
+  // Farm team management
+  farm_id?: string;
 }
 
 export interface VaccinationRecord {
@@ -79,3 +85,7 @@ export const transformAnimalData = (dbAnimal: any): AnimalData => {
     user_id: dbAnimal.user_id || 'current-user-id'
   };
 };
+
+
+// Re-export muzzle types
+export * from './muzzle';

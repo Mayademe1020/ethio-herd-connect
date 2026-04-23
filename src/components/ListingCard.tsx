@@ -32,7 +32,7 @@ interface ListingCardProps {
   listing: MarketListing;
 }
 
-const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
+const ListingCard: React.FC<ListingCardProps> = React.memo(({ listing }) => {
   const navigate = useNavigate();
 
   // Get animal type icon
@@ -142,6 +142,6 @@ const ListingCard: React.FC<ListingCardProps> = ({ listing }) => {
       </div>
     </div>
   );
-};
+});
 
 export default ListingCard;

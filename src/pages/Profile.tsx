@@ -36,7 +36,9 @@ import { ReminderSettings } from '@/components/ReminderSettings';
 import { MarketAlertPreferences } from '@/components/MarketAlertPreferences';
 import { useProfile } from '@/hooks/useProfile';
 import { useFarmStats } from '@/hooks/useFarmStats';
+import { useAuth } from '@/contexts/AuthContextMVP';
 import { supabase } from '@/integrations/supabase/client';
+import { TeamManagement } from '@/components/farm/TeamManagement';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -56,6 +58,7 @@ const Profile = () => {
     updateProfileAsync 
   } = useProfile();
   const { stats, isLoading: statsLoading, isStale } = useFarmStats();
+  const { user } = useAuth();
 
   const handleProfileUpdate = async (farmerName: string, farmName: string) => {
     if (!updateProfileAsync) return;
@@ -191,6 +194,8 @@ const Profile = () => {
       profileLoadError: 'መገለጫ መጫን አልተቻለም',
       profileLoadErrorDescription: 'እባክዎ ግንኙነትዎን ያረጋግጡ እና እንደገና ይሞክሩ',
       retry: 'እንደገና ይሞክሩ',
+      emailNotAvailable: 'ኢሜይል አይገኝም',
+      locationNotSet: 'አካባቢ አልተዘጋጀም',
     },
     en: {
       profile: 'Profile',
@@ -256,6 +261,8 @@ const Profile = () => {
       profileLoadError: 'Unable to load profile',
       profileLoadErrorDescription: 'Please check your connection and try again',
       retry: 'Retry',
+      emailNotAvailable: 'Email not available',
+      locationNotSet: 'Location not set',
     },
     or: {
       profile: 'Pirofaayilii',
@@ -279,12 +286,12 @@ const Profile = () => {
       helpAndSupport: 'Gargaarsaa fi Deeggarsa',
       privacyPolicy: 'Imaammata Iccitii',
       termsOfService: 'Labsii Hojii',
-      logout: 'Ba’uu',
+      logout: 'Ba\'uu',
       version: 'Vershinii',
       appVersion: 'Vershinii Appilikeeshinii',
-      advancedSettings: 'Filannoo Ol’aanaa',
+      advancedSettings: 'Filannoo Ol\'aanaa',
       dataUsage: 'Fayyadama Dataa',
-      aboutUs: 'Waa’ee Keenyaa',
+      aboutUs: 'Waa\'ee Keenyaa',
       contactUs: 'Nu Quunnamaa',
       faq: 'FAQ',
       feedback: 'Yaada',
@@ -296,7 +303,7 @@ const Profile = () => {
       manageDevices: 'Meeshaa Bulchuu',
       linkedAccounts: 'Lakkoofsa Walqabsiisaa',
       socialProfiles: 'Pirofaayilii Hawaasaa',
-      displaySettings: 'Filannoo Mul’isaa',
+      displaySettings: 'Filannoo Mul\'isaa',
       fontSize: 'Guddina Fontii',
       accessibility: 'Argamuu',
       legal: 'Seera Qabeessa',
@@ -319,8 +326,10 @@ const Profile = () => {
       profileLoadError: 'Pirofaayilii fe\'uu hin danda\'amne',
       profileLoadErrorDescription: 'Mee walqunnamtii kee mirkaneessii fi irra deebi\'ii yaali',
       retry: 'Irra deebi\'ii yaali',
-      logoutConfirmation: 'Ba’uu barbaaddaa?',
-      logoutButton: 'Ba’uu',
+      logoutConfirmation: 'Ba\'uu barbaaddaa?',
+      logoutButton: 'Ba\'uu',
+      emailNotAvailable: 'Imeelii hin jiru',
+      locationNotSet: 'Bakka hin calaagsine',
     },
     sw: {
       profile: 'Wasifu',
@@ -386,6 +395,8 @@ const Profile = () => {
       profileLoadError: 'Imeshindwa kupakia wasifu',
       profileLoadErrorDescription: 'Tafadhali angalia muunganisho wako na ujaribu tena',
       retry: 'Jaribu Tena',
+      emailNotAvailable: 'Barua pepe haipatikani',
+      locationNotSet: 'Mahali hakijawekwa',
     },
   };
 
@@ -473,7 +484,7 @@ const Profile = () => {
             <div className="flex items-center gap-4 mb-6">
               <div className="relative">
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-2xl font-bold">
-                  {profile.farmer_name?.charAt(0)?.toUpperCase() || 'JD'}
+                  {profile.farmer_name?.charAt(0)?.toUpperCase() || '👤'}
                 </div>
                 <button className="absolute bottom-0 right-0 w-7 h-7 bg-white rounded-full shadow-md flex items-center justify-center border-2 border-gray-50">
                   <Camera className="w-4 h-4 text-gray-600" />
@@ -482,23 +493,23 @@ const Profile = () => {
               
               <div>
                 <h2 className="text-xl font-semibold text-gray-900">{profile.farmer_name}</h2>
-                <p className="text-sm text-gray-600">@{profile.farmer_name?.toLowerCase().replace(/\s+/g, '_') || 'john_farmer'}</p>
+                <p className="text-sm text-gray-600">@{profile.farmer_name?.toLowerCase().replace(/\s+/g, '_') || 'farmer'}</p>
               </div>
             </div>
             
             {/* Info Grid */}
             <div className="space-y-3">
-              <div className="flex items-center gap-3">
+<div className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-gray-400" />
-                <span className="text-sm text-gray-600">john.doe@example.com</span>
+                <span className="text-sm text-gray-600">{user?.email || profile?.email || profile?.phone || t.emailNotAvailable}</span>
               </div>
               <div className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-gray-400" />
                 <span className="text-sm text-gray-600">{profile.phone}</span>
               </div>
-              <div className="flex items-center gap-3">
+<div className="flex items-center gap-3">
                 <MapPin className="w-5 h-5 text-gray-400" />
-                <span className="text-sm text-gray-600">Addis Ababa, Ethiopia</span>
+                <span className="text-sm text-gray-600">{profile?.farm_profile?.location || t.locationNotSet}</span>
               </div>
             </div>
           </div>
@@ -507,6 +518,11 @@ const Profile = () => {
         {/* KPIs & Farm Stats */}
         <CollapsibleSection id="kpis" title={language === 'am' ? 'አፈጻጸም መለኪያዎች' : 'KPIs & Farm Stats'} defaultOpen>
           <FarmStatsCard stats={stats} isLoading={statsLoading} isStale={isStale} />
+        </CollapsibleSection>
+
+        {/* Farm Team */}
+        <CollapsibleSection id="team" title={language === 'am' ? 'የእርሻ ቡድን' : 'Farm Team'} defaultOpen>
+          <TeamManagement />
         </CollapsibleSection>
 
         {/* Quick Actions */}

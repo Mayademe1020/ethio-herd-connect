@@ -11,6 +11,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { NotificationDropdown } from '@/components/NotificationDropdown';
 import { EnhancedButton } from '@/components/ui/enhanced-button';
 import { NeutralCard, NeutralCardContent } from '@/components/ui/neutral-card';
+import { SimpleHomeSkeleton } from '@/components/SimpleHomeSkeleton';
 
 // Helper functions to avoid type issues
 const fetchAnimalsCount = async (userId: string): Promise<number> => {
@@ -37,10 +38,11 @@ const SimpleHome = () => {
 
   type QuickAction = { id: string; label: string; emoji: string; path: string };
   const buildDefaultActions = (): QuickAction[] => ([
-    { id: 'record-milk', label: t('home.recordMilk'), emoji: '🥛', path: '/record-milk' },
-    { id: 'add-animal', label: t('home.addAnimal'), emoji: '➕', path: '/register-animal' },
-    { id: 'my-animals', label: t('home.myAnimals'), emoji: '🐄', path: '/my-animals' },
-    { id: 'marketplace', label: t('home.marketplace'), emoji: '🛒', path: '/marketplace' },
+    { id: 'identify', label: '🔍 Identify Animal', emoji: '🔍', path: '/identify' },
+    { id: 'record-milk', label: '🥛 Record Milk', emoji: '🥛', path: '/record-milk' },
+    { id: 'add-animal', label: '➕ Add Animal', emoji: '➕', path: '/register-animal' },
+    { id: 'my-animals', label: '🐄 My Animals', emoji: '🐄', path: '/my-animals' },
+    { id: 'marketplace', label: '🛒 Marketplace', emoji: '🛒', path: '/marketplace' },
   ]);
 
   const storageKey = `quick-actions-order-${user?.id || 'anon'}`;
@@ -118,7 +120,7 @@ const SimpleHome = () => {
   }, []);
 
   // Fetch animals count
-  const { data: animalsCount = 0 } = useQuery<number>({
+  const { data: animalsCount = 0, isLoading: isAnimalsLoading } = useQuery<number>({
     queryKey: ['animals-count', user?.id],
     queryFn: () => user ? fetchAnimalsCount(user.id) : Promise.resolve(0),
     enabled: !!user && isOnline,
@@ -127,7 +129,7 @@ const SimpleHome = () => {
 
   // Fetch daily milk stats (today and yesterday) - FIXED: using correct column names
   // Auto-refreshes every 30 seconds to show real-time updates
-  const { data: dailyMilkStats = { today: 0, yesterday: 0 } } = useQuery<{ today: number; yesterday: number }>({
+  const { data: dailyMilkStats = { today: 0, yesterday: 0 }, isLoading: isMilkStatsLoading } = useQuery<{ today: number; yesterday: number }>({
     queryKey: ['daily-milk-stats', user?.id],
     queryFn: async (): Promise<{ today: number; yesterday: number }> => {
       if (!user) return { today: 0, yesterday: 0 };
@@ -189,7 +191,7 @@ const SimpleHome = () => {
     action: () => void;
   }
 
-  const { data: todaysTasks = [] } = useQuery<Task[]>({
+  const { data: todaysTasks = [], isLoading: isTasksLoading } = useQuery<Task[]>({
     queryKey: ['todays-tasks', user?.id],
     queryFn: async (): Promise<Task[]> => {
       if (!user) return [];
@@ -218,11 +220,10 @@ const SimpleHome = () => {
           .from('milk_production')
           .select('animal_id')
           .eq('user_id', user.id)
-          .gte('recorded_at', today.toISOString());  // FIXED: changed from 'production_date' to 'recorded_at'
+          .gte('recorded_at', today.toISOString());
 
         if (milkError) {
           console.error('Error fetching today\'s milk:', milkError);
-          return [];
         }
 
         // Find cows without milk records today
@@ -253,6 +254,13 @@ const SimpleHome = () => {
     }
     return 'Farmer';
   };
+
+  // Show skeleton while loading
+  const isLoading = isAnimalsLoading || isMilkStatsLoading || isTasksLoading;
+  
+  if (isLoading) {
+    return <SimpleHomeSkeleton />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
@@ -399,7 +407,7 @@ const SimpleHome = () => {
                 <span className="text-2xl sm:text-3xl">L</span>
               </div>
               <div className="text-sm sm:text-base text-gray-700 font-semibold">
-                ዛሬ / Today
+                ዛም / Today
               </div>
             </NeutralCard>
           </div>

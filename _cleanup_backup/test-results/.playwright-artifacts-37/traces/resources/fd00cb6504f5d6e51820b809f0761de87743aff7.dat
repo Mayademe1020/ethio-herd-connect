@@ -1,0 +1,593 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/pages/LoginMVP.tsx");if (!window.$RefreshReg$) throw new Error("React refresh preamble was not loaded. Something is wrong.");
+const prevRefreshReg = window.$RefreshReg$;
+const prevRefreshSig = window.$RefreshSig$;
+window.$RefreshReg$ = RefreshRuntime.getRefreshReg("D:/ethio-herd-connect/src/pages/LoginMVP.tsx");
+window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+
+import * as RefreshRuntime from "/@react-refresh";
+
+// src/pages/LoginMVP.tsx - Simplified MVP Login Page
+import __vite__cjsImport1_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=0165465e"; const _jsxDEV = __vite__cjsImport1_react_jsxDevRuntime["jsxDEV"];
+var _s = $RefreshSig$();
+import __vite__cjsImport2_react from "/node_modules/.vite/deps/react.js?v=0165465e"; const React = __vite__cjsImport2_react.__esModule ? __vite__cjsImport2_react.default : __vite__cjsImport2_react; const useEffect = __vite__cjsImport2_react["useEffect"];
+import { useNavigate } from "/node_modules/.vite/deps/react-router-dom.js?v=0165465e";
+import { useAuth } from "/src/contexts/AuthContextMVP.tsx";
+import { OtpAuthForm } from "/src/components/OtpAuthForm.tsx";
+import { useTranslation } from "/src/hooks/useTranslation.tsx";
+import { Button } from "/src/components/ui/button.tsx";
+const LoginMVP = ()=>{
+    _s();
+    const { user, signOut } = useAuth();
+    const navigate = useNavigate();
+    const { t } = useTranslation();
+    // Force sign out when visiting login page - for testing only
+    useEffect(()=>{
+        const handleLoad = async ()=>{
+            // Always sign out when visiting login page (for testing)
+            await signOut();
+        };
+        handleLoad();
+    }, []); // Only run once on mount
+    useEffect(()=>{
+        // Redirect to home if already logged in
+        if (user) {
+            console.log('User logged in, navigating to home...', user.id);
+            // Small delay to ensure auth state is fully settled
+            setTimeout(()=>{
+                navigate('/', {
+                    replace: true
+                });
+            }, 100);
+        }
+    }, [
+        user,
+        navigate
+    ]);
+    const handleSignOut = async ()=>{
+        await signOut();
+    };
+    return /*#__PURE__*/ _jsxDEV("main", {
+        "data-lov-id": "src\\pages\\LoginMVP.tsx:40:4",
+        "data-lov-name": "main",
+        "data-component-path": "src\\pages\\LoginMVP.tsx",
+        "data-component-line": "40",
+        "data-component-file": "LoginMVP.tsx",
+        "data-component-name": "main",
+        "data-component-content": "%7B%22className%22%3A%22min-h-screen%20bg-gradient-to-br%20from-green-50%20via-emerald-50%20to-teal-50%20py-8%22%7D",
+        role: "main",
+        className: "min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-8",
+        children: /*#__PURE__*/ _jsxDEV("div", {
+            "data-lov-id": "src\\pages\\LoginMVP.tsx:44:6",
+            "data-lov-name": "div",
+            "data-component-path": "src\\pages\\LoginMVP.tsx",
+            "data-component-line": "44",
+            "data-component-file": "LoginMVP.tsx",
+            "data-component-name": "div",
+            "data-component-content": "%7B%22className%22%3A%22mx-auto%20max-w-7xl%20px-4%20sm%3Apx-6%20lg%3Apx-8%22%7D",
+            className: "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8",
+            children: /*#__PURE__*/ _jsxDEV("div", {
+                "data-lov-id": "src\\pages\\LoginMVP.tsx:45:8",
+                "data-lov-name": "div",
+                "data-component-path": "src\\pages\\LoginMVP.tsx",
+                "data-component-line": "45",
+                "data-component-file": "LoginMVP.tsx",
+                "data-component-name": "div",
+                "data-component-content": "%7B%22className%22%3A%22grid%20grid-cols-1%20lg%3Agrid-cols-2%20gap-8%20items-center%22%7D",
+                className: "grid grid-cols-1 lg:grid-cols-2 gap-8 items-center",
+                children: [
+                    /*#__PURE__*/ _jsxDEV("section", {
+                        "data-lov-id": "src\\pages\\LoginMVP.tsx:47:10",
+                        "data-lov-name": "section",
+                        "data-component-path": "src\\pages\\LoginMVP.tsx",
+                        "data-component-line": "47",
+                        "data-component-file": "LoginMVP.tsx",
+                        "data-component-name": "section",
+                        "data-component-content": "%7B%22className%22%3A%22hidden%20lg%3Ablock%22%7D",
+                        className: "hidden lg:block",
+                        "aria-label": "Brand introduction",
+                        children: /*#__PURE__*/ _jsxDEV("div", {
+                            "data-lov-id": "src\\pages\\LoginMVP.tsx:48:12",
+                            "data-lov-name": "div",
+                            "data-component-path": "src\\pages\\LoginMVP.tsx",
+                            "data-component-line": "48",
+                            "data-component-file": "LoginMVP.tsx",
+                            "data-component-name": "div",
+                            "data-component-content": "%7B%22className%22%3A%22bg-white%2F60%20backdrop-blur-sm%20rounded-3xl%20p-8%20shadow-md%22%7D",
+                            className: "bg-white/60 backdrop-blur-sm rounded-3xl p-8 shadow-md",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    "data-lov-id": "src\\pages\\LoginMVP.tsx:49:14",
+                                    "data-lov-name": "div",
+                                    "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                    "data-component-line": "49",
+                                    "data-component-file": "LoginMVP.tsx",
+                                    "data-component-name": "div",
+                                    "data-component-content": "%7B%22className%22%3A%22flex%20items-center%20gap-4%20mb-6%22%7D",
+                                    className: "flex items-center gap-4 mb-6",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV("div", {
+                                            "data-lov-id": "src\\pages\\LoginMVP.tsx:50:16",
+                                            "data-lov-name": "div",
+                                            "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                            "data-component-line": "50",
+                                            "data-component-file": "LoginMVP.tsx",
+                                            "data-component-name": "div",
+                                            "data-component-content": "%7B%22className%22%3A%22w-16%20h-16%20bg-gradient-to-br%20from-green-600%20to-emerald-700%20rounded-full%20flex%20items-center%20justify-center%20shadow-lg%22%7D",
+                                            className: "w-16 h-16 bg-gradient-to-br from-green-600 to-emerald-700 rounded-full flex items-center justify-center shadow-lg",
+                                            children: /*#__PURE__*/ _jsxDEV("span", {
+                                                "data-lov-id": "src\\pages\\LoginMVP.tsx:51:18",
+                                                "data-lov-name": "span",
+                                                "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                                "data-component-line": "51",
+                                                "data-component-file": "LoginMVP.tsx",
+                                                "data-component-name": "span",
+                                                "data-component-content": "%7B%22text%22%3A%22%F0%9F%90%84%22%2C%22className%22%3A%22text-3xl%22%7D",
+                                                className: "text-3xl",
+                                                "aria-hidden": "true",
+                                                children: "🐄"
+                                            }, void 0, false, {
+                                                fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                                lineNumber: 51,
+                                                columnNumber: 19
+                                            }, this)
+                                        }, void 0, false, {
+                                            fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                            lineNumber: 50,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("div", {
+                                            "data-lov-id": "src\\pages\\LoginMVP.tsx:53:16",
+                                            "data-lov-name": "div",
+                                            "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                            "data-component-line": "53",
+                                            "data-component-file": "LoginMVP.tsx",
+                                            "data-component-name": "div",
+                                            "data-component-content": "%7B%22text%22%3A%22%F0%9F%87%AA%F0%9F%87%B9%22%2C%22className%22%3A%22text-3xl%22%7D",
+                                            className: "text-3xl",
+                                            "aria-label": "Ethiopian flag",
+                                            children: "🇪🇹"
+                                        }, void 0, false, {
+                                            fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                            lineNumber: 53,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                    lineNumber: 49,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("h1", {
+                                    "data-lov-id": "src\\pages\\LoginMVP.tsx:55:14",
+                                    "data-lov-name": "h1",
+                                    "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                    "data-component-line": "55",
+                                    "data-component-file": "LoginMVP.tsx",
+                                    "data-component-name": "h1",
+                                    "data-component-content": "%7B%22className%22%3A%22text-3xl%20font-bold%20text-gray-900%20tracking-tight%20leading-tight%20mb-3%22%7D",
+                                    className: "text-3xl font-bold text-gray-900 tracking-tight leading-tight mb-3",
+                                    children: t('home.welcome')
+                                }, void 0, false, {
+                                    fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                    lineNumber: 55,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("p", {
+                                    "data-lov-id": "src\\pages\\LoginMVP.tsx:58:14",
+                                    "data-lov-name": "p",
+                                    "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                    "data-component-line": "58",
+                                    "data-component-file": "LoginMVP.tsx",
+                                    "data-component-name": "p",
+                                    "data-component-content": "%7B%22text%22%3A%22Ethio%20Herd%20Connect%22%2C%22className%22%3A%22text-gray-700%20leading-relaxed%20mb-4%22%7D",
+                                    className: "text-gray-700 leading-relaxed mb-4",
+                                    children: "Ethio Herd Connect"
+                                }, void 0, false, {
+                                    fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                    lineNumber: 58,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("ul", {
+                                    "data-lov-id": "src\\pages\\LoginMVP.tsx:61:14",
+                                    "data-lov-name": "ul",
+                                    "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                    "data-component-line": "61",
+                                    "data-component-file": "LoginMVP.tsx",
+                                    "data-component-name": "ul",
+                                    "data-component-content": "%7B%22className%22%3A%22text-gray-700%20space-y-2%20list-disc%20pl-6%22%7D",
+                                    className: "text-gray-700 space-y-2 list-disc pl-6",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV("li", {
+                                            "data-lov-id": "src\\pages\\LoginMVP.tsx:62:16",
+                                            "data-lov-name": "li",
+                                            "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                            "data-component-line": "62",
+                                            "data-component-file": "LoginMVP.tsx",
+                                            "data-component-name": "li",
+                                            "data-component-content": "%7B%22text%22%3A%22Designed%20for%20basic%20smartphones%20first%3B%20optimized%20for%20small%20screens%22%7D",
+                                            children: "Designed for basic smartphones first; optimized for small screens"
+                                        }, void 0, false, {
+                                            fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                            lineNumber: 62,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("li", {
+                                            "data-lov-id": "src\\pages\\LoginMVP.tsx:63:16",
+                                            "data-lov-name": "li",
+                                            "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                            "data-component-line": "63",
+                                            "data-component-file": "LoginMVP.tsx",
+                                            "data-component-name": "li",
+                                            "data-component-content": "%7B%22text%22%3A%22Bilingual%20labels%20(Amharic%2FEnglish)%20with%20clear%2C%20simple%20wording%22%7D",
+                                            children: "Bilingual labels (Amharic/English) with clear, simple wording"
+                                        }, void 0, false, {
+                                            fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                            lineNumber: 63,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("li", {
+                                            "data-lov-id": "src\\pages\\LoginMVP.tsx:64:16",
+                                            "data-lov-name": "li",
+                                            "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                            "data-component-line": "64",
+                                            "data-component-file": "LoginMVP.tsx",
+                                            "data-component-name": "li",
+                                            "data-component-content": "%7B%22text%22%3A%22Low-bandwidth%20friendly%3A%20efficient%20caching%20and%20minimal%20transfers%22%7D",
+                                            children: "Low-bandwidth friendly: efficient caching and minimal transfers"
+                                        }, void 0, false, {
+                                            fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                            lineNumber: 64,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                    lineNumber: 61,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    "data-lov-id": "src\\pages\\LoginMVP.tsx:66:14",
+                                    "data-lov-name": "div",
+                                    "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                    "data-component-line": "66",
+                                    "data-component-file": "LoginMVP.tsx",
+                                    "data-component-name": "div",
+                                    "data-component-content": "%7B%22className%22%3A%22mt-6%20p-8%20bg-gradient-to-br%20from-emerald-50%20to-green-100%20rounded-xl%20border%20border-emerald-200%20text-center%22%7D",
+                                    className: "mt-6 p-8 bg-gradient-to-br from-emerald-50 to-green-100 rounded-xl border border-emerald-200 text-center",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV("div", {
+                                            "data-lov-id": "src\\pages\\LoginMVP.tsx:67:16",
+                                            "data-lov-name": "div",
+                                            "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                            "data-component-line": "67",
+                                            "data-component-file": "LoginMVP.tsx",
+                                            "data-component-name": "div",
+                                            "data-component-content": "%7B%22text%22%3A%22%F0%9F%90%84%20%F0%9F%90%90%20%F0%9F%90%91%22%2C%22className%22%3A%22text-6xl%20mb-4%22%7D",
+                                            className: "text-6xl mb-4",
+                                            children: "🐄 🐐 🐑"
+                                        }, void 0, false, {
+                                            fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                            lineNumber: 67,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("p", {
+                                            "data-lov-id": "src\\pages\\LoginMVP.tsx:68:16",
+                                            "data-lov-name": "p",
+                                            "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                            "data-component-line": "68",
+                                            "data-component-file": "LoginMVP.tsx",
+                                            "data-component-name": "p",
+                                            "data-component-content": "%7B%22text%22%3A%22Track%20%E2%80%A2%20Manage%20%E2%80%A2%20Sell%22%2C%22className%22%3A%22text-emerald-800%20font-medium%22%7D",
+                                            className: "text-emerald-800 font-medium",
+                                            children: "Track • Manage • Sell"
+                                        }, void 0, false, {
+                                            fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                            lineNumber: 68,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("p", {
+                                            "data-lov-id": "src\\pages\\LoginMVP.tsx:69:16",
+                                            "data-lov-name": "p",
+                                            "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                            "data-component-line": "69",
+                                            "data-component-file": "LoginMVP.tsx",
+                                            "data-component-name": "p",
+                                            "data-component-content": "%7B%22text%22%3A%22Your%20livestock%2C%20organized%22%2C%22className%22%3A%22text-emerald-600%20text-sm%20mt-2%22%7D",
+                                            className: "text-emerald-600 text-sm mt-2",
+                                            children: "Your livestock, organized"
+                                        }, void 0, false, {
+                                            fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                            lineNumber: 69,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                    lineNumber: 66,
+                                    columnNumber: 15
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                            lineNumber: 48,
+                            columnNumber: 13
+                        }, this)
+                    }, void 0, false, {
+                        fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                        lineNumber: 47,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ _jsxDEV("section", {
+                        "data-lov-id": "src\\pages\\LoginMVP.tsx:75:10",
+                        "data-lov-name": "section",
+                        "data-component-path": "src\\pages\\LoginMVP.tsx",
+                        "data-component-line": "75",
+                        "data-component-file": "LoginMVP.tsx",
+                        "data-component-name": "section",
+                        "data-component-content": "%7B%22className%22%3A%22w-full%20max-w-md%20mx-auto%22%7D",
+                        "aria-label": "Login",
+                        className: "w-full max-w-md mx-auto",
+                        children: [
+                            /*#__PURE__*/ _jsxDEV("div", {
+                                "data-lov-id": "src\\pages\\LoginMVP.tsx:76:12",
+                                "data-lov-name": "div",
+                                "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                "data-component-line": "76",
+                                "data-component-file": "LoginMVP.tsx",
+                                "data-component-name": "div",
+                                "data-component-content": "%7B%22className%22%3A%22bg-white%20rounded-2xl%20shadow-xl%20p-8%22%7D",
+                                className: "bg-white rounded-2xl shadow-xl p-8",
+                                children: [
+                                    /*#__PURE__*/ _jsxDEV("div", {
+                                        "data-lov-id": "src\\pages\\LoginMVP.tsx:78:14",
+                                        "data-lov-name": "div",
+                                        "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                        "data-component-line": "78",
+                                        "data-component-file": "LoginMVP.tsx",
+                                        "data-component-name": "div",
+                                        "data-component-content": "%7B%22className%22%3A%22text-center%20space-y-2%20mb-6%22%7D",
+                                        className: "text-center space-y-2 mb-6",
+                                        children: [
+                                            /*#__PURE__*/ _jsxDEV("div", {
+                                                "data-lov-id": "src\\pages\\LoginMVP.tsx:79:16",
+                                                "data-lov-name": "div",
+                                                "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                                "data-component-line": "79",
+                                                "data-component-file": "LoginMVP.tsx",
+                                                "data-component-name": "div",
+                                                "data-component-content": "%7B%22className%22%3A%22w-20%20h-20%20bg-gradient-to-br%20from-green-600%20to-emerald-700%20rounded-full%20flex%20items-center%20justify-center%20mx-auto%20shadow-lg%22%7D",
+                                                className: "w-20 h-20 bg-gradient-to-br from-green-600 to-emerald-700 rounded-full flex items-center justify-center mx-auto shadow-lg",
+                                                children: /*#__PURE__*/ _jsxDEV("span", {
+                                                    "data-lov-id": "src\\pages\\LoginMVP.tsx:80:18",
+                                                    "data-lov-name": "span",
+                                                    "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                                    "data-component-line": "80",
+                                                    "data-component-file": "LoginMVP.tsx",
+                                                    "data-component-name": "span",
+                                                    "data-component-content": "%7B%22text%22%3A%22%F0%9F%90%84%22%2C%22className%22%3A%22text-4xl%22%7D",
+                                                    className: "text-4xl",
+                                                    "aria-hidden": "true",
+                                                    children: "🐄"
+                                                }, void 0, false, {
+                                                    fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                                    lineNumber: 80,
+                                                    columnNumber: 19
+                                                }, this)
+                                            }, void 0, false, {
+                                                fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                                lineNumber: 79,
+                                                columnNumber: 17
+                                            }, this),
+                                            /*#__PURE__*/ _jsxDEV("h2", {
+                                                "data-lov-id": "src\\pages\\LoginMVP.tsx:82:16",
+                                                "data-lov-name": "h2",
+                                                "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                                "data-component-line": "82",
+                                                "data-component-file": "LoginMVP.tsx",
+                                                "data-component-name": "h2",
+                                                "data-component-content": "%7B%22className%22%3A%22text-2xl%20sm%3Atext-3xl%20font-bold%20text-gray-900%20tracking-tight%22%7D",
+                                                className: "text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight",
+                                                children: t('home.welcome')
+                                            }, void 0, false, {
+                                                fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                                lineNumber: 82,
+                                                columnNumber: 17
+                                            }, this),
+                                            /*#__PURE__*/ _jsxDEV("p", {
+                                                "data-lov-id": "src\\pages\\LoginMVP.tsx:85:16",
+                                                "data-lov-name": "p",
+                                                "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                                "data-component-line": "85",
+                                                "data-component-file": "LoginMVP.tsx",
+                                                "data-component-name": "p",
+                                                "data-component-content": "%7B%22text%22%3A%22Ethio%20Herd%20Connect%22%2C%22className%22%3A%22text-gray-600%20text-base%20leading-relaxed%22%7D",
+                                                className: "text-gray-600 text-base leading-relaxed",
+                                                children: "Ethio Herd Connect"
+                                            }, void 0, false, {
+                                                fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                                lineNumber: 85,
+                                                columnNumber: 17
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                        lineNumber: 78,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ _jsxDEV(OtpAuthForm, {
+                                        "data-lov-id": "src\\pages\\LoginMVP.tsx:89:14",
+                                        "data-lov-name": "OtpAuthForm",
+                                        "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                        "data-component-line": "89",
+                                        "data-component-file": "LoginMVP.tsx",
+                                        "data-component-name": "OtpAuthForm",
+                                        "data-component-content": "%7B%7D"
+                                    }, void 0, false, {
+                                        fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                        lineNumber: 89,
+                                        columnNumber: 15
+                                    }, this),
+                                    user && /*#__PURE__*/ _jsxDEV("div", {
+                                        "data-lov-id": "src\\pages\\LoginMVP.tsx:93:16",
+                                        "data-lov-name": "div",
+                                        "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                        "data-component-line": "93",
+                                        "data-component-file": "LoginMVP.tsx",
+                                        "data-component-name": "div",
+                                        "data-component-content": "%7B%22className%22%3A%22mt-4%20pt-4%20border-t%20border-gray-200%22%7D",
+                                        className: "mt-4 pt-4 border-t border-gray-200",
+                                        children: [
+                                            /*#__PURE__*/ _jsxDEV(Button, {
+                                                "data-lov-id": "src\\pages\\LoginMVP.tsx:94:18",
+                                                "data-lov-name": "Button",
+                                                "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                                "data-component-line": "94",
+                                                "data-component-file": "LoginMVP.tsx",
+                                                "data-component-name": "Button",
+                                                "data-component-content": "%7B%22text%22%3A%22Sign%20Out%20%2F%20%E1%8B%8D%E1%8C%A3%22%2C%22className%22%3A%22w-full%20text-red-600%20border-red-300%20hover%3Abg-red-50%22%7D",
+                                                onClick: handleSignOut,
+                                                variant: "outline",
+                                                className: "w-full text-red-600 border-red-300 hover:bg-red-50",
+                                                children: "Sign Out / ውጣ"
+                                            }, void 0, false, {
+                                                fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                                lineNumber: 94,
+                                                columnNumber: 19
+                                            }, this),
+                                            /*#__PURE__*/ _jsxDEV("p", {
+                                                "data-lov-id": "src\\pages\\LoginMVP.tsx:101:18",
+                                                "data-lov-name": "p",
+                                                "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                                "data-component-line": "101",
+                                                "data-component-file": "LoginMVP.tsx",
+                                                "data-component-name": "p",
+                                                "data-component-content": "%7B%22text%22%3A%22Already%20signed%20in%20as%20...%22%2C%22className%22%3A%22text-xs%20text-gray-500%20text-center%20mt-2%22%7D",
+                                                className: "text-xs text-gray-500 text-center mt-2",
+                                                children: [
+                                                    "Already signed in as ",
+                                                    user.email || user.id.slice(0, 8),
+                                                    "..."
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                                lineNumber: 101,
+                                                columnNumber: 19
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                        lineNumber: 93,
+                                        columnNumber: 17
+                                    }, this),
+                                    /*#__PURE__*/ _jsxDEV("div", {
+                                        "data-lov-id": "src\\pages\\LoginMVP.tsx:108:14",
+                                        "data-lov-name": "div",
+                                        "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                        "data-component-line": "108",
+                                        "data-component-file": "LoginMVP.tsx",
+                                        "data-component-name": "div",
+                                        "data-component-content": "%7B%22className%22%3A%22mt-6%20text-center%20text-sm%20text-gray-500%22%7D",
+                                        className: "mt-6 text-center text-sm text-gray-500",
+                                        children: /*#__PURE__*/ _jsxDEV("p", {
+                                            "data-lov-id": "src\\pages\\LoginMVP.tsx:109:16",
+                                            "data-lov-name": "p",
+                                            "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                            "data-component-line": "109",
+                                            "data-component-file": "LoginMVP.tsx",
+                                            "data-component-name": "p",
+                                            "data-component-content": "%7B%22text%22%3A%22Made%20for%20Ethiopian%20farmers%20%F0%9F%8C%BE%22%7D",
+                                            children: "Made for Ethiopian farmers 🌾"
+                                        }, void 0, false, {
+                                            fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                            lineNumber: 109,
+                                            columnNumber: 17
+                                        }, this)
+                                    }, void 0, false, {
+                                        fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                        lineNumber: 108,
+                                        columnNumber: 15
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                lineNumber: 76,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ _jsxDEV("div", {
+                                "data-lov-id": "src\\pages\\LoginMVP.tsx:114:12",
+                                "data-lov-name": "div",
+                                "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                "data-component-line": "114",
+                                "data-component-file": "LoginMVP.tsx",
+                                "data-component-name": "div",
+                                "data-component-content": "%7B%22className%22%3A%22mt-6%20text-center%20text-sm%20text-gray-600%22%7D",
+                                className: "mt-6 text-center text-sm text-gray-600",
+                                children: /*#__PURE__*/ _jsxDEV("p", {
+                                    "data-lov-id": "src\\pages\\LoginMVP.tsx:115:14",
+                                    "data-lov-name": "p",
+                                    "data-component-path": "src\\pages\\LoginMVP.tsx",
+                                    "data-component-line": "115",
+                                    "data-component-file": "LoginMVP.tsx",
+                                    "data-component-name": "p",
+                                    "data-component-content": "%7B%22text%22%3A%22%E2%9C%93%20Works%20offline%20%E2%80%A2%20%E2%9C%93%20Amharic%20support%20%E2%80%A2%20%E2%9C%93%20Free%20to%20use%22%2C%22className%22%3A%22leading-relaxed%22%7D",
+                                    className: "leading-relaxed",
+                                    children: "✓ Works offline • ✓ Amharic support • ✓ Free to use"
+                                }, void 0, false, {
+                                    fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                    lineNumber: 115,
+                                    columnNumber: 15
+                                }, this)
+                            }, void 0, false, {
+                                fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                                lineNumber: 114,
+                                columnNumber: 13
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                        lineNumber: 75,
+                        columnNumber: 11
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+                lineNumber: 45,
+                columnNumber: 9
+            }, this)
+        }, void 0, false, {
+            fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+            lineNumber: 44,
+            columnNumber: 7
+        }, this)
+    }, void 0, false, {
+        fileName: "D:/ethio-herd-connect/src/pages/LoginMVP.tsx",
+        lineNumber: 40,
+        columnNumber: 5
+    }, this);
+};
+_s(LoginMVP, "B7tU85eWGZ19g0Tm9fThX9ML0mo=", false, function() {
+    return [
+        useAuth,
+        useNavigate,
+        useTranslation
+    ];
+});
+_c = LoginMVP;
+export default LoginMVP;
+var _c;
+$RefreshReg$(_c, "LoginMVP");
+
+
+window.$RefreshReg$ = prevRefreshReg;
+window.$RefreshSig$ = prevRefreshSig;
+
+RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+  RefreshRuntime.registerExportsForReactRefresh("D:/ethio-herd-connect/src/pages/LoginMVP.tsx", currentExports);
+  import.meta.hot.accept((nextExports) => {
+    if (!nextExports) return;
+    const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("D:/ethio-herd-connect/src/pages/LoginMVP.tsx", currentExports, nextExports);
+    if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+  });
+});
+
+//# sourceMappingURL=data:application/json;base64,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d0NBQUFDLGlCQUFBO3dDQUFBQyx1QkFBQTt3Q0FBQUMsdUJBQUE7d0NBQUFDLHVCQUFBO3dDQUFBQyx1QkFBQTt3Q0FBQUMsMEJBQUE7d0NBQUVFLFdBQVU7a0RBQ2Isc0JBQUNPOzRDQUFBZixlQUFBOzRDQUFBQyxpQkFBQTs0Q0FBQUMsdUJBQUE7NENBQUFDLHVCQUFBOzRDQUFBQyx1QkFBQTs0Q0FBQUMsdUJBQUE7NENBQUFDLDBCQUFBO3NEQUFFOzs7Ozs7Ozs7Ozs7Ozs7OzswQ0FLUCxRQUFDRztnQ0FBRVQsZUFBQTtnQ0FBQUMsaUJBQUE7Z0NBQUFDLHVCQUFBO2dDQUFBQyx1QkFBQTtnQ0FBQUMsdUJBQUE7Z0NBQUFDLHVCQUFBO2dDQUFBQywwQkFBQTtnQ0FBRUUsV0FBVTswQ0FDYixzQkFBQ087b0NBQUFmLGVBQUE7b0NBQUFDLGlCQUFBO29DQUFBQyx1QkFBQTtvQ0FBQUMsdUJBQUE7b0NBQUFDLHVCQUFBO29DQUFBQyx1QkFBQTtvQ0FBQUMsMEJBQUE7b0NBQUVFLFdBQVU7OENBQWlCOzs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFTNUM7R0FsSE1yQjs7UUFDc0JKO1FBQ1REO1FBQ0hHOzs7S0FIVkU7QUFvSE4sZUFBZUEsU0FBUSIsIm5hbWVzIjpbIlJlYWN0IiwidXNlRWZmZWN0IiwidXNlTmF2aWdhdGUiLCJ1c2VBdXRoIiwiT3RwQXV0aEZvcm0iLCJ1c2VUcmFuc2xhdGlvbiIsIkJ1dHRvbiIsIkxvZ2luTVZQIiwidXNlciIsInNpZ25PdXQiLCJuYXZpZ2F0ZSIsInQiLCJoYW5kbGVMb2FkIiwiY29uc29sZSIsImxvZyIsImlkIiwic2V0VGltZW91dCIsInJlcGxhY2UiLCJoYW5kbGVTaWduT3V0IiwibWFpbiIsImRhdGEtbG92LWlkIiwiZGF0YS1sb3YtbmFtZSIsImRhdGEtY29tcG9uZW50LXBhdGgiLCJkYXRhLWNvbXBvbmVudC1saW5lIiwiZGF0YS1jb21wb25lbnQtZmlsZSIsImRhdGEtY29tcG9uZW50LW5hbWUiLCJkYXRhLWNvbXBvbmVudC1jb250ZW50Iiwicm9sZSIsImNsYXNzTmFtZSIsImRpdiIsInNlY3Rpb24iLCJhcmlhLWxhYmVsIiwic3BhbiIsImFyaWEtaGlkZGVuIiwiaDEiLCJwIiwidWwiLCJsaSIsImgyIiwib25DbGljayIsInZhcmlhbnQiLCJlbWFpbCIsInNsaWNlIl0sImlnbm9yZUxpc3QiOltdLCJzb3VyY2VzIjpbIkxvZ2luTVZQLnRzeCJdLCJzb3VyY2VzQ29udGVudCI6WyIvLyBzcmMvcGFnZXMvTG9naW5NVlAudHN4IC0gU2ltcGxpZmllZCBNVlAgTG9naW4gUGFnZVxuXG5pbXBvcnQgUmVhY3QsIHsgdXNlRWZmZWN0IH0gZnJvbSAncmVhY3QnO1xuaW1wb3J0IHsgdXNlTmF2aWdhdGUgfSBmcm9tICdyZWFjdC1yb3V0ZXItZG9tJztcbmltcG9ydCB7IHVzZUF1dGggfSBmcm9tICdAL2NvbnRleHRzL0F1dGhDb250ZXh0TVZQJztcbmltcG9ydCB7IE90cEF1dGhGb3JtIH0gZnJvbSAnQC9jb21wb25lbnRzL090cEF1dGhGb3JtJztcbmltcG9ydCB7IHVzZVRyYW5zbGF0aW9uIH0gZnJvbSAnQC9ob29rcy91c2VUcmFuc2xhdGlvbic7XG5pbXBvcnQgeyBCdXR0b24gfSBmcm9tICdAL2NvbXBvbmVudHMvdWkvYnV0dG9uJztcblxuY29uc3QgTG9naW5NVlAgPSAoKSA9PiB7XG4gIGNvbnN0IHsgdXNlciwgc2lnbk91dCB9ID0gdXNlQXV0aCgpO1xuICBjb25zdCBuYXZpZ2F0ZSA9IHVzZU5hdmlnYXRlKCk7XG4gIGNvbnN0IHsgdCB9ID0gdXNlVHJhbnNsYXRpb24oKTtcblxuICAvLyBGb3JjZSBzaWduIG91dCB3aGVuIHZpc2l0aW5nIGxvZ2luIHBhZ2UgLSBmb3IgdGVzdGluZyBvbmx5XG4gIHVzZUVmZmVjdCgoKSA9PiB7XG4gICAgY29uc3QgaGFuZGxlTG9hZCA9IGFzeW5jICgpID0+IHtcbiAgICAgIC8vIEFsd2F5cyBzaWduIG91dCB3aGVuIHZpc2l0aW5nIGxvZ2luIHBhZ2UgKGZvciB0ZXN0aW5nKVxuICAgICAgYXdhaXQgc2lnbk91dCgpO1xuICAgIH07XG4gICAgaGFuZGxlTG9hZCgpO1xuICB9LCBbXSk7IC8vIE9ubHkgcnVuIG9uY2Ugb24gbW91bnRcblxuICB1c2VFZmZlY3QoKCkgPT4ge1xuICAgIC8vIFJlZGlyZWN0IHRvIGhvbWUgaWYgYWxyZWFkeSBsb2dnZWQgaW5cbiAgICBpZiAodXNlcikge1xuICAgICAgY29uc29sZS5sb2coJ1VzZXIgbG9nZ2VkIGluLCBuYXZpZ2F0aW5nIHRvIGhvbWUuLi4nLCB1c2VyLmlkKTtcbiAgICAgIC8vIFNtYWxsIGRlbGF5IHRvIGVuc3VyZSBhdXRoIHN0YXRlIGlzIGZ1bGx5IHNldHRsZWRcbiAgICAgIHNldFRpbWVvdXQoKCkgPT4ge1xuICAgICAgICBuYXZpZ2F0ZSgnLycsIHsgcmVwbGFjZTogdHJ1ZSB9KTtcbiAgICAgIH0sIDEwMCk7XG4gICAgfVxuICB9LCBbdXNlciwgbmF2aWdhdGVdKTtcblxuICBjb25zdCBoYW5kbGVTaWduT3V0ID0gYXN5bmMgKCkgPT4ge1xuICAgIGF3YWl0IHNpZ25PdXQoKTtcbiAgfTtcblxuICByZXR1cm4gKFxuICAgIDxtYWluXG4gICAgICByb2xlPVwibWFpblwiXG4gICAgICBjbGFzc05hbWU9XCJtaW4taC1zY3JlZW4gYmctZ3JhZGllbnQtdG8tYnIgZnJvbS1ncmVlbi01MCB2aWEtZW1lcmFsZC01MCB0by10ZWFsLTUwIHB5LThcIlxuICAgID5cbiAgICAgIDxkaXYgY2xhc3NOYW1lPVwibXgtYXV0byBtYXgtdy03eGwgcHgtNCBzbTpweC02IGxnOnB4LThcIj5cbiAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJncmlkIGdyaWQtY29scy0xIGxnOmdyaWQtY29scy0yIGdhcC04IGl0ZW1zLWNlbnRlclwiPlxuICAgICAgICAgIHsvKiBMZWZ0OiBCcmFuZCBoZXJvIGZvciBsYXJnZXIgc2NyZWVucyAoaGlkZGVuIG9uIG1vYmlsZSBmb3IgcGVyZm9ybWFuY2UpICovfVxuICAgICAgICAgIDxzZWN0aW9uIGNsYXNzTmFtZT1cImhpZGRlbiBsZzpibG9ja1wiIGFyaWEtbGFiZWw9XCJCcmFuZCBpbnRyb2R1Y3Rpb25cIj5cbiAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiYmctd2hpdGUvNjAgYmFja2Ryb3AtYmx1ci1zbSByb3VuZGVkLTN4bCBwLTggc2hhZG93LW1kXCI+XG4gICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwiZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTQgbWItNlwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwidy0xNiBoLTE2IGJnLWdyYWRpZW50LXRvLWJyIGZyb20tZ3JlZW4tNjAwIHRvLWVtZXJhbGQtNzAwIHJvdW5kZWQtZnVsbCBmbGV4IGl0ZW1zLWNlbnRlciBqdXN0aWZ5LWNlbnRlciBzaGFkb3ctbGdcIj5cbiAgICAgICAgICAgICAgICAgIDxzcGFuIGNsYXNzTmFtZT1cInRleHQtM3hsXCIgYXJpYS1oaWRkZW49XCJ0cnVlXCI+8J+QhDwvc3Bhbj5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInRleHQtM3hsXCIgYXJpYS1sYWJlbD1cIkV0aGlvcGlhbiBmbGFnXCI+8J+HqvCfh7k8L2Rpdj5cbiAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICAgIDxoMSBjbGFzc05hbWU9XCJ0ZXh0LTN4bCBmb250LWJvbGQgdGV4dC1ncmF5LTkwMCB0cmFja2luZy10aWdodCBsZWFkaW5nLXRpZ2h0IG1iLTNcIj5cbiAgICAgICAgICAgICAgICB7dCgnaG9tZS53ZWxjb21lJyl9XG4gICAgICAgICAgICAgIDwvaDE+XG4gICAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtZ3JheS03MDAgbGVhZGluZy1yZWxheGVkIG1iLTRcIj5cbiAgICAgICAgICAgICAgICBFdGhpbyBIZXJkIENvbm5lY3RcbiAgICAgICAgICAgICAgPC9wPlxuICAgICAgICAgICAgICA8dWwgY2xhc3NOYW1lPVwidGV4dC1ncmF5LTcwMCBzcGFjZS15LTIgbGlzdC1kaXNjIHBsLTZcIj5cbiAgICAgICAgICAgICAgICA8bGk+RGVzaWduZWQgZm9yIGJhc2ljIHNtYXJ0cGhvbmVzIGZpcnN0OyBvcHRpbWl6ZWQgZm9yIHNtYWxsIHNjcmVlbnM8L2xpPlxuICAgICAgICAgICAgICAgIDxsaT5CaWxpbmd1YWwgbGFiZWxzIChBbWhhcmljL0VuZ2xpc2gpIHdpdGggY2xlYXIsIHNpbXBsZSB3b3JkaW5nPC9saT5cbiAgICAgICAgICAgICAgICA8bGk+TG93LWJhbmR3aWR0aCBmcmllbmRseTogZWZmaWNpZW50IGNhY2hpbmcgYW5kIG1pbmltYWwgdHJhbnNmZXJzPC9saT5cbiAgICAgICAgICAgICAgPC91bD5cbiAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJtdC02IHAtOCBiZy1ncmFkaWVudC10by1iciBmcm9tLWVtZXJhbGQtNTAgdG8tZ3JlZW4tMTAwIHJvdW5kZWQteGwgYm9yZGVyIGJvcmRlci1lbWVyYWxkLTIwMCB0ZXh0LWNlbnRlclwiPlxuICAgICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwidGV4dC02eGwgbWItNFwiPvCfkIQg8J+QkCDwn5CRPC9kaXY+XG4gICAgICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1lbWVyYWxkLTgwMCBmb250LW1lZGl1bVwiPlRyYWNrIOKAoiBNYW5hZ2Ug4oCiIFNlbGw8L3A+XG4gICAgICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1lbWVyYWxkLTYwMCB0ZXh0LXNtIG10LTJcIj5Zb3VyIGxpdmVzdG9jaywgb3JnYW5pemVkPC9wPlxuICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgIDwvZGl2PlxuICAgICAgICAgIDwvc2VjdGlvbj5cblxuICAgICAgICAgIHsvKiBSaWdodDogTG9naW4gY2FyZCAqL31cbiAgICAgICAgICA8c2VjdGlvbiBhcmlhLWxhYmVsPVwiTG9naW5cIiBjbGFzc05hbWU9XCJ3LWZ1bGwgbWF4LXctbWQgbXgtYXV0b1wiPlxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJiZy13aGl0ZSByb3VuZGVkLTJ4bCBzaGFkb3cteGwgcC04XCI+XG4gICAgICAgICAgICAgIHsvKiBIZWFkZXIgKi99XG4gICAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwidGV4dC1jZW50ZXIgc3BhY2UteS0yIG1iLTZcIj5cbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInctMjAgaC0yMCBiZy1ncmFkaWVudC10by1iciBmcm9tLWdyZWVuLTYwMCB0by1lbWVyYWxkLTcwMCByb3VuZGVkLWZ1bGwgZmxleCBpdGVtcy1jZW50ZXIganVzdGlmeS1jZW50ZXIgbXgtYXV0byBzaGFkb3ctbGdcIj5cbiAgICAgICAgICAgICAgICAgIDxzcGFuIGNsYXNzTmFtZT1cInRleHQtNHhsXCIgYXJpYS1oaWRkZW49XCJ0cnVlXCI+8J+QhDwvc3Bhbj5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgICA8aDIgY2xhc3NOYW1lPVwidGV4dC0yeGwgc206dGV4dC0zeGwgZm9udC1ib2xkIHRleHQtZ3JheS05MDAgdHJhY2tpbmctdGlnaHRcIj5cbiAgICAgICAgICAgICAgICAgIHt0KCdob21lLndlbGNvbWUnKX1cbiAgICAgICAgICAgICAgICA8L2gyPlxuICAgICAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtZ3JheS02MDAgdGV4dC1iYXNlIGxlYWRpbmctcmVsYXhlZFwiPkV0aGlvIEhlcmQgQ29ubmVjdDwvcD5cbiAgICAgICAgICAgICAgPC9kaXY+XG5cbiAgICAgICAgICAgICAgey8qIE9UUCBBdXRoIEZvcm0gKi99XG4gICAgICAgICAgICAgIDxPdHBBdXRoRm9ybSAvPlxuXG4gICAgICAgICAgICAgIHsvKiBTaWduIE91dCBCdXR0b24gLSBvbmx5IHNob3cgaWYgdXNlciBpcyBsb2dnZWQgaW4gKi99XG4gICAgICAgICAgICAgIHt1c2VyICYmIChcbiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cIm10LTQgcHQtNCBib3JkZXItdCBib3JkZXItZ3JheS0yMDBcIj5cbiAgICAgICAgICAgICAgICAgIDxCdXR0b25cbiAgICAgICAgICAgICAgICAgICAgb25DbGljaz17aGFuZGxlU2lnbk91dH1cbiAgICAgICAgICAgICAgICAgICAgdmFyaWFudD1cIm91dGxpbmVcIlxuICAgICAgICAgICAgICAgICAgICBjbGFzc05hbWU9XCJ3LWZ1bGwgdGV4dC1yZWQtNjAwIGJvcmRlci1yZWQtMzAwIGhvdmVyOmJnLXJlZC01MFwiXG4gICAgICAgICAgICAgICAgICA+XG4gICAgICAgICAgICAgICAgICAgIFNpZ24gT3V0IC8g4YuN4YyjXG4gICAgICAgICAgICAgICAgICA8L0J1dHRvbj5cbiAgICAgICAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQteHMgdGV4dC1ncmF5LTUwMCB0ZXh0LWNlbnRlciBtdC0yXCI+XG4gICAgICAgICAgICAgICAgICAgIEFscmVhZHkgc2lnbmVkIGluIGFzIHt1c2VyLmVtYWlsIHx8IHVzZXIuaWQuc2xpY2UoMCw4KX0uLi5cbiAgICAgICAgICAgICAgICAgIDwvcD5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgKX1cblxuICAgICAgICAgICAgICB7LyogRm9vdGVyICovfVxuICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cIm10LTYgdGV4dC1jZW50ZXIgdGV4dC1zbSB0ZXh0LWdyYXktNTAwXCI+XG4gICAgICAgICAgICAgICAgPHA+TWFkZSBmb3IgRXRoaW9waWFuIGZhcm1lcnMg8J+MvjwvcD5cbiAgICAgICAgICAgICAgPC9kaXY+XG4gICAgICAgICAgICA8L2Rpdj5cblxuICAgICAgICAgICAgey8qIEFkZGl0aW9uYWwgSW5mbyAqL31cbiAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPVwibXQtNiB0ZXh0LWNlbnRlciB0ZXh0LXNtIHRleHQtZ3JheS02MDBcIj5cbiAgICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwibGVhZGluZy1yZWxheGVkXCI+XG4gICAgICAgICAgICAgICAg4pyTIFdvcmtzIG9mZmxpbmUg4oCiIOKckyBBbWhhcmljIHN1cHBvcnQg4oCiIOKckyBGcmVlIHRvIHVzZVxuICAgICAgICAgICAgICA8L3A+XG4gICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICA8L3NlY3Rpb24+XG4gICAgICAgIDwvZGl2PlxuICAgICAgPC9kaXY+XG4gICAgPC9tYWluPlxuICApO1xufTtcblxuZXhwb3J0IGRlZmF1bHQgTG9naW5NVlA7XG4iXSwiZmlsZSI6IkQ6L2V0aGlvLWhlcmQtY29ubmVjdC9zcmMvcGFnZXMvTG9naW5NVlAudHN4In0=

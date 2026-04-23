@@ -1,0 +1,94 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/contexts/LanguageContext.tsx");if (!window.$RefreshReg$) throw new Error("React refresh preamble was not loaded. Something is wrong.");
+const prevRefreshReg = window.$RefreshReg$;
+const prevRefreshSig = window.$RefreshSig$;
+window.$RefreshReg$ = RefreshRuntime.getRefreshReg("D:/ethio-herd-connect/src/contexts/LanguageContext.tsx");
+window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+
+import * as RefreshRuntime from "/@react-refresh";
+
+import __vite__cjsImport1_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=0165465e"; const _jsxDEV = __vite__cjsImport1_react_jsxDevRuntime["jsxDEV"];
+var _s = $RefreshSig$(), _s1 = $RefreshSig$();
+import __vite__cjsImport2_react from "/node_modules/.vite/deps/react.js?v=0165465e"; const React = __vite__cjsImport2_react.__esModule ? __vite__cjsImport2_react.default : __vite__cjsImport2_react; const createContext = __vite__cjsImport2_react["createContext"]; const useContext = __vite__cjsImport2_react["useContext"]; const useState = __vite__cjsImport2_react["useState"]; const useEffect = __vite__cjsImport2_react["useEffect"];
+const LanguageContext = /*#__PURE__*/ createContext(undefined);
+const LANGUAGE_STORAGE_KEY = 'ethio-herd-language';
+// Default to Amharic for Ethiopian users
+const getDefaultLanguage = ()=>{
+    // Check localStorage first
+    const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    if (stored === 'am' || stored === 'en' || stored === 'or' || stored === 'sw') {
+        return stored;
+    }
+    // Default to Amharic for Ethiopian context
+    return 'am';
+};
+export const LanguageProvider = ({ children })=>{
+    _s();
+    const [language, setLanguageState] = useState(getDefaultLanguage);
+    const setLanguage = (lang)=>{
+        setLanguageState(lang);
+        localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
+        // Update HTML lang attribute for accessibility and RTL support
+        const langMap = {
+            'am': 'am',
+            'en': 'en',
+            'or': 'om',
+            'sw': 'sw' // Swahili
+        };
+        document.documentElement.lang = langMap[lang] || 'en';
+        // Add RTL class for proper text direction (though Amharic is LTR, this prepares for future RTL languages)
+        document.documentElement.dir = 'ltr'; // All current languages are LTR
+    };
+    useEffect(()=>{
+        // Set initial HTML lang attribute
+        document.documentElement.lang = language === 'am' ? 'am' : 'en';
+    }, []);
+    const value = {
+        language,
+        setLanguage,
+        isAmharic: language === 'am',
+        isEnglish: language === 'en'
+    };
+    return /*#__PURE__*/ _jsxDEV(LanguageContext.Provider, {
+        "data-lov-id": "src\\contexts\\LanguageContext.tsx:66:4",
+        "data-lov-name": "LanguageContext.Provider",
+        "data-component-path": "src\\contexts\\LanguageContext.tsx",
+        "data-component-line": "66",
+        "data-component-file": "LanguageContext.tsx",
+        "data-component-name": "LanguageContext.Provider",
+        "data-component-content": "%7B%7D",
+        value: value,
+        children: children
+    }, void 0, false, {
+        fileName: "D:/ethio-herd-connect/src/contexts/LanguageContext.tsx",
+        lineNumber: 66,
+        columnNumber: 5
+    }, this);
+};
+_s(LanguageProvider, "Ixg7jM9quZLgj/zz+kSoGS0PzuI=");
+_c = LanguageProvider;
+export const useLanguage = ()=>{
+    _s1();
+    const context = useContext(LanguageContext);
+    if (context === undefined) {
+        throw new Error('useLanguage must be used within a LanguageProvider');
+    }
+    return context;
+};
+_s1(useLanguage, "b9L3QQ+jgeyIrH0NfHrJ8nn7VMU=");
+var _c;
+$RefreshReg$(_c, "LanguageProvider");
+
+
+window.$RefreshReg$ = prevRefreshReg;
+window.$RefreshSig$ = prevRefreshSig;
+
+RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+  RefreshRuntime.registerExportsForReactRefresh("D:/ethio-herd-connect/src/contexts/LanguageContext.tsx", currentExports);
+  import.meta.hot.accept((nextExports) => {
+    if (!nextExports) return;
+    const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("D:/ethio-herd-connect/src/contexts/LanguageContext.tsx", currentExports, nextExports);
+    if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+  });
+});
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7OztBQUFBLE9BQU9BLFNBQVNDLGFBQWEsRUFBRUMsVUFBVSxFQUFFQyxRQUFRLEVBQUVDLFNBQVMsUUFBbUIsUUFBUTtBQVd6RixNQUFNQyxnQ0FBa0JKLGNBQStDSztBQUV2RSxNQUFNQyx1QkFBdUI7QUFFN0IseUNBQXlDO0FBQ3pDLE1BQU1DLHFCQUFxQjtJQUN6QiwyQkFBMkI7SUFDM0IsTUFBTUMsU0FBU0MsYUFBYUMsT0FBTyxDQUFDSjtJQUNwQyxJQUFJRSxXQUFXLFFBQVFBLFdBQVcsUUFBUUEsV0FBVyxRQUFRQSxXQUFXLE1BQU07UUFDNUUsT0FBT0E7SUFDVDtJQUVBLDJDQUEyQztJQUMzQyxPQUFPO0FBQ1Q7QUFNQSxPQUFPLE1BQU1HLG1CQUFvRCxDQUFDLEVBQUVDLFFBQVEsRUFBRTs7SUFDNUUsTUFBTSxDQUFDQyxVQUFVQyxpQkFBaUIsR0FBR1osU0FBbUJLO0lBRXhELE1BQU1RLGNBQWMsQ0FBQ0M7UUFDbkJGLGlCQUFpQkU7UUFDakJQLGFBQWFRLE9BQU8sQ0FBQ1gsc0JBQXNCVTtRQUUzQywrREFBK0Q7UUFDL0QsTUFBTUUsVUFBVTtZQUNkLE1BQU07WUFDTixNQUFNO1lBQ04sTUFBTTtZQUNOLE1BQU0sS0FBTSxVQUFVO1FBQ3hCO1FBRUFDLFNBQVNDLGVBQWUsQ0FBQ0osSUFBSSxHQUFHRSxPQUFPLENBQUNGLEtBQUssSUFBSTtRQUVqRCwwR0FBMEc7UUFDMUdHLFNBQVNDLGVBQWUsQ0FBQ0MsR0FBRyxHQUFHLE9BQU8sZ0NBQWdDO0lBQ3hFO0lBRUFsQixVQUFVO1FBQ1Isa0NBQWtDO1FBQ2xDZ0IsU0FBU0MsZUFBZSxDQUFDSixJQUFJLEdBQUdILGFBQWEsT0FBTyxPQUFPO0lBQzdELEdBQUcsRUFBRTtJQUVMLE1BQU1TLFFBQTZCO1FBQ2pDVDtRQUNBRTtRQUNBUSxXQUFXVixhQUFhO1FBQ3hCVyxXQUFXWCxhQUFhO0lBQzFCO0lBRUEscUJBQ0UsUUFBQ1QsZ0JBQWdCcUIsUUFBTztRQUFBQyxlQUFBO1FBQUFDLGlCQUFBO1FBQUFDLHVCQUFBO1FBQUFDLHVCQUFBO1FBQUFDLHVCQUFBO1FBQUFDLHVCQUFBO1FBQUFDLDBCQUFBO1FBQUVWLE9BQU9BO2tCQUM5QlY7Ozs7OztBQUdQLEVBQUU7R0F0Q1dEO0tBQUFBO0FBd0NiLE9BQU8sTUFBTXNCLGNBQWM7O0lBQ3pCLE1BQU1DLFVBQVVqQyxXQUFXRztJQUMzQixJQUFJOEIsWUFBWTdCLFdBQVc7UUFDekIsTUFBTSxJQUFJOEIsTUFBTTtJQUNsQjtJQUNBLE9BQU9EO0FBQ1QsRUFBRTtJQU5XRCIsIm5hbWVzIjpbIlJlYWN0IiwiY3JlYXRlQ29udGV4dCIsInVzZUNvbnRleHQiLCJ1c2VTdGF0ZSIsInVzZUVmZmVjdCIsIkxhbmd1YWdlQ29udGV4dCIsInVuZGVmaW5lZCIsIkxBTkdVQUdFX1NUT1JBR0VfS0VZIiwiZ2V0RGVmYXVsdExhbmd1YWdlIiwic3RvcmVkIiwibG9jYWxTdG9yYWdlIiwiZ2V0SXRlbSIsIkxhbmd1YWdlUHJvdmlkZXIiLCJjaGlsZHJlbiIsImxhbmd1YWdlIiwic2V0TGFuZ3VhZ2VTdGF0ZSIsInNldExhbmd1YWdlIiwibGFuZyIsInNldEl0ZW0iLCJsYW5nTWFwIiwiZG9jdW1lbnQiLCJkb2N1bWVudEVsZW1lbnQiLCJkaXIiLCJ2YWx1ZSIsImlzQW1oYXJpYyIsImlzRW5nbGlzaCIsIlByb3ZpZGVyIiwiZGF0YS1sb3YtaWQiLCJkYXRhLWxvdi1uYW1lIiwiZGF0YS1jb21wb25lbnQtcGF0aCIsImRhdGEtY29tcG9uZW50LWxpbmUiLCJkYXRhLWNvbXBvbmVudC1maWxlIiwiZGF0YS1jb21wb25lbnQtbmFtZSIsImRhdGEtY29tcG9uZW50LWNvbnRlbnQiLCJ1c2VMYW5ndWFnZSIsImNvbnRleHQiLCJFcnJvciJdLCJpZ25vcmVMaXN0IjpbXSwic291cmNlcyI6WyJMYW5ndWFnZUNvbnRleHQudHN4Il0sInNvdXJjZXNDb250ZW50IjpbImltcG9ydCBSZWFjdCwgeyBjcmVhdGVDb250ZXh0LCB1c2VDb250ZXh0LCB1c2VTdGF0ZSwgdXNlRWZmZWN0LCBSZWFjdE5vZGUgfSBmcm9tICdyZWFjdCc7XHJcblxyXG50eXBlIExhbmd1YWdlID0gJ2FtJyB8ICdlbicgfCAnb3InIHwgJ3N3JztcclxuXHJcbmludGVyZmFjZSBMYW5ndWFnZUNvbnRleHRUeXBlIHtcclxuICBsYW5ndWFnZTogTGFuZ3VhZ2U7XHJcbiAgc2V0TGFuZ3VhZ2U6IChsYW5nOiBMYW5ndWFnZSkgPT4gdm9pZDtcclxuICBpc0FtaGFyaWM6IGJvb2xlYW47XHJcbiAgaXNFbmdsaXNoOiBib29sZWFuO1xyXG59XHJcblxyXG5jb25zdCBMYW5ndWFnZUNvbnRleHQgPSBjcmVhdGVDb250ZXh0PExhbmd1YWdlQ29udGV4dFR5cGUgfCB1bmRlZmluZWQ+KHVuZGVmaW5lZCk7XHJcblxyXG5jb25zdCBMQU5HVUFHRV9TVE9SQUdFX0tFWSA9ICdldGhpby1oZXJkLWxhbmd1YWdlJztcclxuXHJcbi8vIERlZmF1bHQgdG8gQW1oYXJpYyBmb3IgRXRoaW9waWFuIHVzZXJzXHJcbmNvbnN0IGdldERlZmF1bHRMYW5ndWFnZSA9ICgpOiBMYW5ndWFnZSA9PiB7XHJcbiAgLy8gQ2hlY2sgbG9jYWxTdG9yYWdlIGZpcnN0XHJcbiAgY29uc3Qgc3RvcmVkID0gbG9jYWxTdG9yYWdlLmdldEl0ZW0oTEFOR1VBR0VfU1RPUkFHRV9LRVkpO1xyXG4gIGlmIChzdG9yZWQgPT09ICdhbScgfHwgc3RvcmVkID09PSAnZW4nIHx8IHN0b3JlZCA9PT0gJ29yJyB8fCBzdG9yZWQgPT09ICdzdycpIHtcclxuICAgIHJldHVybiBzdG9yZWQgYXMgTGFuZ3VhZ2U7XHJcbiAgfVxyXG5cclxuICAvLyBEZWZhdWx0IHRvIEFtaGFyaWMgZm9yIEV0aGlvcGlhbiBjb250ZXh0XHJcbiAgcmV0dXJuICdhbSc7XHJcbn07XHJcblxyXG5pbnRlcmZhY2UgTGFuZ3VhZ2VQcm92aWRlclByb3BzIHtcclxuICBjaGlsZHJlbjogUmVhY3ROb2RlO1xyXG59XHJcblxyXG5leHBvcnQgY29uc3QgTGFuZ3VhZ2VQcm92aWRlcjogUmVhY3QuRkM8TGFuZ3VhZ2VQcm92aWRlclByb3BzPiA9ICh7IGNoaWxkcmVuIH0pID0+IHtcclxuICBjb25zdCBbbGFuZ3VhZ2UsIHNldExhbmd1YWdlU3RhdGVdID0gdXNlU3RhdGU8TGFuZ3VhZ2U+KGdldERlZmF1bHRMYW5ndWFnZSk7XHJcblxyXG4gIGNvbnN0IHNldExhbmd1YWdlID0gKGxhbmc6IExhbmd1YWdlKSA9PiB7XHJcbiAgICBzZXRMYW5ndWFnZVN0YXRlKGxhbmcpO1xyXG4gICAgbG9jYWxTdG9yYWdlLnNldEl0ZW0oTEFOR1VBR0VfU1RPUkFHRV9LRVksIGxhbmcpO1xyXG5cclxuICAgIC8vIFVwZGF0ZSBIVE1MIGxhbmcgYXR0cmlidXRlIGZvciBhY2Nlc3NpYmlsaXR5IGFuZCBSVEwgc3VwcG9ydFxyXG4gICAgY29uc3QgbGFuZ01hcCA9IHtcclxuICAgICAgJ2FtJzogJ2FtJywgLy8gQW1oYXJpY1xyXG4gICAgICAnZW4nOiAnZW4nLCAvLyBFbmdsaXNoXHJcbiAgICAgICdvcic6ICdvbScsIC8vIE9yb21vXHJcbiAgICAgICdzdyc6ICdzdycgIC8vIFN3YWhpbGlcclxuICAgIH07XHJcblxyXG4gICAgZG9jdW1lbnQuZG9jdW1lbnRFbGVtZW50LmxhbmcgPSBsYW5nTWFwW2xhbmddIHx8ICdlbic7XHJcblxyXG4gICAgLy8gQWRkIFJUTCBjbGFzcyBmb3IgcHJvcGVyIHRleHQgZGlyZWN0aW9uICh0aG91Z2ggQW1oYXJpYyBpcyBMVFIsIHRoaXMgcHJlcGFyZXMgZm9yIGZ1dHVyZSBSVEwgbGFuZ3VhZ2VzKVxyXG4gICAgZG9jdW1lbnQuZG9jdW1lbnRFbGVtZW50LmRpciA9ICdsdHInOyAvLyBBbGwgY3VycmVudCBsYW5ndWFnZXMgYXJlIExUUlxyXG4gIH07XHJcblxyXG4gIHVzZUVmZmVjdCgoKSA9PiB7XHJcbiAgICAvLyBTZXQgaW5pdGlhbCBIVE1MIGxhbmcgYXR0cmlidXRlXHJcbiAgICBkb2N1bWVudC5kb2N1bWVudEVsZW1lbnQubGFuZyA9IGxhbmd1YWdlID09PSAnYW0nID8gJ2FtJyA6ICdlbic7XHJcbiAgfSwgW10pO1xyXG5cclxuICBjb25zdCB2YWx1ZTogTGFuZ3VhZ2VDb250ZXh0VHlwZSA9IHtcclxuICAgIGxhbmd1YWdlLFxyXG4gICAgc2V0TGFuZ3VhZ2UsXHJcbiAgICBpc0FtaGFyaWM6IGxhbmd1YWdlID09PSAnYW0nLFxyXG4gICAgaXNFbmdsaXNoOiBsYW5ndWFnZSA9PT0gJ2VuJyxcclxuICB9O1xyXG5cclxuICByZXR1cm4gKFxyXG4gICAgPExhbmd1YWdlQ29udGV4dC5Qcm92aWRlciB2YWx1ZT17dmFsdWV9PlxyXG4gICAgICB7Y2hpbGRyZW59XHJcbiAgICA8L0xhbmd1YWdlQ29udGV4dC5Qcm92aWRlcj5cclxuICApO1xyXG59O1xyXG5cclxuZXhwb3J0IGNvbnN0IHVzZUxhbmd1YWdlID0gKCk6IExhbmd1YWdlQ29udGV4dFR5cGUgPT4ge1xyXG4gIGNvbnN0IGNvbnRleHQgPSB1c2VDb250ZXh0KExhbmd1YWdlQ29udGV4dCk7XHJcbiAgaWYgKGNvbnRleHQgPT09IHVuZGVmaW5lZCkge1xyXG4gICAgdGhyb3cgbmV3IEVycm9yKCd1c2VMYW5ndWFnZSBtdXN0IGJlIHVzZWQgd2l0aGluIGEgTGFuZ3VhZ2VQcm92aWRlcicpO1xyXG4gIH1cclxuICByZXR1cm4gY29udGV4dDtcclxufTtcclxuIl0sImZpbGUiOiJEOi9ldGhpby1oZXJkLWNvbm5lY3Qvc3JjL2NvbnRleHRzL0xhbmd1YWdlQ29udGV4dC50c3gifQ==

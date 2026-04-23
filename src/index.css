@@ -728,3 +728,74 @@
   @apply hover:shadow-md hover:border-primary/20;
   @apply transition-all duration-300 ease-out;
 }
+
+/* Accessibility: Reduce Motion */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+.reduce-motion .animate-pulse {
+  animation: none;
+  opacity: 0.5;
+}
+
+.reduce-motion .animate-spin {
+  animation: none;
+}
+
+.reduce-motion .animate-slideInUp {
+  animation: none;
+  opacity: 1;
+}
+
+/* Accessibility: High Contrast */
+.high-contrast {
+  --foreground: #000000;
+  --background: #ffffff;
+  --card-foreground: #000000;
+  --primary: #000000;
+  --primary-foreground: #ffffff;
+  --secondary: #ffffff;
+  --secondary-foreground: #000000;
+  --muted: #f0f0f0;
+  --muted-foreground: #000000;
+  --accent: #ffff00;
+  --accent-foreground: #000000;
+  --destructive: #ff0000;
+  --destructive-foreground: #ffffff;
+  --border: #000000;
+  --input: #000000;
+  --ring: #000000;
+}
+
+.high-contrast .bg-white {
+  background-color: #ffffff !important;
+}
+
+.high-contrast .text-gray-900,
+.high-contrast .text-gray-800,
+.high-contrast .text-gray-700 {
+  color: #000000 !important;
+}
+
+.high-contrast .border {
+  border-color: #000000 !important;
+  border-width: 2px !important;
+}
+
+.high-contrast button,
+.high-contrast a,
+.high-contrast input,
+.high-contrast select {
+  border-width: 2px !important;
+}
+
+.high-contrast a:hover {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+}

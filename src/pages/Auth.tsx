@@ -12,7 +12,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { User, Phone, Lock, Eye, EyeOff, Mail } from 'lucide-react';
 import { LoginSchema, MobileLoginSchema, SignUpSchema } from '@/lib/authValidators';
-import { OtpAuthForm } from '@/components/OtpAuthForm';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -20,7 +19,6 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [showPasswordUI, setShowPasswordUI] = useState(false);
   
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
@@ -108,12 +106,8 @@ const Auth = () => {
         </CardHeader>
         
         <CardContent>
-          {!showPasswordUI ? (
-            <OtpAuthForm showPasswordFallback onTogglePassword={() => setShowPasswordUI(true)} />
-          ) : (
-            <>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               {isLogin && (
                 <div className="flex bg-gray-100 rounded-lg p-1 mb-4">
                   <button
@@ -286,19 +280,8 @@ const Auth = () => {
                   }
                 </button>
               </div>
-              </form>
-            </Form>
-            <div className="text-center mt-4">
-              <button
-                type="button"
-                className="text-green-600 hover:text-green-700 text-sm"
-                onClick={() => setShowPasswordUI(false)}
-              >
-                Use OTP instead
-              </button>
-            </div>
-            </>
-          )}
+            </form>
+          </Form>
         </CardContent>
       </Card>
     </div>

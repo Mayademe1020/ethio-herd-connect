@@ -1,0 +1,46 @@
+// src/hooks/useSimpleToast.ts
+// Simplified toast API for Ethiopian farmers - ONE unified toast system
+// Replaces all duplicate toast implementations
+import { useToast as useRadixToast } from "/src/hooks/use-toast.ts";
+export const useSimpleToast = ()=>{
+    const { toast } = useRadixToast();
+    const showSuccess = (message, description)=>{
+        toast({
+            title: '✅ ' + message,
+            description,
+            duration: 3000
+        });
+    };
+    const showError = (message, description)=>{
+        toast({
+            title: '❌ ' + message,
+            description,
+            variant: 'destructive',
+            duration: 5000
+        });
+    };
+    const showInfo = (message, description)=>{
+        toast({
+            title: 'ℹ️ ' + message,
+            description,
+            duration: 3000
+        });
+    };
+    const showWarning = (message, description)=>{
+        toast({
+            title: '⚠️ ' + message,
+            description,
+            duration: 4000
+        });
+    };
+    return {
+        showSuccess,
+        showError,
+        showInfo,
+        showWarning,
+        toast
+    };
+};
+export default useSimpleToast;
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInVzZVNpbXBsZVRvYXN0LnRzIl0sInNvdXJjZXNDb250ZW50IjpbIi8vIHNyYy9ob29rcy91c2VTaW1wbGVUb2FzdC50c1xuLy8gU2ltcGxpZmllZCB0b2FzdCBBUEkgZm9yIEV0aGlvcGlhbiBmYXJtZXJzIC0gT05FIHVuaWZpZWQgdG9hc3Qgc3lzdGVtXG4vLyBSZXBsYWNlcyBhbGwgZHVwbGljYXRlIHRvYXN0IGltcGxlbWVudGF0aW9uc1xuXG5pbXBvcnQgeyB1c2VUb2FzdCBhcyB1c2VSYWRpeFRvYXN0IH0gZnJvbSAnLi91c2UtdG9hc3QnO1xuXG5pbnRlcmZhY2UgVG9hc3RPcHRpb25zIHtcbiAgdGl0bGU/OiBzdHJpbmc7XG4gIGRlc2NyaXB0aW9uPzogc3RyaW5nO1xuICBkdXJhdGlvbj86IG51bWJlcjtcbn1cblxuZXhwb3J0IGNvbnN0IHVzZVNpbXBsZVRvYXN0ID0gKCkgPT4ge1xuICBjb25zdCB7IHRvYXN0IH0gPSB1c2VSYWRpeFRvYXN0KCk7XG5cbiAgY29uc3Qgc2hvd1N1Y2Nlc3MgPSAobWVzc2FnZTogc3RyaW5nLCBkZXNjcmlwdGlvbj86IHN0cmluZykgPT4ge1xuICAgIHRvYXN0KHtcbiAgICAgIHRpdGxlOiAn4pyFICcgKyBtZXNzYWdlLFxuICAgICAgZGVzY3JpcHRpb24sXG4gICAgICBkdXJhdGlvbjogMzAwMCxcbiAgICB9KTtcbiAgfTtcblxuICBjb25zdCBzaG93RXJyb3IgPSAobWVzc2FnZTogc3RyaW5nLCBkZXNjcmlwdGlvbj86IHN0cmluZykgPT4ge1xuICAgIHRvYXN0KHtcbiAgICAgIHRpdGxlOiAn4p2MICcgKyBtZXNzYWdlLFxuICAgICAgZGVzY3JpcHRpb24sXG4gICAgICB2YXJpYW50OiAnZGVzdHJ1Y3RpdmUnLFxuICAgICAgZHVyYXRpb246IDUwMDAsXG4gICAgfSk7XG4gIH07XG5cbiAgY29uc3Qgc2hvd0luZm8gPSAobWVzc2FnZTogc3RyaW5nLCBkZXNjcmlwdGlvbj86IHN0cmluZykgPT4ge1xuICAgIHRvYXN0KHtcbiAgICAgIHRpdGxlOiAn4oS577iPICcgKyBtZXNzYWdlLFxuICAgICAgZGVzY3JpcHRpb24sXG4gICAgICBkdXJhdGlvbjogMzAwMCxcbiAgICB9KTtcbiAgfTtcblxuICBjb25zdCBzaG93V2FybmluZyA9IChtZXNzYWdlOiBzdHJpbmcsIGRlc2NyaXB0aW9uPzogc3RyaW5nKSA9PiB7XG4gICAgdG9hc3Qoe1xuICAgICAgdGl0bGU6ICfimqDvuI8gJyArIG1lc3NhZ2UsXG4gICAgICBkZXNjcmlwdGlvbixcbiAgICAgIGR1cmF0aW9uOiA0MDAwLFxuICAgIH0pO1xuICB9O1xuXG4gIHJldHVybiB7XG4gICAgc2hvd1N1Y2Nlc3MsXG4gICAgc2hvd0Vycm9yLFxuICAgIHNob3dJbmZvLFxuICAgIHNob3dXYXJuaW5nLFxuICAgIHRvYXN0LCAvLyBLZWVwIG9yaWdpbmFsIGZvciBhZHZhbmNlZCB1c2FnZVxuICB9O1xufTtcblxuZXhwb3J0IGRlZmF1bHQgdXNlU2ltcGxlVG9hc3Q7XG4iXSwibmFtZXMiOlsidXNlVG9hc3QiLCJ1c2VSYWRpeFRvYXN0IiwidXNlU2ltcGxlVG9hc3QiLCJ0b2FzdCIsInNob3dTdWNjZXNzIiwibWVzc2FnZSIsImRlc2NyaXB0aW9uIiwidGl0bGUiLCJkdXJhdGlvbiIsInNob3dFcnJvciIsInZhcmlhbnQiLCJzaG93SW5mbyIsInNob3dXYXJuaW5nIl0sIm1hcHBpbmdzIjoiQUFBQSw4QkFBOEI7QUFDOUIsd0VBQXdFO0FBQ3hFLCtDQUErQztBQUUvQyxTQUFTQSxZQUFZQyxhQUFhLFFBQVEsY0FBYztBQVF4RCxPQUFPLE1BQU1DLGlCQUFpQjtJQUM1QixNQUFNLEVBQUVDLEtBQUssRUFBRSxHQUFHRjtJQUVsQixNQUFNRyxjQUFjLENBQUNDLFNBQWlCQztRQUNwQ0gsTUFBTTtZQUNKSSxPQUFPLE9BQU9GO1lBQ2RDO1lBQ0FFLFVBQVU7UUFDWjtJQUNGO0lBRUEsTUFBTUMsWUFBWSxDQUFDSixTQUFpQkM7UUFDbENILE1BQU07WUFDSkksT0FBTyxPQUFPRjtZQUNkQztZQUNBSSxTQUFTO1lBQ1RGLFVBQVU7UUFDWjtJQUNGO0lBRUEsTUFBTUcsV0FBVyxDQUFDTixTQUFpQkM7UUFDakNILE1BQU07WUFDSkksT0FBTyxRQUFRRjtZQUNmQztZQUNBRSxVQUFVO1FBQ1o7SUFDRjtJQUVBLE1BQU1JLGNBQWMsQ0FBQ1AsU0FBaUJDO1FBQ3BDSCxNQUFNO1lBQ0pJLE9BQU8sUUFBUUY7WUFDZkM7WUFDQUUsVUFBVTtRQUNaO0lBQ0Y7SUFFQSxPQUFPO1FBQ0xKO1FBQ0FLO1FBQ0FFO1FBQ0FDO1FBQ0FUO0lBQ0Y7QUFDRixFQUFFO0FBRUYsZUFBZUQsZUFBZSJ9

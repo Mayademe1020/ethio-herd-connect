@@ -1,0 +1,75 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/components/TopBar.tsx");if (!window.$RefreshReg$) throw new Error("React refresh preamble was not loaded. Something is wrong.");
+const prevRefreshReg = window.$RefreshReg$;
+const prevRefreshSig = window.$RefreshSig$;
+window.$RefreshReg$ = RefreshRuntime.getRefreshReg("D:/ethio-herd-connect/src/components/TopBar.tsx");
+window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+
+import * as RefreshRuntime from "/@react-refresh";
+
+// src/components/TopBar.tsx - Top bar with language toggle
+import __vite__cjsImport1_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=0165465e"; const _jsxDEV = __vite__cjsImport1_react_jsxDevRuntime["jsxDEV"];
+import { LanguageToggle } from "/src/components/LanguageToggle.tsx";
+import { OfflineStatusIndicator } from "/src/components/OfflineStatusIndicator.tsx";
+export const TopBar = ()=>{
+    return /*#__PURE__*/ _jsxDEV("div", {
+        "data-lov-id": "src\\components\\TopBar.tsx:8:4",
+        "data-lov-name": "div",
+        "data-component-path": "src\\components\\TopBar.tsx",
+        "data-component-line": "8",
+        "data-component-file": "TopBar.tsx",
+        "data-component-name": "div",
+        "data-component-content": "%7B%22className%22%3A%22fixed%20top-0%20left-0%20right-0%20bg-white%20border-b%20border-gray-200%20px-4%20py-2%20flex%20justify-between%20items-center%20z-40%20shadow-sm%22%7D",
+        className: "fixed top-0 left-0 right-0 bg-white border-b border-gray-200 px-4 py-2 flex justify-between items-center z-40 shadow-sm",
+        children: [
+            /*#__PURE__*/ _jsxDEV(OfflineStatusIndicator, {
+                "data-lov-id": "src\\components\\TopBar.tsx:10:6",
+                "data-lov-name": "OfflineStatusIndicator",
+                "data-component-path": "src\\components\\TopBar.tsx",
+                "data-component-line": "10",
+                "data-component-file": "TopBar.tsx",
+                "data-component-name": "OfflineStatusIndicator",
+                "data-component-content": "%7B%7D",
+                variant: "compact"
+            }, void 0, false, {
+                fileName: "D:/ethio-herd-connect/src/components/TopBar.tsx",
+                lineNumber: 10,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV(LanguageToggle, {
+                "data-lov-id": "src\\components\\TopBar.tsx:11:6",
+                "data-lov-name": "LanguageToggle",
+                "data-component-path": "src\\components\\TopBar.tsx",
+                "data-component-line": "11",
+                "data-component-file": "TopBar.tsx",
+                "data-component-name": "LanguageToggle",
+                "data-component-content": "%7B%7D"
+            }, void 0, false, {
+                fileName: "D:/ethio-herd-connect/src/components/TopBar.tsx",
+                lineNumber: 11,
+                columnNumber: 7
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "D:/ethio-herd-connect/src/components/TopBar.tsx",
+        lineNumber: 8,
+        columnNumber: 5
+    }, this);
+};
+_c = TopBar;
+var _c;
+$RefreshReg$(_c, "TopBar");
+
+
+window.$RefreshReg$ = prevRefreshReg;
+window.$RefreshSig$ = prevRefreshSig;
+
+RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+  RefreshRuntime.registerExportsForReactRefresh("D:/ethio-herd-connect/src/components/TopBar.tsx", currentExports);
+  import.meta.hot.accept((nextExports) => {
+    if (!nextExports) return;
+    const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("D:/ethio-herd-connect/src/components/TopBar.tsx", currentExports, nextExports);
+    if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+  });
+});
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7QUFBQSwyREFBMEQ7O0FBRTFELFNBQVNBLGNBQWMsUUFBUSxtQkFBa0I7QUFDakQsU0FBU0Msc0JBQXNCLFFBQVEsMkJBQTBCO0FBRWpFLE9BQU8sTUFBTUMsU0FBUztJQUNwQixxQkFDRSxRQUFDQztRQUFFQyxlQUFBO1FBQUFDLGlCQUFBO1FBQUFDLHVCQUFBO1FBQUFDLHVCQUFBO1FBQUFDLHVCQUFBO1FBQUFDLHVCQUFBO1FBQUFDLDBCQUFBO1FBQUVDLFdBQVU7OzBCQUViLFFBQUNWO2dCQUFxQkcsZUFBQTtnQkFBQUMsaUJBQUE7Z0JBQUFDLHVCQUFBO2dCQUFBQyx1QkFBQTtnQkFBQUMsdUJBQUE7Z0JBQUFDLHVCQUFBO2dCQUFBQywwQkFBQTtnQkFBRUUsU0FBUTs7Ozs7OzBCQUNoQyxRQUFDWjtnQkFBYUksZUFBQTtnQkFBQUMsaUJBQUE7Z0JBQUFDLHVCQUFBO2dCQUFBQyx1QkFBQTtnQkFBQUMsdUJBQUE7Z0JBQUFDLHVCQUFBO2dCQUFBQywwQkFBQTs7Ozs7Ozs7Ozs7O0FBR3BCLEVBQUM7S0FSWVIiLCJuYW1lcyI6WyJMYW5ndWFnZVRvZ2dsZSIsIk9mZmxpbmVTdGF0dXNJbmRpY2F0b3IiLCJUb3BCYXIiLCJkaXYiLCJkYXRhLWxvdi1pZCIsImRhdGEtbG92LW5hbWUiLCJkYXRhLWNvbXBvbmVudC1wYXRoIiwiZGF0YS1jb21wb25lbnQtbGluZSIsImRhdGEtY29tcG9uZW50LWZpbGUiLCJkYXRhLWNvbXBvbmVudC1uYW1lIiwiZGF0YS1jb21wb25lbnQtY29udGVudCIsImNsYXNzTmFtZSIsInZhcmlhbnQiXSwiaWdub3JlTGlzdCI6W10sInNvdXJjZXMiOlsiVG9wQmFyLnRzeCJdLCJzb3VyY2VzQ29udGVudCI6WyIvLyBzcmMvY29tcG9uZW50cy9Ub3BCYXIudHN4IC0gVG9wIGJhciB3aXRoIGxhbmd1YWdlIHRvZ2dsZVxuXG5pbXBvcnQgeyBMYW5ndWFnZVRvZ2dsZSB9IGZyb20gJy4vTGFuZ3VhZ2VUb2dnbGUnO1xuaW1wb3J0IHsgT2ZmbGluZVN0YXR1c0luZGljYXRvciB9IGZyb20gJy4vT2ZmbGluZVN0YXR1c0luZGljYXRvcic7XG5cbmV4cG9ydCBjb25zdCBUb3BCYXIgPSAoKSA9PiB7XG4gIHJldHVybiAoXG4gICAgPGRpdiBjbGFzc05hbWU9XCJmaXhlZCB0b3AtMCBsZWZ0LTAgcmlnaHQtMCBiZy13aGl0ZSBib3JkZXItYiBib3JkZXItZ3JheS0yMDAgcHgtNCBweS0yIGZsZXgganVzdGlmeS1iZXR3ZWVuIGl0ZW1zLWNlbnRlciB6LTQwIHNoYWRvdy1zbVwiPlxuICAgICAgey8qIENvbXBhY3Qgb2ZmbGluZS9vbmxpbmUgc3RhdHVzIGZvciBpbnRlcm1pdHRlbnQgY29ubmVjdGl2aXR5ICovfVxuICAgICAgPE9mZmxpbmVTdGF0dXNJbmRpY2F0b3IgdmFyaWFudD1cImNvbXBhY3RcIiAvPlxuICAgICAgPExhbmd1YWdlVG9nZ2xlIC8+XG4gICAgPC9kaXY+XG4gICk7XG59O1xuIl0sImZpbGUiOiJEOi9ldGhpby1oZXJkLWNvbm5lY3Qvc3JjL2NvbXBvbmVudHMvVG9wQmFyLnRzeCJ9

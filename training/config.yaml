@@ -1,0 +1,87 @@
+# Ethio-Herd Muzzle ML Training Configuration
+
+# Paths
+paths:
+  data_root: ./datasets
+  raw_data: ./datasets/raw
+  processed_data: ./datasets/processed
+  external_data: ./datasets/external
+  models_root: ./models
+  output_models: ../src/public/models
+
+# Dataset settings
+dataset:
+  min_images_per_animal: 3
+  max_images_per_animal: 10
+  train_split: 0.8
+  val_split: 0.15
+  test_split: 0.05
+  image_size: 224
+  num_classes: null  # Auto-detected from data
+
+# Detector (YOLOv8) settings
+detector:
+  model_name: yolov8n  # nano model for speed
+  pretrained: true
+  epochs: 100
+  batch_size: 16
+  learning_rate: 0.001
+  optimizer: Adam
+  weight_decay: 0.0005
+  image_size: 640
+  confidence_threshold: 0.25
+  iou_threshold: 0.45
+
+# Extractor (CNN + ArcFace) settings
+extractor:
+  backbone: MobileNetV2  # Lightweight for mobile
+  embedding_dim: 128
+  epochs: 50
+  batch_size: 32
+  learning_rate: 0.001
+  optimizer: Adam
+  margin: 0.5  # ArcFace margin
+  scale: 64    # ArcFace scale
+  dropout: 0.3
+
+# Training settings
+training:
+  device: cuda  # auto-detect, fallback to cpu
+  num_workers: 4
+  pin_memory: true
+  early_stopping:
+    enabled: true
+    patience: 10
+    min_delta: 0.001
+
+# Augmentation
+augmentation:
+  horizontal_flip: 0.5
+  rotation: 15
+  brightness: 0.2
+  contrast: 0.2
+  saturation: 0.2
+  hue: 0.1
+  zoom_range: 0.1
+
+# Mobile optimization
+mobile:
+  target_platform: web  # web, android, ios
+  max_model_size_mb: 10
+  quantization: int8   # none, int8, float16
+  use_tflite: false
+
+# Evaluation
+evaluation:
+  similarity_threshold:
+    high: 0.85  # Confident match
+    medium: 0.70  # Possible match
+    low: 0.50  # No match
+  top_k: 5
+
+# Export formats
+export:
+  formats:
+    - tensorflow_js
+    - onnx
+  include_metadata: true

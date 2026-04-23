@@ -1,11 +1,8 @@
 import React from 'react';
 import { HomeScreen } from '@/components/HomeScreen';
 import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { OtpAuthForm } from '@/components/OtpAuthForm';
 import { useNavigate } from 'react-router-dom';
-import { useDateDisplay } from '@/hooks/useDateDisplay';
-// Index page: update CTAs to reflect private marketplace access only
+
 const Index = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -19,7 +16,12 @@ const Index = () => {
             Professional livestock marketplace and management platform designed for Ethiopian farmers
           </p>
           <div className="max-w-md mx-auto">
-            <OtpAuthForm showPasswordFallback onTogglePassword={() => navigate('/auth')} />
+            <button
+              onClick={() => navigate('/auth')}
+              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+            >
+              Sign In / Register
+            </button>
           </div>
         </div>
       </div>

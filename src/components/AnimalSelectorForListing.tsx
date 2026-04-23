@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 import { useTranslations } from '@/hooks/useTranslations';
 import { ANIMAL_TYPE_ICONS } from '@/utils/animalTypes';
+import { OfflineFirstImage } from '@/components/OfflineFirstImage';
 
 interface Animal {
   id: string;
@@ -114,10 +115,11 @@ export const AnimalSelectorForListing: React.FC<AnimalSelectorForListingProps> =
                   {/* Animal Photo */}
                   <div className="flex-shrink-0">
                     {animal.photo_url ? (
-                      <img
+                      <OfflineFirstImage
                         src={animal.photo_url}
                         alt={animal.name}
                         className="w-16 h-16 rounded-lg object-cover"
+                        fallbackIcon="🐄"
                       />
                     ) : (
                       <div className="w-16 h-16 rounded-lg bg-gray-200 flex items-center justify-center text-3xl">

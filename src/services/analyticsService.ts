@@ -42,8 +42,8 @@ class AnalyticsService {
 
     await this.trackEvent({
       event_name: 'session_start',
-      session_id: this.sessionId,
       properties: {
+        session_id: this.sessionId,
         user_agent: navigator.userAgent,
         screen_resolution: `${window.screen.width}x${window.screen.height}`,
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
@@ -132,14 +132,19 @@ class AnalyticsService {
     this.eventQueue = [];
 
     try {
-      const { error } = await supabase
-        .from('analytics_events')
-        .insert(eventsToSend);
+      // Use RPC to call track_event function which bypasses RLS issues
+      for (const event of eventsToSend) {
+        const { error } = await supabase.rpc('track_event', {
+          p_event_name: event.event_name,
+          p_event_category: null,
+          p_properties: event.properties || {},
+          p_device_type: 'web',
+          p_app_version: '1.0.0'
+        });
 
-      if (error) {
-        console.error('Error flushing analytics events:', error);
-        // Re-queue events on failure
-        this.eventQueue.unshift(...eventsToSend);
+        if (error) {
+          console.error('Error tracking analytics event:', error);
+        }
       }
     } catch (error) {
       console.error('Error flushing analytics events:', error);

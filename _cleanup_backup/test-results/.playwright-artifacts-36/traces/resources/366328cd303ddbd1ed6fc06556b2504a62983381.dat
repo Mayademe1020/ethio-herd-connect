@@ -1,0 +1,1127 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/AppMVP.tsx");if (!window.$RefreshReg$) throw new Error("React refresh preamble was not loaded. Something is wrong.");
+const prevRefreshReg = window.$RefreshReg$;
+const prevRefreshSig = window.$RefreshSig$;
+window.$RefreshReg$ = RefreshRuntime.getRefreshReg("D:/ethio-herd-connect/src/AppMVP.tsx");
+window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+
+import * as RefreshRuntime from "/@react-refresh";
+
+// src/AppMVP.tsx - Simplified MVP Application
+import __vite__cjsImport1_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=0165465e"; const _jsxDEV = __vite__cjsImport1_react_jsxDevRuntime["jsxDEV"];
+var _s = $RefreshSig$();
+import __vite__cjsImport2_react from "/node_modules/.vite/deps/react.js?v=0165465e"; const React = __vite__cjsImport2_react.__esModule ? __vite__cjsImport2_react.default : __vite__cjsImport2_react; const Suspense = __vite__cjsImport2_react["Suspense"]; const lazy = __vite__cjsImport2_react["lazy"];
+import { Toaster as Sonner } from "/src/components/ui/sonner.tsx";
+import { QueryClient, QueryClientProvider } from "/node_modules/.vite/deps/@tanstack_react-query.js?v=0165465e";
+import { BrowserRouter, Routes, Route } from "/node_modules/.vite/deps/react-router-dom.js?v=0165465e";
+import { AuthProviderMVP } from "/src/contexts/AuthContextMVP.tsx";
+import { AdminProvider } from "/src/contexts/AdminContext.tsx";
+import { ProtectedRoute } from "/src/components/ProtectedRoute.tsx";
+import { AnalyticsProvider } from "/src/contexts/AnalyticsContext.tsx";
+import { LanguageProvider } from "/src/contexts/LanguageContext.tsx";
+import { CalendarProvider } from "/src/contexts/CalendarContext.tsx";
+import { DemoModeProvider } from "/src/contexts/DemoModeContext.tsx";
+import { NetworkStatusProvider } from "/src/contexts/NetworkStatusContext.tsx";
+import { OnboardingProvider } from "/src/contexts/OnboardingContext.tsx";
+import { register as registerServiceWorker } from "/src/utils/serviceWorker.ts";
+// Eager load critical routes
+import LoginMVP from "/src/pages/LoginMVP.tsx";
+import Onboarding from "/src/pages/Onboarding.tsx";
+import { AppLayout } from "/src/components/AppLayout.tsx";
+// Lazy load other routes with preloading for critical paths
+// Using HomeScreenSimple which has proper accessibility and responsive design
+const HomeScreenSimple = /*#__PURE__*/ lazy(_c = ()=>import("/src/components/HomeScreenSimple.tsx").then((m)=>({
+            default: m.HomeScreenSimple
+        })));
+_c1 = HomeScreenSimple;
+const SimpleHome = /*#__PURE__*/ lazy(_c2 = ()=>import("/src/pages/SimpleHome.tsx").then((m)=>({
+            default: m.default
+        })));
+_c3 = SimpleHome;
+const RegisterAnimal = /*#__PURE__*/ lazy(_c4 = ()=>import("/src/pages/RegisterAnimal.tsx").then((m)=>({
+            default: m.default
+        })));
+_c5 = RegisterAnimal;
+const MyAnimals = /*#__PURE__*/ lazy(_c6 = ()=>import("/src/pages/MyAnimals.tsx").then((m)=>({
+            default: m.default
+        })));
+_c7 = MyAnimals;
+const AnimalDetail = /*#__PURE__*/ lazy(_c8 = ()=>import("/src/pages/AnimalDetail.tsx").then((m)=>({
+            default: m.AnimalDetail
+        })));
+_c9 = AnimalDetail;
+const RecordMilk = /*#__PURE__*/ lazy(_c10 = ()=>import("/src/pages/RecordMilk.tsx").then((m)=>({
+            default: m.default
+        })));
+_c11 = RecordMilk;
+const MilkProductionRecords = /*#__PURE__*/ lazy(_c12 = ()=>import("/src/pages/MilkProductionRecords.tsx").then((m)=>({
+            default: m.default
+        })));
+_c13 = MilkProductionRecords;
+const MilkAnalytics = /*#__PURE__*/ lazy(_c14 = ()=>import("/src/pages/MilkAnalytics.tsx").then((m)=>({
+            default: m.default
+        })));
+_c15 = MilkAnalytics;
+const MilkSummary = /*#__PURE__*/ lazy(_c16 = ()=>import("/src/pages/MilkSummary.tsx").then((m)=>({
+            default: m.default
+        })));
+_c17 = MilkSummary;
+const MarketplaceBrowse = /*#__PURE__*/ lazy(_c18 = ()=>import("/src/pages/MarketplaceBrowse.tsx").then((m)=>({
+            default: m.default
+        })));
+_c19 = MarketplaceBrowse;
+const ListingDetail = /*#__PURE__*/ lazy(_c20 = ()=>import("/src/pages/ListingDetail.tsx").then((m)=>({
+            default: m.default
+        })));
+_c21 = ListingDetail;
+const CreateListing = /*#__PURE__*/ lazy(_c22 = ()=>import("/src/pages/CreateListing.tsx").then((m)=>({
+            default: m.default
+        })));
+_c23 = CreateListing;
+const MyListings = /*#__PURE__*/ lazy(_c24 = ()=>import("/src/pages/MyListings.tsx").then((m)=>({
+            default: m.default
+        })));
+_c25 = MyListings;
+const ProfilePage = /*#__PURE__*/ lazy(_c26 = ()=>import("/src/pages/Profile.tsx?t=1771878162466").then((m)=>({
+            default: m.default
+        })));
+_c27 = ProfilePage;
+const Settings = /*#__PURE__*/ lazy(_c28 = ()=>import("/src/pages/Settings.tsx").then((m)=>({
+            default: m.default
+        })));
+_c29 = Settings;
+const MuzzleScanPage = /*#__PURE__*/ lazy(_c30 = ()=>import("/src/pages/MuzzleScanPage.tsx").then((m)=>({
+            default: m.default
+        })));
+_c31 = MuzzleScanPage;
+const PasswordRecovery = /*#__PURE__*/ lazy(_c32 = ()=>import("/src/pages/PasswordRecovery.tsx").then((m)=>({
+            default: m.default
+        })));
+_c33 = PasswordRecovery;
+// Preload critical routes after initial load
+const preloadCriticalRoutes = ()=>{
+    // Preload frequently used routes after 2 seconds
+    setTimeout(()=>{
+        import("/src/pages/RegisterAnimal.tsx");
+        import("/src/pages/RecordMilk.tsx");
+        import("/src/pages/MyAnimals.tsx");
+    }, 2000);
+};
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            staleTime: 1000 * 60 * 5,
+            retry: 2,
+            networkMode: 'offlineFirst',
+            gcTime: 1000 * 60 * 60 * 24
+        },
+        mutations: {
+            networkMode: 'offlineFirst',
+            retry: 3
+        }
+    }
+});
+// Loading fallback component - shows bilingual text since translations may not be loaded yet
+const LoadingFallback = ()=>/*#__PURE__*/ _jsxDEV("div", {
+        "data-lov-id": "src\\AppMVP.tsx:71:2",
+        "data-lov-name": "div",
+        "data-component-path": "src\\AppMVP.tsx",
+        "data-component-line": "71",
+        "data-component-file": "AppMVP.tsx",
+        "data-component-name": "div",
+        "data-component-content": "%7B%22className%22%3A%22min-h-screen%20flex%20items-center%20justify-center%20bg-gray-50%22%7D",
+        className: "min-h-screen flex items-center justify-center bg-gray-50",
+        children: /*#__PURE__*/ _jsxDEV("div", {
+            "data-lov-id": "src\\AppMVP.tsx:72:4",
+            "data-lov-name": "div",
+            "data-component-path": "src\\AppMVP.tsx",
+            "data-component-line": "72",
+            "data-component-file": "AppMVP.tsx",
+            "data-component-name": "div",
+            "data-component-content": "%7B%22className%22%3A%22text-center%22%7D",
+            className: "text-center",
+            children: [
+                /*#__PURE__*/ _jsxDEV("div", {
+                    "data-lov-id": "src\\AppMVP.tsx:73:6",
+                    "data-lov-name": "div",
+                    "data-component-path": "src\\AppMVP.tsx",
+                    "data-component-line": "73",
+                    "data-component-file": "AppMVP.tsx",
+                    "data-component-name": "div",
+                    "data-component-content": "%7B%22className%22%3A%22animate-spin%20rounded-full%20h-16%20w-16%20border-b-4%20border-green-600%20mx-auto%20mb-4%22%7D",
+                    className: "animate-spin rounded-full h-16 w-16 border-b-4 border-green-600 mx-auto mb-4"
+                }, void 0, false, {
+                    fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                    lineNumber: 73,
+                    columnNumber: 7
+                }, this),
+                /*#__PURE__*/ _jsxDEV("p", {
+                    "data-lov-id": "src\\AppMVP.tsx:74:6",
+                    "data-lov-name": "p",
+                    "data-component-path": "src\\AppMVP.tsx",
+                    "data-component-line": "74",
+                    "data-component-file": "AppMVP.tsx",
+                    "data-component-name": "p",
+                    "data-component-content": "%7B%22text%22%3A%22%E1%8A%A5%E1%89%A3%E1%8A%AD%E1%8B%8E%20%E1%8B%AD%E1%8C%A0%E1%89%A5%E1%89%81...%20%2F%20Loading...%22%2C%22className%22%3A%22text-gray-600%20text-lg%22%7D",
+                    className: "text-gray-600 text-lg",
+                    children: "እባክዎ ይጠብቁ... / Loading..."
+                }, void 0, false, {
+                    fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                    lineNumber: 74,
+                    columnNumber: 7
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+            lineNumber: 72,
+            columnNumber: 5
+        }, this)
+    }, void 0, false, {
+        fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+        lineNumber: 71,
+        columnNumber: 3
+    }, this);
+_c34 = LoadingFallback;
+function AppMVP() {
+    _s();
+    // Preload critical routes and register service worker after initial render
+    React.useEffect(()=>{
+        preloadCriticalRoutes();
+        registerServiceWorker();
+    }, []);
+    return /*#__PURE__*/ _jsxDEV(QueryClientProvider, {
+        "data-lov-id": "src\\AppMVP.tsx:87:4",
+        "data-lov-name": "QueryClientProvider",
+        "data-component-path": "src\\AppMVP.tsx",
+        "data-component-line": "87",
+        "data-component-file": "AppMVP.tsx",
+        "data-component-name": "QueryClientProvider",
+        "data-component-content": "%7B%7D",
+        client: queryClient,
+        children: [
+            /*#__PURE__*/ _jsxDEV(LanguageProvider, {
+                "data-lov-id": "src\\AppMVP.tsx:88:6",
+                "data-lov-name": "LanguageProvider",
+                "data-component-path": "src\\AppMVP.tsx",
+                "data-component-line": "88",
+                "data-component-file": "AppMVP.tsx",
+                "data-component-name": "LanguageProvider",
+                "data-component-content": "%7B%7D",
+                children: /*#__PURE__*/ _jsxDEV(AuthProviderMVP, {
+                    "data-lov-id": "src\\AppMVP.tsx:89:8",
+                    "data-lov-name": "AuthProviderMVP",
+                    "data-component-path": "src\\AppMVP.tsx",
+                    "data-component-line": "89",
+                    "data-component-file": "AppMVP.tsx",
+                    "data-component-name": "AuthProviderMVP",
+                    "data-component-content": "%7B%7D",
+                    children: /*#__PURE__*/ _jsxDEV(OnboardingProvider, {
+                        "data-lov-id": "src\\AppMVP.tsx:90:10",
+                        "data-lov-name": "OnboardingProvider",
+                        "data-component-path": "src\\AppMVP.tsx",
+                        "data-component-line": "90",
+                        "data-component-file": "AppMVP.tsx",
+                        "data-component-name": "OnboardingProvider",
+                        "data-component-content": "%7B%7D",
+                        children: /*#__PURE__*/ _jsxDEV(NetworkStatusProvider, {
+                            "data-lov-id": "src\\AppMVP.tsx:91:12",
+                            "data-lov-name": "NetworkStatusProvider",
+                            "data-component-path": "src\\AppMVP.tsx",
+                            "data-component-line": "91",
+                            "data-component-file": "AppMVP.tsx",
+                            "data-component-name": "NetworkStatusProvider",
+                            "data-component-content": "%7B%7D",
+                            children: /*#__PURE__*/ _jsxDEV(AdminProvider, {
+                                "data-lov-id": "src\\AppMVP.tsx:92:14",
+                                "data-lov-name": "AdminProvider",
+                                "data-component-path": "src\\AppMVP.tsx",
+                                "data-component-line": "92",
+                                "data-component-file": "AppMVP.tsx",
+                                "data-component-name": "AdminProvider",
+                                "data-component-content": "%7B%7D",
+                                children: /*#__PURE__*/ _jsxDEV(CalendarProvider, {
+                                    "data-lov-id": "src\\AppMVP.tsx:93:16",
+                                    "data-lov-name": "CalendarProvider",
+                                    "data-component-path": "src\\AppMVP.tsx",
+                                    "data-component-line": "93",
+                                    "data-component-file": "AppMVP.tsx",
+                                    "data-component-name": "CalendarProvider",
+                                    "data-component-content": "%7B%7D",
+                                    children: /*#__PURE__*/ _jsxDEV(DemoModeProvider, {
+                                        "data-lov-id": "src\\AppMVP.tsx:94:18",
+                                        "data-lov-name": "DemoModeProvider",
+                                        "data-component-path": "src\\AppMVP.tsx",
+                                        "data-component-line": "94",
+                                        "data-component-file": "AppMVP.tsx",
+                                        "data-component-name": "DemoModeProvider",
+                                        "data-component-content": "%7B%7D",
+                                        children: /*#__PURE__*/ _jsxDEV(AnalyticsProvider, {
+                                            "data-lov-id": "src\\AppMVP.tsx:95:20",
+                                            "data-lov-name": "AnalyticsProvider",
+                                            "data-component-path": "src\\AppMVP.tsx",
+                                            "data-component-line": "95",
+                                            "data-component-file": "AppMVP.tsx",
+                                            "data-component-name": "AnalyticsProvider",
+                                            "data-component-content": "%7B%7D",
+                                            children: /*#__PURE__*/ _jsxDEV(BrowserRouter, {
+                                                "data-lov-id": "src\\AppMVP.tsx:96:22",
+                                                "data-lov-name": "BrowserRouter",
+                                                "data-component-path": "src\\AppMVP.tsx",
+                                                "data-component-line": "96",
+                                                "data-component-file": "AppMVP.tsx",
+                                                "data-component-name": "BrowserRouter",
+                                                "data-component-content": "%7B%7D",
+                                                children: /*#__PURE__*/ _jsxDEV(Suspense, {
+                                                    "data-lov-id": "src\\AppMVP.tsx:97:24",
+                                                    "data-lov-name": "Suspense",
+                                                    "data-component-path": "src\\AppMVP.tsx",
+                                                    "data-component-line": "97",
+                                                    "data-component-file": "AppMVP.tsx",
+                                                    "data-component-name": "Suspense",
+                                                    "data-component-content": "%7B%7D",
+                                                    fallback: /*#__PURE__*/ _jsxDEV(LoadingFallback, {
+                                                        "data-lov-id": "src\\AppMVP.tsx:97:44",
+                                                        "data-lov-name": "LoadingFallback",
+                                                        "data-component-path": "src\\AppMVP.tsx",
+                                                        "data-component-line": "97",
+                                                        "data-component-file": "AppMVP.tsx",
+                                                        "data-component-name": "LoadingFallback",
+                                                        "data-component-content": "%7B%7D"
+                                                    }, void 0, false, {
+                                                        fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                        lineNumber: 97,
+                                                        columnNumber: 264
+                                                    }, void 0),
+                                                    children: /*#__PURE__*/ _jsxDEV(AppLayout, {
+                                                        "data-lov-id": "src\\AppMVP.tsx:98:26",
+                                                        "data-lov-name": "AppLayout",
+                                                        "data-component-path": "src\\AppMVP.tsx",
+                                                        "data-component-line": "98",
+                                                        "data-component-file": "AppMVP.tsx",
+                                                        "data-component-name": "AppLayout",
+                                                        "data-component-content": "%7B%7D",
+                                                        children: /*#__PURE__*/ _jsxDEV(Routes, {
+                                                            "data-lov-id": "src\\AppMVP.tsx:99:28",
+                                                            "data-lov-name": "Routes",
+                                                            "data-component-path": "src\\AppMVP.tsx",
+                                                            "data-component-line": "99",
+                                                            "data-component-file": "AppMVP.tsx",
+                                                            "data-component-name": "Routes",
+                                                            "data-component-content": "%7B%7D",
+                                                            children: [
+                                                                /*#__PURE__*/ _jsxDEV(Route, {
+                                                                    "data-lov-id": "src\\AppMVP.tsx:101:30",
+                                                                    "data-lov-name": "Route",
+                                                                    "data-component-path": "src\\AppMVP.tsx",
+                                                                    "data-component-line": "101",
+                                                                    "data-component-file": "AppMVP.tsx",
+                                                                    "data-component-name": "Route",
+                                                                    "data-component-content": "%7B%7D",
+                                                                    path: "/login",
+                                                                    element: /*#__PURE__*/ _jsxDEV(LoginMVP, {
+                                                                        "data-lov-id": "src\\AppMVP.tsx:101:60",
+                                                                        "data-lov-name": "LoginMVP",
+                                                                        "data-component-path": "src\\AppMVP.tsx",
+                                                                        "data-component-line": "101",
+                                                                        "data-component-file": "AppMVP.tsx",
+                                                                        "data-component-name": "LoginMVP",
+                                                                        "data-component-content": "%7B%7D"
+                                                                    }, void 0, false, {
+                                                                        fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                        lineNumber: 101,
+                                                                        columnNumber: 276
+                                                                    }, void 0)
+                                                                }, void 0, false, {
+                                                                    fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                    lineNumber: 101,
+                                                                    columnNumber: 31
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Route, {
+                                                                    "data-lov-id": "src\\AppMVP.tsx:102:30",
+                                                                    "data-lov-name": "Route",
+                                                                    "data-component-path": "src\\AppMVP.tsx",
+                                                                    "data-component-line": "102",
+                                                                    "data-component-file": "AppMVP.tsx",
+                                                                    "data-component-name": "Route",
+                                                                    "data-component-content": "%7B%7D",
+                                                                    path: "/onboarding",
+                                                                    element: /*#__PURE__*/ _jsxDEV(Onboarding, {
+                                                                        "data-lov-id": "src\\AppMVP.tsx:102:65",
+                                                                        "data-lov-name": "Onboarding",
+                                                                        "data-component-path": "src\\AppMVP.tsx",
+                                                                        "data-component-line": "102",
+                                                                        "data-component-file": "AppMVP.tsx",
+                                                                        "data-component-name": "Onboarding",
+                                                                        "data-component-content": "%7B%7D"
+                                                                    }, void 0, false, {
+                                                                        fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                        lineNumber: 102,
+                                                                        columnNumber: 281
+                                                                    }, void 0)
+                                                                }, void 0, false, {
+                                                                    fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                    lineNumber: 102,
+                                                                    columnNumber: 31
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Route, {
+                                                                    "data-lov-id": "src\\AppMVP.tsx:103:30",
+                                                                    "data-lov-name": "Route",
+                                                                    "data-component-path": "src\\AppMVP.tsx",
+                                                                    "data-component-line": "103",
+                                                                    "data-component-file": "AppMVP.tsx",
+                                                                    "data-component-name": "Route",
+                                                                    "data-component-content": "%7B%7D",
+                                                                    path: "/forgot-password",
+                                                                    element: /*#__PURE__*/ _jsxDEV(PasswordRecovery, {
+                                                                        "data-lov-id": "src\\AppMVP.tsx:103:70",
+                                                                        "data-lov-name": "PasswordRecovery",
+                                                                        "data-component-path": "src\\AppMVP.tsx",
+                                                                        "data-component-line": "103",
+                                                                        "data-component-file": "AppMVP.tsx",
+                                                                        "data-component-name": "PasswordRecovery",
+                                                                        "data-component-content": "%7B%7D"
+                                                                    }, void 0, false, {
+                                                                        fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                        lineNumber: 103,
+                                                                        columnNumber: 286
+                                                                    }, void 0)
+                                                                }, void 0, false, {
+                                                                    fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                    lineNumber: 103,
+                                                                    columnNumber: 31
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Route, {
+                                                                    "data-lov-id": "src\\AppMVP.tsx:106:30",
+                                                                    "data-lov-name": "Route",
+                                                                    "data-component-path": "src\\AppMVP.tsx",
+                                                                    "data-component-line": "106",
+                                                                    "data-component-file": "AppMVP.tsx",
+                                                                    "data-component-name": "Route",
+                                                                    "data-component-content": "%7B%7D",
+                                                                    path: "/",
+                                                                    element: /*#__PURE__*/ _jsxDEV(ProtectedRoute, {
+                                                                        "data-lov-id": "src\\AppMVP.tsx:109:34",
+                                                                        "data-lov-name": "ProtectedRoute",
+                                                                        "data-component-path": "src\\AppMVP.tsx",
+                                                                        "data-component-line": "109",
+                                                                        "data-component-file": "AppMVP.tsx",
+                                                                        "data-component-name": "ProtectedRoute",
+                                                                        "data-component-content": "%7B%7D",
+                                                                        children: /*#__PURE__*/ _jsxDEV(HomeScreenSimple, {
+                                                                            "data-lov-id": "src\\AppMVP.tsx:110:36",
+                                                                            "data-lov-name": "HomeScreenSimple",
+                                                                            "data-component-path": "src\\AppMVP.tsx",
+                                                                            "data-component-line": "110",
+                                                                            "data-component-file": "AppMVP.tsx",
+                                                                            "data-component-name": "HomeScreenSimple",
+                                                                            "data-component-content": "%7B%7D"
+                                                                        }, void 0, false, {
+                                                                            fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                            lineNumber: 110,
+                                                                            columnNumber: 37
+                                                                        }, void 0)
+                                                                    }, void 0, false, {
+                                                                        fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                        lineNumber: 109,
+                                                                        columnNumber: 35
+                                                                    }, void 0)
+                                                                }, void 0, false, {
+                                                                    fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                    lineNumber: 106,
+                                                                    columnNumber: 31
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Route, {
+                                                                    "data-lov-id": "src\\AppMVP.tsx:114:30",
+                                                                    "data-lov-name": "Route",
+                                                                    "data-component-path": "src\\AppMVP.tsx",
+                                                                    "data-component-line": "114",
+                                                                    "data-component-file": "AppMVP.tsx",
+                                                                    "data-component-name": "Route",
+                                                                    "data-component-content": "%7B%7D",
+                                                                    path: "/register-animal",
+                                                                    element: /*#__PURE__*/ _jsxDEV(ProtectedRoute, {
+                                                                        "data-lov-id": "src\\AppMVP.tsx:117:34",
+                                                                        "data-lov-name": "ProtectedRoute",
+                                                                        "data-component-path": "src\\AppMVP.tsx",
+                                                                        "data-component-line": "117",
+                                                                        "data-component-file": "AppMVP.tsx",
+                                                                        "data-component-name": "ProtectedRoute",
+                                                                        "data-component-content": "%7B%7D",
+                                                                        children: /*#__PURE__*/ _jsxDEV(RegisterAnimal, {
+                                                                            "data-lov-id": "src\\AppMVP.tsx:118:36",
+                                                                            "data-lov-name": "RegisterAnimal",
+                                                                            "data-component-path": "src\\AppMVP.tsx",
+                                                                            "data-component-line": "118",
+                                                                            "data-component-file": "AppMVP.tsx",
+                                                                            "data-component-name": "RegisterAnimal",
+                                                                            "data-component-content": "%7B%7D"
+                                                                        }, void 0, false, {
+                                                                            fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                            lineNumber: 118,
+                                                                            columnNumber: 37
+                                                                        }, void 0)
+                                                                    }, void 0, false, {
+                                                                        fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                        lineNumber: 117,
+                                                                        columnNumber: 35
+                                                                    }, void 0)
+                                                                }, void 0, false, {
+                                                                    fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                    lineNumber: 114,
+                                                                    columnNumber: 31
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Route, {
+                                                                    "data-lov-id": "src\\AppMVP.tsx:122:30",
+                                                                    "data-lov-name": "Route",
+                                                                    "data-component-path": "src\\AppMVP.tsx",
+                                                                    "data-component-line": "122",
+                                                                    "data-component-file": "AppMVP.tsx",
+                                                                    "data-component-name": "Route",
+                                                                    "data-component-content": "%7B%7D",
+                                                                    path: "/animals",
+                                                                    element: /*#__PURE__*/ _jsxDEV(ProtectedRoute, {
+                                                                        "data-lov-id": "src\\AppMVP.tsx:125:34",
+                                                                        "data-lov-name": "ProtectedRoute",
+                                                                        "data-component-path": "src\\AppMVP.tsx",
+                                                                        "data-component-line": "125",
+                                                                        "data-component-file": "AppMVP.tsx",
+                                                                        "data-component-name": "ProtectedRoute",
+                                                                        "data-component-content": "%7B%7D",
+                                                                        children: /*#__PURE__*/ _jsxDEV(MyAnimals, {
+                                                                            "data-lov-id": "src\\AppMVP.tsx:126:36",
+                                                                            "data-lov-name": "MyAnimals",
+                                                                            "data-component-path": "src\\AppMVP.tsx",
+                                                                            "data-component-line": "126",
+                                                                            "data-component-file": "AppMVP.tsx",
+                                                                            "data-component-name": "MyAnimals",
+                                                                            "data-component-content": "%7B%7D"
+                                                                        }, void 0, false, {
+                                                                            fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                            lineNumber: 126,
+                                                                            columnNumber: 37
+                                                                        }, void 0)
+                                                                    }, void 0, false, {
+                                                                        fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                        lineNumber: 125,
+                                                                        columnNumber: 35
+                                                                    }, void 0)
+                                                                }, void 0, false, {
+                                                                    fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                    lineNumber: 122,
+                                                                    columnNumber: 31
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Route, {
+                                                                    "data-lov-id": "src\\AppMVP.tsx:130:30",
+                                                                    "data-lov-name": "Route",
+                                                                    "data-component-path": "src\\AppMVP.tsx",
+                                                                    "data-component-line": "130",
+                                                                    "data-component-file": "AppMVP.tsx",
+                                                                    "data-component-name": "Route",
+                                                                    "data-component-content": "%7B%7D",
+                                                                    path: "/muzzle-scan",
+                                                                    element: /*#__PURE__*/ _jsxDEV(ProtectedRoute, {
+                                                                        "data-lov-id": "src\\AppMVP.tsx:133:34",
+                                                                        "data-lov-name": "ProtectedRoute",
+                                                                        "data-component-path": "src\\AppMVP.tsx",
+                                                                        "data-component-line": "133",
+                                                                        "data-component-file": "AppMVP.tsx",
+                                                                        "data-component-name": "ProtectedRoute",
+                                                                        "data-component-content": "%7B%7D",
+                                                                        children: /*#__PURE__*/ _jsxDEV(MuzzleScanPage, {
+                                                                            "data-lov-id": "src\\AppMVP.tsx:134:36",
+                                                                            "data-lov-name": "MuzzleScanPage",
+                                                                            "data-component-path": "src\\AppMVP.tsx",
+                                                                            "data-component-line": "134",
+                                                                            "data-component-file": "AppMVP.tsx",
+                                                                            "data-component-name": "MuzzleScanPage",
+                                                                            "data-component-content": "%7B%7D"
+                                                                        }, void 0, false, {
+                                                                            fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                            lineNumber: 134,
+                                                                            columnNumber: 37
+                                                                        }, void 0)
+                                                                    }, void 0, false, {
+                                                                        fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                        lineNumber: 133,
+                                                                        columnNumber: 35
+                                                                    }, void 0)
+                                                                }, void 0, false, {
+                                                                    fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                    lineNumber: 130,
+                                                                    columnNumber: 31
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Route, {
+                                                                    "data-lov-id": "src\\AppMVP.tsx:138:30",
+                                                                    "data-lov-name": "Route",
+                                                                    "data-component-path": "src\\AppMVP.tsx",
+                                                                    "data-component-line": "138",
+                                                                    "data-component-file": "AppMVP.tsx",
+                                                                    "data-component-name": "Route",
+                                                                    "data-component-content": "%7B%7D",
+                                                                    path: "/animals/:id",
+                                                                    element: /*#__PURE__*/ _jsxDEV(ProtectedRoute, {
+                                                                        "data-lov-id": "src\\AppMVP.tsx:141:34",
+                                                                        "data-lov-name": "ProtectedRoute",
+                                                                        "data-component-path": "src\\AppMVP.tsx",
+                                                                        "data-component-line": "141",
+                                                                        "data-component-file": "AppMVP.tsx",
+                                                                        "data-component-name": "ProtectedRoute",
+                                                                        "data-component-content": "%7B%7D",
+                                                                        children: /*#__PURE__*/ _jsxDEV(AnimalDetail, {
+                                                                            "data-lov-id": "src\\AppMVP.tsx:142:36",
+                                                                            "data-lov-name": "AnimalDetail",
+                                                                            "data-component-path": "src\\AppMVP.tsx",
+                                                                            "data-component-line": "142",
+                                                                            "data-component-file": "AppMVP.tsx",
+                                                                            "data-component-name": "AnimalDetail",
+                                                                            "data-component-content": "%7B%7D"
+                                                                        }, void 0, false, {
+                                                                            fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                            lineNumber: 142,
+                                                                            columnNumber: 37
+                                                                        }, void 0)
+                                                                    }, void 0, false, {
+                                                                        fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                        lineNumber: 141,
+                                                                        columnNumber: 35
+                                                                    }, void 0)
+                                                                }, void 0, false, {
+                                                                    fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                    lineNumber: 138,
+                                                                    columnNumber: 31
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Route, {
+                                                                    "data-lov-id": "src\\AppMVP.tsx:146:30",
+                                                                    "data-lov-name": "Route",
+                                                                    "data-component-path": "src\\AppMVP.tsx",
+                                                                    "data-component-line": "146",
+                                                                    "data-component-file": "AppMVP.tsx",
+                                                                    "data-component-name": "Route",
+                                                                    "data-component-content": "%7B%7D",
+                                                                    path: "/milk/record",
+                                                                    element: /*#__PURE__*/ _jsxDEV(ProtectedRoute, {
+                                                                        "data-lov-id": "src\\AppMVP.tsx:149:34",
+                                                                        "data-lov-name": "ProtectedRoute",
+                                                                        "data-component-path": "src\\AppMVP.tsx",
+                                                                        "data-component-line": "149",
+                                                                        "data-component-file": "AppMVP.tsx",
+                                                                        "data-component-name": "ProtectedRoute",
+                                                                        "data-component-content": "%7B%7D",
+                                                                        children: /*#__PURE__*/ _jsxDEV(RecordMilk, {
+                                                                            "data-lov-id": "src\\AppMVP.tsx:150:36",
+                                                                            "data-lov-name": "RecordMilk",
+                                                                            "data-component-path": "src\\AppMVP.tsx",
+                                                                            "data-component-line": "150",
+                                                                            "data-component-file": "AppMVP.tsx",
+                                                                            "data-component-name": "RecordMilk",
+                                                                            "data-component-content": "%7B%7D"
+                                                                        }, void 0, false, {
+                                                                            fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                            lineNumber: 150,
+                                                                            columnNumber: 37
+                                                                        }, void 0)
+                                                                    }, void 0, false, {
+                                                                        fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                        lineNumber: 149,
+                                                                        columnNumber: 35
+                                                                    }, void 0)
+                                                                }, void 0, false, {
+                                                                    fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                    lineNumber: 146,
+                                                                    columnNumber: 31
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Route, {
+                                                                    "data-lov-id": "src\\AppMVP.tsx:154:30",
+                                                                    "data-lov-name": "Route",
+                                                                    "data-component-path": "src\\AppMVP.tsx",
+                                                                    "data-component-line": "154",
+                                                                    "data-component-file": "AppMVP.tsx",
+                                                                    "data-component-name": "Route",
+                                                                    "data-component-content": "%7B%7D",
+                                                                    path: "/milk/records",
+                                                                    element: /*#__PURE__*/ _jsxDEV(ProtectedRoute, {
+                                                                        "data-lov-id": "src\\AppMVP.tsx:157:34",
+                                                                        "data-lov-name": "ProtectedRoute",
+                                                                        "data-component-path": "src\\AppMVP.tsx",
+                                                                        "data-component-line": "157",
+                                                                        "data-component-file": "AppMVP.tsx",
+                                                                        "data-component-name": "ProtectedRoute",
+                                                                        "data-component-content": "%7B%7D",
+                                                                        children: /*#__PURE__*/ _jsxDEV(MilkProductionRecords, {
+                                                                            "data-lov-id": "src\\AppMVP.tsx:158:36",
+                                                                            "data-lov-name": "MilkProductionRecords",
+                                                                            "data-component-path": "src\\AppMVP.tsx",
+                                                                            "data-component-line": "158",
+                                                                            "data-component-file": "AppMVP.tsx",
+                                                                            "data-component-name": "MilkProductionRecords",
+                                                                            "data-component-content": "%7B%7D"
+                                                                        }, void 0, false, {
+                                                                            fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                            lineNumber: 158,
+                                                                            columnNumber: 37
+                                                                        }, void 0)
+                                                                    }, void 0, false, {
+                                                                        fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                        lineNumber: 157,
+                                                                        columnNumber: 35
+                                                                    }, void 0)
+                                                                }, void 0, false, {
+                                                                    fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                    lineNumber: 154,
+                                                                    columnNumber: 31
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Route, {
+                                                                    "data-lov-id": "src\\AppMVP.tsx:162:30",
+                                                                    "data-lov-name": "Route",
+                                                                    "data-component-path": "src\\AppMVP.tsx",
+                                                                    "data-component-line": "162",
+                                                                    "data-component-file": "AppMVP.tsx",
+                                                                    "data-component-name": "Route",
+                                                                    "data-component-content": "%7B%7D",
+                                                                    path: "/milk/analytics",
+                                                                    element: /*#__PURE__*/ _jsxDEV(ProtectedRoute, {
+                                                                        "data-lov-id": "src\\AppMVP.tsx:165:34",
+                                                                        "data-lov-name": "ProtectedRoute",
+                                                                        "data-component-path": "src\\AppMVP.tsx",
+                                                                        "data-component-line": "165",
+                                                                        "data-component-file": "AppMVP.tsx",
+                                                                        "data-component-name": "ProtectedRoute",
+                                                                        "data-component-content": "%7B%7D",
+                                                                        children: /*#__PURE__*/ _jsxDEV(MilkAnalytics, {
+                                                                            "data-lov-id": "src\\AppMVP.tsx:166:36",
+                                                                            "data-lov-name": "MilkAnalytics",
+                                                                            "data-component-path": "src\\AppMVP.tsx",
+                                                                            "data-component-line": "166",
+                                                                            "data-component-file": "AppMVP.tsx",
+                                                                            "data-component-name": "MilkAnalytics",
+                                                                            "data-component-content": "%7B%7D"
+                                                                        }, void 0, false, {
+                                                                            fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                            lineNumber: 166,
+                                                                            columnNumber: 37
+                                                                        }, void 0)
+                                                                    }, void 0, false, {
+                                                                        fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                        lineNumber: 165,
+                                                                        columnNumber: 35
+                                                                    }, void 0)
+                                                                }, void 0, false, {
+                                                                    fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                    lineNumber: 162,
+                                                                    columnNumber: 31
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Route, {
+                                                                    "data-lov-id": "src\\AppMVP.tsx:170:30",
+                                                                    "data-lov-name": "Route",
+                                                                    "data-component-path": "src\\AppMVP.tsx",
+                                                                    "data-component-line": "170",
+                                                                    "data-component-file": "AppMVP.tsx",
+                                                                    "data-component-name": "Route",
+                                                                    "data-component-content": "%7B%7D",
+                                                                    path: "/milk/summary",
+                                                                    element: /*#__PURE__*/ _jsxDEV(ProtectedRoute, {
+                                                                        "data-lov-id": "src\\AppMVP.tsx:173:34",
+                                                                        "data-lov-name": "ProtectedRoute",
+                                                                        "data-component-path": "src\\AppMVP.tsx",
+                                                                        "data-component-line": "173",
+                                                                        "data-component-file": "AppMVP.tsx",
+                                                                        "data-component-name": "ProtectedRoute",
+                                                                        "data-component-content": "%7B%7D",
+                                                                        children: /*#__PURE__*/ _jsxDEV(MilkSummary, {
+                                                                            "data-lov-id": "src\\AppMVP.tsx:174:36",
+                                                                            "data-lov-name": "MilkSummary",
+                                                                            "data-component-path": "src\\AppMVP.tsx",
+                                                                            "data-component-line": "174",
+                                                                            "data-component-file": "AppMVP.tsx",
+                                                                            "data-component-name": "MilkSummary",
+                                                                            "data-component-content": "%7B%7D"
+                                                                        }, void 0, false, {
+                                                                            fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                            lineNumber: 174,
+                                                                            columnNumber: 37
+                                                                        }, void 0)
+                                                                    }, void 0, false, {
+                                                                        fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                        lineNumber: 173,
+                                                                        columnNumber: 35
+                                                                    }, void 0)
+                                                                }, void 0, false, {
+                                                                    fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                    lineNumber: 170,
+                                                                    columnNumber: 31
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Route, {
+                                                                    "data-lov-id": "src\\AppMVP.tsx:178:30",
+                                                                    "data-lov-name": "Route",
+                                                                    "data-component-path": "src\\AppMVP.tsx",
+                                                                    "data-component-line": "178",
+                                                                    "data-component-file": "AppMVP.tsx",
+                                                                    "data-component-name": "Route",
+                                                                    "data-component-content": "%7B%7D",
+                                                                    path: "/marketplace",
+                                                                    element: /*#__PURE__*/ _jsxDEV(ProtectedRoute, {
+                                                                        "data-lov-id": "src\\AppMVP.tsx:181:34",
+                                                                        "data-lov-name": "ProtectedRoute",
+                                                                        "data-component-path": "src\\AppMVP.tsx",
+                                                                        "data-component-line": "181",
+                                                                        "data-component-file": "AppMVP.tsx",
+                                                                        "data-component-name": "ProtectedRoute",
+                                                                        "data-component-content": "%7B%7D",
+                                                                        children: /*#__PURE__*/ _jsxDEV(MarketplaceBrowse, {
+                                                                            "data-lov-id": "src\\AppMVP.tsx:182:36",
+                                                                            "data-lov-name": "MarketplaceBrowse",
+                                                                            "data-component-path": "src\\AppMVP.tsx",
+                                                                            "data-component-line": "182",
+                                                                            "data-component-file": "AppMVP.tsx",
+                                                                            "data-component-name": "MarketplaceBrowse",
+                                                                            "data-component-content": "%7B%7D"
+                                                                        }, void 0, false, {
+                                                                            fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                            lineNumber: 182,
+                                                                            columnNumber: 37
+                                                                        }, void 0)
+                                                                    }, void 0, false, {
+                                                                        fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                        lineNumber: 181,
+                                                                        columnNumber: 35
+                                                                    }, void 0)
+                                                                }, void 0, false, {
+                                                                    fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                    lineNumber: 178,
+                                                                    columnNumber: 31
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Route, {
+                                                                    "data-lov-id": "src\\AppMVP.tsx:186:30",
+                                                                    "data-lov-name": "Route",
+                                                                    "data-component-path": "src\\AppMVP.tsx",
+                                                                    "data-component-line": "186",
+                                                                    "data-component-file": "AppMVP.tsx",
+                                                                    "data-component-name": "Route",
+                                                                    "data-component-content": "%7B%7D",
+                                                                    path: "/marketplace/:id",
+                                                                    element: /*#__PURE__*/ _jsxDEV(ProtectedRoute, {
+                                                                        "data-lov-id": "src\\AppMVP.tsx:189:34",
+                                                                        "data-lov-name": "ProtectedRoute",
+                                                                        "data-component-path": "src\\AppMVP.tsx",
+                                                                        "data-component-line": "189",
+                                                                        "data-component-file": "AppMVP.tsx",
+                                                                        "data-component-name": "ProtectedRoute",
+                                                                        "data-component-content": "%7B%7D",
+                                                                        children: /*#__PURE__*/ _jsxDEV(ListingDetail, {
+                                                                            "data-lov-id": "src\\AppMVP.tsx:190:36",
+                                                                            "data-lov-name": "ListingDetail",
+                                                                            "data-component-path": "src\\AppMVP.tsx",
+                                                                            "data-component-line": "190",
+                                                                            "data-component-file": "AppMVP.tsx",
+                                                                            "data-component-name": "ListingDetail",
+                                                                            "data-component-content": "%7B%7D"
+                                                                        }, void 0, false, {
+                                                                            fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                            lineNumber: 190,
+                                                                            columnNumber: 37
+                                                                        }, void 0)
+                                                                    }, void 0, false, {
+                                                                        fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                        lineNumber: 189,
+                                                                        columnNumber: 35
+                                                                    }, void 0)
+                                                                }, void 0, false, {
+                                                                    fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                    lineNumber: 186,
+                                                                    columnNumber: 31
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Route, {
+                                                                    "data-lov-id": "src\\AppMVP.tsx:194:30",
+                                                                    "data-lov-name": "Route",
+                                                                    "data-component-path": "src\\AppMVP.tsx",
+                                                                    "data-component-line": "194",
+                                                                    "data-component-file": "AppMVP.tsx",
+                                                                    "data-component-name": "Route",
+                                                                    "data-component-content": "%7B%7D",
+                                                                    path: "/create-listing",
+                                                                    element: /*#__PURE__*/ _jsxDEV(ProtectedRoute, {
+                                                                        "data-lov-id": "src\\AppMVP.tsx:197:34",
+                                                                        "data-lov-name": "ProtectedRoute",
+                                                                        "data-component-path": "src\\AppMVP.tsx",
+                                                                        "data-component-line": "197",
+                                                                        "data-component-file": "AppMVP.tsx",
+                                                                        "data-component-name": "ProtectedRoute",
+                                                                        "data-component-content": "%7B%7D",
+                                                                        children: /*#__PURE__*/ _jsxDEV(CreateListing, {
+                                                                            "data-lov-id": "src\\AppMVP.tsx:198:36",
+                                                                            "data-lov-name": "CreateListing",
+                                                                            "data-component-path": "src\\AppMVP.tsx",
+                                                                            "data-component-line": "198",
+                                                                            "data-component-file": "AppMVP.tsx",
+                                                                            "data-component-name": "CreateListing",
+                                                                            "data-component-content": "%7B%7D"
+                                                                        }, void 0, false, {
+                                                                            fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                            lineNumber: 198,
+                                                                            columnNumber: 37
+                                                                        }, void 0)
+                                                                    }, void 0, false, {
+                                                                        fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                        lineNumber: 197,
+                                                                        columnNumber: 35
+                                                                    }, void 0)
+                                                                }, void 0, false, {
+                                                                    fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                    lineNumber: 194,
+                                                                    columnNumber: 31
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Route, {
+                                                                    "data-lov-id": "src\\AppMVP.tsx:202:30",
+                                                                    "data-lov-name": "Route",
+                                                                    "data-component-path": "src\\AppMVP.tsx",
+                                                                    "data-component-line": "202",
+                                                                    "data-component-file": "AppMVP.tsx",
+                                                                    "data-component-name": "Route",
+                                                                    "data-component-content": "%7B%7D",
+                                                                    path: "/my-listings",
+                                                                    element: /*#__PURE__*/ _jsxDEV(ProtectedRoute, {
+                                                                        "data-lov-id": "src\\AppMVP.tsx:205:34",
+                                                                        "data-lov-name": "ProtectedRoute",
+                                                                        "data-component-path": "src\\AppMVP.tsx",
+                                                                        "data-component-line": "205",
+                                                                        "data-component-file": "AppMVP.tsx",
+                                                                        "data-component-name": "ProtectedRoute",
+                                                                        "data-component-content": "%7B%7D",
+                                                                        children: /*#__PURE__*/ _jsxDEV(MyListings, {
+                                                                            "data-lov-id": "src\\AppMVP.tsx:206:36",
+                                                                            "data-lov-name": "MyListings",
+                                                                            "data-component-path": "src\\AppMVP.tsx",
+                                                                            "data-component-line": "206",
+                                                                            "data-component-file": "AppMVP.tsx",
+                                                                            "data-component-name": "MyListings",
+                                                                            "data-component-content": "%7B%7D"
+                                                                        }, void 0, false, {
+                                                                            fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                            lineNumber: 206,
+                                                                            columnNumber: 37
+                                                                        }, void 0)
+                                                                    }, void 0, false, {
+                                                                        fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                        lineNumber: 205,
+                                                                        columnNumber: 35
+                                                                    }, void 0)
+                                                                }, void 0, false, {
+                                                                    fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                    lineNumber: 202,
+                                                                    columnNumber: 31
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Route, {
+                                                                    "data-lov-id": "src\\AppMVP.tsx:210:30",
+                                                                    "data-lov-name": "Route",
+                                                                    "data-component-path": "src\\AppMVP.tsx",
+                                                                    "data-component-line": "210",
+                                                                    "data-component-file": "AppMVP.tsx",
+                                                                    "data-component-name": "Route",
+                                                                    "data-component-content": "%7B%7D",
+                                                                    path: "/profile",
+                                                                    element: /*#__PURE__*/ _jsxDEV(ProtectedRoute, {
+                                                                        "data-lov-id": "src\\AppMVP.tsx:213:34",
+                                                                        "data-lov-name": "ProtectedRoute",
+                                                                        "data-component-path": "src\\AppMVP.tsx",
+                                                                        "data-component-line": "213",
+                                                                        "data-component-file": "AppMVP.tsx",
+                                                                        "data-component-name": "ProtectedRoute",
+                                                                        "data-component-content": "%7B%7D",
+                                                                        children: /*#__PURE__*/ _jsxDEV(ProfilePage, {
+                                                                            "data-lov-id": "src\\AppMVP.tsx:214:36",
+                                                                            "data-lov-name": "ProfilePage",
+                                                                            "data-component-path": "src\\AppMVP.tsx",
+                                                                            "data-component-line": "214",
+                                                                            "data-component-file": "AppMVP.tsx",
+                                                                            "data-component-name": "ProfilePage",
+                                                                            "data-component-content": "%7B%7D"
+                                                                        }, void 0, false, {
+                                                                            fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                            lineNumber: 214,
+                                                                            columnNumber: 37
+                                                                        }, void 0)
+                                                                    }, void 0, false, {
+                                                                        fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                        lineNumber: 213,
+                                                                        columnNumber: 35
+                                                                    }, void 0)
+                                                                }, void 0, false, {
+                                                                    fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                    lineNumber: 210,
+                                                                    columnNumber: 31
+                                                                }, this),
+                                                                /*#__PURE__*/ _jsxDEV(Route, {
+                                                                    "data-lov-id": "src\\AppMVP.tsx:218:30",
+                                                                    "data-lov-name": "Route",
+                                                                    "data-component-path": "src\\AppMVP.tsx",
+                                                                    "data-component-line": "218",
+                                                                    "data-component-file": "AppMVP.tsx",
+                                                                    "data-component-name": "Route",
+                                                                    "data-component-content": "%7B%7D",
+                                                                    path: "/profile/settings",
+                                                                    element: /*#__PURE__*/ _jsxDEV(ProtectedRoute, {
+                                                                        "data-lov-id": "src\\AppMVP.tsx:221:34",
+                                                                        "data-lov-name": "ProtectedRoute",
+                                                                        "data-component-path": "src\\AppMVP.tsx",
+                                                                        "data-component-line": "221",
+                                                                        "data-component-file": "AppMVP.tsx",
+                                                                        "data-component-name": "ProtectedRoute",
+                                                                        "data-component-content": "%7B%7D",
+                                                                        children: /*#__PURE__*/ _jsxDEV(Settings, {
+                                                                            "data-lov-id": "src\\AppMVP.tsx:222:36",
+                                                                            "data-lov-name": "Settings",
+                                                                            "data-component-path": "src\\AppMVP.tsx",
+                                                                            "data-component-line": "222",
+                                                                            "data-component-file": "AppMVP.tsx",
+                                                                            "data-component-name": "Settings",
+                                                                            "data-component-content": "%7B%7D"
+                                                                        }, void 0, false, {
+                                                                            fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                            lineNumber: 222,
+                                                                            columnNumber: 37
+                                                                        }, void 0)
+                                                                    }, void 0, false, {
+                                                                        fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                        lineNumber: 221,
+                                                                        columnNumber: 35
+                                                                    }, void 0)
+                                                                }, void 0, false, {
+                                                                    fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                                    lineNumber: 218,
+                                                                    columnNumber: 31
+                                                                }, this)
+                                                            ]
+                                                        }, void 0, true, {
+                                                            fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                            lineNumber: 99,
+                                                            columnNumber: 29
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                        lineNumber: 98,
+                                                        columnNumber: 27
+                                                    }, this)
+                                                }, void 0, false, {
+                                                    fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                    lineNumber: 97,
+                                                    columnNumber: 25
+                                                }, this)
+                                            }, void 0, false, {
+                                                fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                                lineNumber: 96,
+                                                columnNumber: 23
+                                            }, this)
+                                        }, void 0, false, {
+                                            fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                            lineNumber: 95,
+                                            columnNumber: 21
+                                        }, this)
+                                    }, void 0, false, {
+                                        fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                        lineNumber: 94,
+                                        columnNumber: 19
+                                    }, this)
+                                }, void 0, false, {
+                                    fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                    lineNumber: 93,
+                                    columnNumber: 17
+                                }, this)
+                            }, void 0, false, {
+                                fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                                lineNumber: 92,
+                                columnNumber: 15
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                            lineNumber: 91,
+                            columnNumber: 13
+                        }, this)
+                    }, void 0, false, {
+                        fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                        lineNumber: 90,
+                        columnNumber: 11
+                    }, this)
+                }, void 0, false, {
+                    fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                    lineNumber: 89,
+                    columnNumber: 9
+                }, this)
+            }, void 0, false, {
+                fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                lineNumber: 88,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ _jsxDEV(Sonner, {
+                "data-lov-id": "src\\AppMVP.tsx:238:6",
+                "data-lov-name": "Sonner",
+                "data-component-path": "src\\AppMVP.tsx",
+                "data-component-line": "238",
+                "data-component-file": "AppMVP.tsx",
+                "data-component-name": "Sonner",
+                "data-component-content": "%7B%7D"
+            }, void 0, false, {
+                fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+                lineNumber: 238,
+                columnNumber: 7
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "D:/ethio-herd-connect/src/AppMVP.tsx",
+        lineNumber: 87,
+        columnNumber: 5
+    }, this);
+}
+_s(AppMVP, "OD7bBpZva5O2jO+Puf00hKivP7c=");
+_c35 = AppMVP;
+export default AppMVP;
+var _c, _c1, _c2, _c3, _c4, _c5, _c6, _c7, _c8, _c9, _c10, _c11, _c12, _c13, _c14, _c15, _c16, _c17, _c18, _c19, _c20, _c21, _c22, _c23, _c24, _c25, _c26, _c27, _c28, _c29, _c30, _c31, _c32, _c33, _c34, _c35;
+$RefreshReg$(_c, "HomeScreenSimple$lazy");
+$RefreshReg$(_c1, "HomeScreenSimple");
+$RefreshReg$(_c2, "SimpleHome$lazy");
+$RefreshReg$(_c3, "SimpleHome");
+$RefreshReg$(_c4, "RegisterAnimal$lazy");
+$RefreshReg$(_c5, "RegisterAnimal");
+$RefreshReg$(_c6, "MyAnimals$lazy");
+$RefreshReg$(_c7, "MyAnimals");
+$RefreshReg$(_c8, "AnimalDetail$lazy");
+$RefreshReg$(_c9, "AnimalDetail");
+$RefreshReg$(_c10, "RecordMilk$lazy");
+$RefreshReg$(_c11, "RecordMilk");
+$RefreshReg$(_c12, "MilkProductionRecords$lazy");
+$RefreshReg$(_c13, "MilkProductionRecords");
+$RefreshReg$(_c14, "MilkAnalytics$lazy");
+$RefreshReg$(_c15, "MilkAnalytics");
+$RefreshReg$(_c16, "MilkSummary$lazy");
+$RefreshReg$(_c17, "MilkSummary");
+$RefreshReg$(_c18, "MarketplaceBrowse$lazy");
+$RefreshReg$(_c19, "MarketplaceBrowse");
+$RefreshReg$(_c20, "ListingDetail$lazy");
+$RefreshReg$(_c21, "ListingDetail");
+$RefreshReg$(_c22, "CreateListing$lazy");
+$RefreshReg$(_c23, "CreateListing");
+$RefreshReg$(_c24, "MyListings$lazy");
+$RefreshReg$(_c25, "MyListings");
+$RefreshReg$(_c26, "ProfilePage$lazy");
+$RefreshReg$(_c27, "ProfilePage");
+$RefreshReg$(_c28, "Settings$lazy");
+$RefreshReg$(_c29, "Settings");
+$RefreshReg$(_c30, "MuzzleScanPage$lazy");
+$RefreshReg$(_c31, "MuzzleScanPage");
+$RefreshReg$(_c32, "PasswordRecovery$lazy");
+$RefreshReg$(_c33, "PasswordRecovery");
+$RefreshReg$(_c34, "LoadingFallback");
+$RefreshReg$(_c35, "AppMVP");
+
+
+window.$RefreshReg$ = prevRefreshReg;
+window.$RefreshSig$ = prevRefreshSig;
+
+RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+  RefreshRuntime.registerExportsForReactRefresh("D:/ethio-herd-connect/src/AppMVP.tsx", currentExports);
+  import.meta.hot.accept((nextExports) => {
+    if (!nextExports) return;
+    const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("D:/ethio-herd-connect/src/AppMVP.tsx", currentExports, nextExports);
+    if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+  });
+});
+
+//# sourceMappingURL=data:application/json;base64,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IlN1c3BlbnNlIiwibGF6eSIsIlRvYXN0ZXIiLCJTb25uZXIiLCJRdWVyeUNsaWVudCIsIlF1ZXJ5Q2xpZW50UHJvdmlkZXIiLCJCcm93c2VyUm91dGVyIiwiUm91dGVzIiwiUm91dGUiLCJBdXRoUHJvdmlkZXJNVlAiLCJBZG1pblByb3ZpZGVyIiwiUHJvdGVjdGVkUm91dGUiLCJBbmFseXRpY3NQcm92aWRlciIsIkxhbmd1YWdlUHJvdmlkZXIiLCJDYWxlbmRhclByb3ZpZGVyIiwiRGVtb01vZGVQcm92aWRlciIsIk5ldHdvcmtTdGF0dXNQcm92aWRlciIsIk9uYm9hcmRpbmdQcm92aWRlciIsInJlZ2lzdGVyIiwicmVnaXN0ZXJTZXJ2aWNlV29ya2VyIiwiTG9naW5NVlAiLCJPbmJvYXJkaW5nIiwiQXBwTGF5b3V0IiwiSG9tZVNjcmVlblNpbXBsZSIsInRoZW4iLCJtIiwiZGVmYXVsdCIsIlNpbXBsZUhvbWUiLCJSZWdpc3RlckFuaW1hbCIsIk15QW5pbWFscyIsIkFuaW1hbERldGFpbCIsIlJlY29yZE1pbGsiLCJNaWxrUHJvZHVjdGlvblJlY29yZHMiLCJNaWxrQW5hbHl0aWNzIiwiTWlsa1N1bW1hcnkiLCJNYXJrZXRwbGFjZUJyb3dzZSIsIkxpc3RpbmdEZXRhaWwiLCJDcmVhdGVMaXN0aW5nIiwiTXlMaXN0aW5ncyIsIlByb2ZpbGVQYWdlIiwiU2V0dGluZ3MiLCJNdXp6bGVTY2FuUGFnZSIsIlBhc3N3b3JkUmVjb3ZlcnkiLCJwcmVsb2FkQ3JpdGljYWxSb3V0ZXMiLCJzZXRUaW1lb3V0IiwicXVlcnlDbGllbnQiLCJkZWZhdWx0T3B0aW9ucyIsInF1ZXJpZXMiLCJzdGFsZVRpbWUiLCJyZXRyeSIsIm5ldHdvcmtNb2RlIiwiZ2NUaW1lIiwibXV0YXRpb25zIiwiTG9hZGluZ0ZhbGxiYWNrIiwiZGl2IiwiZGF0YS1sb3YtaWQiLCJkYXRhLWxvdi1uYW1lIiwiZGF0YS1jb21wb25lbnQtcGF0aCIsImRhdGEtY29tcG9uZW50LWxpbmUiLCJkYXRhLWNvbXBvbmVudC1maWxlIiwiZGF0YS1jb21wb25lbnQtbmFtZSIsImRhdGEtY29tcG9uZW50LWNvbnRlbnQiLCJjbGFzc05hbWUiLCJwIiwiQXBwTVZQIiwidXNlRWZmZWN0IiwiY2xpZW50IiwiZmFsbGJhY2siLCJwYXRoIiwiZWxlbWVudCJdLCJpZ25vcmVMaXN0IjpbXSwic291cmNlcyI6WyJBcHBNVlAudHN4Il0sInNvdXJjZXNDb250ZW50IjpbIi8vIHNyYy9BcHBNVlAudHN4IC0gU2ltcGxpZmllZCBNVlAgQXBwbGljYXRpb25cblxuaW1wb3J0IFJlYWN0LCB7IFN1c3BlbnNlLCBsYXp5IH0gZnJvbSAncmVhY3QnO1xuaW1wb3J0IHsgVG9hc3RlciBhcyBTb25uZXIgfSBmcm9tIFwiQC9jb21wb25lbnRzL3VpL3Nvbm5lclwiO1xuaW1wb3J0IHsgUXVlcnlDbGllbnQsIFF1ZXJ5Q2xpZW50UHJvdmlkZXIgfSBmcm9tIFwiQHRhbnN0YWNrL3JlYWN0LXF1ZXJ5XCI7XG5pbXBvcnQgeyBCcm93c2VyUm91dGVyLCBSb3V0ZXMsIFJvdXRlIH0gZnJvbSBcInJlYWN0LXJvdXRlci1kb21cIjtcbmltcG9ydCB7IEF1dGhQcm92aWRlck1WUCB9IGZyb20gXCJAL2NvbnRleHRzL0F1dGhDb250ZXh0TVZQXCI7XG5pbXBvcnQgeyBBZG1pblByb3ZpZGVyIH0gZnJvbSBcIkAvY29udGV4dHMvQWRtaW5Db250ZXh0XCI7XG5pbXBvcnQgeyBQcm90ZWN0ZWRSb3V0ZSB9IGZyb20gXCJAL2NvbXBvbmVudHMvUHJvdGVjdGVkUm91dGVcIjtcblxuaW1wb3J0IHsgQW5hbHl0aWNzUHJvdmlkZXIgfSBmcm9tIFwiQC9jb250ZXh0cy9BbmFseXRpY3NDb250ZXh0XCI7XG5pbXBvcnQgeyBMYW5ndWFnZVByb3ZpZGVyIH0gZnJvbSBcIkAvY29udGV4dHMvTGFuZ3VhZ2VDb250ZXh0XCI7XG5pbXBvcnQgeyBDYWxlbmRhclByb3ZpZGVyIH0gZnJvbSBcIkAvY29udGV4dHMvQ2FsZW5kYXJDb250ZXh0XCI7XG5pbXBvcnQgeyBEZW1vTW9kZVByb3ZpZGVyIH0gZnJvbSBcIkAvY29udGV4dHMvRGVtb01vZGVDb250ZXh0XCI7XG5pbXBvcnQgeyBOZXR3b3JrU3RhdHVzUHJvdmlkZXIgfSBmcm9tIFwiQC9jb250ZXh0cy9OZXR3b3JrU3RhdHVzQ29udGV4dFwiO1xuaW1wb3J0IHsgT25ib2FyZGluZ1Byb3ZpZGVyIH0gZnJvbSBcIkAvY29udGV4dHMvT25ib2FyZGluZ0NvbnRleHRcIjtcbmltcG9ydCB7IHJlZ2lzdGVyIGFzIHJlZ2lzdGVyU2VydmljZVdvcmtlciB9IGZyb20gXCJAL3V0aWxzL3NlcnZpY2VXb3JrZXJcIjtcblxuLy8gRWFnZXIgbG9hZCBjcml0aWNhbCByb3V0ZXNcbmltcG9ydCBMb2dpbk1WUCBmcm9tIFwiLi9wYWdlcy9Mb2dpbk1WUFwiO1xuaW1wb3J0IE9uYm9hcmRpbmcgZnJvbSBcIi4vcGFnZXMvT25ib2FyZGluZ1wiO1xuaW1wb3J0IHsgQXBwTGF5b3V0IH0gZnJvbSBcIi4vY29tcG9uZW50cy9BcHBMYXlvdXRcIjtcblxuLy8gTGF6eSBsb2FkIG90aGVyIHJvdXRlcyB3aXRoIHByZWxvYWRpbmcgZm9yIGNyaXRpY2FsIHBhdGhzXG4vLyBVc2luZyBIb21lU2NyZWVuU2ltcGxlIHdoaWNoIGhhcyBwcm9wZXIgYWNjZXNzaWJpbGl0eSBhbmQgcmVzcG9uc2l2ZSBkZXNpZ25cbmNvbnN0IEhvbWVTY3JlZW5TaW1wbGUgPSBsYXp5KCgpID0+IGltcG9ydChcIi4vY29tcG9uZW50cy9Ib21lU2NyZWVuU2ltcGxlXCIpLnRoZW4obSA9PiAoeyBkZWZhdWx0OiBtLkhvbWVTY3JlZW5TaW1wbGUgfSkpKTtcbmNvbnN0IFNpbXBsZUhvbWUgPSBsYXp5KCgpID0+IGltcG9ydChcIi4vcGFnZXMvU2ltcGxlSG9tZVwiKS50aGVuKG0gPT4gKHsgZGVmYXVsdDogbS5kZWZhdWx0IH0pKSk7XG5jb25zdCBSZWdpc3RlckFuaW1hbCA9IGxhenkoKCkgPT4gaW1wb3J0KFwiLi9wYWdlcy9SZWdpc3RlckFuaW1hbFwiKS50aGVuKG0gPT4gKHsgZGVmYXVsdDogbS5kZWZhdWx0IH0pKSk7XG5jb25zdCBNeUFuaW1hbHMgPSBsYXp5KCgpID0+IGltcG9ydChcIi4vcGFnZXMvTXlBbmltYWxzXCIpLnRoZW4obSA9PiAoeyBkZWZhdWx0OiBtLmRlZmF1bHQgfSkpKTtcbmNvbnN0IEFuaW1hbERldGFpbCA9IGxhenkoKCkgPT4gaW1wb3J0KFwiLi9wYWdlcy9BbmltYWxEZXRhaWxcIikudGhlbihtID0+ICh7IGRlZmF1bHQ6IG0uQW5pbWFsRGV0YWlsIH0pKSk7XG5jb25zdCBSZWNvcmRNaWxrID0gbGF6eSgoKSA9PiBpbXBvcnQoXCIuL3BhZ2VzL1JlY29yZE1pbGtcIikudGhlbihtID0+ICh7IGRlZmF1bHQ6IG0uZGVmYXVsdCB9KSkpO1xuY29uc3QgTWlsa1Byb2R1Y3Rpb25SZWNvcmRzID0gbGF6eSgoKSA9PiBpbXBvcnQoXCIuL3BhZ2VzL01pbGtQcm9kdWN0aW9uUmVjb3Jkc1wiKS50aGVuKG0gPT4gKHsgZGVmYXVsdDogbS5kZWZhdWx0IH0pKSk7XG5jb25zdCBNaWxrQW5hbHl0aWNzID0gbGF6eSgoKSA9PiBpbXBvcnQoXCIuL3BhZ2VzL01pbGtBbmFseXRpY3NcIikudGhlbihtID0+ICh7IGRlZmF1bHQ6IG0uZGVmYXVsdCB9KSkpO1xuY29uc3QgTWlsa1N1bW1hcnkgPSBsYXp5KCgpID0+IGltcG9ydChcIi4vcGFnZXMvTWlsa1N1bW1hcnlcIikudGhlbihtID0+ICh7IGRlZmF1bHQ6IG0uZGVmYXVsdCB9KSkpO1xuY29uc3QgTWFya2V0cGxhY2VCcm93c2UgPSBsYXp5KCgpID0+IGltcG9ydChcIi4vcGFnZXMvTWFya2V0cGxhY2VCcm93c2VcIikudGhlbihtID0+ICh7IGRlZmF1bHQ6IG0uZGVmYXVsdCB9KSkpO1xuY29uc3QgTGlzdGluZ0RldGFpbCA9IGxhenkoKCkgPT4gaW1wb3J0KFwiLi9wYWdlcy9MaXN0aW5nRGV0YWlsXCIpLnRoZW4obSA9PiAoeyBkZWZhdWx0OiBtLmRlZmF1bHQgfSkpKTtcbmNvbnN0IENyZWF0ZUxpc3RpbmcgPSBsYXp5KCgpID0+IGltcG9ydChcIi4vcGFnZXMvQ3JlYXRlTGlzdGluZ1wiKS50aGVuKG0gPT4gKHsgZGVmYXVsdDogbS5kZWZhdWx0IH0pKSk7XG5jb25zdCBNeUxpc3RpbmdzID0gbGF6eSgoKSA9PiBpbXBvcnQoXCIuL3BhZ2VzL015TGlzdGluZ3NcIikudGhlbihtID0+ICh7IGRlZmF1bHQ6IG0uZGVmYXVsdCB9KSkpO1xuY29uc3QgUHJvZmlsZVBhZ2UgPSBsYXp5KCgpID0+IGltcG9ydChcIi4vcGFnZXMvUHJvZmlsZVwiKS50aGVuKG0gPT4gKHsgZGVmYXVsdDogbS5kZWZhdWx0IH0pKSk7XG5jb25zdCBTZXR0aW5ncyA9IGxhenkoKCkgPT4gaW1wb3J0KFwiLi9wYWdlcy9TZXR0aW5nc1wiKS50aGVuKG0gPT4gKHsgZGVmYXVsdDogbS5kZWZhdWx0IH0pKSk7XG5jb25zdCBNdXp6bGVTY2FuUGFnZSA9IGxhenkoKCkgPT4gaW1wb3J0KFwiLi9wYWdlcy9NdXp6bGVTY2FuUGFnZVwiKS50aGVuKG0gPT4gKHsgZGVmYXVsdDogbS5kZWZhdWx0IH0pKSk7XG5jb25zdCBQYXNzd29yZFJlY292ZXJ5ID0gbGF6eSgoKSA9PiBpbXBvcnQoXCIuL3BhZ2VzL1Bhc3N3b3JkUmVjb3ZlcnlcIikudGhlbihtID0+ICh7IGRlZmF1bHQ6IG0uZGVmYXVsdCB9KSkpO1xuXG4vLyBQcmVsb2FkIGNyaXRpY2FsIHJvdXRlcyBhZnRlciBpbml0aWFsIGxvYWRcbmNvbnN0IHByZWxvYWRDcml0aWNhbFJvdXRlcyA9ICgpID0+IHtcbiAgLy8gUHJlbG9hZCBmcmVxdWVudGx5IHVzZWQgcm91dGVzIGFmdGVyIDIgc2Vjb25kc1xuICBzZXRUaW1lb3V0KCgpID0+IHtcbiAgICBpbXBvcnQoXCIuL3BhZ2VzL1JlZ2lzdGVyQW5pbWFsXCIpO1xuICAgIGltcG9ydChcIi4vcGFnZXMvUmVjb3JkTWlsa1wiKTtcbiAgICBpbXBvcnQoXCIuL3BhZ2VzL015QW5pbWFsc1wiKTtcbiAgfSwgMjAwMCk7XG59O1xuXG5jb25zdCBxdWVyeUNsaWVudCA9IG5ldyBRdWVyeUNsaWVudCh7XG4gIGRlZmF1bHRPcHRpb25zOiB7XG4gICAgcXVlcmllczoge1xuICAgICAgc3RhbGVUaW1lOiAxMDAwICogNjAgKiA1LCAvLyA1IG1pbnV0ZXNcbiAgICAgIHJldHJ5OiAyLFxuICAgICAgbmV0d29ya01vZGU6ICdvZmZsaW5lRmlyc3QnLFxuICAgICAgZ2NUaW1lOiAxMDAwICogNjAgKiA2MCAqIDI0LCAvLyAyNCBob3VycyAtIGNhY2hlIHBlcnNpc3RlZCBkYXRhIGxvbmdlclxuICAgIH0sXG4gICAgbXV0YXRpb25zOiB7XG4gICAgICBuZXR3b3JrTW9kZTogJ29mZmxpbmVGaXJzdCcsXG4gICAgICByZXRyeTogMyxcbiAgICB9LFxuICB9LFxufSk7XG5cbi8vIExvYWRpbmcgZmFsbGJhY2sgY29tcG9uZW50IC0gc2hvd3MgYmlsaW5ndWFsIHRleHQgc2luY2UgdHJhbnNsYXRpb25zIG1heSBub3QgYmUgbG9hZGVkIHlldFxuY29uc3QgTG9hZGluZ0ZhbGxiYWNrID0gKCkgPT4gKFxuICA8ZGl2IGNsYXNzTmFtZT1cIm1pbi1oLXNjcmVlbiBmbGV4IGl0ZW1zLWNlbnRlciBqdXN0aWZ5LWNlbnRlciBiZy1ncmF5LTUwXCI+XG4gICAgPGRpdiBjbGFzc05hbWU9XCJ0ZXh0LWNlbnRlclwiPlxuICAgICAgPGRpdiBjbGFzc05hbWU9XCJhbmltYXRlLXNwaW4gcm91bmRlZC1mdWxsIGgtMTYgdy0xNiBib3JkZXItYi00IGJvcmRlci1ncmVlbi02MDAgbXgtYXV0byBtYi00XCI+PC9kaXY+XG4gICAgICA8cCBjbGFzc05hbWU9XCJ0ZXh0LWdyYXktNjAwIHRleHQtbGdcIj7hiqXhiaPhiq3hi44g4Yut4Yyg4Yml4YmBLi4uIC8gTG9hZGluZy4uLjwvcD5cbiAgICA8L2Rpdj5cbiAgPC9kaXY+XG4pO1xuXG5mdW5jdGlvbiBBcHBNVlAoKSB7XG4gIC8vIFByZWxvYWQgY3JpdGljYWwgcm91dGVzIGFuZCByZWdpc3RlciBzZXJ2aWNlIHdvcmtlciBhZnRlciBpbml0aWFsIHJlbmRlclxuICBSZWFjdC51c2VFZmZlY3QoKCkgPT4ge1xuICAgIHByZWxvYWRDcml0aWNhbFJvdXRlcygpO1xuICAgIHJlZ2lzdGVyU2VydmljZVdvcmtlcigpO1xuICB9LCBbXSk7XG5cbiAgcmV0dXJuIChcbiAgICA8UXVlcnlDbGllbnRQcm92aWRlciBjbGllbnQ9e3F1ZXJ5Q2xpZW50fT5cbiAgICAgIDxMYW5ndWFnZVByb3ZpZGVyPlxuICAgICAgICA8QXV0aFByb3ZpZGVyTVZQPlxuICAgICAgICAgIDxPbmJvYXJkaW5nUHJvdmlkZXI+XG4gICAgICAgICAgICA8TmV0d29ya1N0YXR1c1Byb3ZpZGVyPlxuICAgICAgICAgICAgICA8QWRtaW5Qcm92aWRlcj5cbiAgICAgICAgICAgICAgICA8Q2FsZW5kYXJQcm92aWRlcj5cbiAgICAgICAgICAgICAgICAgIDxEZW1vTW9kZVByb3ZpZGVyPlxuICAgICAgICAgICAgICAgICAgICA8QW5hbHl0aWNzUHJvdmlkZXI+XG4gICAgICAgICAgICAgICAgICAgICAgPEJyb3dzZXJSb3V0ZXI+XG4gICAgICAgICAgICAgICAgICAgICAgICA8U3VzcGVuc2UgZmFsbGJhY2s9ezxMb2FkaW5nRmFsbGJhY2sgLz59PlxuICAgICAgICAgICAgICAgICAgICAgICAgICA8QXBwTGF5b3V0PlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxSb3V0ZXM+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICB7LyogUHVibGljIFJvdXRlcyAqL31cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxSb3V0ZSBwYXRoPVwiL2xvZ2luXCIgZWxlbWVudD17PExvZ2luTVZQIC8+fSAvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPFJvdXRlIHBhdGg9XCIvb25ib2FyZGluZ1wiIGVsZW1lbnQ9ezxPbmJvYXJkaW5nIC8+fSAvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPFJvdXRlIHBhdGg9XCIvZm9yZ290LXBhc3N3b3JkXCIgZWxlbWVudD17PFBhc3N3b3JkUmVjb3ZlcnkgLz59IC8+XG5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHsvKiBQcm90ZWN0ZWQgUm91dGVzICovfVxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPFJvdXRlXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHBhdGg9XCIvXCJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZWxlbWVudD17XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPFByb3RlY3RlZFJvdXRlPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPEhvbWVTY3JlZW5TaW1wbGUgLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L1Byb3RlY3RlZFJvdXRlPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB9XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPFJvdXRlXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHBhdGg9XCIvcmVnaXN0ZXItYW5pbWFsXCJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZWxlbWVudD17XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPFByb3RlY3RlZFJvdXRlPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPFJlZ2lzdGVyQW5pbWFsIC8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9Qcm90ZWN0ZWRSb3V0ZT5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfVxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxSb3V0ZVxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBwYXRoPVwiL2FuaW1hbHNcIlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBlbGVtZW50PXtcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8UHJvdGVjdGVkUm91dGU+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8TXlBbmltYWxzIC8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9Qcm90ZWN0ZWRSb3V0ZT5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfVxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxSb3V0ZVxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBwYXRoPVwiL211enpsZS1zY2FuXCJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZWxlbWVudD17XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPFByb3RlY3RlZFJvdXRlPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPE11enpsZVNjYW5QYWdlIC8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9Qcm90ZWN0ZWRSb3V0ZT5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfVxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxSb3V0ZVxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBwYXRoPVwiL2FuaW1hbHMvOmlkXCJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZWxlbWVudD17XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPFByb3RlY3RlZFJvdXRlPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPEFuaW1hbERldGFpbCAvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvUHJvdGVjdGVkUm91dGU+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIH1cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8Um91dGVcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgcGF0aD1cIi9taWxrL3JlY29yZFwiXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGVsZW1lbnQ9e1xuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxQcm90ZWN0ZWRSb3V0ZT5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxSZWNvcmRNaWxrIC8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9Qcm90ZWN0ZWRSb3V0ZT5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfVxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxSb3V0ZVxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBwYXRoPVwiL21pbGsvcmVjb3Jkc1wiXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGVsZW1lbnQ9e1xuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxQcm90ZWN0ZWRSb3V0ZT5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxNaWxrUHJvZHVjdGlvblJlY29yZHMgLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L1Byb3RlY3RlZFJvdXRlPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB9XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPFJvdXRlXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHBhdGg9XCIvbWlsay9hbmFseXRpY3NcIlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBlbGVtZW50PXtcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8UHJvdGVjdGVkUm91dGU+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8TWlsa0FuYWx5dGljcyAvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvUHJvdGVjdGVkUm91dGU+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIH1cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8Um91dGVcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgcGF0aD1cIi9taWxrL3N1bW1hcnlcIlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBlbGVtZW50PXtcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8UHJvdGVjdGVkUm91dGU+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8TWlsa1N1bW1hcnkgLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L1Byb3RlY3RlZFJvdXRlPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB9XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPFJvdXRlXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHBhdGg9XCIvbWFya2V0cGxhY2VcIlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBlbGVtZW50PXtcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8UHJvdGVjdGVkUm91dGU+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8TWFya2V0cGxhY2VCcm93c2UgLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L1Byb3RlY3RlZFJvdXRlPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB9XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPFJvdXRlXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHBhdGg9XCIvbWFya2V0cGxhY2UvOmlkXCJcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZWxlbWVudD17XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPFByb3RlY3RlZFJvdXRlPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPExpc3RpbmdEZXRhaWwgLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L1Byb3RlY3RlZFJvdXRlPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB9XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPFJvdXRlXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHBhdGg9XCIvY3JlYXRlLWxpc3RpbmdcIlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBlbGVtZW50PXtcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8UHJvdGVjdGVkUm91dGU+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8Q3JlYXRlTGlzdGluZyAvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvUHJvdGVjdGVkUm91dGU+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIH1cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8Um91dGVcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgcGF0aD1cIi9teS1saXN0aW5nc1wiXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGVsZW1lbnQ9e1xuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxQcm90ZWN0ZWRSb3V0ZT5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxNeUxpc3RpbmdzIC8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9Qcm90ZWN0ZWRSb3V0ZT5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfVxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxSb3V0ZVxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBwYXRoPVwiL3Byb2ZpbGVcIlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBlbGVtZW50PXtcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8UHJvdGVjdGVkUm91dGU+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8UHJvZmlsZVBhZ2UgLz5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICA8L1Byb3RlY3RlZFJvdXRlPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB9XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPFJvdXRlXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHBhdGg9XCIvcHJvZmlsZS9zZXR0aW5nc1wiXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGVsZW1lbnQ9e1xuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxQcm90ZWN0ZWRSb3V0ZT5cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDxTZXR0aW5ncyAvPlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIDwvUHJvdGVjdGVkUm91dGU+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIH1cbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIC8+XG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgPC9Sb3V0ZXM+XG4gICAgICAgICAgICAgICAgICAgICAgICAgIDwvQXBwTGF5b3V0PlxuICAgICAgICAgICAgICAgICAgICAgICAgPC9TdXNwZW5zZT5cbiAgICAgICAgICAgICAgICAgICAgICA8L0Jyb3dzZXJSb3V0ZXI+XG4gICAgICAgICAgICAgICAgICAgIDwvQW5hbHl0aWNzUHJvdmlkZXI+XG4gICAgICAgICAgICAgICAgICA8L0RlbW9Nb2RlUHJvdmlkZXI+XG4gICAgICAgICAgICAgICAgPC9DYWxlbmRhclByb3ZpZGVyPlxuICAgICAgICAgICAgICA8L0FkbWluUHJvdmlkZXI+XG4gICAgICAgICAgICA8L05ldHdvcmtTdGF0dXNQcm92aWRlcj5cbiAgICAgICAgICA8L09uYm9hcmRpbmdQcm92aWRlcj5cbiAgICAgICAgPC9BdXRoUHJvdmlkZXJNVlA+XG4gICAgICA8L0xhbmd1YWdlUHJvdmlkZXI+XG4gICAgICA8U29ubmVyIC8+XG4gICAgPC9RdWVyeUNsaWVudFByb3ZpZGVyPlxuICApO1xufVxuXG5leHBvcnQgZGVmYXVsdCBBcHBNVlA7XG4iXSwiZmlsZSI6IkQ6L2V0aGlvLWhlcmQtY29ubmVjdC9zcmMvQXBwTVZQLnRzeCJ9

@@ -1,0 +1,637 @@
+import { createHotContext as __vite__createHotContext } from "/@vite/client";import.meta.hot = __vite__createHotContext("/src/pages/Onboarding.tsx");if (!window.$RefreshReg$) throw new Error("React refresh preamble was not loaded. Something is wrong.");
+const prevRefreshReg = window.$RefreshReg$;
+const prevRefreshSig = window.$RefreshSig$;
+window.$RefreshReg$ = RefreshRuntime.getRefreshReg("D:/ethio-herd-connect/src/pages/Onboarding.tsx");
+window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;
+
+import * as RefreshRuntime from "/@react-refresh";
+
+// src/pages/Onboarding.tsx - Collect farm name after first login
+import __vite__cjsImport1_react_jsxDevRuntime from "/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=0165465e"; const _jsxDEV = __vite__cjsImport1_react_jsxDevRuntime["jsxDEV"];
+var _s = $RefreshSig$();
+import __vite__cjsImport2_react from "/node_modules/.vite/deps/react.js?v=0165465e"; const useState = __vite__cjsImport2_react["useState"];
+import { useNavigate } from "/node_modules/.vite/deps/react-router-dom.js?v=0165465e";
+import { supabase } from "/src/integrations/supabase/client.ts";
+import { useAuth } from "/src/contexts/AuthContextMVP.tsx";
+import { toast } from "/node_modules/.vite/deps/sonner.js?v=0165465e";
+import { validateFullName } from "/src/utils/nameValidation.ts";
+const Onboarding = ()=>{
+    _s();
+    const { user } = useAuth();
+    const navigate = useNavigate();
+    const [farmerName, setFarmerName] = useState('');
+    const [farmName, setFarmName] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [nameError, setNameError] = useState('');
+    const [touched, setTouched] = useState(false);
+    const handleNameChange = (value)=>{
+        setFarmerName(value);
+        // Real-time validation - always show error if invalid after user starts typing
+        if (value.trim()) {
+            const validation = validateFullName(value);
+            setNameError(validation.isValid ? '' : validation.error || '');
+        } else {
+            setNameError('');
+        }
+    };
+    const handleNameBlur = ()=>{
+        setTouched(true);
+        if (farmerName.trim()) {
+            const validation = validateFullName(farmerName);
+            setNameError(validation.isValid ? '' : validation.error || '');
+        }
+    };
+    // Check if name has at least 2 words (first name + father's name)
+    const hasTwoNames = farmerName.trim().split(/\s+/).filter((part)=>part.length >= 2).length >= 2;
+    const handleSubmit = async ()=>{
+        // Validate name before submission
+        const validation = validateFullName(farmerName);
+        if (!validation.isValid) {
+            setNameError(validation.error || '');
+            setTouched(true);
+            // Show bilingual error toast
+            toast.error(validation.errorAm || validation.error || 'Validation failed', {
+                description: validation.error
+            });
+            return;
+        }
+        if (!user) {
+            toast.error('User not authenticated');
+            return;
+        }
+        setLoading(true);
+        try {
+            // Get phone from user metadata or fall back to extracted from email
+            let phone = '';
+            if (user.phone) {
+                phone = user.phone;
+            } else if (user.email) {
+                // Extract phone from email (911234567@ethioherd.app → 911234567)
+                phone = user.email.split('@')[0];
+            }
+            console.log('Saving profile with phone:', phone, 'user.id:', user.id);
+            // Try to save profile - use a simpler approach
+            // First try upsert, if it fails just redirect (allow offline-first)
+            try {
+                const { error } = await supabase.from('profiles').upsert({
+                    id: user.id,
+                    phone: phone,
+                    farmer_name: farmerName.trim(),
+                    farm_name: farmName.trim() || null
+                });
+                if (error) {
+                    console.warn('Profile save warning (can continue):', error.message);
+                // Continue anyway - profile can be saved later
+                }
+            } catch (e) {
+                console.warn('Profile save error (can continue):', e);
+            // Continue anyway
+            }
+            toast.success('✓ እንኳን ደህና መጡ! / Welcome!', {
+                description: `${farmerName}${farmName ? ` - ${farmName}` : ''}`
+            });
+            // Mark onboarding as completed
+            localStorage.setItem('onboarding_completed', 'true');
+            // Always redirect to home - profile can be saved in background
+            navigate('/', {
+                replace: true
+            });
+        } catch (error) {
+            console.error('Onboarding error:', error);
+            // Detect network errors specifically
+            if (error.message?.includes('fetch') || error.message?.includes('network') || error.message?.includes('Failed to fetch') || !navigator.onLine) {
+                toast.error('የኢንተርኔት ግንኙነት ችግር / Network Error', {
+                    description: 'እባክዎ ግንኙነትዎን ያረጋግጡ / Please check your connection',
+                    action: {
+                        label: 'እንደገና ይሞክሩ / Retry',
+                        onClick: ()=>handleSubmit()
+                    }
+                });
+            } else {
+                // Show bilingual error messages
+                toast.error('መረጃ ማስቀመጥ አልተቻለም / Failed to save', {
+                    description: error.message || 'Please try again'
+                });
+            }
+        } finally{
+            setLoading(false);
+        }
+    };
+    return /*#__PURE__*/ _jsxDEV("div", {
+        "data-lov-id": "src\\pages\\Onboarding.tsx:129:4",
+        "data-lov-name": "div",
+        "data-component-path": "src\\pages\\Onboarding.tsx",
+        "data-component-line": "129",
+        "data-component-file": "Onboarding.tsx",
+        "data-component-name": "div",
+        "data-component-content": "%7B%22className%22%3A%22min-h-screen%20bg-gradient-to-br%20from-green-50%20via-emerald-50%20to-teal-50%20flex%20items-center%20justify-center%20p-4%22%7D",
+        className: "min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center p-4",
+        children: /*#__PURE__*/ _jsxDEV("div", {
+            "data-lov-id": "src\\pages\\Onboarding.tsx:130:6",
+            "data-lov-name": "div",
+            "data-component-path": "src\\pages\\Onboarding.tsx",
+            "data-component-line": "130",
+            "data-component-file": "Onboarding.tsx",
+            "data-component-name": "div",
+            "data-component-content": "%7B%22className%22%3A%22w-full%20max-w-md%22%7D",
+            className: "w-full max-w-md",
+            children: [
+                /*#__PURE__*/ _jsxDEV("div", {
+                    "data-lov-id": "src\\pages\\Onboarding.tsx:131:8",
+                    "data-lov-name": "div",
+                    "data-component-path": "src\\pages\\Onboarding.tsx",
+                    "data-component-line": "131",
+                    "data-component-file": "Onboarding.tsx",
+                    "data-component-name": "div",
+                    "data-component-content": "%7B%22className%22%3A%22bg-white%20rounded-2xl%20shadow-xl%20p-8%22%7D",
+                    className: "bg-white rounded-2xl shadow-xl p-8",
+                    children: [
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            "data-lov-id": "src\\pages\\Onboarding.tsx:133:10",
+                            "data-lov-name": "div",
+                            "data-component-path": "src\\pages\\Onboarding.tsx",
+                            "data-component-line": "133",
+                            "data-component-file": "Onboarding.tsx",
+                            "data-component-name": "div",
+                            "data-component-content": "%7B%22className%22%3A%22text-center%20mb-8%22%7D",
+                            className: "text-center mb-8",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    "data-lov-id": "src\\pages\\Onboarding.tsx:134:12",
+                                    "data-lov-name": "div",
+                                    "data-component-path": "src\\pages\\Onboarding.tsx",
+                                    "data-component-line": "134",
+                                    "data-component-file": "Onboarding.tsx",
+                                    "data-component-name": "div",
+                                    "data-component-content": "%7B%22className%22%3A%22w-20%20h-20%20bg-gradient-to-br%20from-green-600%20to-emerald-700%20rounded-full%20flex%20items-center%20justify-center%20mx-auto%20mb-4%20shadow-lg%22%7D",
+                                    className: "w-20 h-20 bg-gradient-to-br from-green-600 to-emerald-700 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg",
+                                    children: /*#__PURE__*/ _jsxDEV("span", {
+                                        "data-lov-id": "src\\pages\\Onboarding.tsx:135:14",
+                                        "data-lov-name": "span",
+                                        "data-component-path": "src\\pages\\Onboarding.tsx",
+                                        "data-component-line": "135",
+                                        "data-component-file": "Onboarding.tsx",
+                                        "data-component-name": "span",
+                                        "data-component-content": "%7B%22text%22%3A%22%F0%9F%8C%BE%22%2C%22className%22%3A%22text-4xl%22%7D",
+                                        className: "text-4xl",
+                                        children: "🌾"
+                                    }, void 0, false, {
+                                        fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                                        lineNumber: 135,
+                                        columnNumber: 15
+                                    }, this)
+                                }, void 0, false, {
+                                    fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                                    lineNumber: 134,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("h1", {
+                                    "data-lov-id": "src\\pages\\Onboarding.tsx:137:12",
+                                    "data-lov-name": "h1",
+                                    "data-component-path": "src\\pages\\Onboarding.tsx",
+                                    "data-component-line": "137",
+                                    "data-component-file": "Onboarding.tsx",
+                                    "data-component-name": "h1",
+                                    "data-component-content": "%7B%22text%22%3A%22%E1%8A%A5%E1%8A%95%E1%8A%B3%E1%8A%95%20%E1%8B%B0%E1%88%85%E1%8A%93%20%E1%88%98%E1%8C%A1!%22%2C%22className%22%3A%22text-3xl%20font-bold%20text-gray-800%20mb-2%22%7D",
+                                    className: "text-3xl font-bold text-gray-800 mb-2",
+                                    children: "እንኳን ደህና መጡ!"
+                                }, void 0, false, {
+                                    fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                                    lineNumber: 137,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("p", {
+                                    "data-lov-id": "src\\pages\\Onboarding.tsx:140:12",
+                                    "data-lov-name": "p",
+                                    "data-component-path": "src\\pages\\Onboarding.tsx",
+                                    "data-component-line": "140",
+                                    "data-component-file": "Onboarding.tsx",
+                                    "data-component-name": "p",
+                                    "data-component-content": "%7B%22text%22%3A%22Welcome%20to%20Ethio%20Herd%20Connect%22%2C%22className%22%3A%22text-gray-600%20text-lg%22%7D",
+                                    className: "text-gray-600 text-lg",
+                                    children: "Welcome to Ethio Herd Connect"
+                                }, void 0, false, {
+                                    fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                                    lineNumber: 140,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                            lineNumber: 133,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ _jsxDEV("div", {
+                            "data-lov-id": "src\\pages\\Onboarding.tsx:146:10",
+                            "data-lov-name": "div",
+                            "data-component-path": "src\\pages\\Onboarding.tsx",
+                            "data-component-line": "146",
+                            "data-component-file": "Onboarding.tsx",
+                            "data-component-name": "div",
+                            "data-component-content": "%7B%22className%22%3A%22space-y-4%22%7D",
+                            className: "space-y-4",
+                            children: [
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    "data-lov-id": "src\\pages\\Onboarding.tsx:147:12",
+                                    "data-lov-name": "div",
+                                    "data-component-path": "src\\pages\\Onboarding.tsx",
+                                    "data-component-line": "147",
+                                    "data-component-file": "Onboarding.tsx",
+                                    "data-component-name": "div",
+                                    "data-component-content": "%7B%7D",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV("label", {
+                                            "data-lov-id": "src\\pages\\Onboarding.tsx:148:14",
+                                            "data-lov-name": "label",
+                                            "data-component-path": "src\\pages\\Onboarding.tsx",
+                                            "data-component-line": "148",
+                                            "data-component-file": "Onboarding.tsx",
+                                            "data-component-name": "label",
+                                            "data-component-content": "%7B%22text%22%3A%22%E1%88%B5%E1%88%9D%E1%8B%8E%20%2F%20Your%20Name%22%2C%22className%22%3A%22block%20text-base%20font-medium%20mb-3%20text-gray-700%22%7D",
+                                            className: "block text-base font-medium mb-3 text-gray-700",
+                                            children: [
+                                                "ስምዎ / Your Name ",
+                                                /*#__PURE__*/ _jsxDEV("span", {
+                                                    "data-lov-id": "src\\pages\\Onboarding.tsx:149:32",
+                                                    "data-lov-name": "span",
+                                                    "data-component-path": "src\\pages\\Onboarding.tsx",
+                                                    "data-component-line": "149",
+                                                    "data-component-file": "Onboarding.tsx",
+                                                    "data-component-name": "span",
+                                                    "data-component-content": "%7B%22text%22%3A%22*%22%2C%22className%22%3A%22text-red-500%22%7D",
+                                                    className: "text-red-500",
+                                                    children: "*"
+                                                }, void 0, false, {
+                                                    fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                                                    lineNumber: 149,
+                                                    columnNumber: 33
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                                            lineNumber: 148,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("input", {
+                                            "data-lov-id": "src\\pages\\Onboarding.tsx:151:14",
+                                            "data-lov-name": "input",
+                                            "data-component-path": "src\\pages\\Onboarding.tsx",
+                                            "data-component-line": "151",
+                                            "data-component-file": "Onboarding.tsx",
+                                            "data-component-name": "input",
+                                            "data-component-content": "%7B%22placeholder%22%3A%22%E1%88%B5%E1%88%9D%20%E1%8A%A5%E1%8A%93%20%E1%8B%A8%E1%8A%A0%E1%89%A3%E1%89%B5%20%E1%88%B5%E1%88%9D%20%E1%8B%AB%E1%88%B5%E1%8C%88%E1%89%A1...%20%2F%20Enter%20first%20and%20father's%20name...%22%7D",
+                                            type: "text",
+                                            value: farmerName,
+                                            onChange: (e)=>handleNameChange(e.target.value),
+                                            onBlur: handleNameBlur,
+                                            placeholder: "ስም እና የአባት ስም ያስገቡ... / Enter first and father's name...",
+                                            className: `w-full px-4 py-3 border-2 rounded-lg focus:outline-none text-lg transition-colors ${nameError || farmerName.trim() && !hasTwoNames ? 'border-red-500 focus:border-red-500 bg-red-50' : hasTwoNames ? 'border-green-500 focus:border-green-500 bg-green-50' : 'border-gray-300 focus:border-green-500'}`,
+                                            style: {
+                                                minHeight: '48px'
+                                            },
+                                            autoComplete: "off",
+                                            autoCorrect: "off",
+                                            spellCheck: "false",
+                                            "data-form-type": "other",
+                                            // Note: autoFocus removed to prevent keyboard from covering the screen on small phones
+                                            onKeyDown: (e)=>{
+                                                if (e.key === 'Enter' && hasTwoNames) {
+                                                    handleSubmit();
+                                                }
+                                            }
+                                        }, void 0, false, {
+                                            fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                                            lineNumber: 151,
+                                            columnNumber: 15
+                                        }, this),
+                                        (nameError || farmerName.trim() && !hasTwoNames) && /*#__PURE__*/ _jsxDEV("div", {
+                                            "data-lov-id": "src\\pages\\Onboarding.tsx:178:16",
+                                            "data-lov-name": "div",
+                                            "data-component-path": "src\\pages\\Onboarding.tsx",
+                                            "data-component-line": "178",
+                                            "data-component-file": "Onboarding.tsx",
+                                            "data-component-name": "div",
+                                            "data-component-content": "%7B%22className%22%3A%22mt-3%20p-4%20bg-red-100%20border-2%20border-red-400%20rounded-lg%20animate-pulse%22%7D",
+                                            className: "mt-3 p-4 bg-red-100 border-2 border-red-400 rounded-lg animate-pulse",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV("p", {
+                                                    "data-lov-id": "src\\pages\\Onboarding.tsx:179:18",
+                                                    "data-lov-name": "p",
+                                                    "data-component-path": "src\\pages\\Onboarding.tsx",
+                                                    "data-component-line": "179",
+                                                    "data-component-file": "Onboarding.tsx",
+                                                    "data-component-name": "p",
+                                                    "data-component-content": "%7B%22className%22%3A%22text-base%20font-semibold%20text-red-900%20flex%20items-center%20gap-2%22%7D",
+                                                    className: "text-base font-semibold text-red-900 flex items-center gap-2",
+                                                    children: [
+                                                        /*#__PURE__*/ _jsxDEV("span", {
+                                                            "data-lov-id": "src\\pages\\Onboarding.tsx:180:20",
+                                                            "data-lov-name": "span",
+                                                            "data-component-path": "src\\pages\\Onboarding.tsx",
+                                                            "data-component-line": "180",
+                                                            "data-component-file": "Onboarding.tsx",
+                                                            "data-component-name": "span",
+                                                            "data-component-content": "%7B%22text%22%3A%22%E2%9A%A0%EF%B8%8F%22%7D",
+                                                            children: "⚠️"
+                                                        }, void 0, false, {
+                                                            fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                                                            lineNumber: 180,
+                                                            columnNumber: 21
+                                                        }, this),
+                                                        nameError || 'እባክዎ ሁለት ስሞች ያስገቡ (ስም እና የአባት ስም) / Please enter two names (first and father\'s name)'
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                                                    lineNumber: 179,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV("p", {
+                                                    "data-lov-id": "src\\pages\\Onboarding.tsx:183:18",
+                                                    "data-lov-name": "p",
+                                                    "data-component-path": "src\\pages\\Onboarding.tsx",
+                                                    "data-component-line": "183",
+                                                    "data-component-file": "Onboarding.tsx",
+                                                    "data-component-name": "p",
+                                                    "data-component-content": "%7B%22text%22%3A%22%E1%88%88%E1%88%9D%E1%88%B3%E1%88%8C%3A%20%E1%8A%A0%E1%89%A0%E1%89%A0%20%E1%89%B0%E1%88%B0%E1%88%9B%20%2F%20Example%3A%20Abebe%20Tesema%22%2C%22className%22%3A%22text-sm%20text-red-700%20mt-1%22%7D",
+                                                    className: "text-sm text-red-700 mt-1",
+                                                    children: "ለምሳሌ: አበበ ተሰማ / Example: Abebe Tesema"
+                                                }, void 0, false, {
+                                                    fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                                                    lineNumber: 183,
+                                                    columnNumber: 19
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                                            lineNumber: 178,
+                                            columnNumber: 17
+                                        }, this),
+                                        !nameError && !farmerName.trim() && /*#__PURE__*/ _jsxDEV("p", {
+                                            "data-lov-id": "src\\pages\\Onboarding.tsx:189:16",
+                                            "data-lov-name": "p",
+                                            "data-component-path": "src\\pages\\Onboarding.tsx",
+                                            "data-component-line": "189",
+                                            "data-component-file": "Onboarding.tsx",
+                                            "data-component-name": "p",
+                                            "data-component-content": "%7B%22className%22%3A%22text-sm%20text-gray-600%20mt-2%20flex%20items-center%20gap-2%22%7D",
+                                            className: "text-sm text-gray-600 mt-2 flex items-center gap-2",
+                                            children: [
+                                                /*#__PURE__*/ _jsxDEV("span", {
+                                                    "data-lov-id": "src\\pages\\Onboarding.tsx:190:18",
+                                                    "data-lov-name": "span",
+                                                    "data-component-path": "src\\pages\\Onboarding.tsx",
+                                                    "data-component-line": "190",
+                                                    "data-component-file": "Onboarding.tsx",
+                                                    "data-component-name": "span",
+                                                    "data-component-content": "%7B%22text%22%3A%22%F0%9F%92%A1%22%2C%22className%22%3A%22text-green-600%22%7D",
+                                                    className: "text-green-600",
+                                                    children: "💡"
+                                                }, void 0, false, {
+                                                    fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                                                    lineNumber: 190,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ _jsxDEV("span", {
+                                                    "data-lov-id": "src\\pages\\Onboarding.tsx:191:18",
+                                                    "data-lov-name": "span",
+                                                    "data-component-path": "src\\pages\\Onboarding.tsx",
+                                                    "data-component-line": "191",
+                                                    "data-component-file": "Onboarding.tsx",
+                                                    "data-component-name": "span",
+                                                    "data-component-content": "%7B%22text%22%3A%22%E1%88%81%E1%88%88%E1%89%B5%20%E1%88%B5%E1%88%9E%E1%89%BD%20%E1%8B%AB%E1%88%B5%E1%8D%88%E1%88%8D%E1%8C%8B%E1%88%8D%20-%20%E1%88%B5%E1%88%9D%20%E1%8A%A5%E1%8A%93%20%E1%8B%A8%E1%8A%A0%E1%89%A3%E1%89%B5%20%E1%88%B5%E1%88%9D%20%2F%20Two%20names%20required%20-%20first%20and%20father's%20name%22%7D",
+                                                    children: "ሁለት ስሞች ያስፈልጋል - ስም እና የአባት ስም / Two names required - first and father's name"
+                                                }, void 0, false, {
+                                                    fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                                                    lineNumber: 191,
+                                                    columnNumber: 19
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                                            lineNumber: 189,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                                    lineNumber: 147,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    "data-lov-id": "src\\pages\\Onboarding.tsx:196:12",
+                                    "data-lov-name": "div",
+                                    "data-component-path": "src\\pages\\Onboarding.tsx",
+                                    "data-component-line": "196",
+                                    "data-component-file": "Onboarding.tsx",
+                                    "data-component-name": "div",
+                                    "data-component-content": "%7B%7D",
+                                    children: [
+                                        /*#__PURE__*/ _jsxDEV("label", {
+                                            "data-lov-id": "src\\pages\\Onboarding.tsx:197:14",
+                                            "data-lov-name": "label",
+                                            "data-component-path": "src\\pages\\Onboarding.tsx",
+                                            "data-component-line": "197",
+                                            "data-component-file": "Onboarding.tsx",
+                                            "data-component-name": "label",
+                                            "data-component-content": "%7B%22text%22%3A%22%E1%8B%A8%E1%8A%A5%E1%88%AD%E1%88%BB%20%E1%88%B5%E1%88%9D%20%2F%20Farm%20Name%22%2C%22className%22%3A%22block%20text-base%20font-medium%20mb-3%20text-gray-700%22%7D",
+                                            className: "block text-base font-medium mb-3 text-gray-700",
+                                            children: [
+                                                "የእርሻ ስም / Farm Name ",
+                                                /*#__PURE__*/ _jsxDEV("span", {
+                                                    "data-lov-id": "src\\pages\\Onboarding.tsx:198:36",
+                                                    "data-lov-name": "span",
+                                                    "data-component-path": "src\\pages\\Onboarding.tsx",
+                                                    "data-component-line": "198",
+                                                    "data-component-file": "Onboarding.tsx",
+                                                    "data-component-name": "span",
+                                                    "data-component-content": "%7B%22text%22%3A%22(%E1%8A%A0%E1%88%9B%E1%88%AB%E1%8C%AD%20%2F%20optional)%22%2C%22className%22%3A%22text-gray-400%22%7D",
+                                                    className: "text-gray-400",
+                                                    children: "(አማራጭ / optional)"
+                                                }, void 0, false, {
+                                                    fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                                                    lineNumber: 198,
+                                                    columnNumber: 37
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                                            lineNumber: 197,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("input", {
+                                            "data-lov-id": "src\\pages\\Onboarding.tsx:200:14",
+                                            "data-lov-name": "input",
+                                            "data-component-path": "src\\pages\\Onboarding.tsx",
+                                            "data-component-line": "200",
+                                            "data-component-file": "Onboarding.tsx",
+                                            "data-component-name": "input",
+                                            "data-component-content": "%7B%22placeholder%22%3A%22%E1%88%88%E1%88%9D%E1%88%B3%E1%88%8C%3A%20%E1%8B%A8%E1%8A%A0%E1%89%A0%E1%89%A0%20%E1%8A%A5%E1%88%AD%E1%88%BB%20%2F%20e.g.%2C%20Abebe's%20Farm%22%2C%22className%22%3A%22w-full%20px-4%20py-3%20border-2%20border-gray-300%20rounded-lg%20focus%3Aoutline-none%20focus%3Aborder-green-500%20text-lg%22%7D",
+                                            type: "text",
+                                            value: farmName,
+                                            onChange: (e)=>setFarmName(e.target.value),
+                                            placeholder: "ለምሳሌ: የአበበ እርሻ / e.g., Abebe's Farm",
+                                            className: "w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-green-500 text-lg",
+                                            style: {
+                                                minHeight: '48px'
+                                            },
+                                            autoComplete: "off",
+                                            autoCorrect: "off",
+                                            spellCheck: "false",
+                                            "data-form-type": "other",
+                                            onKeyDown: (e)=>{
+                                                if (e.key === 'Enter' && farmerName.trim()) {
+                                                    handleSubmit();
+                                                }
+                                            }
+                                        }, void 0, false, {
+                                            fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                                            lineNumber: 200,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ _jsxDEV("p", {
+                                            "data-lov-id": "src\\pages\\Onboarding.tsx:217:14",
+                                            "data-lov-name": "p",
+                                            "data-component-path": "src\\pages\\Onboarding.tsx",
+                                            "data-component-line": "217",
+                                            "data-component-file": "Onboarding.tsx",
+                                            "data-component-name": "p",
+                                            "data-component-content": "%7B%22text%22%3A%22%E1%8B%AD%E1%88%85%20%E1%88%B5%E1%88%9D%20%E1%89%A0%E1%8C%88%E1%89%A0%E1%8B%AB%20%E1%88%8B%E1%8B%AD%20%E1%8B%AD%E1%89%B3%E1%8B%AB%E1%88%8D%20%2F%20This%20name%20will%20be%20shown%20in%20marketplace%22%2C%22className%22%3A%22text-sm%20text-gray-600%20mt-2%22%7D",
+                                            className: "text-sm text-gray-600 mt-2",
+                                            children: "ይህ ስም በገበያ ላይ ይታያል / This name will be shown in marketplace"
+                                        }, void 0, false, {
+                                            fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                                            lineNumber: 217,
+                                            columnNumber: 15
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                                    lineNumber: 196,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("button", {
+                                    "data-lov-id": "src\\pages\\Onboarding.tsx:222:12",
+                                    "data-lov-name": "button",
+                                    "data-component-path": "src\\pages\\Onboarding.tsx",
+                                    "data-component-line": "222",
+                                    "data-component-file": "Onboarding.tsx",
+                                    "data-component-name": "button",
+                                    "data-component-content": "%7B%22className%22%3A%22w-full%20bg-green-600%20text-white%20py-4%20rounded-lg%20font-bold%20text-lg%20hover%3Abg-green-700%20disabled%3Abg-gray-300%20disabled%3Acursor-not-allowed%20transition-colors%20shadow-md%22%7D",
+                                    onClick: handleSubmit,
+                                    disabled: loading || !hasTwoNames,
+                                    className: "w-full bg-green-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors shadow-md",
+                                    style: {
+                                        minHeight: '56px'
+                                    },
+                                    children: loading ? 'እባክዎ ይጠብቁ... / Please wait...' : !farmerName.trim() ? 'ስም ያስገቡ / Enter Name' : !hasTwoNames ? 'ሁለት ስሞች ያስገቡ / Enter Two Names' : '✓ ቀጥል / Continue'
+                                }, void 0, false, {
+                                    fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                                    lineNumber: 222,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ _jsxDEV("div", {
+                                    "data-lov-id": "src\\pages\\Onboarding.tsx:231:12",
+                                    "data-lov-name": "div",
+                                    "data-component-path": "src\\pages\\Onboarding.tsx",
+                                    "data-component-line": "231",
+                                    "data-component-file": "Onboarding.tsx",
+                                    "data-component-name": "div",
+                                    "data-component-content": "%7B%22className%22%3A%22bg-blue-50%20border%20border-blue-200%20rounded-lg%20p-3%22%7D",
+                                    className: "bg-blue-50 border border-blue-200 rounded-lg p-3",
+                                    children: /*#__PURE__*/ _jsxDEV("p", {
+                                        "data-lov-id": "src\\pages\\Onboarding.tsx:232:14",
+                                        "data-lov-name": "p",
+                                        "data-component-path": "src\\pages\\Onboarding.tsx",
+                                        "data-component-line": "232",
+                                        "data-component-file": "Onboarding.tsx",
+                                        "data-component-name": "p",
+                                        "data-component-content": "%7B%22text%22%3A%22%F0%9F%92%A1%20%E1%88%B5%E1%88%99%E1%8A%95%20%E1%89%A0%E1%8A%8B%E1%88%8B%20%E1%88%98%E1%89%80%E1%8B%A8%E1%88%AD%20%E1%8B%AD%E1%89%BD%E1%88%8B%E1%88%89%20%2F%20You%20can%20change%20this%20name%20later%20in%20settings%22%2C%22className%22%3A%22text-sm%20text-blue-800%22%7D",
+                                        className: "text-sm text-blue-800",
+                                        children: "💡 ስሙን በኋላ መቀየር ይችላሉ / You can change this name later in settings"
+                                    }, void 0, false, {
+                                        fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                                        lineNumber: 232,
+                                        columnNumber: 15
+                                    }, this)
+                                }, void 0, false, {
+                                    fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                                    lineNumber: 231,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                            lineNumber: 146,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                    lineNumber: 131,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ _jsxDEV("div", {
+                    "data-lov-id": "src\\pages\\Onboarding.tsx:240:8",
+                    "data-lov-name": "div",
+                    "data-component-path": "src\\pages\\Onboarding.tsx",
+                    "data-component-line": "240",
+                    "data-component-file": "Onboarding.tsx",
+                    "data-component-name": "div",
+                    "data-component-content": "%7B%22className%22%3A%22mt-6%20text-center%20text-sm%20text-gray-600%22%7D",
+                    className: "mt-6 text-center text-sm text-gray-600",
+                    children: /*#__PURE__*/ _jsxDEV("p", {
+                        "data-lov-id": "src\\pages\\Onboarding.tsx:241:10",
+                        "data-lov-name": "p",
+                        "data-component-path": "src\\pages\\Onboarding.tsx",
+                        "data-component-line": "241",
+                        "data-component-file": "Onboarding.tsx",
+                        "data-component-name": "p",
+                        "data-component-content": "%7B%22text%22%3A%22%E2%9C%93%20Works%20offline%20%E2%80%A2%20%E2%9C%93%20Amharic%20support%20%E2%80%A2%20%E2%9C%93%20Free%20to%20use%22%7D",
+                        children: "✓ Works offline • ✓ Amharic support • ✓ Free to use"
+                    }, void 0, false, {
+                        fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                        lineNumber: 241,
+                        columnNumber: 11
+                    }, this)
+                }, void 0, false, {
+                    fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+                    lineNumber: 240,
+                    columnNumber: 9
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+            lineNumber: 130,
+            columnNumber: 7
+        }, this)
+    }, void 0, false, {
+        fileName: "D:/ethio-herd-connect/src/pages/Onboarding.tsx",
+        lineNumber: 129,
+        columnNumber: 5
+    }, this);
+};
+_s(Onboarding, "5XeiADK46KepCAngixPcKbCoICw=", false, function() {
+    return [
+        useAuth,
+        useNavigate
+    ];
+});
+_c = Onboarding;
+export default Onboarding;
+var _c;
+$RefreshReg$(_c, "Onboarding");
+
+
+window.$RefreshReg$ = prevRefreshReg;
+window.$RefreshSig$ = prevRefreshSig;
+
+RefreshRuntime.__hmr_import(import.meta.url).then((currentExports) => {
+  RefreshRuntime.registerExportsForReactRefresh("D:/ethio-herd-connect/src/pages/Onboarding.tsx", currentExports);
+  import.meta.hot.accept((nextExports) => {
+    if (!nextExports) return;
+    const invalidateMessage = RefreshRuntime.validateRefreshBoundaryAndEnqueueUpdate("D:/ethio-herd-connect/src/pages/Onboarding.tsx", currentExports, nextExports);
+    if (invalidateMessage) import.meta.hot.invalidate(invalidateMessage);
+  });
+});
+
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJtYXBwaW5ncyI6Ijs7Ozs7Ozs7QUFBQSxpRUFBaUU7OztBQUVqRSxTQUFTQSxRQUFRLFFBQVEsUUFBUTtBQUNqQyxTQUFTQyxXQUFXLFFBQVEsbUJBQW1CO0FBQy9DLFNBQVNDLFFBQVEsUUFBUSxpQ0FBaUM7QUFDMUQsU0FBU0MsT0FBTyxRQUFRLDRCQUE0QjtBQUNwRCxTQUFTQyxLQUFLLFFBQVEsU0FBUztBQUMvQixTQUFTQyxnQkFBZ0IsUUFBUSx5QkFBeUI7QUFFMUQsTUFBTUMsYUFBYTs7SUFDakIsTUFBTSxFQUFFQyxJQUFJLEVBQUUsR0FBR0o7SUFDakIsTUFBTUssV0FBV1A7SUFDakIsTUFBTSxDQUFDUSxZQUFZQyxjQUFjLEdBQUdWLFNBQVM7SUFDN0MsTUFBTSxDQUFDVyxVQUFVQyxZQUFZLEdBQUdaLFNBQVM7SUFDekMsTUFBTSxDQUFDYSxTQUFTQyxXQUFXLEdBQUdkLFNBQVM7SUFDdkMsTUFBTSxDQUFDZSxXQUFXQyxhQUFhLEdBQUdoQixTQUFTO0lBQzNDLE1BQU0sQ0FBQ2lCLFNBQVNDLFdBQVcsR0FBR2xCLFNBQVM7SUFFdkMsTUFBTW1CLG1CQUFtQixDQUFDQztRQUN4QlYsY0FBY1U7UUFDZCwrRUFBOEU7UUFDOUUsSUFBSUEsTUFBTUMsSUFBSSxJQUFJO1lBQ2hCLE1BQU1DLGFBQWFqQixpQkFBaUJlO1lBQ3BDSixhQUFhTSxXQUFXQyxPQUFPLEdBQUcsS0FBS0QsV0FBV0UsS0FBSyxJQUFJO1FBQzdELE9BQU87WUFDTFIsYUFBYTtRQUNmO0lBQ0Y7SUFFQSxNQUFNUyxpQkFBaUI7UUFDckJQLFdBQVc7UUFDWCxJQUFJVCxXQUFXWSxJQUFJLElBQUk7WUFDckIsTUFBTUMsYUFBYWpCLGlCQUFpQkk7WUFDcENPLGFBQWFNLFdBQVdDLE9BQU8sR0FBRyxLQUFLRCxXQUFXRSxLQUFLLElBQUk7UUFDN0Q7SUFDRjtJQUVBLGtFQUFpRTtJQUNqRSxNQUFNRSxjQUFjakIsV0FBV1ksSUFBSSxHQUFHTSxLQUFLLENBQUMsT0FBT0MsTUFBTSxDQUFDQyxRQUFRQSxLQUFLQyxNQUFNLElBQUksR0FBR0EsTUFBTSxJQUFJO0lBRTlGLE1BQU1DLGVBQWU7UUFDbkIsa0NBQWlDO1FBQ2pDLE1BQU1ULGFBQWFqQixpQkFBaUJJO1FBQ3BDLElBQUksQ0FBQ2EsV0FBV0MsT0FBTyxFQUFFO1lBQ3ZCUCxhQUFhTSxXQUFXRSxLQUFLLElBQUk7WUFDakNOLFdBQVc7WUFDWCw2QkFBNEI7WUFDNUJkLE1BQU1vQixLQUFLLENBQUNGLFdBQVdVLE9BQU8sSUFBSVYsV0FBV0UsS0FBSyxJQUFJLHFCQUFxQjtnQkFDekVTLGFBQWFYLFdBQVdFLEtBQUk7WUFDOUI7WUFDQTtRQUNGO1FBRUEsSUFBSSxDQUFDakIsTUFBTTtZQUNUSCxNQUFNb0IsS0FBSyxDQUFDO1lBQ1o7UUFDRjtRQUVBVixXQUFXO1FBQ1gsSUFBSTtZQUNGLG9FQUFtRTtZQUNuRSxJQUFJb0IsUUFBUTtZQUNaLElBQUkzQixLQUFLMkIsS0FBSyxFQUFFO2dCQUNkQSxRQUFRM0IsS0FBSzJCLEtBQUs7WUFDcEIsT0FBTyxJQUFJM0IsS0FBSzRCLEtBQUssRUFBRTtnQkFDckIsaUVBQWdFO2dCQUNoRUQsUUFBUTNCLEtBQUs0QixLQUFLLENBQUNSLEtBQUssQ0FBQyxJQUFJLENBQUMsRUFBRTtZQUNsQztZQUVBUyxRQUFRQyxHQUFHLENBQUMsOEJBQThCSCxPQUFPLFlBQVkzQixLQUFLK0IsRUFBRTtZQUVwRSwrQ0FBOEM7WUFDOUMsb0VBQW1FO1lBQ25FLElBQUk7Z0JBQ0YsTUFBTSxFQUFFZCxLQUFLLEVBQUUsR0FBRyxNQUFNdEIsU0FDckJxQyxJQUFJLENBQUMsWUFDTEMsTUFBTSxDQUFDO29CQUNORixJQUFJL0IsS0FBSytCLEVBQUU7b0JBQ1hKLE9BQU9BO29CQUNQTyxhQUFhaEMsV0FBV1ksSUFBSTtvQkFDNUJxQixXQUFXL0IsU0FBU1UsSUFBSSxNQUFNO2dCQUNoQztnQkFFRixJQUFJRyxPQUFPO29CQUNUWSxRQUFRTyxJQUFJLENBQUMsd0NBQXdDbkIsTUFBTW9CLE9BQU87Z0JBQ2xFLCtDQUE4QztnQkFDaEQ7WUFDRixFQUFFLE9BQU9DLEdBQUc7Z0JBQ1ZULFFBQVFPLElBQUksQ0FBQyxzQ0FBc0NFO1lBQ25ELGtCQUFpQjtZQUNuQjtZQUVBekMsTUFBTTBDLE9BQU8sQ0FBQyw2QkFBNkI7Z0JBQ3pDYixhQUFhLEdBQUd4QixhQUFhRSxXQUFXLENBQUMsR0FBRyxFQUFFQSxVQUFVLEdBQUcsSUFBRztZQUNoRTtZQUVBLCtCQUE4QjtZQUM5Qm9DLGFBQWFDLE9BQU8sQ0FBQyx3QkFBd0I7WUFFN0MsK0RBQThEO1lBQzlEeEMsU0FBUyxLQUFLO2dCQUFFeUMsU0FBUztZQUFLO1FBQ2hDLEVBQUUsT0FBT3pCLE9BQVk7WUFDbkJZLFFBQVFaLEtBQUssQ0FBQyxxQkFBcUJBO1lBRW5DLHFDQUFvQztZQUNwQyxJQUFJQSxNQUFNb0IsT0FBTyxFQUFFTSxTQUFTLFlBQ3hCMUIsTUFBTW9CLE9BQU8sRUFBRU0sU0FBUyxjQUN4QjFCLE1BQU1vQixPQUFPLEVBQUVNLFNBQVMsc0JBQ3hCLENBQUNDLFVBQVVDLE1BQU0sRUFBRTtnQkFDckJoRCxNQUFNb0IsS0FBSyxDQUFDLHFDQUFxQztvQkFDL0NTLGFBQWE7b0JBQ2JvQixRQUFRO3dCQUNOQyxPQUFPO3dCQUNQQyxTQUFTLElBQU14QjtvQkFDakI7Z0JBQ0Y7WUFDRixPQUFPO2dCQUNMLGdDQUErQjtnQkFDL0IzQixNQUFNb0IsS0FBSyxDQUFDLHFDQUFxQztvQkFDL0NTLGFBQWFULE1BQU1vQixPQUFPLElBQUk7Z0JBQ2hDO1lBQ0Y7UUFDRixTQUFVO1lBQ1I5QixXQUFXO1FBQ2I7SUFDRjtJQUVBLHFCQUNFLFFBQUMwQztRQUFFQyxlQUFBO1FBQUFDLGlCQUFBO1FBQUFDLHVCQUFBO1FBQUFDLHVCQUFBO1FBQUFDLHVCQUFBO1FBQUFDLHVCQUFBO1FBQUFDLDBCQUFBO1FBQUVDLFdBQVU7a0JBQ2Isc0JBQUNSO1lBQUVDLGVBQUE7WUFBQUMsaUJBQUE7WUFBQUMsdUJBQUE7WUFBQUMsdUJBQUE7WUFBQUMsdUJBQUE7WUFBQUMsdUJBQUE7WUFBQUMsMEJBQUE7WUFBRUMsV0FBVTs7OEJBQ2IsUUFBQ1I7b0JBQUVDLGVBQUE7b0JBQUFDLGlCQUFBO29CQUFBQyx1QkFBQTtvQkFBQUMsdUJBQUE7b0JBQUFDLHVCQUFBO29CQUFBQyx1QkFBQTtvQkFBQUMsMEJBQUE7b0JBQUVDLFdBQVU7O3NDQUViLFFBQUNSOzRCQUFFQyxlQUFBOzRCQUFBQyxpQkFBQTs0QkFBQUMsdUJBQUE7NEJBQUFDLHVCQUFBOzRCQUFBQyx1QkFBQTs0QkFBQUMsdUJBQUE7NEJBQUFDLDBCQUFBOzRCQUFFQyxXQUFVOzs4Q0FDYixRQUFDUjtvQ0FBRUMsZUFBQTtvQ0FBQUMsaUJBQUE7b0NBQUFDLHVCQUFBO29DQUFBQyx1QkFBQTtvQ0FBQUMsdUJBQUE7b0NBQUFDLHVCQUFBO29DQUFBQywwQkFBQTtvQ0FBRUMsV0FBVTs4Q0FDYixzQkFBQ0M7d0NBQUdSLGVBQUE7d0NBQUFDLGlCQUFBO3dDQUFBQyx1QkFBQTt3Q0FBQUMsdUJBQUE7d0NBQUFDLHVCQUFBO3dDQUFBQyx1QkFBQTt3Q0FBQUMsMEJBQUE7d0NBQUVDLFdBQVU7a0RBQVc7Ozs7Ozs7Ozs7OzhDQUU3QixRQUFDRTtvQ0FBQ1QsZUFBQTtvQ0FBQUMsaUJBQUE7b0NBQUFDLHVCQUFBO29DQUFBQyx1QkFBQTtvQ0FBQUMsdUJBQUE7b0NBQUFDLHVCQUFBO29DQUFBQywwQkFBQTtvQ0FBRUMsV0FBVTs4Q0FBd0M7Ozs7Ozs4Q0FHdEQsUUFBQ0c7b0NBQUFWLGVBQUE7b0NBQUFDLGlCQUFBO29DQUFBQyx1QkFBQTtvQ0FBQUMsdUJBQUE7b0NBQUFDLHVCQUFBO29DQUFBQyx1QkFBQTtvQ0FBQUMsMEJBQUE7b0NBQUVDLFdBQVU7OENBQXdCOzs7Ozs7Ozs7Ozs7c0NBTXZDLFFBQUNSOzRCQUFFQyxlQUFBOzRCQUFBQyxpQkFBQTs0QkFBQUMsdUJBQUE7NEJBQUFDLHVCQUFBOzRCQUFBQyx1QkFBQTs0QkFBQUMsdUJBQUE7NEJBQUFDLDBCQUFBOzRCQUFFQyxXQUFVOzs4Q0FDYixRQUFDUjtvQ0FBRUMsZUFBQTtvQ0FBQUMsaUJBQUE7b0NBQUFDLHVCQUFBO29DQUFBQyx1QkFBQTtvQ0FBQUMsdUJBQUE7b0NBQUFDLHVCQUFBO29DQUFBQywwQkFBQTs7c0RBQ0QsUUFBQ1Q7NENBQUlHLGVBQUE7NENBQUFDLGlCQUFBOzRDQUFBQyx1QkFBQTs0Q0FBQUMsdUJBQUE7NENBQUFDLHVCQUFBOzRDQUFBQyx1QkFBQTs0Q0FBQUMsMEJBQUE7NENBQUVDLFdBQVU7O2dEQUFpRDs4REFDaEQsUUFBQ0M7b0RBQUdSLGVBQUE7b0RBQUFDLGlCQUFBO29EQUFBQyx1QkFBQTtvREFBQUMsdUJBQUE7b0RBQUFDLHVCQUFBO29EQUFBQyx1QkFBQTtvREFBQUMsMEJBQUE7b0RBQUVDLFdBQVU7OERBQWU7Ozs7Ozs7Ozs7OztzREFFakQsUUFBQ0k7NENBQUlYLGVBQUE7NENBQUFDLGlCQUFBOzRDQUFBQyx1QkFBQTs0Q0FBQUMsdUJBQUE7NENBQUFDLHVCQUFBOzRDQUFBQyx1QkFBQTs0Q0FBQUMsMEJBQUE7NENBQ0hNLE1BQUs7NENBQ0xqRCxPQUFPWDs0Q0FDUDZELFVBQVUsQ0FBQ3pCLElBQU0xQixpQkFBaUIwQixFQUFFMEIsTUFBTSxDQUFDbkQsS0FBSzs0Q0FDaERvRCxRQUFRL0M7NENBQ1JnRCxhQUFZOzRDQUNaVCxXQUFXLENBQUMsa0ZBQWtGLEVBQzVGakQsYUFBY04sV0FBV1ksSUFBSSxNQUFNLENBQUNLLGNBQ2hDLGtEQUNBQSxjQUNFLHdEQUNBLDBDQUNOOzRDQUNGZ0QsT0FBTztnREFBRUMsV0FBVzs0Q0FBTzs0Q0FDM0JDLGNBQWE7NENBQ2JDLGFBQVk7NENBQ1pDLFlBQVc7NENBQ1hDLGtCQUFlOzRDQUNmLHVGQUFzRjs0Q0FDdEZDLFdBQVcsQ0FBQ25DO2dEQUNWLElBQUlBLEVBQUVvQyxHQUFHLEtBQUssV0FBV3ZELGFBQWE7b0RBQ3BDSztnREFDRjs0Q0FDRjs7Ozs7O3dDQUdBaEIsY0FBY04sV0FBV1ksSUFBSSxNQUFNLENBQUNLLFdBQVcsbUJBQy9DLFFBQUM4Qjs0Q0FBRUMsZUFBQTs0Q0FBQUMsaUJBQUE7NENBQUFDLHVCQUFBOzRDQUFBQyx1QkFBQTs0Q0FBQUMsdUJBQUE7NENBQUFDLHVCQUFBOzRDQUFBQywwQkFBQTs0Q0FBRUMsV0FBVTs7OERBQ2IsUUFBQ0c7b0RBQUFWLGVBQUE7b0RBQUFDLGlCQUFBO29EQUFBQyx1QkFBQTtvREFBQUMsdUJBQUE7b0RBQUFDLHVCQUFBO29EQUFBQyx1QkFBQTtvREFBQUMsMEJBQUE7b0RBQUVDLFdBQVU7O3NFQUNYLFFBQUNDOzREQUFHUixlQUFBOzREQUFBQyxpQkFBQTs0REFBQUMsdUJBQUE7NERBQUFDLHVCQUFBOzREQUFBQyx1QkFBQTs0REFBQUMsdUJBQUE7NERBQUFDLDBCQUFBO3NFQUFFOzs7Ozs7d0RBQ0xoRCxhQUFhOzs7Ozs7OzhEQUVoQixRQUFDb0Q7b0RBQUFWLGVBQUE7b0RBQUFDLGlCQUFBO29EQUFBQyx1QkFBQTtvREFBQUMsdUJBQUE7b0RBQUFDLHVCQUFBO29EQUFBQyx1QkFBQTtvREFBQUMsMEJBQUE7b0RBQUVDLFdBQVU7OERBQTJCOzs7Ozs7Ozs7Ozs7d0NBSzNDLENBQUNqRCxhQUFhLENBQUNOLFdBQVdZLElBQUksb0JBQzdCLFFBQUM4Qzs0Q0FBQVYsZUFBQTs0Q0FBQUMsaUJBQUE7NENBQUFDLHVCQUFBOzRDQUFBQyx1QkFBQTs0Q0FBQUMsdUJBQUE7NENBQUFDLHVCQUFBOzRDQUFBQywwQkFBQTs0Q0FBRUMsV0FBVTs7OERBQ1gsUUFBQ0M7b0RBQUdSLGVBQUE7b0RBQUFDLGlCQUFBO29EQUFBQyx1QkFBQTtvREFBQUMsdUJBQUE7b0RBQUFDLHVCQUFBO29EQUFBQyx1QkFBQTtvREFBQUMsMEJBQUE7b0RBQUVDLFdBQVU7OERBQWlCOzs7Ozs7OERBQ2pDLFFBQUNDO29EQUFHUixlQUFBO29EQUFBQyxpQkFBQTtvREFBQUMsdUJBQUE7b0RBQUFDLHVCQUFBO29EQUFBQyx1QkFBQTtvREFBQUMsdUJBQUE7b0RBQUFDLDBCQUFBOzhEQUFFOzs7Ozs7Ozs7Ozs7Ozs7Ozs7OENBS1osUUFBQ1A7b0NBQUVDLGVBQUE7b0NBQUFDLGlCQUFBO29DQUFBQyx1QkFBQTtvQ0FBQUMsdUJBQUE7b0NBQUFDLHVCQUFBO29DQUFBQyx1QkFBQTtvQ0FBQUMsMEJBQUE7O3NEQUNELFFBQUNUOzRDQUFJRyxlQUFBOzRDQUFBQyxpQkFBQTs0Q0FBQUMsdUJBQUE7NENBQUFDLHVCQUFBOzRDQUFBQyx1QkFBQTs0Q0FBQUMsdUJBQUE7NENBQUFDLDBCQUFBOzRDQUFFQyxXQUFVOztnREFBaUQ7OERBQzVDLFFBQUNDO29EQUFHUixlQUFBO29EQUFBQyxpQkFBQTtvREFBQUMsdUJBQUE7b0RBQUFDLHVCQUFBO29EQUFBQyx1QkFBQTtvREFBQUMsdUJBQUE7b0RBQUFDLDBCQUFBO29EQUFFQyxXQUFVOzhEQUFnQjs7Ozs7Ozs7Ozs7O3NEQUV0RCxRQUFDSTs0Q0FBSVgsZUFBQTs0Q0FBQUMsaUJBQUE7NENBQUFDLHVCQUFBOzRDQUFBQyx1QkFBQTs0Q0FBQUMsdUJBQUE7NENBQUFDLHVCQUFBOzRDQUFBQywwQkFBQTs0Q0FDSE0sTUFBSzs0Q0FDTGpELE9BQU9UOzRDQUNQMkQsVUFBVSxDQUFDekIsSUFBTWpDLFlBQVlpQyxFQUFFMEIsTUFBTSxDQUFDbkQsS0FBSzs0Q0FDM0NxRCxhQUFZOzRDQUNaVCxXQUFVOzRDQUNWVSxPQUFPO2dEQUFFQyxXQUFXOzRDQUFPOzRDQUMzQkMsY0FBYTs0Q0FDYkMsYUFBWTs0Q0FDWkMsWUFBVzs0Q0FDWEMsa0JBQWU7NENBQ2ZDLFdBQVcsQ0FBQ25DO2dEQUNWLElBQUlBLEVBQUVvQyxHQUFHLEtBQUssV0FBV3hFLFdBQVdZLElBQUksSUFBSTtvREFDMUNVO2dEQUNGOzRDQUNGOzs7Ozs7c0RBRUYsUUFBQ29DOzRDQUFBVixlQUFBOzRDQUFBQyxpQkFBQTs0Q0FBQUMsdUJBQUE7NENBQUFDLHVCQUFBOzRDQUFBQyx1QkFBQTs0Q0FBQUMsdUJBQUE7NENBQUFDLDBCQUFBOzRDQUFFQyxXQUFVO3NEQUE2Qjs7Ozs7Ozs7Ozs7OzhDQUs1QyxRQUFDa0I7b0NBQUt6QixlQUFBO29DQUFBQyxpQkFBQTtvQ0FBQUMsdUJBQUE7b0NBQUFDLHVCQUFBO29DQUFBQyx1QkFBQTtvQ0FBQUMsdUJBQUE7b0NBQUFDLDBCQUFBO29DQUNKUixTQUFTeEI7b0NBQ1RvRCxVQUFVdEUsV0FBVyxDQUFDYTtvQ0FDdEJzQyxXQUFVO29DQUNWVSxPQUFPO3dDQUFFQyxXQUFXO29DQUFPOzhDQUUxQjlELFVBQVUsa0NBQWtDLENBQUNKLFdBQVdZLElBQUksS0FBSyx5QkFBeUIsQ0FBQ0ssY0FBYyxtQ0FBbUM7Ozs7Ozs4Q0FHL0ksUUFBQzhCO29DQUFFQyxlQUFBO29DQUFBQyxpQkFBQTtvQ0FBQUMsdUJBQUE7b0NBQUFDLHVCQUFBO29DQUFBQyx1QkFBQTtvQ0FBQUMsdUJBQUE7b0NBQUFDLDBCQUFBO29DQUFFQyxXQUFVOzhDQUNiLHNCQUFDRzt3Q0FBQVYsZUFBQTt3Q0FBQUMsaUJBQUE7d0NBQUFDLHVCQUFBO3dDQUFBQyx1QkFBQTt3Q0FBQUMsdUJBQUE7d0NBQUFDLHVCQUFBO3dDQUFBQywwQkFBQTt3Q0FBRUMsV0FBVTtrREFBd0I7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7OzhCQVEzQyxRQUFDUjtvQkFBRUMsZUFBQTtvQkFBQUMsaUJBQUE7b0JBQUFDLHVCQUFBO29CQUFBQyx1QkFBQTtvQkFBQUMsdUJBQUE7b0JBQUFDLHVCQUFBO29CQUFBQywwQkFBQTtvQkFBRUMsV0FBVTs4QkFDYixzQkFBQ0c7d0JBQUFWLGVBQUE7d0JBQUFDLGlCQUFBO3dCQUFBQyx1QkFBQTt3QkFBQUMsdUJBQUE7d0JBQUFDLHVCQUFBO3dCQUFBQyx1QkFBQTt3QkFBQUMsMEJBQUE7a0NBQUU7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7QUFPYjtHQTlPTXpEOztRQUNhSDtRQUNBRjs7O0tBRmJLO0FBZ1BOLGVBQWVBLFdBQVciLCJuYW1lcyI6WyJ1c2VTdGF0ZSIsInVzZU5hdmlnYXRlIiwic3VwYWJhc2UiLCJ1c2VBdXRoIiwidG9hc3QiLCJ2YWxpZGF0ZUZ1bGxOYW1lIiwiT25ib2FyZGluZyIsInVzZXIiLCJuYXZpZ2F0ZSIsImZhcm1lck5hbWUiLCJzZXRGYXJtZXJOYW1lIiwiZmFybU5hbWUiLCJzZXRGYXJtTmFtZSIsImxvYWRpbmciLCJzZXRMb2FkaW5nIiwibmFtZUVycm9yIiwic2V0TmFtZUVycm9yIiwidG91Y2hlZCIsInNldFRvdWNoZWQiLCJoYW5kbGVOYW1lQ2hhbmdlIiwidmFsdWUiLCJ0cmltIiwidmFsaWRhdGlvbiIsImlzVmFsaWQiLCJlcnJvciIsImhhbmRsZU5hbWVCbHVyIiwiaGFzVHdvTmFtZXMiLCJzcGxpdCIsImZpbHRlciIsInBhcnQiLCJsZW5ndGgiLCJoYW5kbGVTdWJtaXQiLCJlcnJvckFtIiwiZGVzY3JpcHRpb24iLCJwaG9uZSIsImVtYWlsIiwiY29uc29sZSIsImxvZyIsImlkIiwiZnJvbSIsInVwc2VydCIsImZhcm1lcl9uYW1lIiwiZmFybV9uYW1lIiwid2FybiIsIm1lc3NhZ2UiLCJlIiwic3VjY2VzcyIsImxvY2FsU3RvcmFnZSIsInNldEl0ZW0iLCJyZXBsYWNlIiwiaW5jbHVkZXMiLCJuYXZpZ2F0b3IiLCJvbkxpbmUiLCJhY3Rpb24iLCJsYWJlbCIsIm9uQ2xpY2siLCJkaXYiLCJkYXRhLWxvdi1pZCIsImRhdGEtbG92LW5hbWUiLCJkYXRhLWNvbXBvbmVudC1wYXRoIiwiZGF0YS1jb21wb25lbnQtbGluZSIsImRhdGEtY29tcG9uZW50LWZpbGUiLCJkYXRhLWNvbXBvbmVudC1uYW1lIiwiZGF0YS1jb21wb25lbnQtY29udGVudCIsImNsYXNzTmFtZSIsInNwYW4iLCJoMSIsInAiLCJpbnB1dCIsInR5cGUiLCJvbkNoYW5nZSIsInRhcmdldCIsIm9uQmx1ciIsInBsYWNlaG9sZGVyIiwic3R5bGUiLCJtaW5IZWlnaHQiLCJhdXRvQ29tcGxldGUiLCJhdXRvQ29ycmVjdCIsInNwZWxsQ2hlY2siLCJkYXRhLWZvcm0tdHlwZSIsIm9uS2V5RG93biIsImtleSIsImJ1dHRvbiIsImRpc2FibGVkIl0sImlnbm9yZUxpc3QiOltdLCJzb3VyY2VzIjpbIk9uYm9hcmRpbmcudHN4Il0sInNvdXJjZXNDb250ZW50IjpbIi8vIHNyYy9wYWdlcy9PbmJvYXJkaW5nLnRzeCAtIENvbGxlY3QgZmFybSBuYW1lIGFmdGVyIGZpcnN0IGxvZ2luXHJcblxyXG5pbXBvcnQgeyB1c2VTdGF0ZSB9IGZyb20gJ3JlYWN0JztcclxuaW1wb3J0IHsgdXNlTmF2aWdhdGUgfSBmcm9tICdyZWFjdC1yb3V0ZXItZG9tJztcclxuaW1wb3J0IHsgc3VwYWJhc2UgfSBmcm9tICdAL2ludGVncmF0aW9ucy9zdXBhYmFzZS9jbGllbnQnO1xyXG5pbXBvcnQgeyB1c2VBdXRoIH0gZnJvbSAnQC9jb250ZXh0cy9BdXRoQ29udGV4dE1WUCc7XHJcbmltcG9ydCB7IHRvYXN0IH0gZnJvbSAnc29ubmVyJztcclxuaW1wb3J0IHsgdmFsaWRhdGVGdWxsTmFtZSB9IGZyb20gJ0AvdXRpbHMvbmFtZVZhbGlkYXRpb24nO1xyXG5cclxuY29uc3QgT25ib2FyZGluZyA9ICgpID0+IHtcclxuICBjb25zdCB7IHVzZXIgfSA9IHVzZUF1dGgoKTtcclxuICBjb25zdCBuYXZpZ2F0ZSA9IHVzZU5hdmlnYXRlKCk7XHJcbiAgY29uc3QgW2Zhcm1lck5hbWUsIHNldEZhcm1lck5hbWVdID0gdXNlU3RhdGUoJycpO1xyXG4gIGNvbnN0IFtmYXJtTmFtZSwgc2V0RmFybU5hbWVdID0gdXNlU3RhdGUoJycpO1xyXG4gIGNvbnN0IFtsb2FkaW5nLCBzZXRMb2FkaW5nXSA9IHVzZVN0YXRlKGZhbHNlKTtcclxuICBjb25zdCBbbmFtZUVycm9yLCBzZXROYW1lRXJyb3JdID0gdXNlU3RhdGUoJycpO1xyXG4gIGNvbnN0IFt0b3VjaGVkLCBzZXRUb3VjaGVkXSA9IHVzZVN0YXRlKGZhbHNlKTtcclxuXHJcbiAgY29uc3QgaGFuZGxlTmFtZUNoYW5nZSA9ICh2YWx1ZTogc3RyaW5nKSA9PiB7XG4gICAgc2V0RmFybWVyTmFtZSh2YWx1ZSk7XG4gICAgLy8gUmVhbC10aW1lIHZhbGlkYXRpb24gLSBhbHdheXMgc2hvdyBlcnJvciBpZiBpbnZhbGlkIGFmdGVyIHVzZXIgc3RhcnRzIHR5cGluZ1xuICAgIGlmICh2YWx1ZS50cmltKCkpIHtcbiAgICAgIGNvbnN0IHZhbGlkYXRpb24gPSB2YWxpZGF0ZUZ1bGxOYW1lKHZhbHVlKTtcbiAgICAgIHNldE5hbWVFcnJvcih2YWxpZGF0aW9uLmlzVmFsaWQgPyAnJyA6IHZhbGlkYXRpb24uZXJyb3IgfHwgJycpO1xuICAgIH0gZWxzZSB7XG4gICAgICBzZXROYW1lRXJyb3IoJycpO1xuICAgIH1cbiAgfTtcblxuICBjb25zdCBoYW5kbGVOYW1lQmx1ciA9ICgpID0+IHtcbiAgICBzZXRUb3VjaGVkKHRydWUpO1xuICAgIGlmIChmYXJtZXJOYW1lLnRyaW0oKSkge1xuICAgICAgY29uc3QgdmFsaWRhdGlvbiA9IHZhbGlkYXRlRnVsbE5hbWUoZmFybWVyTmFtZSk7XG4gICAgICBzZXROYW1lRXJyb3IodmFsaWRhdGlvbi5pc1ZhbGlkID8gJycgOiB2YWxpZGF0aW9uLmVycm9yIHx8ICcnKTtcbiAgICB9XG4gIH07XG5cbiAgLy8gQ2hlY2sgaWYgbmFtZSBoYXMgYXQgbGVhc3QgMiB3b3JkcyAoZmlyc3QgbmFtZSArIGZhdGhlcidzIG5hbWUpXG4gIGNvbnN0IGhhc1R3b05hbWVzID0gZmFybWVyTmFtZS50cmltKCkuc3BsaXQoL1xccysvKS5maWx0ZXIocGFydCA9PiBwYXJ0Lmxlbmd0aCA+PSAyKS5sZW5ndGggPj0gMjtcblxyXG4gIGNvbnN0IGhhbmRsZVN1Ym1pdCA9IGFzeW5jICgpID0+IHtcbiAgICAvLyBWYWxpZGF0ZSBuYW1lIGJlZm9yZSBzdWJtaXNzaW9uXG4gICAgY29uc3QgdmFsaWRhdGlvbiA9IHZhbGlkYXRlRnVsbE5hbWUoZmFybWVyTmFtZSk7XG4gICAgaWYgKCF2YWxpZGF0aW9uLmlzVmFsaWQpIHtcbiAgICAgIHNldE5hbWVFcnJvcih2YWxpZGF0aW9uLmVycm9yIHx8ICcnKTtcbiAgICAgIHNldFRvdWNoZWQodHJ1ZSk7XG4gICAgICAvLyBTaG93IGJpbGluZ3VhbCBlcnJvciB0b2FzdFxuICAgICAgdG9hc3QuZXJyb3IodmFsaWRhdGlvbi5lcnJvckFtIHx8IHZhbGlkYXRpb24uZXJyb3IgfHwgJ1ZhbGlkYXRpb24gZmFpbGVkJywge1xuICAgICAgICBkZXNjcmlwdGlvbjogdmFsaWRhdGlvbi5lcnJvclxuICAgICAgfSk7XG4gICAgICByZXR1cm47XG4gICAgfVxuXG4gICAgaWYgKCF1c2VyKSB7XG4gICAgICB0b2FzdC5lcnJvcignVXNlciBub3QgYXV0aGVudGljYXRlZCcpO1xuICAgICAgcmV0dXJuO1xuICAgIH1cblxuICAgIHNldExvYWRpbmcodHJ1ZSk7XG4gICAgdHJ5IHtcbiAgICAgIC8vIEdldCBwaG9uZSBmcm9tIHVzZXIgbWV0YWRhdGEgb3IgZmFsbCBiYWNrIHRvIGV4dHJhY3RlZCBmcm9tIGVtYWlsXG4gICAgICBsZXQgcGhvbmUgPSAnJztcbiAgICAgIGlmICh1c2VyLnBob25lKSB7XG4gICAgICAgIHBob25lID0gdXNlci5waG9uZTtcbiAgICAgIH0gZWxzZSBpZiAodXNlci5lbWFpbCkge1xuICAgICAgICAvLyBFeHRyYWN0IHBob25lIGZyb20gZW1haWwgKDkxMTIzNDU2N0BldGhpb2hlcmQuYXBwIOKGkiA5MTEyMzQ1NjcpXG4gICAgICAgIHBob25lID0gdXNlci5lbWFpbC5zcGxpdCgnQCcpWzBdO1xuICAgICAgfVxuXG4gICAgICBjb25zb2xlLmxvZygnU2F2aW5nIHByb2ZpbGUgd2l0aCBwaG9uZTonLCBwaG9uZSwgJ3VzZXIuaWQ6JywgdXNlci5pZCk7XG5cbiAgICAgIC8vIFRyeSB0byBzYXZlIHByb2ZpbGUgLSB1c2UgYSBzaW1wbGVyIGFwcHJvYWNoXG4gICAgICAvLyBGaXJzdCB0cnkgdXBzZXJ0LCBpZiBpdCBmYWlscyBqdXN0IHJlZGlyZWN0IChhbGxvdyBvZmZsaW5lLWZpcnN0KVxuICAgICAgdHJ5IHtcbiAgICAgICAgY29uc3QgeyBlcnJvciB9ID0gYXdhaXQgc3VwYWJhc2VcbiAgICAgICAgICAuZnJvbSgncHJvZmlsZXMnIGFzIGFueSlcbiAgICAgICAgICAudXBzZXJ0KHtcbiAgICAgICAgICAgIGlkOiB1c2VyLmlkLFxuICAgICAgICAgICAgcGhvbmU6IHBob25lLFxuICAgICAgICAgICAgZmFybWVyX25hbWU6IGZhcm1lck5hbWUudHJpbSgpLFxuICAgICAgICAgICAgZmFybV9uYW1lOiBmYXJtTmFtZS50cmltKCkgfHwgbnVsbCxcbiAgICAgICAgICB9IGFzIGFueSk7XG5cbiAgICAgICAgaWYgKGVycm9yKSB7XG4gICAgICAgICAgY29uc29sZS53YXJuKCdQcm9maWxlIHNhdmUgd2FybmluZyAoY2FuIGNvbnRpbnVlKTonLCBlcnJvci5tZXNzYWdlKTtcbiAgICAgICAgICAvLyBDb250aW51ZSBhbnl3YXkgLSBwcm9maWxlIGNhbiBiZSBzYXZlZCBsYXRlclxuICAgICAgICB9XG4gICAgICB9IGNhdGNoIChlKSB7XG4gICAgICAgIGNvbnNvbGUud2FybignUHJvZmlsZSBzYXZlIGVycm9yIChjYW4gY29udGludWUpOicsIGUpO1xuICAgICAgICAvLyBDb250aW51ZSBhbnl3YXlcbiAgICAgIH1cblxuICAgICAgdG9hc3Quc3VjY2Vzcygn4pyTIOGKpeGKleGKs+GKlSDhi7DhiIXhipMg4YiY4YyhISAvIFdlbGNvbWUhJywge1xuICAgICAgICBkZXNjcmlwdGlvbjogYCR7ZmFybWVyTmFtZX0ke2Zhcm1OYW1lID8gYCAtICR7ZmFybU5hbWV9YCA6ICcnfWBcbiAgICAgIH0pO1xuXG4gICAgICAvLyBNYXJrIG9uYm9hcmRpbmcgYXMgY29tcGxldGVkXG4gICAgICBsb2NhbFN0b3JhZ2Uuc2V0SXRlbSgnb25ib2FyZGluZ19jb21wbGV0ZWQnLCAndHJ1ZScpO1xuXG4gICAgICAvLyBBbHdheXMgcmVkaXJlY3QgdG8gaG9tZSAtIHByb2ZpbGUgY2FuIGJlIHNhdmVkIGluIGJhY2tncm91bmRcbiAgICAgIG5hdmlnYXRlKCcvJywgeyByZXBsYWNlOiB0cnVlIH0pO1xuICAgIH0gY2F0Y2ggKGVycm9yOiBhbnkpIHtcbiAgICAgIGNvbnNvbGUuZXJyb3IoJ09uYm9hcmRpbmcgZXJyb3I6JywgZXJyb3IpO1xuICAgICAgXG4gICAgICAvLyBEZXRlY3QgbmV0d29yayBlcnJvcnMgc3BlY2lmaWNhbGx5XG4gICAgICBpZiAoZXJyb3IubWVzc2FnZT8uaW5jbHVkZXMoJ2ZldGNoJykgfHwgXG4gICAgICAgICAgZXJyb3IubWVzc2FnZT8uaW5jbHVkZXMoJ25ldHdvcmsnKSB8fCBcbiAgICAgICAgICBlcnJvci5tZXNzYWdlPy5pbmNsdWRlcygnRmFpbGVkIHRvIGZldGNoJykgfHxcbiAgICAgICAgICAhbmF2aWdhdG9yLm9uTGluZSkge1xuICAgICAgICB0b2FzdC5lcnJvcign4Yuo4Yqi4YqV4Ymw4Yit4YqU4Ym1IOGMjeGKleGKmeGKkOGJtSDhib3hjI3hiK0gLyBOZXR3b3JrIEVycm9yJywge1xuICAgICAgICAgIGRlc2NyaXB0aW9uOiAn4Yql4Ymj4Yqt4YuOIOGMjeGKleGKmeGKkOGJteGLjuGKlSDhi6vhiKjhjIvhjI3hjKEgLyBQbGVhc2UgY2hlY2sgeW91ciBjb25uZWN0aW9uJyxcbiAgICAgICAgICBhY3Rpb246IHtcbiAgICAgICAgICAgIGxhYmVsOiAn4Yql4YqV4Yuw4YyI4YqTIOGLreGInuGKreGIqSAvIFJldHJ5JyxcbiAgICAgICAgICAgIG9uQ2xpY2s6ICgpID0+IGhhbmRsZVN1Ym1pdCgpXG4gICAgICAgICAgfVxuICAgICAgICB9KTtcbiAgICAgIH0gZWxzZSB7XG4gICAgICAgIC8vIFNob3cgYmlsaW5ndWFsIGVycm9yIG1lc3NhZ2VzXG4gICAgICAgIHRvYXN0LmVycm9yKCfhiJjhiKjhjIMg4Yib4Yi14YmA4YiY4YylIOGKoOGIjeGJsOGJu+GIiOGInSAvIEZhaWxlZCB0byBzYXZlJywge1xuICAgICAgICAgIGRlc2NyaXB0aW9uOiBlcnJvci5tZXNzYWdlIHx8ICdQbGVhc2UgdHJ5IGFnYWluJ1xuICAgICAgICB9KTtcbiAgICAgIH1cbiAgICB9IGZpbmFsbHkge1xuICAgICAgc2V0TG9hZGluZyhmYWxzZSk7XG4gICAgfVxuICB9O1xuXHJcbiAgcmV0dXJuIChcclxuICAgIDxkaXYgY2xhc3NOYW1lPVwibWluLWgtc2NyZWVuIGJnLWdyYWRpZW50LXRvLWJyIGZyb20tZ3JlZW4tNTAgdmlhLWVtZXJhbGQtNTAgdG8tdGVhbC01MCBmbGV4IGl0ZW1zLWNlbnRlciBqdXN0aWZ5LWNlbnRlciBwLTRcIj5cclxuICAgICAgPGRpdiBjbGFzc05hbWU9XCJ3LWZ1bGwgbWF4LXctbWRcIj5cclxuICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImJnLXdoaXRlIHJvdW5kZWQtMnhsIHNoYWRvdy14bCBwLThcIj5cclxuICAgICAgICAgIHsvKiBIZWFkZXIgKi99XHJcbiAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInRleHQtY2VudGVyIG1iLThcIj5cclxuICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJ3LTIwIGgtMjAgYmctZ3JhZGllbnQtdG8tYnIgZnJvbS1ncmVlbi02MDAgdG8tZW1lcmFsZC03MDAgcm91bmRlZC1mdWxsIGZsZXggaXRlbXMtY2VudGVyIGp1c3RpZnktY2VudGVyIG14LWF1dG8gbWItNCBzaGFkb3ctbGdcIj5cclxuICAgICAgICAgICAgICA8c3BhbiBjbGFzc05hbWU9XCJ0ZXh0LTR4bFwiPvCfjL48L3NwYW4+XHJcbiAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgICA8aDEgY2xhc3NOYW1lPVwidGV4dC0zeGwgZm9udC1ib2xkIHRleHQtZ3JheS04MDAgbWItMlwiPlxyXG4gICAgICAgICAgICAgIOGKpeGKleGKs+GKlSDhi7DhiIXhipMg4YiY4YyhIVxyXG4gICAgICAgICAgICA8L2gxPlxyXG4gICAgICAgICAgICA8cCBjbGFzc05hbWU9XCJ0ZXh0LWdyYXktNjAwIHRleHQtbGdcIj5cclxuICAgICAgICAgICAgICBXZWxjb21lIHRvIEV0aGlvIEhlcmQgQ29ubmVjdFxyXG4gICAgICAgICAgICA8L3A+XHJcbiAgICAgICAgICA8L2Rpdj5cclxuXHJcbiAgICAgICAgICB7LyogRmFybWVyIE5hbWUgSW5wdXQgKi99XHJcbiAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cInNwYWNlLXktNFwiPlxyXG4gICAgICAgICAgICA8ZGl2PlxyXG4gICAgICAgICAgICAgIDxsYWJlbCBjbGFzc05hbWU9XCJibG9jayB0ZXh0LWJhc2UgZm9udC1tZWRpdW0gbWItMyB0ZXh0LWdyYXktNzAwXCI+XHJcbiAgICAgICAgICAgICAgICDhiLXhiJ3hi44gLyBZb3VyIE5hbWUgPHNwYW4gY2xhc3NOYW1lPVwidGV4dC1yZWQtNTAwXCI+Kjwvc3Bhbj5cclxuICAgICAgICAgICAgICA8L2xhYmVsPlxyXG4gICAgICAgICAgICAgIDxpbnB1dFxuICAgICAgICAgICAgICAgIHR5cGU9XCJ0ZXh0XCJcbiAgICAgICAgICAgICAgICB2YWx1ZT17ZmFybWVyTmFtZX1cbiAgICAgICAgICAgICAgICBvbkNoYW5nZT17KGUpID0+IGhhbmRsZU5hbWVDaGFuZ2UoZS50YXJnZXQudmFsdWUpfVxuICAgICAgICAgICAgICAgIG9uQmx1cj17aGFuZGxlTmFtZUJsdXJ9XG4gICAgICAgICAgICAgICAgcGxhY2Vob2xkZXI9XCLhiLXhiJ0g4Yql4YqTIOGLqOGKoOGJo+GJtSDhiLXhiJ0g4Yur4Yi14YyI4YmhLi4uIC8gRW50ZXIgZmlyc3QgYW5kIGZhdGhlcidzIG5hbWUuLi5cIlxuICAgICAgICAgICAgICAgIGNsYXNzTmFtZT17YHctZnVsbCBweC00IHB5LTMgYm9yZGVyLTIgcm91bmRlZC1sZyBmb2N1czpvdXRsaW5lLW5vbmUgdGV4dC1sZyB0cmFuc2l0aW9uLWNvbG9ycyAke1xuICAgICAgICAgICAgICAgICAgbmFtZUVycm9yIHx8IChmYXJtZXJOYW1lLnRyaW0oKSAmJiAhaGFzVHdvTmFtZXMpXG4gICAgICAgICAgICAgICAgICAgID8gJ2JvcmRlci1yZWQtNTAwIGZvY3VzOmJvcmRlci1yZWQtNTAwIGJnLXJlZC01MCcgXG4gICAgICAgICAgICAgICAgICAgIDogaGFzVHdvTmFtZXMgXG4gICAgICAgICAgICAgICAgICAgICAgPyAnYm9yZGVyLWdyZWVuLTUwMCBmb2N1czpib3JkZXItZ3JlZW4tNTAwIGJnLWdyZWVuLTUwJ1xuICAgICAgICAgICAgICAgICAgICAgIDogJ2JvcmRlci1ncmF5LTMwMCBmb2N1czpib3JkZXItZ3JlZW4tNTAwJ1xuICAgICAgICAgICAgICAgIH1gfVxuICAgICAgICAgICAgICAgIHN0eWxlPXt7IG1pbkhlaWdodDogJzQ4cHgnIH19XG4gICAgICAgICAgICAgICAgYXV0b0NvbXBsZXRlPVwib2ZmXCJcbiAgICAgICAgICAgICAgICBhdXRvQ29ycmVjdD1cIm9mZlwiXG4gICAgICAgICAgICAgICAgc3BlbGxDaGVjaz1cImZhbHNlXCJcbiAgICAgICAgICAgICAgICBkYXRhLWZvcm0tdHlwZT1cIm90aGVyXCJcbiAgICAgICAgICAgICAgICAvLyBOb3RlOiBhdXRvRm9jdXMgcmVtb3ZlZCB0byBwcmV2ZW50IGtleWJvYXJkIGZyb20gY292ZXJpbmcgdGhlIHNjcmVlbiBvbiBzbWFsbCBwaG9uZXNcbiAgICAgICAgICAgICAgICBvbktleURvd249eyhlKSA9PiB7XG4gICAgICAgICAgICAgICAgICBpZiAoZS5rZXkgPT09ICdFbnRlcicgJiYgaGFzVHdvTmFtZXMpIHtcbiAgICAgICAgICAgICAgICAgICAgaGFuZGxlU3VibWl0KCk7XG4gICAgICAgICAgICAgICAgICB9XG4gICAgICAgICAgICAgICAgfX1cbiAgICAgICAgICAgICAgLz5cbiAgICAgICAgICAgICAgey8qIEVuaGFuY2VkIGVycm9yIGRpc3BsYXkgLSBhbHdheXMgdmlzaWJsZSB3aGVuIGludmFsaWQgKi99XG4gICAgICAgICAgICAgIHsobmFtZUVycm9yIHx8IChmYXJtZXJOYW1lLnRyaW0oKSAmJiAhaGFzVHdvTmFtZXMpKSAmJiAoXG4gICAgICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJtdC0zIHAtNCBiZy1yZWQtMTAwIGJvcmRlci0yIGJvcmRlci1yZWQtNDAwIHJvdW5kZWQtbGcgYW5pbWF0ZS1wdWxzZVwiPlxuICAgICAgICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1iYXNlIGZvbnQtc2VtaWJvbGQgdGV4dC1yZWQtOTAwIGZsZXggaXRlbXMtY2VudGVyIGdhcC0yXCI+XG4gICAgICAgICAgICAgICAgICAgIDxzcGFuPuKaoO+4jzwvc3Bhbj5cbiAgICAgICAgICAgICAgICAgICAge25hbWVFcnJvciB8fCAn4Yql4Ymj4Yqt4YuOIOGIgeGIiOGJtSDhiLXhiJ7hib0g4Yur4Yi14YyI4YmhICjhiLXhiJ0g4Yql4YqTIOGLqOGKoOGJo+GJtSDhiLXhiJ0pIC8gUGxlYXNlIGVudGVyIHR3byBuYW1lcyAoZmlyc3QgYW5kIGZhdGhlclxcJ3MgbmFtZSknfVxuICAgICAgICAgICAgICAgICAgPC9wPlxuICAgICAgICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1zbSB0ZXh0LXJlZC03MDAgbXQtMVwiPlxuICAgICAgICAgICAgICAgICAgICDhiIjhiJ3hiLPhiIw6IOGKoOGJoOGJoCDhibDhiLDhiJsgLyBFeGFtcGxlOiBBYmViZSBUZXNlbWFcbiAgICAgICAgICAgICAgICAgIDwvcD5cbiAgICAgICAgICAgICAgICA8L2Rpdj5cbiAgICAgICAgICAgICAgKX1cbiAgICAgICAgICAgICAgeyFuYW1lRXJyb3IgJiYgIWZhcm1lck5hbWUudHJpbSgpICYmIChcbiAgICAgICAgICAgICAgICA8cCBjbGFzc05hbWU9XCJ0ZXh0LXNtIHRleHQtZ3JheS02MDAgbXQtMiBmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMlwiPlxuICAgICAgICAgICAgICAgICAgPHNwYW4gY2xhc3NOYW1lPVwidGV4dC1ncmVlbi02MDBcIj7wn5KhPC9zcGFuPlxuICAgICAgICAgICAgICAgICAgPHNwYW4+4YiB4YiI4Ym1IOGIteGInuGJvSDhi6vhiLXhjYjhiI3hjIvhiI0gLSDhiLXhiJ0g4Yql4YqTIOGLqOGKoOGJo+GJtSDhiLXhiJ0gLyBUd28gbmFtZXMgcmVxdWlyZWQgLSBmaXJzdCBhbmQgZmF0aGVyJmFwb3M7cyBuYW1lPC9zcGFuPlxuICAgICAgICAgICAgICAgIDwvcD5cbiAgICAgICAgICAgICAgKX1cbiAgICAgICAgICAgIDwvZGl2PlxyXG5cclxuICAgICAgICAgICAgPGRpdj5cclxuICAgICAgICAgICAgICA8bGFiZWwgY2xhc3NOYW1lPVwiYmxvY2sgdGV4dC1iYXNlIGZvbnQtbWVkaXVtIG1iLTMgdGV4dC1ncmF5LTcwMFwiPlxyXG4gICAgICAgICAgICAgICAg4Yuo4Yql4Yit4Yi7IOGIteGInSAvIEZhcm0gTmFtZSA8c3BhbiBjbGFzc05hbWU9XCJ0ZXh0LWdyYXktNDAwXCI+KOGKoOGIm+GIq+GMrSAvIG9wdGlvbmFsKTwvc3Bhbj5cclxuICAgICAgICAgICAgICA8L2xhYmVsPlxyXG4gICAgICAgICAgICAgIDxpbnB1dFxyXG4gICAgICAgICAgICAgICAgdHlwZT1cInRleHRcIlxyXG4gICAgICAgICAgICAgICAgdmFsdWU9e2Zhcm1OYW1lfVxyXG4gICAgICAgICAgICAgICAgb25DaGFuZ2U9eyhlKSA9PiBzZXRGYXJtTmFtZShlLnRhcmdldC52YWx1ZSl9XHJcbiAgICAgICAgICAgICAgICBwbGFjZWhvbGRlcj1cIuGIiOGIneGIs+GIjDog4Yuo4Yqg4Ymg4YmgIOGKpeGIreGIuyAvIGUuZy4sIEFiZWJlJ3MgRmFybVwiXHJcbiAgICAgICAgICAgICAgICBjbGFzc05hbWU9XCJ3LWZ1bGwgcHgtNCBweS0zIGJvcmRlci0yIGJvcmRlci1ncmF5LTMwMCByb3VuZGVkLWxnIGZvY3VzOm91dGxpbmUtbm9uZSBmb2N1czpib3JkZXItZ3JlZW4tNTAwIHRleHQtbGdcIlxyXG4gICAgICAgICAgICAgICAgc3R5bGU9e3sgbWluSGVpZ2h0OiAnNDhweCcgfX1cclxuICAgICAgICAgICAgICAgIGF1dG9Db21wbGV0ZT1cIm9mZlwiXHJcbiAgICAgICAgICAgICAgICBhdXRvQ29ycmVjdD1cIm9mZlwiXHJcbiAgICAgICAgICAgICAgICBzcGVsbENoZWNrPVwiZmFsc2VcIlxyXG4gICAgICAgICAgICAgICAgZGF0YS1mb3JtLXR5cGU9XCJvdGhlclwiXHJcbiAgICAgICAgICAgICAgICBvbktleURvd249eyhlKSA9PiB7XHJcbiAgICAgICAgICAgICAgICAgIGlmIChlLmtleSA9PT0gJ0VudGVyJyAmJiBmYXJtZXJOYW1lLnRyaW0oKSkge1xyXG4gICAgICAgICAgICAgICAgICAgIGhhbmRsZVN1Ym1pdCgpO1xyXG4gICAgICAgICAgICAgICAgICB9XHJcbiAgICAgICAgICAgICAgICB9fVxyXG4gICAgICAgICAgICAgIC8+XHJcbiAgICAgICAgICAgICAgPHAgY2xhc3NOYW1lPVwidGV4dC1zbSB0ZXh0LWdyYXktNjAwIG10LTJcIj5cclxuICAgICAgICAgICAgICAgIOGLreGIhSDhiLXhiJ0g4Ymg4YyI4Ymg4YurIOGIi+GLrSDhi63hibPhi6vhiI0gLyBUaGlzIG5hbWUgd2lsbCBiZSBzaG93biBpbiBtYXJrZXRwbGFjZVxyXG4gICAgICAgICAgICAgIDwvcD5cclxuICAgICAgICAgICAgPC9kaXY+XHJcblxyXG4gICAgICAgICAgICA8YnV0dG9uXG4gICAgICAgICAgICAgIG9uQ2xpY2s9e2hhbmRsZVN1Ym1pdH1cbiAgICAgICAgICAgICAgZGlzYWJsZWQ9e2xvYWRpbmcgfHwgIWhhc1R3b05hbWVzfVxuICAgICAgICAgICAgICBjbGFzc05hbWU9XCJ3LWZ1bGwgYmctZ3JlZW4tNjAwIHRleHQtd2hpdGUgcHktNCByb3VuZGVkLWxnIGZvbnQtYm9sZCB0ZXh0LWxnIGhvdmVyOmJnLWdyZWVuLTcwMCBkaXNhYmxlZDpiZy1ncmF5LTMwMCBkaXNhYmxlZDpjdXJzb3Itbm90LWFsbG93ZWQgdHJhbnNpdGlvbi1jb2xvcnMgc2hhZG93LW1kXCJcbiAgICAgICAgICAgICAgc3R5bGU9e3sgbWluSGVpZ2h0OiAnNTZweCcgfX1cbiAgICAgICAgICAgID5cbiAgICAgICAgICAgICAge2xvYWRpbmcgPyAn4Yql4Ymj4Yqt4YuOIOGLreGMoOGJpeGJgS4uLiAvIFBsZWFzZSB3YWl0Li4uJyA6ICFmYXJtZXJOYW1lLnRyaW0oKSA/ICfhiLXhiJ0g4Yur4Yi14YyI4YmhIC8gRW50ZXIgTmFtZScgOiAhaGFzVHdvTmFtZXMgPyAn4YiB4YiI4Ym1IOGIteGInuGJvSDhi6vhiLXhjIjhiaEgLyBFbnRlciBUd28gTmFtZXMnIDogJ+KckyDhiYDhjKXhiI0gLyBDb250aW51ZSd9XG4gICAgICAgICAgICA8L2J1dHRvbj5cblxyXG4gICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT1cImJnLWJsdWUtNTAgYm9yZGVyIGJvcmRlci1ibHVlLTIwMCByb3VuZGVkLWxnIHAtM1wiPlxyXG4gICAgICAgICAgICAgIDxwIGNsYXNzTmFtZT1cInRleHQtc20gdGV4dC1ibHVlLTgwMFwiPlxyXG4gICAgICAgICAgICAgICAg8J+SoSDhiLXhiJnhipUg4Ymg4YqL4YiLIOGImOGJgOGLqOGIrSDhi63hib3hiIvhiIkgLyBZb3UgY2FuIGNoYW5nZSB0aGlzIG5hbWUgbGF0ZXIgaW4gc2V0dGluZ3NcclxuICAgICAgICAgICAgICA8L3A+XHJcbiAgICAgICAgICAgIDwvZGl2PlxyXG4gICAgICAgICAgPC9kaXY+XHJcbiAgICAgICAgPC9kaXY+XHJcblxyXG4gICAgICAgIHsvKiBGb290ZXIgKi99XHJcbiAgICAgICAgPGRpdiBjbGFzc05hbWU9XCJtdC02IHRleHQtY2VudGVyIHRleHQtc20gdGV4dC1ncmF5LTYwMFwiPlxyXG4gICAgICAgICAgPHA+XHJcbiAgICAgICAgICAgIOKckyBXb3JrcyBvZmZsaW5lIOKAoiDinJMgQW1oYXJpYyBzdXBwb3J0IOKAoiDinJMgRnJlZSB0byB1c2VcclxuICAgICAgICAgIDwvcD5cclxuICAgICAgICA8L2Rpdj5cclxuICAgICAgPC9kaXY+XHJcbiAgICA8L2Rpdj5cclxuICApO1xyXG59O1xyXG5cclxuZXhwb3J0IGRlZmF1bHQgT25ib2FyZGluZztcclxuIl0sImZpbGUiOiJEOi9ldGhpby1oZXJkLWNvbm5lY3Qvc3JjL3BhZ2VzL09uYm9hcmRpbmcudHN4In0=

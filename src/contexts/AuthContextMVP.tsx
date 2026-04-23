@@ -28,9 +28,9 @@ export const AuthProviderMVP: React.FC<{ children: React.ReactNode }> = ({ child
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check for demo user first (DEVELOPMENT ONLY - disabled in production)
+    // Check for demo user first (for local testing without Supabase)
     const demoUserJson = localStorage.getItem('demo-user');
-    if (import.meta.env.DEV && demoUserJson) {
+    if (demoUserJson) {
       try {
         const demoUser = JSON.parse(demoUserJson);
         // Create a mock User object

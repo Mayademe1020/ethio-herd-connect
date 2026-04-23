@@ -1,36 +1,66 @@
-// Service Worker for Ethio Herd Connect
-// Optimized for Ethiopian farmers with poor connectivity
+// Service Worker for Ethio Herd Connect v2
+// Optimized for Ethiopian farmers with stale-while-revalidate caching
 
-const CACHE_NAME = 'ethio-herd-v1';
-const STATIC_CACHE = 'ethio-herd-static-v1';
-const DYNAMIC_CACHE = 'ethio-herd-dynamic-v1';
+const CACHE_NAME = 'ethio-herd-v2';
+const STATIC_CACHE = 'ethio-herd-static-v2';
+const DYNAMIC_CACHE = 'ethio-herd-dynamic-v2';
+const API_CACHE = 'ethio-herd-api-v2';
+const ML_MODEL_CACHE = 'ethio-herd-ml-v2';
 
-// Resources to cache immediately
+// Static assets to cache immediately
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
   '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png'
+  '/icons/icon-512x512.png',
+  '/offline.html'
 ];
 
-// API endpoints to cache (for offline use)
-const API_CACHE_PATTERNS = [
-  /\/rest\/v1\/animals/,
-  /\/rest\/v1\/milk_production/,
-  /\/rest\/v1\/farm_profiles/
+// Critical resources to preload - cache ALL JS for offline
+const CRITICAL_RESOURCES = [
+  '/index.html',
+  '/assets/js/index-',  // Main bundle
+  '/assets/js/Login',
+  '/assets/js/Auth',
+  '/assets/css/index'
 ];
 
-// Install event - cache static assets
+// API endpoints with stale-while-revalidate strategy
+const SWR_API_PATTERNS = [
+  { pattern: /\/rest\/v1\/animals\?.*select=/, maxAge: 5 * 60 * 1000 }, // 5 minutes
+  { pattern: /\/rest\/v1\/milk_production/, maxAge: 2 * 60 * 1000 }, // 2 minutes
+  { pattern: /\/rest\/v1\/health_records/, maxAge: 5 * 60 * 1000 },
+  { pattern: /\/rest\/v1\/farm_profiles/, maxAge: 30 * 60 * 1000 }, // 30 minutes
+  { pattern: /\/rest\/v1\/profiles/, maxAge: 30 * 60 * 1000 },
+  { pattern: /\/rest\/v1\/reminders/, maxAge: 10 * 60 * 1000 },
+  { pattern: /\/rest\/v1\/market_listings.*status=eq.active/, maxAge: 10 * 60 * 1000 },
+  { pattern: /\/rest\/v1\/feed_ingredients/, maxAge: 24 * 60 * 60 * 1000 }, // 24 hours
+  { pattern: /\/rest\/v1\/ilri_rations/, maxAge: 24 * 60 * 60 * 1000 }
+];
+
+// Cache-only patterns (reference data)
+const CACHE_FIRST_PATTERNS = [
+  /\/rest\/v1\/feed_ingredients/,
+  /\/rest\/v1\/ilri_rations/,
+  /\.json$/,  // JSON config files
+  /manifest\.json/
+];
+
+// Network-first patterns (time-sensitive data)
+const NETWORK_FIRST_PATTERNS = [
+  /\/rest\/v1\/notifications/,
+  /\/rest\/v1\/analytics_events/,
+  /\/functions\/v1\/muzzle-inference/
+];
+
+// Install event - cache static assets and preload critical resources
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(STATIC_CACHE)
-      .then((cache) => {
-        return cache.addAll(STATIC_ASSETS);
-      })
-      .then(() => {
-        return self.skipWaiting();
-      })
+      .then((cache) => cache.addAll(STATIC_ASSETS))
+      .then(() => preloadCriticalResources())
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -40,67 +70,165 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
-          .filter((cacheName) => cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE)
+          .filter((cacheName) => 
+            cacheName.startsWith('ethio-herd-') && 
+            cacheName !== STATIC_CACHE &&
+            cacheName !== DYNAMIC_CACHE &&
+            cacheName !== API_CACHE &&
+            cacheName !== ML_MODEL_CACHE
+          )
           .map((cacheName) => caches.delete(cacheName))
       );
-    }).then(() => {
-      return self.clients.claim();
-    })
+    }).then(() => self.clients.claim())
   );
 });
 
-// Fetch event - serve from cache when offline
+// Preload critical resources
+async function preloadCriticalResources() {
+  const cache = await caches.open(STATIC_CACHE);
+  const preloadPromises = CRITICAL_RESOURCES.map(async (resource) => {
+    try {
+      const response = await fetch(resource, { mode: 'no-cors' });
+      if (response.ok || response.type === 'opaque') {
+        await cache.put(resource, response);
+      }
+    } catch (error) {
+      console.log('Failed to preload:', resource);
+    }
+  });
+  await Promise.all(preloadPromises);
+}
+
+// Main fetch handler with intelligent caching strategies
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip cross-origin requests to avoid issues with external resources
-  if (!request.url.startsWith(self.location.origin)) {
+  // Skip non-GET requests and cross-origin requests
+  if (request.method !== 'GET' || !url.href.startsWith(self.location.origin)) {
     return;
   }
 
-  // Handle API requests
-  if (API_CACHE_PATTERNS.some(pattern => pattern.test(url.pathname))) {
-    event.respondWith(
-      caches.open(DYNAMIC_CACHE).then((cache) => {
-        return fetch(request)
-          .then((response) => {
-            // Cache successful GET requests
-            if (request.method === 'GET' && response.status === 200) {
-              cache.put(request, response.clone());
-            }
-            return response;
-          })
-          .catch(() => {
-            // Return cached version if available
-            return cache.match(request);
-          });
-      })
-    );
+  // Handle API requests with stale-while-revalidate
+  if (isAPIRequest(url)) {
+    event.respondWith(handleAPIRequest(request, url));
     return;
   }
 
   // Handle static assets
-  if (STATIC_ASSETS.includes(url.pathname) || url.pathname.startsWith('/assets/')) {
-    event.respondWith(
-      caches.match(request)
-        .then((response) => {
-          return response || fetch(request).then((response) => {
-            // Cache the response
-            const responseClone = response.clone();
-            caches.open(STATIC_CACHE).then((cache) => {
-              cache.put(request, responseClone);
-            });
-            return response;
-          });
-        })
-    );
+  if (isStaticAsset(url)) {
+    event.respondWith(handleStaticRequest(request));
     return;
   }
 
-  // Default fetch for other requests
-  event.respondWith(fetch(request));
+  // Default: network with cache fallback
+  event.respondWith(
+    fetch(request)
+      .catch(() => caches.match(request))
+  );
 });
+
+// Check if request is an API call
+function isAPIRequest(url) {
+  return url.pathname.includes('/rest/v1/') || 
+         url.pathname.includes('/functions/v1/');
+}
+
+// Check if request is a static asset
+function isStaticAsset(url) {
+  return url.pathname.startsWith('/assets/') ||
+         STATIC_ASSETS.includes(url.pathname) ||
+         url.pathname.match(/\.(js|css|png|jpg|jpeg|gif|svg|webp|woff|woff2)$/);
+}
+
+// Stale-While-Revalidate strategy for API requests
+async function handleAPIRequest(request, url) {
+  const cache = await caches.open(API_CACHE);
+  const cachedResponse = await cache.match(request);
+  
+  // Find max age for this endpoint
+  const swrConfig = SWR_API_PATTERNS.find(cfg => cfg.pattern.test(url.href));
+  const maxAge = swrConfig ? swrConfig.maxAge : 5 * 60 * 1000; // Default 5 min
+
+  // Check if cache is fresh
+  if (cachedResponse) {
+    const cachedTime = new Date(cachedResponse.headers.get('sw-cached-at') || 0).getTime();
+    const isFresh = Date.now() - cachedTime < maxAge;
+    
+    if (isFresh) {
+      // Return cached response immediately
+      return cachedResponse;
+    }
+    
+    // Stale - return cached but fetch in background
+    fetchAndCache(request, cache);
+    return cachedResponse;
+  }
+
+  // No cache - fetch and store
+  try {
+    return await fetchAndCache(request, cache);
+  } catch (error) {
+    // Return offline response for API
+    return new Response(
+      JSON.stringify({
+        error: 'Offline - data unavailable',
+        offline: true,
+        cached: false,
+        timestamp: new Date().toISOString()
+      }),
+      {
+        status: 503,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
+}
+
+// Fetch and cache response
+async function fetchAndCache(request, cache) {
+  const response = await fetch(request);
+  
+  if (response.ok) {
+    const responseClone = response.clone();
+    const headers = new Headers(responseClone.headers);
+    headers.set('sw-cached-at', new Date().toISOString());
+    
+    const cachedResponse = new Response(responseClone.body, {
+      status: responseClone.status,
+      statusText: responseClone.statusText,
+      headers
+    });
+    
+    await cache.put(request, cachedResponse);
+  }
+  
+  return response;
+}
+
+// Handle static asset requests
+async function handleStaticRequest(request) {
+  const cache = await caches.open(STATIC_CACHE);
+  const cachedResponse = await cache.match(request);
+  
+  if (cachedResponse) {
+    return cachedResponse;
+  }
+  
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      await cache.put(request, response.clone());
+    }
+    return response;
+  } catch (error) {
+    // Return offline page for navigation requests
+    if (request.mode === 'navigate') {
+      return cache.match('/offline.html');
+    }
+    throw error;
+  }
+}
 
 // Background sync for offline actions
 self.addEventListener('sync', (event) => {
@@ -110,7 +238,35 @@ self.addEventListener('sync', (event) => {
 });
 
 async function doBackgroundSync() {
-  // Implement background sync logic here
-  // This would process any queued offline actions
   console.log('Background sync triggered');
+  // Clean up expired cache entries
+  await cleanupExpiredCaches();
 }
+
+// Clean up expired cache entries
+async function cleanupExpiredCaches() {
+  const now = Date.now();
+  const apiCache = await caches.open(API_CACHE);
+  const keys = await apiCache.keys();
+  
+  for (const request of keys) {
+    const response = await apiCache.match(request);
+    if (response) {
+      const cachedTime = new Date(response.headers.get('sw-cached-at') || 0).getTime();
+      // Remove entries older than 24 hours
+      if (now - cachedTime > 24 * 60 * 60 * 1000) {
+        await apiCache.delete(request);
+      }
+    }
+  }
+}
+
+// Handle messages from main thread
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+  if (event.data?.type === 'CLEANUP_CACHES') {
+    event.waitUntil(cleanupExpiredCaches());
+  }
+});
