@@ -39,9 +39,9 @@ const SimpleHome = () => {
   type QuickAction = { id: string; label: string; emoji: string; path: string };
   const buildDefaultActions = (): QuickAction[] => ([
     { id: 'identify', label: '🔍 Identify Animal', emoji: '🔍', path: '/identify' },
-    { id: 'record-milk', label: '🥛 Record Milk', emoji: '🥛', path: '/record-milk' },
-    { id: 'add-animal', label: '➕ Add Animal', emoji: '➕', path: '/register-animal' },
-    { id: 'my-animals', label: '🐄 My Animals', emoji: '🐄', path: '/my-animals' },
+    { id: 'record-milk', label: '🥛 Record Milk', emoji: '🥛', path: '/milk/record' },
+    { id: 'add-animal', label: '➕ Add Animal', emoji: '➕', path: '/animals/register' },
+    { id: 'my-animals', label: '🐄 My Animals', emoji: '🐄', path: '/animals' },
     { id: 'marketplace', label: '🛒 Marketplace', emoji: '🛒', path: '/marketplace' },
   ]);
 
