@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContextMVP';
 import { toast } from 'sonner';
 import { validateFullName } from '@/utils/nameValidation';
+import { Check } from 'lucide-react';
 
 const Onboarding = () => {
   const { user } = useAuth();
@@ -114,6 +115,38 @@ const Onboarding = () => {
             <p className="text-gray-600 text-lg">
               Welcome to Ethio Herd Connect
             </p>
+          </div>
+
+          {/* Theft Protection Education - Critical Friction Point */}
+          <div className="mb-6 p-4 bg-amber-50 border-2 border-amber-300 rounded-xl">
+            <div className="flex items-start gap-3">
+              <span className="text-3xl">🛡️</span>
+              <div>
+                <h3 className="font-bold text-amber-900 text-lg mb-2">
+                  የግራት መከላከያ / Theft Protection
+                </h3>
+                <p className="text-sm text-amber-800 mb-3">
+                  በኢትዮጵያ የግራት ዘመቻ እየጨመረ ነው። አርድ ኮኔክት እንስማማለን።
+                </p>
+                <p className="text-sm text-amber-800 mb-2">
+                  Theft is increasing in Ethiopia. Ethio Herd Connect helps protect your animals.
+                </p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                    <span className="text-sm text-gray-700">✓ የእንስሳ ፊት ለፊት ማስታወሻ / Unique muzzle ID</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                    <span className="text-sm text-gray-700">✓ ያለፈታ ማረጋገጫ / Instant verification</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                    <span className="text-sm text-gray-700">✓ ከማንኛውም የቀን አቆጣጠር ጋር ይሠራል / Works offline</span>
+                  </div>
+</div>
+              </div>
+            </div>
           </div>
 
           {/* Farmer Name Input */}

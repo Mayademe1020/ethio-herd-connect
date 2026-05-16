@@ -1,0 +1,515 @@
+{
+  "timestamp": 1778554932485,
+  "urlPath": "localhost:8080/",
+  "pageInfo": {
+    "url": "http://localhost:8080/",
+    "title": "Ethio Herd Connect",
+    "viewport": {
+      "width": 773,
+      "height": 648
+    },
+    "scrollPosition": {
+      "x": 0,
+      "y": 0
+    },
+    "pageHeight": 648,
+    "pageWidth": 773,
+    "focusedElement": null
+  },
+  "elements": [
+    {
+      "index": 0,
+      "backendNodeId": 5679,
+      "selector": "[data-backend-node-id=\"5679\"]",
+      "tag": "div",
+      "type": "generic",
+      "text": "All synced",
+      "normalizedPosition": {
+        "x": 0.047,
+        "y": 0.046
+      },
+      "boundingBox": {
+        "x": 16,
+        "y": 16,
+        "width": 40,
+        "height": 28
+      },
+      "isInViewport": true,
+      "isInteractable": true,
+      "attributes": {},
+      "paintOrder": 2
+    },
+    {
+      "index": 1,
+      "backendNodeId": 5680,
+      "selector": "[data-backend-node-id=\"5680\"]",
+      "tag": "button",
+      "type": "button",
+      "text": "English",
+      "normalizedPosition": {
+        "x": 0.914,
+        "y": 0.046
+      },
+      "boundingBox": {
+        "x": 655,
+        "y": 8,
+        "width": 102,
+        "height": 44
+      },
+      "isInViewport": true,
+      "isInteractable": true,
+      "attributes": {},
+      "paintOrder": 2
+    },
+    {
+      "index": 2,
+      "backendNodeId": 5672,
+      "selector": "[data-backend-node-id=\"5672\"]",
+      "tag": "svg",
+      "type": "image",
+      "text": "",
+      "normalizedPosition": {
+        "x": 0.047,
+        "y": 0.046
+      },
+      "boundingBox": {
+        "x": 28,
+        "y": 22,
+        "width": 16,
+        "height": 16
+      },
+      "isInViewport": true,
+      "isInteractable": true,
+      "attributes": {},
+      "paintOrder": 3
+    },
+    {
+      "index": 3,
+      "backendNodeId": 5677,
+      "selector": "[data-backend-node-id=\"5677\"]",
+      "tag": "svg",
+      "type": "image",
+      "text": "",
+      "normalizedPosition": {
+        "x": 0.877,
+        "y": 0.046
+      },
+      "boundingBox": {
+        "x": 668,
+        "y": 20,
+        "width": 20,
+        "height": 20
+      },
+      "isInViewport": true,
+      "isInteractable": true,
+      "attributes": {},
+      "paintOrder": 4
+    },
+    {
+      "index": 4,
+      "backendNodeId": 5725,
+      "selector": "[data-backend-node-id=\"5725\"]",
+      "tag": "button",
+      "type": "button",
+      "text": "",
+      "normalizedPosition": {
+        "x": 0.936,
+        "y": 0.809
+      },
+      "boundingBox": {
+        "x": 689,
+        "y": 496,
+        "width": 68,
+        "height": 56
+      },
+      "isInViewport": true,
+      "isInteractable": true,
+      "attributes": {},
+      "paintOrder": 18
+    },
+    {
+      "index": 5,
+      "backendNodeId": 5724,
+      "selector": "[data-backend-node-id=\"5724\"]",
+      "tag": "svg",
+      "type": "image",
+      "text": "",
+      "normalizedPosition": {
+        "x": 0.936,
+        "y": 0.809
+      },
+      "boundingBox": {
+        "x": 715,
+        "y": 516,
+        "width": 16,
+        "height": 16
+      },
+      "isInViewport": true,
+      "isInteractable": true,
+      "attributes": {},
+      "paintOrder": 19
+    },
+    {
+      "index": 6,
+      "backendNodeId": 5717,
+      "selector": "[data-backend-node-id=\"5717\"]",
+      "tag": "button",
+      "type": "button",
+      "text": "Home",
+      "normalizedPosition": {
+        "x": 0.265,
+        "y": 0.951
+      },
+      "boundingBox": {
+        "x": 172,
+        "y": 592,
+        "width": 66,
+        "height": 48
+      },
+      "isInViewport": true,
+      "isInteractable": true,
+      "attributes": {
+        "aria-label": "Home"
+      },
+      "paintOrder": 5
+    },
+    {
+      "index": 7,
+      "backendNodeId": 5686,
+      "selector": "[data-backend-node-id=\"5686\"]",
+      "tag": "div",
+      "type": "generic",
+      "text": "",
+      "normalizedPosition": {
+        "x": 0.265,
+        "y": 0.936
+      },
+      "boundingBox": {
+        "x": 197,
+        "y": 598,
+        "width": 16,
+        "height": 16
+      },
+      "isInViewport": true,
+      "isInteractable": true,
+      "attributes": {},
+      "paintOrder": 6
+    },
+    {
+      "index": 8,
+      "backendNodeId": 5683,
+      "selector": "[data-backend-node-id=\"5683\"]",
+      "tag": "svg",
+      "type": "image",
+      "text": "",
+      "normalizedPosition": {
+        "x": 0.265,
+        "y": 0.936
+      },
+      "boundingBox": {
+        "x": 197,
+        "y": 598,
+        "width": 16,
+        "height": 16
+      },
+      "isInViewport": true,
+      "isInteractable": true,
+      "attributes": {},
+      "paintOrder": 7
+    },
+    {
+      "index": 9,
+      "backendNodeId": 5718,
+      "selector": "[data-backend-node-id=\"5718\"]",
+      "tag": "button",
+      "type": "button",
+      "text": "Animals",
+      "normalizedPosition": {
+        "x": 0.381,
+        "y": 0.951
+      },
+      "boundingBox": {
+        "x": 256,
+        "y": 592,
+        "width": 78,
+        "height": 48
+      },
+      "isInViewport": true,
+      "isInteractable": true,
+      "attributes": {
+        "aria-label": "Animals"
+      },
+      "paintOrder": 5
+    },
+    {
+      "index": 10,
+      "backendNodeId": 5693,
+      "selector": "[data-backend-node-id=\"5693\"]",
+      "tag": "div",
+      "type": "generic",
+      "text": "",
+      "normalizedPosition": {
+        "x": 0.381,
+        "y": 0.936
+      },
+      "boundingBox": {
+        "x": 287,
+        "y": 598,
+        "width": 16,
+        "height": 16
+      },
+      "isInViewport": true,
+      "isInteractable": true,
+      "attributes": {},
+      "paintOrder": 9
+    },
+    {
+      "index": 11,
+      "backendNodeId": 5691,
+      "selector": "[data-backend-node-id=\"5691\"]",
+      "tag": "svg",
+      "type": "image",
+      "text": "",
+      "normalizedPosition": {
+        "x": 0.381,
+        "y": 0.936
+      },
+      "boundingBox": {
+        "x": 287,
+        "y": 598,
+        "width": 16,
+        "height": 16
+      },
+      "isInViewport": true,
+      "isInteractable": true,
+      "attributes": {},
+      "paintOrder": 10
+    },
+    {
+      "index": 12,
+      "backendNodeId": 5719,
+      "selector": "[data-backend-node-id=\"5719\"]",
+      "tag": "button",
+      "type": "button",
+      "text": "Market",
+      "normalizedPosition": {
+        "x": 0.501,
+        "y": 0.951
+      },
+      "boundingBox": {
+        "x": 352,
+        "y": 592,
+        "width": 72,
+        "height": 48
+      },
+      "isInViewport": true,
+      "isInteractable": true,
+      "attributes": {
+        "aria-label": "Market"
+      },
+      "paintOrder": 5
+    },
+    {
+      "index": 13,
+      "backendNodeId": 5702,
+      "selector": "[data-backend-node-id=\"5702\"]",
+      "tag": "div",
+      "type": "generic",
+      "text": "",
+      "normalizedPosition": {
+        "x": 0.501,
+        "y": 0.936
+      },
+      "boundingBox": {
+        "x": 380,
+        "y": 598,
+        "width": 16,
+        "height": 16
+      },
+      "isInViewport": true,
+      "isInteractable": true,
+      "attributes": {},
+      "paintOrder": 11
+    },
+    {
+      "index": 14,
+      "backendNodeId": 5699,
+      "selector": "[data-backend-node-id=\"5699\"]",
+      "tag": "svg",
+      "type": "image",
+      "text": "",
+      "normalizedPosition": {
+        "x": 0.501,
+        "y": 0.936
+      },
+      "boundingBox": {
+        "x": 380,
+        "y": 598,
+        "width": 16,
+        "height": 16
+      },
+      "isInViewport": true,
+      "isInteractable": true,
+      "attributes": {},
+      "paintOrder": 12
+    },
+    {
+      "index": 15,
+      "backendNodeId": 5700,
+      "selector": "[data-backend-node-id=\"5700\"]",
+      "tag": "div",
+      "type": "generic",
+      "text": "",
+      "normalizedPosition": {
+        "x": 0.507,
+        "y": 0.93
+      },
+      "boundingBox": {
+        "x": 384,
+        "y": 594,
+        "width": 16,
+        "height": 16
+      },
+      "isInViewport": true,
+      "isInteractable": true,
+      "attributes": {},
+      "paintOrder": 13
+    },
+    {
+      "index": 16,
+      "backendNodeId": 5720,
+      "selector": "[data-backend-node-id=\"5720\"]",
+      "tag": "button",
+      "type": "button",
+      "text": "Record",
+      "normalizedPosition": {
+        "x": 0.619,
+        "y": 0.951
+      },
+      "boundingBox": {
+        "x": 442,
+        "y": 592,
+        "width": 73,
+        "height": 48
+      },
+      "isInViewport": true,
+      "isInteractable": true,
+      "attributes": {
+        "aria-label": "Record"
+      },
+      "paintOrder": 5
+    },
+    {
+      "index": 17,
+      "backendNodeId": 5709,
+      "selector": "[data-backend-node-id=\"5709\"]",
+      "tag": "div",
+      "type": "generic",
+      "text": "",
+      "normalizedPosition": {
+        "x": 0.619,
+        "y": 0.936
+      },
+      "boundingBox": {
+        "x": 470,
+        "y": 598,
+        "width": 16,
+        "height": 16
+      },
+      "isInViewport": true,
+      "isInteractable": true,
+      "attributes": {},
+      "paintOrder": 14
+    },
+    {
+      "index": 18,
+      "backendNodeId": 5707,
+      "selector": "[data-backend-node-id=\"5707\"]",
+      "tag": "svg",
+      "type": "image",
+      "text": "",
+      "normalizedPosition": {
+        "x": 0.619,
+        "y": 0.936
+      },
+      "boundingBox": {
+        "x": 470,
+        "y": 598,
+        "width": 16,
+        "height": 16
+      },
+      "isInViewport": true,
+      "isInteractable": true,
+      "attributes": {},
+      "paintOrder": 15
+    },
+    {
+      "index": 19,
+      "backendNodeId": 5721,
+      "selector": "[data-backend-node-id=\"5721\"]",
+      "tag": "button",
+      "type": "button",
+      "text": "Profile",
+      "normalizedPosition": {
+        "x": 0.734,
+        "y": 0.951
+      },
+      "boundingBox": {
+        "x": 533,
+        "y": 592,
+        "width": 69,
+        "height": 48
+      },
+      "isInViewport": true,
+      "isInteractable": true,
+      "attributes": {
+        "aria-label": "Profile"
+      },
+      "paintOrder": 5
+    },
+    {
+      "index": 20,
+      "backendNodeId": 5715,
+      "selector": "[data-backend-node-id=\"5715\"]",
+      "tag": "div",
+      "type": "generic",
+      "text": "",
+      "normalizedPosition": {
+        "x": 0.734,
+        "y": 0.936
+      },
+      "boundingBox": {
+        "x": 559,
+        "y": 598,
+        "width": 16,
+        "height": 16
+      },
+      "isInViewport": true,
+      "isInteractable": true,
+      "attributes": {},
+      "paintOrder": 16
+    },
+    {
+      "index": 21,
+      "backendNodeId": 5713,
+      "selector": "[data-backend-node-id=\"5713\"]",
+      "tag": "svg",
+      "type": "image",
+      "text": "",
+      "normalizedPosition": {
+        "x": 0.734,
+        "y": 0.936
+      },
+      "boundingBox": {
+        "x": 559,
+        "y": 598,
+        "width": 16,
+        "height": 16
+      },
+      "isInViewport": true,
+      "isInteractable": true,
+      "attributes": {},
+      "paintOrder": 17
+    }
+  ]
+}

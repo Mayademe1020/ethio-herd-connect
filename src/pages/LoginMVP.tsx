@@ -19,9 +19,12 @@ const LoginMVP = () => {
     }
   }, [user, navigate]);
 
+  // If no user, redirect to home - ProtectedRoute will handle showing login
   useEffect(() => {
-    navigate('/auth', { replace: true });
-  }, [navigate]);
+    if (!user) {
+      navigate('/', { replace: true });
+    }
+  }, [user, navigate]);
 
   return (
     <main
@@ -29,7 +32,8 @@ const LoginMVP = () => {
       className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center p-4"
     >
       <div className="text-center">
-        <p className="text-gray-600">Redirecting to login...</p>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-green-600 mx-auto mb-4"></div>
+        <p className="text-gray-600 text-lg">እባክዎ ይጠብቁ... / Loading...</p>
       </div>
     </main>
   );

@@ -370,7 +370,7 @@ const IdentifyAnimalPage: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-6 max-w-4xl">
       {/* Header */}
-      <div className="mb-6">
+      <div className="mb-4">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-2xl font-bold">Animal Identification</h1>
@@ -379,6 +379,17 @@ const IdentifyAnimalPage: React.FC = () => {
             </p>
           </div>
           {renderConnectionStatus()}
+        </div>
+
+        {/* Theft Prevention Banner */}
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">📢</span>
+            <div>
+              <p className="text-red-800 font-semibold text-sm">Found a stray animal?</p>
+              <p className="text-red-700 text-xs">Tap the <strong>"Found"</strong> tab to scan and help return it home!</p>
+            </div>
+          </div>
         </div>
 
         {/* Offline Warning */}
@@ -400,13 +411,16 @@ const IdentifyAnimalPage: React.FC = () => {
             <Camera className="h-4 w-4" />
             Capture
           </TabsTrigger>
+          <TabsTrigger value="found" className="flex items-center gap-2 bg-red-50 hover:bg-red-100 data-[state=active]:bg-red-100 data-[state=active]:text-red-700">
+            <Heart className="h-4 w-4 text-red-500" />
+            <span className="relative">
+              Found
+              <span className="absolute -top-1 -right-3 w-2 h-2 bg-red-500 rounded-full"></span>
+            </span>
+          </TabsTrigger>
           <TabsTrigger value="results" className="flex items-center gap-2">
             <Search className="h-4 w-4" />
             Results
-          </TabsTrigger>
-          <TabsTrigger value="found" className="flex items-center gap-2">
-            <Heart className="h-4 w-4" />
-            Found
           </TabsTrigger>
           <TabsTrigger value="history" className="flex items-center gap-2">
             <History className="h-4 w-4" />

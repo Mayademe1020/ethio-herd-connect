@@ -6,7 +6,7 @@ import { AnimalTypeSelector, AnimalType } from '@/components/AnimalTypeSelector'
 import { AnimalSubtypeSelector } from '@/components/AnimalSubtypeSelector';
 import { useAnimalRegistration } from '@/hooks/useAnimalRegistration';
 import { BackButton } from '@/components/BackButton';
-import { ArrowLeft, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, WifiOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Camera, Check } from 'lucide-react';
@@ -38,6 +38,19 @@ const RegisterAnimal = () => {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  // Monitor online/offline status
+  useEffect(() => {
+    const onOnline = () => setIsOnline(true);
+    const onOffline = () => setIsOnline(false);
+    window.addEventListener('online', onOnline);
+    window.addEventListener('offline', onOffline);
+    return () => {
+      window.removeEventListener('online', onOnline);
+      window.removeEventListener('offline', onOffline);
+    };
+  }, []);
 
   // Muzzle state
   const [muzzleFile, setMuzzleFile] = useState<File | null>(null);
@@ -265,6 +278,49 @@ const RegisterAnimal = () => {
         throw new Error('Could not extract embedding from any source');
       }
 
+      // 🔍 DUPLICATE DETECTION: Check if this muzzle already exists
+      if (isOnline) {
+        try {
+          const { data: similarMuzzles, error: searchError } = await supabase.rpc('search_similar_muzzles', {
+            query_embedding: `[${Array.from(embedding.vector || embedding)}]`,
+            similarity_threshold: 0.85, // 85% similarity threshold
+            max_results: 1,
+          });
+
+          if (!searchError && similarMuzzles && similarMuzzles.length > 0) {
+            const match = similarMuzzles[0];
+            // Check if it's not the same animal (in case of re-registration)
+            if (match.animal_id !== registeredAnimalId) {
+              // Fetch the owner of the similar animal
+              const { data: existingAnimal } = await supabase
+                .from('animals')
+                .select('name, owner_id')
+                .eq('id', match.animal_id)
+                .single();
+
+              const { data: ownerProfile } = await supabase
+                .from('farm_profiles')
+                .select('owner_name')
+                .eq('user_id', match.user_id)
+                .single();
+
+              // Show warning but allow user to continue with confirmation
+              const similarityPercent = Math.round(parseFloat(match.similarity) * 100);
+              toast.warning(
+                `⚠️ Similar animal found (${similarityPercent}% match)`,
+                {
+                  description: `This muzzle is ${similarityPercent}% similar to "${existingAnimal?.name || 'a registered animal'}" owned by ${ownerProfile?.owner_name || 'another farmer'}. If this is your animal, you may already have it registered.`,
+                  duration: 8000,
+                }
+              );
+            }
+          }
+        } catch (searchErr) {
+          // Don't fail registration if duplicate check fails
+          console.warn('Duplicate check failed:', searchErr);
+        }
+      }
+
       // Store embedding in IndexedDB
       await storeMuzzleEmbedding(
         registeredAnimalId,
@@ -483,7 +539,7 @@ const RegisterAnimal = () => {
           )}
         </div>
 
-        {/* Step 4: Muzzle Registration - REQUIRED */}
+          {/* Step 4: Muzzle Registration - REQUIRED */}
         {step === 4 && (
           <div className="bg-white rounded-lg shadow-md p-6 sm:p-8 mb-6">
             <div className="flex items-center gap-2 mb-2">
@@ -493,7 +549,7 @@ const RegisterAnimal = () => {
               </h2>
             </div>
             <p className="text-gray-600 mb-2">
-              Your animal's muzzle is like a fingerprint - unique and permanent. 
+              Your animal's muzzle is like a fingerprint - unique and permanent.
               <strong> This protects your animal if it is ever lost or stolen.</strong>
             </p>
             <div className="flex items-center gap-2 text-sm text-green-600 mb-6">
@@ -501,11 +557,29 @@ const RegisterAnimal = () => {
               <span>Offline-capable - works even without internet</span>
             </div>
 
+            {/* Offline Warning */}
+            {!isOnline && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+                <div className="flex items-start gap-3">
+                  <WifiOff className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-amber-800 font-medium">Offline Mode</p>
+                    <p className="text-sm text-amber-700 mt-1">
+                      Muzzle registration works offline. Your data will be saved and synced when you're back online.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Warning if no muzzle captured */}
             {!muzzlePreview && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
                 <p className="text-red-700 font-medium">
-                  Muzzle capture is required to protect your animal from theft.
+                  ⚠️ Muzzle capture is REQUIRED to protect your animal from theft.
+                </p>
+                <p className="text-sm text-red-600 mt-1">
+                  Without muzzle registration, your animal cannot be identified if stolen.
                 </p>
               </div>
             )}
@@ -574,30 +648,30 @@ const RegisterAnimal = () => {
               )}
             </Button>
           ) : (
-            <>
-              <Button
-                variant="outline"
-                onClick={() => navigate('/my-animals')}
-                disabled={!muzzlePreview}
-                className="flex-1 h-14 text-lg font-bold disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {muzzlePreview ? 'Skip for Now' : '⚠️ Muzzle Required'}
-              </Button>
+            // Step 4: Muzzle Registration - REQUIRED (no skip option)
+            <div className="flex flex-col gap-3 w-full">
+              {!muzzleFile ? (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
+                  <p className="text-red-700 font-medium text-sm">
+                    ⚠️ Please capture muzzle image to continue
+                  </p>
+                </div>
+              ) : null}
               <Button
                 onClick={handleRegisterMuzzle}
                 disabled={!muzzleFile || isRegisteringMuzzle}
-                className="flex-1 h-14 text-lg font-bold"
+                className="w-full h-14 text-lg font-bold"
               >
                 {isRegisteringMuzzle ? (
                   'Processing...'
                 ) : (
                   <>
                     <ShieldCheck className="w-5 h-5 mr-2" />
-                    Register Muzzle
+                    Register Muzzle - Protect Your Animal
                   </>
                 )}
               </Button>
-            </>
+            </div>
           )}
         </div>
       </div>

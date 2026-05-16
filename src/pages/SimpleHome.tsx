@@ -36,13 +36,12 @@ const SimpleHome = () => {
   const { t } = useTranslation();
   const [reorderMode, setReorderMode] = useState(false);
 
-  type QuickAction = { id: string; label: string; emoji: string; path: string };
+  type QuickAction = { id: string; label: string; emoji: string; path: string; color: string };
   const buildDefaultActions = (): QuickAction[] => ([
-    { id: 'identify', label: '🔍 Identify Animal', emoji: '🔍', path: '/identify' },
-    { id: 'record-milk', label: '🥛 Record Milk', emoji: '🥛', path: '/milk/record' },
-    { id: 'add-animal', label: '➕ Add Animal', emoji: '➕', path: '/animals/register' },
-    { id: 'my-animals', label: '🐄 My Animals', emoji: '🐄', path: '/animals' },
-    { id: 'marketplace', label: '🛒 Marketplace', emoji: '🛒', path: '/marketplace' },
+    { id: 'scan-identify', label: '📸 Scan', emoji: '📸', path: '/identify/simple', color: 'bg-blue-50 border-blue-200' },
+    { id: 'add-animal', label: '➕ Add Animal', emoji: '➕', path: '/register-animal', color: 'bg-green-50 border-green-200' },
+    { id: 'record-milk', label: '🥛 Record Milk', emoji: '🥛', path: '/milk/record', color: 'bg-purple-50 border-purple-200' },
+    { id: 'my-animals', label: '🐄 My Animals', emoji: '🐄', path: '/animals', color: 'bg-amber-50 border-amber-200' },
   ]);
 
   const storageKey = `quick-actions-order-${user?.id || 'anon'}`;
@@ -305,37 +304,30 @@ const SimpleHome = () => {
             {reorderMode ? (t('common.done') || 'Done') : (t('common.reorder') || 'Reorder')}
           </EnhancedButton>
         </div>
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-2 gap-3 mb-6">
           {actions.map((action, index) => (
-            <NeutralCard
+            <button
               key={action.id}
-              asButton
               onClick={() => !reorderMode && navigate(action.path)}
-              onDragStart={(e: any) => reorderMode && onDragStart(index, e)}
-              onDragOver={onDragOver}
-              onDrop={(e: any) => reorderMode && onDrop(index, e)}
-              draggable={reorderMode}
-              className={reorderMode ? 'opacity-90' : ''}
+              className={`p-4 sm:p-5 rounded-xl border-2 transition-all active:scale-95 ${action.color} ${
+                reorderMode ? 'opacity-90 cursor-move' : 'cursor-pointer hover:shadow-md'
+              }`}
             >
-              <NeutralCardContent className="p-6 sm:p-8 flex flex-col items-center">
-                <div className="text-4xl sm:text-5xl mb-2">{action.emoji}</div>
-                <div className="font-bold text-base sm:text-lg text-gray-800">{action.label}</div>
-                {reorderMode && (
-                  <div className="mt-3 flex gap-3">
-                    <EnhancedButton
-                      size="sm"
-                      variant="ghost"
-                      onClick={(e) => { e.stopPropagation(); moveItem(index, Math.max(0, index - 1)); }}
-                    >↑</EnhancedButton>
-                    <EnhancedButton
-                      size="sm"
-                      variant="ghost"
-                      onClick={(e) => { e.stopPropagation(); moveItem(index, Math.min(actions.length - 1, index + 1)); }}
-                    >↓</EnhancedButton>
-                  </div>
-                )}
-              </NeutralCardContent>
-            </NeutralCard>
+              <div className="text-4xl mb-2">{action.emoji}</div>
+              <div className="font-bold text-base text-gray-800">{action.label}</div>
+              {reorderMode && (
+                <div className="mt-2 flex justify-center gap-2">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); moveItem(index, Math.max(0, index - 1)); }}
+                    className="w-8 h-8 rounded-full bg-white shadow flex items-center justify-center text-lg"
+                  >↑</button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); moveItem(index, Math.min(actions.length - 1, index + 1)); }}
+                    className="w-8 h-8 rounded-full bg-white shadow flex items-center justify-center text-lg"
+                  >↓</button>
+                </div>
+              )}
+            </button>
           ))}
         </div>
 
@@ -345,24 +337,19 @@ const SimpleHome = () => {
             {t('home.todaysTasks')}
           </h2>
           {todaysTasks.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {todaysTasks.map((task) => (
-                <EnhancedButton
+                <button
                   key={task.id}
                   onClick={task.action}
-                  variant="outline"
-                  size="lg"
-                  aria-label={`${task.title} / ${task.titleAm}`}
-                  title={`${task.title} / ${task.titleAm}`}
-                  className="w-full flex items-center gap-3 p-4 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition-colors text-left border border-yellow-200"
+                  className="w-full flex items-center gap-3 p-3 bg-yellow-50 hover:bg-yellow-100 rounded-xl border border-yellow-200 active:scale-[0.98] transition-all text-left"
                 >
                   <div className="text-2xl">{task.icon}</div>
-                  <div className="flex-1 text-left">
+                  <div className="flex-1">
                     <p className="font-medium text-gray-800">{task.title}</p>
-                    <p className="text-sm text-gray-600">{task.titleAm}</p>
                   </div>
-                  <div className="text-yellow-600">→</div>
-                </EnhancedButton>
+                  <div className="text-yellow-600 text-xl">→</div>
+                </button>
               ))}
             </div>
           ) : (
@@ -374,44 +361,23 @@ const SimpleHome = () => {
         </div>
 
         {/* Quick Stats */}
-        <NeutralCard className="p-6">
-          <h2 className="text-lg font-bold mb-4 text-gray-800">
-            {t('home.quickStats')}
-          </h2>
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <NeutralCard asButton className="p-5 text-center">
-              <div className="text-3xl mb-2">🐄</div>
-              <div className="text-5xl sm:text-6xl font-bold text-green-600 mb-2">
-                {animalsCount}
-              </div>
-              <div className="text-sm sm:text-base text-gray-700 font-semibold">
-                {t('home.totalAnimals')}
-              </div>
-            </NeutralCard>
-            <NeutralCard asButton className="p-5 text-center">
-              <div className="text-3xl mb-2">🥛</div>
-              <div className="text-5xl sm:text-6xl font-bold text-purple-600 mb-2">
-                {dailyMilkStats.yesterday}
-                <span className="text-2xl sm:text-3xl">L</span>
-              </div>
-              <div className="text-sm sm:text-base text-gray-700 font-semibold">
-                የትላንት / Yesterday
-              </div>
-            </NeutralCard>
+        <div className="grid grid-cols-3 gap-3">
+          <div className="bg-white rounded-xl p-4 text-center border">
+            <div className="text-3xl mb-1">🐄</div>
+            <div className="text-3xl font-bold text-green-600">{animalsCount}</div>
+            <div className="text-xs text-gray-600 mt-1">Animals</div>
           </div>
-          <div className="grid grid-cols-1 gap-4">
-            <NeutralCard asButton className="p-5 text-center">
-              <div className="text-3xl mb-2">🥛</div>
-              <div className="text-5xl sm:text-6xl font-bold text-blue-600 mb-2">
-                {dailyMilkStats.today}
-                <span className="text-2xl sm:text-3xl">L</span>
-              </div>
-              <div className="text-sm sm:text-base text-gray-700 font-semibold">
-                ዛም / Today
-              </div>
-            </NeutralCard>
+          <div className="bg-white rounded-xl p-4 text-center border">
+            <div className="text-3xl mb-1">🥛</div>
+            <div className="text-3xl font-bold text-blue-600">{dailyMilkStats.today}L</div>
+            <div className="text-xs text-gray-600 mt-1">Today</div>
           </div>
-        </NeutralCard>
+          <div className="bg-white rounded-xl p-4 text-center border">
+            <div className="text-3xl mb-1">📅</div>
+            <div className="text-3xl font-bold text-purple-600">{dailyMilkStats.yesterday}L</div>
+            <div className="text-xs text-gray-600 mt-1">Yesterday</div>
+          </div>
+        </div>
       </div>
     </div>
   );

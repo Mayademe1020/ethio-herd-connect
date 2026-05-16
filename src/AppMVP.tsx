@@ -25,8 +25,10 @@ import { AppLayout } from "./components/AppLayout";
 
 // Lazy load other routes with preloading for critical paths
 const SimpleHome = lazy(() => import("./pages/SimpleHome").then(m => ({ default: m.default })));
+const SimpleScan = lazy(() => import("./pages/SimpleScan").then(m => ({ default: m.SimpleScan })));
 const RegisterAnimal = lazy(() => import("./pages/RegisterAnimal").then(m => ({ default: m.default })));
 const MyAnimals = lazy(() => import("./pages/MyAnimals").then(m => ({ default: m.default })));
+const MyTransfers = lazy(() => import("./pages/MyTransfers").then(m => ({ default: m.default })));
 const AnimalDetail = lazy(() => import("./pages/AnimalDetail").then(m => ({ default: m.AnimalDetail })));
 const RecordMilk = lazy(() => import("./pages/RecordMilk").then(m => ({ default: m.default })));
 const MilkProductionRecords = lazy(() => import("./pages/MilkProductionRecords").then(m => ({ default: m.default })));
@@ -113,6 +115,23 @@ function AppMVP() {
                           </ProtectedRoute>
                         }
                       />
+                      {/* Simplified Scan Routes */}
+                      <Route
+                        path="/identify/simple"
+                        element={
+                          <ProtectedRoute>
+                            <SimpleScan />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/identify/found"
+                        element={
+                          <ProtectedRoute>
+                            <SimpleScan mode="found" />
+                          </ProtectedRoute>
+                        }
+                      />
                       <Route
                         path="/register-animal"
                         element={
@@ -134,6 +153,22 @@ function AppMVP() {
                         element={
                           <ProtectedRoute>
                             <MyAnimals />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/transfers"
+                        element={
+                          <ProtectedRoute>
+                            <MyTransfers />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/my-transfers"
+                        element={
+                          <ProtectedRoute>
+                            <MyTransfers />
                           </ProtectedRoute>
                         }
                       />

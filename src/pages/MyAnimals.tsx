@@ -26,6 +26,7 @@ interface Animal {
   registration_date?: string; // Optional, fallback to created_at
   is_active?: boolean; // Optional, default to true
   status?: string; // Professional status system
+  muzzle_status?: 'pending' | 'registered' | 'failed';
   created_at?: string;
   [key: string]: any; // Allow additional properties for search
 }
@@ -79,7 +80,7 @@ export const MyAnimals = () => {
         // @ts-ignore - Supabase type instantiation issue with complex queries
         const result: any = await supabase
           .from('animals')
-          .select('id, animal_id, name, type, subtype, photo_url, registration_date, is_active, status, created_at')
+          .select('id, animal_id, name, type, subtype, photo_url, registration_date, is_active, status, created_at, muzzle_status')
           .eq('user_id', user.id)
           .eq('is_active', true)
           .order('created_at', { ascending: false })
@@ -362,11 +363,14 @@ interface CompactAnimalCardProps {
     photo_url?: string;
     registration_date?: string;
     created_at?: string;
+    muzzle_status?: 'pending' | 'registered' | 'failed';
   };
 }
 
 const CompactAnimalCard = ({ animal }: CompactAnimalCardProps) => {
   const navigate = useNavigate();
+  const hasMuzzleRegistered = animal.muzzle_status === 'registered';
+  const needsMuzzle = animal.muzzle_status === 'pending' || !animal.muzzle_status;
 
   const handleRecordMilk = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -390,8 +394,8 @@ const CompactAnimalCard = ({ animal }: CompactAnimalCardProps) => {
       data-testid="animal-card"
     >
       <div className="flex items-center gap-4 h-full">
-        {/* Photo */}
-        <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
+        {/* Photo with Muzzle Status Badge */}
+        <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden relative">
           {animal.photo_url ? (
             <img
               src={animal.photo_url}
@@ -401,6 +405,16 @@ const CompactAnimalCard = ({ animal }: CompactAnimalCardProps) => {
           ) : (
             <span className="text-2xl">🐄</span>
           )}
+          {/* Muzzle Status Badge */}
+          {hasMuzzleRegistered ? (
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center border-2 border-white">
+              <span className="text-white text-xs">✓</span>
+            </div>
+          ) : needsMuzzle ? (
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center border-2 border-white">
+              <span className="text-white text-xs">⚠</span>
+            </div>
+          ) : null}
         </div>
 
         {/* Info */}
@@ -424,6 +438,12 @@ const CompactAnimalCard = ({ animal }: CompactAnimalCardProps) => {
           <p className="text-xs text-gray-500 mt-1">
             {new Date(animal.registration_date || animal.created_at).toLocaleDateString()}
           </p>
+          {/* Muzzle Status Label */}
+          {!hasMuzzleRegistered && (
+            <p className="text-xs text-amber-600 mt-1 font-medium">
+              ⚠️ Needs muzzle registration
+            </p>
+          )}
         </div>
 
         {/* Action Buttons */}
