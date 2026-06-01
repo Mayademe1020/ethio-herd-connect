@@ -20,7 +20,7 @@ export const STORES = {
 
 export type StoreName = typeof STORES[keyof typeof STORES];
 
-interface CachedData<T = any> {
+interface CachedData<T = unknown> {
   id: string;
   data: T;
   timestamp: number;
@@ -28,11 +28,11 @@ interface CachedData<T = any> {
   synced?: boolean;
 }
 
-interface SyncQueueItem {
+export interface SyncQueueItem {
   id: string;
   type: 'create' | 'update' | 'delete';
   table: StoreName;
-  data: any;
+  data: unknown;
   timestamp: number;
   retryCount: number;
   userId: string;
@@ -116,7 +116,7 @@ export const cacheData = async <T>(
 
     for (const item of data) {
       const cachedItem: CachedData<T> = {
-        id: (item as any).id || `${Date.now()}-${Math.random()}`,
+        id: (item as { id?: string }).id || `${Date.now()}-${Math.random()}`,
         data: item,
         timestamp,
         userId,
@@ -260,7 +260,7 @@ export const clearCachedData = async (
 export const addToSyncQueue = async (
   type: 'create' | 'update' | 'delete',
   table: StoreName,
-  data: any,
+  data: unknown,
   userId: string
 ): Promise<string> => {
   try {
@@ -401,7 +401,7 @@ export const updateSyncQueueRetryCount = async (
 /**
  * Get metadata value
  */
-export const getMetadata = async (key: string): Promise<any> => {
+export const getMetadata = async (key: string): Promise<unknown> => {
   try {
     const db = await initDB();
     const transaction = db.transaction([STORES.METADATA], 'readonly');
@@ -409,7 +409,7 @@ export const getMetadata = async (key: string): Promise<any> => {
 
     const request = store.get(key);
 
-    const result = await new Promise<any>((resolve, reject) => {
+    const result = await new Promise<unknown>((resolve, reject) => {
       request.onsuccess = () => resolve(request.result?.value);
       request.onerror = () => {
         logger.error('Failed to get metadata', request.error);
@@ -429,7 +429,7 @@ export const getMetadata = async (key: string): Promise<any> => {
 /**
  * Set metadata value
  */
-export const setMetadata = async (key: string, value: any): Promise<void> => {
+export const setMetadata = async (key: string, value: unknown): Promise<void> => {
   try {
     const db = await initDB();
     const transaction = db.transaction([STORES.METADATA], 'readwrite');

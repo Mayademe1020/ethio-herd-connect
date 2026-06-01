@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContextMVP';
 import { EnhancedHeader } from '@/components/EnhancedHeader';
 import BottomNavigation from '@/components/BottomNavigation';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, MapPin, DollarSign, ShoppingCart, Plus, Verified, Heart } from 'lucide-react';
+import { MarketListing } from '@/types/marketplace';
 
 // PublicMarketplaceEnhanced component
 const PublicMarketplaceEnhanced = () => {
@@ -167,7 +168,7 @@ const PublicMarketplaceEnhanced = () => {
     return '🐄'; // Default icon - can be enhanced
   };
 
-  const MarketListingCard = ({ listing }: { listing: any }) => (
+  const MarketListingCard = ({ listing }: { listing: MarketListing }) => (
     <Card className="mb-4 hover:shadow-lg transition-shadow cursor-pointer">
       <CardContent className="p-0">
         {/* Optimized image with lazy loading */}

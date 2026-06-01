@@ -1,18 +1,20 @@
 import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContextMVP';
+import { toast } from 'sonner';
+import type { MarketListing } from '@/types/marketplace';
+
+type MarketListingUpdates = Partial<Omit<MarketListing, 'id' | 'user_id' | 'created_at'>>;
 
 export const useMarketListingManagement = () => {
   const { user } = useAuth();
-  const { toast } = useToast();
   const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
 
   // Update listing mutation
   const updateListingMutation = useMutation({
-    mutationFn: async ({ listingId, updates }: { listingId: string; updates: any }) => {
+    mutationFn: async ({ listingId, updates }: { listingId: string; updates: MarketListingUpdates }) => {
       if (!user) throw new Error('User not authenticated');
 
       const { data, error } = await supabase
@@ -29,16 +31,13 @@ export const useMarketListingManagement = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['market-listings'] });
       queryClient.invalidateQueries({ queryKey: ['public-marketplace'] });
-      toast({
-        title: 'Success',
+      toast.success('Success', {
         description: 'Listing updated successfully',
       });
     },
-    onError: (error: any) => {
-      toast({
-        title: 'Error',
+    onError: (error: Error) => {
+      toast.error('Error', {
         description: error.message || 'Failed to update listing',
-        variant: 'destructive',
       });
     },
   });
@@ -59,16 +58,13 @@ export const useMarketListingManagement = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['market-listings'] });
       queryClient.invalidateQueries({ queryKey: ['public-marketplace'] });
-      toast({
-        title: 'Success',
+      toast.success('Success', {
         description: 'Listing deleted successfully',
       });
     },
-    onError: (error: any) => {
-      toast({
-        title: 'Error',
+    onError: (error: Error) => {
+      toast.error('Error', {
         description: error.message || 'Failed to delete listing',
-        variant: 'destructive',
       });
     },
   });

@@ -1,0 +1,604 @@
+﻿node.exe : npm info using npm@10.9.2
+At D:\Program Files\nodejs\npx.ps1:29 char:3
++   & $NODE_EXE $NPX_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (npm info using npm@10.9.2:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+npm info using node@v22.17.0
+
+[1m[46m RUN [49m[22m [36mv3.2.4 [39m[90mD:/ethio-herd-connect[39m
+
+[90mstdout[2m | src/__tests__/localization.comprehensive.test.tsx
+[22m[39m[Analytics] Service initialized (disabled)
+
+[90mstdout[2m | src/__tests__/localization.comprehensive.test.tsx[2m > [22m[2mComprehensive Localization Testing[2m > [22m[2mLanguage Switching[2m > [22m[2mshould display language setting section on Profile page
+[22m[39m[Auth] No existing session
+
+ [31mΓ¥»[39m src/__tests__/localization.comprehensive.test.tsx [2m([22m[2m28 tests[22m[2m | [22m[31m1 failed[39m[2m | [22m[33m27 skipped[39m[2m)[22m[33m 1186[2mms[22m[39m
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mTranslation Coverage[2m > [22mshould have matching keys in English and Amharic translations
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mTranslation Coverage[2m > [22mshould have non-empty translations for all keys
+[31m   [31m├ù[31m Comprehensive Localization Testing[2m > [22mLanguage Switching[2m > [22mshould display language setting section on Profile page[39m[33m 1182[2mms[22m[39m
+[31m     ΓåÆ Unable to find an element with the text: /language|ßëïßèòßëï/i. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[31m
+  [36m<div>[31m
+    [36m<div[31m
+      [33mclass[31m=[32m"min-h-screen bg-gray-50 flex items-center justify-center p-4"[31m
+    [36m>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"rounded-lg border bg-card text-card-foreground shadow-sm max-w-md w-full"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"p-6 text-center py-8"[31m
+        [36m>[31m
+          [36m<svg[31m
+            [33mclass[31m=[32m"lucide lucide-circle-alert w-12 h-12 text-red-500 mx-auto mb-4"[31m
+            [33mfill[31m=[32m"none"[31m
+            [33mheight[31m=[32m"24"[31m
+            [33mstroke[31m=[32m"currentColor"[31m
+            [33mstroke-linecap[31m=[32m"round"[31m
+            [33mstroke-linejoin[31m=[32m"round"[31m
+            [33mstroke-width[31m=[32m"2"[31m
+            [33mviewBox[31m=[32m"0 0 24 24"[31m
+            [33mwidth[31m=[32m"24"[31m
+            [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+          [36m>[31m
+            [36m<circle[31m
+              [33mcx[31m=[32m"12"[31m
+              [33mcy[31m=[32m"12"[31m
+              [33mr[31m=[32m"10"[31m
+            [36m/>[31m
+            [36m<line[31m
+              [33mx1[31m=[32m"12"[31m
+              [33mx2[31m=[32m"12"[31m
+              [33my1[31m=[32m"8"[31m
+              [33my2[31m=[32m"12"[31m
+            [36m/>[31m
+            [36m<line[31m
+              [33mx1[31m=[32m"12"[31m
+              [33mx2[31m=[32m"12.01"[31m
+              [33my1[31m=[32m"16"[31m
+              [33my2[31m=[32m"16"[31m
+            [36m/>[31m
+          [36m</svg>[31m
+          [36m<h2[31m
+            [33mclass[31m=[32m"text-xl font-bold mb-2"[31m
+            [33mdata-testid[31m=[32m"error-title"[31m
+          [36m>[31m
+            [0mßêÿßîêßêêßî½ ßêÿßî½ßèò ßèáßêìßë░ßë╗ßêêßê¥[0m
+          [36m</h2>[31m
+          [36m<p[31m
+            [33mclass[31m=[32m"text-gray-600 mb-4"[31m
+          [36m>[31m
+            [0mßèÑßëúßè¡ßïÄ ßîìßèòßèÖßèÉßë╡ßïÄßèò ßï½ßê¿ßîïßîìßîí ßèÑßèô ßèÑßèòßï░ßîêßèô ßï¡ßê₧ßè¡ßê⌐[0m
+          [36m</p>[31m
+          [36m<button[31m
+            [33maria-label[31m=[32m"ßèÑßèòßï░ßîêßèô ßï¡ßê₧ßè¡ßê⌐"[31m
+            [33mclass[31m=[32m"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-95 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background/50 backdrop-blur-sm shadow-sm hover:bg-accent hover:text-accent-foreground hover:shadow-md h-10 px-4 py-2"[31m
+            [33mtitle[31m=[32m"ßèÑßèòßï░ßîêßèô ßï¡ßê₧ßè¡ßê⌐"[31m
+          [36m>[31m
+            [0mßèÑßèòßï░ßîêßèô ßï¡ßê₧ßè¡ßê⌐[0m
+          [36m</button>[31m
+        [36m</div>[31m
+      [36m</div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-xl z-50"[31m
+        [33mstyle[31m=[32m"height: 72px; padding-top: 8px; padding-left: 8px; padding-right: 8px;"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"flex justify-around items-center h-full max-w-md mx-auto"[31m
+        [36m>[31m
+          [36m<button[31m
+            [33maria-current[31m=[32m"page"[31m
+            [33maria-label[31m=[32m"Home"[31m
+            [33mclass[31m=[32m"justify-center whitespace-nowrap font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-95 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground hover:shadow-sm h-8 text-xs flex flex-col items-center gap-1 py-2 px-3 touch-target-large text-emerald-600 bg-emerald-50 rounded-xl"[31m
+            [33mstyle[31m=[32m"min-width: 48px; min-height: 48px;"[31m
+            [33mtitle[31m=[32m"Home"[31m
+          [36m>[31m
+            [36m<div[31m
+              [33mclass[31m=[32m"relative"[31m
+            [36m>[31m
+              [36m<svg[31m
+                [33mclass[31m=[32m"lucide lucide-house w-6 h-6 transition-colors duration-200 text-emerald-600"[31m
+                [33mfill[31m=[32m"none"[31m
+                [33mheight[31m=[32m"24"[31m
+                [33mstroke[31m=[32m"currentColor"[31m
+                [33mstroke-linecap[31m=[32m"round"[31m
+                [33mstroke-linejoin[31m=[32m"round"[31m
+                [33mstroke-width[31m=[32m"2"[31m
+                [33mviewBox[31m=[32m"0 0 24 24"[31m
+                [33mwidth[31m=[32m"24"[31m
+                [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+              [36m>[31m
+                [36m<path[31m
+                  [33md[31m=[32m"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"[31m
+                [36m/>[31m
+                [36m<path[31m
+                  [33md[31m=[32m"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"[31m
+                [36m/>[31m
+              [36m</svg>[31m
+              [36m<div[31m
+                [33mclass[31m=[32m"absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 rounded-full bg-emerald-600"[31m
+              [36m/>[31m
+            [36m</div>[31m
+            [36m<span[31m
+              [33mclass[31m=[32m"text-xs font-medium transition-colors duration-200 text-emerald-600"[31m
+            [36m>[31m
+              [0mHome[0m
+            [36m</span>[31m
+          [36m</button>[31m
+          [36m<button[31m
+            [33maria-label[31m=[32m"Animals"[31m
+            [33mclass[31m=[32m"justify-center whitespace-nowrap font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-95 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground hover:shadow-sm h-8 rounded-md text-xs flex flex-col items-center gap-1 py-2 px-3 touch-target-large text-gray-600"[31m
+            [33mstyle[31m=[32m"min-width: 48px; min-height: 48px;"[31m
+            [33mtitle[31m=[32m"Animals"[31m
+          [36m>[31m
+            [36m<div[31m
+              [33mclass[31m=[32m"relative"[31m
+            [36m>[31m
+              [36m<svg[31m
+                [33mclass[31m=[32m"lucide lucide-beef w-6 h-6 transition-colors duration-200 text-gray-400"[31m
+                [33mfill[31m=[32m"none"[31m
+                [33mheight[31m=[32m"24"[31m
+                [33mstroke[31m=[32m"currentColor"[31m
+                [33mstroke-linecap[31m=[32m"round"[31m
+                [33mstroke-linejoin[31m=[32m"round"[31m
+                [33mstroke-width[31m=[32m"2"[...
+
+Ignored nodes: comments, script, style
+[36m<html[31m
+  [33mlang[31m=[32m"am"[31m
+[36m>[31m
+  [36m<head />[31m
+  [36m<body>[31m
+    [36m<div>[31m
+      [36m<div[31m
+        [33mclass[31m=[32m"min-h-screen bg-gray-50 flex items-center justify-center p-4"[31m
+      [36m>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"rounded-lg border bg-card text-card-foreground shadow-sm max-w-md w-full"[31m
+        [36m>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"p-6 text-center py-8"[31m
+          [36m>[31m
+            [36m<svg[31m
+              [33mclass[31m=[32m"lucide lucide-circle-alert w-12 h-12 text-red-500 mx-auto mb-4"[31m
+              [33mfill[31m=[32m"none"[31m
+              [33mheight[31m=[32m"24"[31m
+              [33mstroke[31m=[32m"currentColor"[31m
+              [33mstroke-linecap[31m=[32m"round"[31m
+              [33mstroke-linejoin[31m=[32m"round"[31m
+              [33mstroke-width[31m=[32m"2"[31m
+              [33mviewBox[31m=[32m"0 0 24 24"[31m
+              [33mwidth[31m=[32m"24"[31m
+              [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+            [36m>[31m
+              [36m<circle[31m
+                [33mcx[31m=[32m"12"[31m
+                [33mcy[31m=[32m"12"[31m
+                [33mr[31m=[32m"10"[31m
+              [36m/>[31m
+              [36m<line[31m
+                [33mx1[31m=[32m"12"[31m
+                [33mx2[31m=[32m"12"[31m
+                [33my1[31m=[32m"8"[31m
+                [33my2[31m=[32m"12"[31m
+              [36m/>[31m
+              [36m<line[31m
+                [33mx1[31m=[32m"12"[31m
+                [33mx2[31m=[32m"12.01"[31m
+                [33my1[31m=[32m"16"[31m
+                [33my2[31m=[32m"16"[31m
+              [36m/>[31m
+            [36m</svg>[31m
+            [36m<h2[31m
+              [33mclass[31m=[32m"text-xl font-bold mb-2"[31m
+              [33mdata-testid[31m=[32m"error-title"[31m
+            [36m>[31m
+              [0mßêÿßîêßêêßî½ ßêÿßî½ßèò ßèáßêìßë░ßë╗ßêêßê¥[0m
+            [36m</h2>[31m
+            [36m<p[31m
+              [33mclass[31m=[32m"text-gray-600 mb-4"[31m
+            [36m>[31m
+              [0mßèÑßëúßè¡ßïÄ ßîìßèòßèÖßèÉßë╡ßïÄßèò ßï½ßê¿ßîïßîìßîí ßèÑßèô ßèÑßèòßï░ßîêßèô ßï¡ßê₧ßè¡ßê⌐[0m
+            [36m</p>[31m
+            [36m<button[31m
+              [33maria-label[31m=[32m"ßèÑßèòßï░ßîêßèô ßï¡ßê₧ßè¡ßê⌐"[31m
+              [33mclass[31m=[32m"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-95 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background/50 backdrop-blur-sm shadow-sm hover:bg-accent hover:text-accent-foreground hover:shadow-md h-10 px-4 py-2"[31m
+              [33mtitle[31m=[32m"ßèÑßèòßï░ßîêßèô ßï¡ßê₧ßè¡ßê⌐"[31m
+            [36m>[31m
+              [0mßèÑßèòßï░ßîêßèô ßï¡ßê₧ßè¡ßê⌐[0m
+            [36m</button>[31m
+          [36m</div>[31m
+        [36m</div>[31m
+        [36m<div[31m
+          [33mclass[31m=[32m"fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-xl z-50"[31m
+          [33mstyle[31m=[32m"height: 72px; padding-top: 8px; padding-left: 8px; padding-right: 8px;"[31m
+        [36m>[31m
+          [36m<div[31m
+            [33mclass[31m=[32m"flex justify-around items-center h-full max-w-md mx-auto"[31m
+          [36m>[31m
+            [36m<button[31m
+              [33maria-current[31m=[32m"page"[31m
+              [33maria-label[31m=[32m"Home"[31m
+              [33mclass[31m=[32m"justify-center whitespace-nowrap font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-95 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground hover:shadow-sm h-8 text-xs flex flex-col items-center gap-1 py-2 px-3 touch-target-large text-emerald-600 bg-emerald-50 rounded-xl"[31m
+              [33mstyle[31m=[32m"min-width: 48px; min-height: 48px;"[31m
+              [33mtitle[31m=[32m"Home"[31m
+            [36m>[31m
+              [36m<div[31m
+                [33mclass[31m=[32m"relative"[31m
+              [36m>[31m
+                [36m<svg[31m
+                  [33mclass[31m=[32m"lucide lucide-house w-6 h-6 transition-colors duration-200 text-emerald-600"[31m
+                  [33mfill[31m=[32m"none"[31m
+                  [33mheight[31m=[32m"24"[31m
+                  [33mstroke[31m=[32m"currentColor"[31m
+                  [33mstroke-linecap[31m=[32m"round"[31m
+                  [33mstroke-linejoin[31m=[32m"round"[31m
+                  [33mstroke-width[31m=[32m"2"[31m
+                  [33mviewBox[31m=[32m"0 0 24 24"[31m
+                  [33mwidth[31m=[32m"24"[31m
+                  [33mxmlns[31m=[32m"http://www.w3.org/2000/svg"[31m
+                [36m>[31m
+                  [36m<path[31m
+                    [33md[31m=[32m"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"[31m
+                  [36m/>[31m
+                  [36m<path[31m
+                    [33md[31m=[32m"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"[31m
+                  [36m/>[31m
+                [36m</svg>[31m
+                [36m<div[31m
+                  [33mclass[31m=[32m"absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 rounded-full bg-emerald-600"[31m
+                [36m/>[31m
+              [36m</div>[31m
+              [36m<span[31m
+                [33mclass[31m=[32m"text-xs font-medium transition-colors duration-200 text-emerald-600"[31m
+              [36m>[31m
+                [0mHome[0m
+              [36m</span>[31m
+            [36m</button>[31m
+            [36m<button[31m
+              [33maria-label[31m=[32m"Animals"[31m
+              [33mclass[31m=[32m"justify-center whitespace-nowrap font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-95 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground hover:shadow-sm h-8 rounded-md text-xs flex flex-col items-center gap-1 py-2 px-3 touch-target-large text-gray-600"[31m
+              [33mstyle[31m=[32m"min-width: 48px; min-height: 48px;"[31m
+              [33mtitle[31m=[32m"Animals"[31m
+            [36m>[31m
+              [36m<div[31m
+                [33mclass[31m=[32m"relative"[31m
+              [36m>[31m
+                [36m<svg[31m
+                  [33mclass[31m=[32m"lucide lucide-beef w-6 h-6 transition-colors duration-200 text-gray-400"[31m
+     ...[39m
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mLanguage Switching[2m > [22mshould persist language preference across page reloads
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mLanguage Switching[2m > [22mshould default to Amharic for new users
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mPage-by-Page Localization[2m > [22mLogin Page[2m > [22mshould display in Amharic
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mPage-by-Page Localization[2m > [22mLogin Page[2m > [22mshould display in English
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mPage-by-Page Localization[2m > [22mHome Dashboard[2m > [22mshould display quick actions in Amharic
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mPage-by-Page Localization[2m > [22mHome Dashboard[2m > [22mshould display quick actions in English
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mPage-by-Page Localization[2m > [22mAnimal Registration[2m > [22mshould display animal types in Amharic
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mPage-by-Page Localization[2m > [22mAnimal Registration[2m > [22mshould display animal types in English
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mPage-by-Page Localization[2m > [22mMilk Recording[2m > [22mshould display milk amounts in Amharic
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mPage-by-Page Localization[2m > [22mMilk Recording[2m > [22mshould display milk amounts in English
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mError Messages Localization[2m > [22mshould display network error in Amharic
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mError Messages Localization[2m > [22mshould display network error in English
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mError Messages Localization[2m > [22mshould display auth error in Amharic
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mLayout Stability with Amharic Text[2m > [22mshould not break layout with long Amharic text in buttons
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mLayout Stability with Amharic Text[2m > [22mshould maintain proper spacing with Amharic labels
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mLayout Stability with Amharic Text[2m > [22mshould handle Amharic text in form inputs
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mSync Status Indicator Localization[2m > [22mshould display sync status in Amharic
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mSync Status Indicator Localization[2m > [22mshould display sync status in English
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mDynamic Content Localization[2m > [22mshould localize relative time strings
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mDynamic Content Localization[2m > [22mshould localize number formatting
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mPlaceholder Text Localization[2m > [22mshould localize input placeholders in Amharic
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mButton Labels Localization[2m > [22mshould localize all button labels in Amharic
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mNavigation Labels Localization[2m > [22mshould localize navigation items in Amharic
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mEmpty State Messages Localization[2m > [22mshould localize empty state in Amharic
+   [2m[90mΓåô[39m[22m Comprehensive Localization Testing[2m > [22mEmpty State Messages Localization[2m > [22mshould localize empty state in English
+
+[31mΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[39m[1m[41m Failed Tests 1 [49m[22m[31mΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/localization.comprehensive.test.tsx[2m > [22mComprehensive Localization 
+Testing[2m > [22mLanguage Switching[2m > [22mshould display language setting section on Profile page
+[31m[1mTestingLibraryElementError[22m[39m: Unable to find an element with the text: /language|ßëïßèòßëï/i. This 
+could be because the text is broken up by multiple elements. In this case, you can provide a function for your text 
+matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"min-h-screen bg-gray-50 flex items-center justify-center p-4"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"rounded-lg border bg-card text-card-foreground shadow-sm max-w-md w-full"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"p-6 text-center py-8"[39m
+        [36m>[39m
+          [36m<svg[39m
+            [33mclass[39m=[32m"lucide lucide-circle-alert w-12 h-12 text-red-500 mx-auto mb-4"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"24"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"24"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<circle[39m
+              [33mcx[39m=[32m"12"[39m
+              [33mcy[39m=[32m"12"[39m
+              [33mr[39m=[32m"10"[39m
+            [36m/>[39m
+            [36m<line[39m
+              [33mx1[39m=[32m"12"[39m
+              [33mx2[39m=[32m"12"[39m
+              [33my1[39m=[32m"8"[39m
+              [33my2[39m=[32m"12"[39m
+            [36m/>[39m
+            [36m<line[39m
+              [33mx1[39m=[32m"12"[39m
+              [33mx2[39m=[32m"12.01"[39m
+              [33my1[39m=[32m"16"[39m
+              [33my2[39m=[32m"16"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+          [36m<h2[39m
+            [33mclass[39m=[32m"text-xl font-bold mb-2"[39m
+            [33mdata-testid[39m=[32m"error-title"[39m
+          [36m>[39m
+            [0mßêÿßîêßêêßî½ ßêÿßî½ßèò ßèáßêìßë░ßë╗ßêêßê¥[0m
+          [36m</h2>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"text-gray-600 mb-4"[39m
+          [36m>[39m
+            [0mßèÑßëúßè¡ßïÄ ßîìßèòßèÖßèÉßë╡ßïÄßèò ßï½ßê¿ßîïßîìßîí ßèÑßèô ßèÑßèòßï░ßîêßèô ßï¡ßê₧ßè¡ßê⌐[0m
+          [36m</p>[39m
+          [36m<button[39m
+            [33maria-label[39m=[32m"ßèÑßèòßï░ßîêßèô ßï¡ßê₧ßè¡ßê⌐"[39m
+            [33mclass[39m=[32m"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm 
+font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring 
+focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-95 
+[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background/50 backdrop-blur-sm 
+shadow-sm hover:bg-accent hover:text-accent-foreground hover:shadow-md h-10 px-4 py-2"[39m
+            [33mtitle[39m=[32m"ßèÑßèòßï░ßîêßèô ßï¡ßê₧ßè¡ßê⌐"[39m
+          [36m>[39m
+            [0mßèÑßèòßï░ßîêßèô ßï¡ßê₧ßè¡ßê⌐[0m
+          [36m</button>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-xl z-50"[39m
+        [33mstyle[39m=[32m"height: 72px; padding-top: 8px; padding-left: 8px; padding-right: 8px;"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"flex justify-around items-center h-full max-w-md mx-auto"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33maria-current[39m=[32m"page"[39m
+            [33maria-label[39m=[32m"Home"[39m
+            [33mclass[39m=[32m"justify-center whitespace-nowrap font-medium transition-all duration-200 
+focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 
+disabled:pointer-events-none disabled:opacity-50 active:scale-95 [&_svg]:pointer-events-none [&_svg]:size-4 
+[&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground hover:shadow-sm h-8 text-xs flex flex-col items-center 
+gap-1 py-2 px-3 touch-target-large text-emerald-600 bg-emerald-50 rounded-xl"[39m
+            [33mstyle[39m=[32m"min-width: 48px; min-height: 48px;"[39m
+            [33mtitle[39m=[32m"Home"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"relative"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"lucide lucide-house w-6 h-6 transition-colors duration-200 text-emerald-600"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[39m
+                [33mviewBox[39m=[32m"0 0 24 24"[39m
+                [33mwidth[39m=[32m"24"[39m
+                [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+              [36m>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"[39m
+                [36m/>[39m
+                [36m<path[39m
+                  [33md[39m=[32m"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 
+0 0 1-2 2H5a2 2 0 0 1-2-2z"[39m
+                [36m/>[39m
+              [36m</svg>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 rounded-full 
+bg-emerald-600"[39m
+              [36m/>[39m
+            [36m</div>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"text-xs font-medium transition-colors duration-200 text-emerald-600"[39m
+            [36m>[39m
+              [0mHome[0m
+            [36m</span>[39m
+          [36m</button>[39m
+          [36m<button[39m
+            [33maria-label[39m=[32m"Animals"[39m
+            [33mclass[39m=[32m"justify-center whitespace-nowrap font-medium transition-all duration-200 
+focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 
+disabled:pointer-events-none disabled:opacity-50 active:scale-95 [&_svg]:pointer-events-none [&_svg]:size-4 
+[&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground hover:shadow-sm h-8 rounded-md text-xs flex flex-col 
+items-center gap-1 py-2 px-3 touch-target-large text-gray-600"[39m
+            [33mstyle[39m=[32m"min-width: 48px; min-height: 48px;"[39m
+            [33mtitle[39m=[32m"Animals"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"relative"[39m
+            [36m>[39m
+              [36m<svg[39m
+                [33mclass[39m=[32m"lucide lucide-beef w-6 h-6 transition-colors duration-200 text-gray-400"[39m
+                [33mfill[39m=[32m"none"[39m
+                [33mheight[39m=[32m"24"[39m
+                [33mstroke[39m=[32m"currentColor"[39m
+                [33mstroke-linecap[39m=[32m"round"[39m
+                [33mstroke-linejoin[39m=[32m"round"[39m
+                [33mstroke-width[39m=[32m"2"[...
+
+Ignored nodes: comments, script, style
+[36m<html[39m
+  [33mlang[39m=[32m"am"[39m
+[36m>[39m
+  [36m<head />[39m
+  [36m<body>[39m
+    [36m<div>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"min-h-screen bg-gray-50 flex items-center justify-center p-4"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"rounded-lg border bg-card text-card-foreground shadow-sm max-w-md w-full"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"p-6 text-center py-8"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33mclass[39m=[32m"lucide lucide-circle-alert w-12 h-12 text-red-500 mx-auto mb-4"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"24"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"24"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<circle[39m
+                [33mcx[39m=[32m"12"[39m
+                [33mcy[39m=[32m"12"[39m
+                [33mr[39m=[32m"10"[39m
+              [36m/>[39m
+              [36m<line[39m
+                [33mx1[39m=[32m"12"[39m
+                [33mx2[39m=[32m"12"[39m
+                [33my1[39m=[32m"8"[39m
+                [33my2[39m=[32m"12"[39m
+              [36m/>[39m
+              [36m<line[39m
+                [33mx1[39m=[32m"12"[39m
+                [33mx2[39m=[32m"12.01"[39m
+                [33my1[39m=[32m"16"[39m
+                [33my2[39m=[32m"16"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"text-xl font-bold mb-2"[39m
+              [33mdata-testid[39m=[32m"error-title"[39m
+            [36m>[39m
+              [0mßêÿßîêßêêßî½ ßêÿßî½ßèò ßèáßêìßë░ßë╗ßêêßê¥[0m
+            [36m</h2>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"text-gray-600 mb-4"[39m
+            [36m>[39m
+              [0mßèÑßëúßè¡ßïÄ ßîìßèòßèÖßèÉßë╡ßïÄßèò ßï½ßê¿ßîïßîìßîí ßèÑßèô ßèÑßèòßï░ßîêßèô ßï¡ßê₧ßè¡ßê⌐[0m
+            [36m</p>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"ßèÑßèòßï░ßîêßèô ßï¡ßê₧ßè¡ßê⌐"[39m
+              [33mclass[39m=[32m"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm 
+font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring 
+focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-95 
+[&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background/50 backdrop-blur-sm 
+shadow-sm hover:bg-accent hover:text-accent-foreground hover:shadow-md h-10 px-4 py-2"[39m
+              [33mtitle[39m=[32m"ßèÑßèòßï░ßîêßèô ßï¡ßê₧ßè¡ßê⌐"[39m
+            [36m>[39m
+              [0mßèÑßèòßï░ßîêßèô ßï¡ßê₧ßè¡ßê⌐[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-xl z-50"[39m
+          [33mstyle[39m=[32m"height: 72px; padding-top: 8px; padding-left: 8px; padding-right: 8px;"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"flex justify-around items-center h-full max-w-md mx-auto"[39m
+          [36m>[39m
+            [36m<button[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[33m27 skipped[39m[90m (28)[39m
+[2m   Start at [22m 02:49:43
+[2m   Duration [22m 6.18s[2m (transform 934ms, setup 162ms, collect 2.87s, tests 1.19s, environment 1.07s, prepare 123ms)[22m
+
+              [33maria-current[39m=[32m"page"[39m
+              [33maria-label[39m=[32m"Home"[39m
+              [33mclass[39m=[32m"justify-center whitespace-nowrap font-medium transition-all duration-200 
+focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 
+disabled:pointer-events-none disabled:opacity-50 active:scale-95 [&_svg]:pointer-events-none [&_svg]:size-4 
+[&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground hover:shadow-sm h-8 text-xs flex flex-col items-center 
+gap-1 py-2 px-3 touch-target-large text-emerald-600 bg-emerald-50 rounded-xl"[39m
+              [33mstyle[39m=[32m"min-width: 48px; min-height: 48px;"[39m
+              [33mtitle[39m=[32m"Home"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"relative"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33mclass[39m=[32m"lucide lucide-house w-6 h-6 transition-colors duration-200 
+text-emerald-600"[39m
+                  [33mfill[39m=[32m"none"[39m
+                  [33mheight[39m=[32m"24"[39m
+                  [33mstroke[39m=[32m"currentColor"[39m
+                  [33mstroke-linecap[39m=[32m"round"[39m
+                  [33mstroke-linejoin[39m=[32m"round"[39m
+                  [33mstroke-width[39m=[32m"2"[39m
+                  [33mviewBox[39m=[32m"0 0 24 24"[39m
+                  [33mwidth[39m=[32m"24"[39m
+                  [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+                [36m>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"[39m
+                  [36m/>[39m
+                  [36m<path[39m
+                    [33md[39m=[32m"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 
+2 0 0 1-2 2H5a2 2 0 0 1-2-2z"[39m
+                  [36m/>[39m
+                [36m</svg>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 rounded-full 
+bg-emerald-600"[39m
+                [36m/>[39m
+              [36m</div>[39m
+              [36m<span[39m
+                [33mclass[39m=[32m"text-xs font-medium transition-colors duration-200 text-emerald-600"[39m
+              [36m>[39m
+                [0mHome[0m
+              [36m</span>[39m
+            [36m</button>[39m
+            [36m<button[39m
+              [33maria-label[39m=[32m"Animals"[39m
+              [33mclass[39m=[32m"justify-center whitespace-nowrap font-medium transition-all duration-200 
+focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 
+disabled:pointer-events-none disabled:opacity-50 active:scale-95 [&_svg]:pointer-events-none [&_svg]:size-4 
+[&_svg]:shrink-0 hover:bg-accent hover:text-accent-foreground hover:shadow-sm h-8 rounded-md text-xs flex flex-col 
+items-center gap-1 py-2 px-3 touch-target-large text-gray-600"[39m
+              [33mstyle[39m=[32m"min-width: 48px; min-height: 48px;"[39m
+              [33mtitle[39m=[32m"Animals"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"relative"[39m
+              [36m>[39m
+                [36m<svg[39m
+                  [33mclass[39m=[32m"lucide lucide-beef w-6 h-6 transition-colors duration-200 text-gray-400"[39m
+     ...
+[90m [2mΓ¥»[22m Proxy.waitFor node_modules/@testing-library/dom/dist/wait-for.js:[2m163:27[22m[39m
+[36m [2mΓ¥»[22m src/__tests__/localization.comprehensive.test.tsx:[2m200:13[22m[39m
+    [90m198| [39m
+    [90m199| [39m      [90m// Verify the language section is rendered[39m
+    [90m200| [39m      [35mawait[39m [34mwaitFor[39m(() [33m=>[39m {
+    [90m   | [39m            [31m^[39m
+    [90m201| [39m        [34mexpect[39m(screen[33m.[39m[34mgetByText[39m([36m/language|ßëïßèòßëï/i[39m))[33m
+.[39m[34mtoBeInTheDocument[39m()[33m;[39m
+    [90m202| [39m      })[33m;[39m
+
+[31m[2mΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[1/1]ΓÄ»[22m[39m
+

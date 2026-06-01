@@ -4,6 +4,17 @@
 import { supabase } from '@/integrations/supabase/client';
 import { MilkProduction, DailyMilkStats, MilkSummaryRecord } from '@/types/milk';
 
+interface MilkRecord {
+  liters: number;
+  recorded_at?: string;
+  session?: string | null;
+  animals?: { name?: string | null } | { name?: string | null }[] | null;
+  id?: string;
+  user_id?: string;
+  animal_id?: string;
+  created_at?: string;
+}
+
 export const milkQueries = {
   /**
    * Get daily milk stats (today and yesterday totals)
@@ -44,8 +55,8 @@ export const milkQueries = {
       throw yesterdayError;
     }
 
-    const todayTotal = (todayData || []).reduce((sum, record: any) => sum + (record.liters || 0), 0);
-    const yesterdayTotal = (yesterdayData || []).reduce((sum, record: any) => sum + (record.liters || 0), 0);
+    const todayTotal = (todayData || []).reduce((sum, record: MilkRecord) => sum + (record.liters || 0), 0);
+    const yesterdayTotal = (yesterdayData || []).reduce((sum, record: MilkRecord) => sum + (record.liters || 0), 0);
 
     return {
       today_liters: todayTotal,
@@ -84,7 +95,7 @@ export const milkQueries = {
       throw error;
     }
 
-    return (data || []).map((record: any) => ({
+    return (data || []).map((record: MilkRecord) => ({
       date: new Date(record.recorded_at).toISOString().split('T')[0],
       animal_name: record.animals?.name || 'Unknown Animal',
       liters: record.liters || 0,
@@ -115,10 +126,10 @@ export const milkQueries = {
       throw error;
     }
 
-    return (data || []).map((record: any) => ({
+    return (data || []).map((record: MilkRecord) => ({
       ...record,
       session: (record.session || 'morning') as 'morning' | 'evening'
-    }));
+    } as MilkProduction));
   },
 
   /**
@@ -141,6 +152,6 @@ export const milkQueries = {
       throw error;
     }
 
-    return (data || []).reduce((sum, record: any) => sum + (record.liters || 0), 0);
+    return (data || []).reduce((sum, record: MilkRecord) => sum + (record.liters || 0), 0);
   }
 };

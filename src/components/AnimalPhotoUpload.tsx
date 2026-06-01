@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Camera, Upload, X, Image, AlertTriangle } from 'lucide-react';
 import { optimizeForPreview, optimizeForOfflineStorage, blobToBase64, IMAGE_SIZE_LIMITS, formatFileSize, getImageDimensions, exceedsMegapixelLimit, resizeToMegapixelLimit } from '@/utils/imageOptimization';
-import { useToastNotifications } from '@/hooks/useToastNotifications';
+import { toast } from 'sonner';
 import { useTranslations } from '@/hooks/useTranslations';
 import { supabase } from '@/integrations/supabase/client';
 import { logger } from '@/utils/logger';
@@ -32,7 +32,6 @@ export const AnimalPhotoUpload: React.FC<AnimalPhotoUploadProps> = ({
   const [compressionStartTime, setCompressionStartTime] = useState<number>(0);
   const [originalMegapixels, setOriginalMegapixels] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { showError, showInfo } = useToastNotifications();
   const { t } = useTranslations();
 
   // Track compression analytics
@@ -63,8 +62,7 @@ export const AnimalPhotoUpload: React.FC<AnimalPhotoUploadProps> = ({
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      showError(
-        t('Invalid file'),
+      toast.error(
         t('Please select an image file (JPEG, PNG)')
       );
       return;
@@ -79,8 +77,7 @@ export const AnimalPhotoUpload: React.FC<AnimalPhotoUploadProps> = ({
 
     // Validate file size (max 20MB to allow large Ethiopian photos)
     if (file.size > 20 * 1024 * 1024) {
-      showError(
-        t('File too large'),
+      toast.error(
         t('Image must be less than 20MB')
       );
       return;
@@ -115,8 +112,7 @@ export const AnimalPhotoUpload: React.FC<AnimalPhotoUploadProps> = ({
       });
 
       // Show info about optimization
-      showInfo(
-        t('Optimizing image'),
+      toast.info(
         t('Resizing and compressing for better performance')
       );
 
@@ -175,8 +171,7 @@ export const AnimalPhotoUpload: React.FC<AnimalPhotoUploadProps> = ({
       });
     } catch (error) {
       console.error('Error processing image:', error);
-      showError(
-        t('Image processing failed'),
+      toast.error(
         t('Please try again with a different image')
       );
 
@@ -224,6 +219,7 @@ export const AnimalPhotoUpload: React.FC<AnimalPhotoUploadProps> = ({
                 alt={t('animals.preview')}
                 className="w-full h-48 object-cover rounded-lg"
                 loading="lazy"
+                decoding="async"
                 width={IMAGE_SIZE_LIMITS.PREVIEW.width}
                 height={IMAGE_SIZE_LIMITS.PREVIEW.height}
               />

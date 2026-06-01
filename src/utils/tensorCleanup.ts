@@ -39,14 +39,15 @@ const tensorDisposalLog: Set<string> = new Set();
 /**
  * Enhanced tensor disposal with memory tracking
  */
-export function disposeTensor(tensor: any, name?: string): void {
+export function disposeTensor(tensor: unknown, name?: string): void {
   if (!tensor) return;
-  
+
   try {
     // Check if tensor has dispose method
-    if (typeof tensor.dispose === 'function') {
-      tensor.dispose();
-      
+    const disposable = tensor as { dispose?: () => void };
+    if (typeof disposable.dispose === 'function') {
+      disposable.dispose();
+
       if (name) {
         tensorDisposalLog.add(name);
         // Keep only last 100 logs
@@ -64,7 +65,7 @@ export function disposeTensor(tensor: any, name?: string): void {
 /**
  * Dispose multiple tensors at once
  */
-export function disposeTensors(tensors: (any | null | undefined)[]): void {
+export function disposeTensors(tensors: (unknown | null | undefined)[]): void {
   for (const tensor of tensors) {
     if (tensor) {
       disposeTensor(tensor);
@@ -78,14 +79,14 @@ export function disposeTensors(tensors: (any | null | undefined)[]): void {
 export function withTensorScope<T>(
   callback: (dispose: typeof disposeTensors) => T
 ): T {
-  const tensors: any[] = [];
-  
+  const tensors: unknown[] = [];
+
   const trackedTensor = <T extends any>(tensor: T): T => {
     tensors.push(tensor);
     return tensor;
   };
-  
-  const dispose = (ts?: any[]) => {
+
+  const dispose = (ts?: unknown[]) => {
     if (ts) {
       disposeTensors(ts);
     } else {

@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContextMVP';
 import { BackButton } from '@/components/BackButton';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -36,7 +36,8 @@ const MilkSummary = () => {
         return [];
       }
     },
-    enabled: !!user
+    enabled: !!user,
+    staleTime: 30000,
   });
 
   // Calculate totals - FIXED: using liters field

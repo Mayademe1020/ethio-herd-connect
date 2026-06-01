@@ -42,21 +42,34 @@ const defaultConfig: ErrorHandlerConfig = {
  * Creates a standardized error object
  */
 export function createError(
-  error: any,
+  error: unknown,
   severity: ErrorSeverity = 'error',
   config: Partial<ErrorHandlerConfig> = {}
 ): AppError {
   const mergedConfig = { ...defaultConfig, ...config };
   const userFriendly = getUserFriendlyError(error, mergedConfig.language);
   const englishVersion = getUserFriendlyError(error, 'english');
-  
+
+  const technicalDetails =
+    error instanceof Error
+      ? error.message
+      : typeof error === 'string'
+        ? error
+        : (() => {
+            try {
+              return JSON.stringify(error);
+            } catch {
+              return String(error);
+            }
+          })();
+
   return {
     type: userFriendly.type,
     message: englishVersion.message,
     amharicMessage: userFriendly.message,
     icon: userFriendly.icon,
     severity,
-    technicalDetails: error?.message || error?.toString(),
+    technicalDetails,
     timestamp: new Date(),
     shouldRetry: mergedConfig.retryableErrors.includes(userFriendly.type),
     shouldReport: severity === 'error' || severity === 'critical',
@@ -136,24 +149,24 @@ export function logError(error: AppError, source: string, config: Partial<ErrorH
  * }
  */
 export function handleError(
-  error: any,
+  error: unknown,
   source: string,
   severity: ErrorSeverity = 'error',
   config: Partial<ErrorHandlerConfig> = {}
 ): AppError {
   const appError = createError(error, severity, config);
-  
+
   // Display to user
   displayError(appError, config);
-  
+
   // Log to console
   logError(appError, source, config);
-  
+
   // Report to analytics/monitoring if needed
   if (appError.shouldReport && config.reportErrors !== false) {
     reportError(appError, source);
   }
-  
+
   return appError;
 }
 
@@ -181,6 +194,7 @@ export async function handleAsync<T>(
     return await operation();
   } catch (error) {
     handleError(error, source, 'error');
+    void errorMessage;
     return null;
   }
 }
@@ -264,7 +278,7 @@ export async function handleBatch<T>(
 ): Promise<{ results: T[]; errors: AppError[] }> {
   const results: T[] = [];
   const errors: AppError[] = [];
-  
+
   for (let i = 0; i < operations.length; i++) {
     try {
       const result = await operations[i]();
@@ -274,7 +288,7 @@ export async function handleBatch<T>(
       errors.push(appError);
     }
   }
-  
+
   return { results, errors };
 }
 

@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { X, Plus, Loader2 } from 'lucide-react';
 import { Language, AnimalData } from '@/types';
-import { useToastNotifications } from '@/hooks/useToastNotifications';
+import { toast } from 'sonner';
 import { useTranslations } from '@/hooks/useTranslations';
 import { ANIMAL_TYPES, ANIMAL_TYPE_ICONS } from '@/utils/animalTypes';
 import { AnimalSchema } from '@/lib/animalValidators';
@@ -31,7 +31,6 @@ export const AnimalRegistrationForm = ({
   animal
 }: AnimalRegistrationFormProps) => {
   const [loading, setLoading] = useState(false);
-  const { showSuccess } = useToastNotifications();
   const { t, getAnimalTypeTranslation } = useTranslations();
 
   const form = useForm<z.infer<typeof AnimalSchema>>({

@@ -30,7 +30,7 @@ export const useFarmInvitationChecker = () => {
         // Check for pending invitations
         const { data: invitation } = await supabase
           .from('farm_invitations' as any)
-          .select('*')
+          .select('id, farm_id, phone, role, invited_by, expires_at, accepted_at, created_at')
           .eq('phone', phone)
           .is('accepted_at', null)
           .gt('expires_at', new Date().toISOString())

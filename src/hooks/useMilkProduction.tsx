@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useToastNotifications } from '@/hooks/useToastNotifications';
-import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContextMVP';
 
 export interface MilkProductionRecord {
   id: string;
@@ -22,7 +22,6 @@ export interface MilkProductionRecord {
 
 export const useMilkProduction = () => {
   const [loading, setLoading] = useState(false);
-  const { showSuccess, showError } = useToastNotifications();
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
@@ -33,14 +32,15 @@ export const useMilkProduction = () => {
       
       const { data, error } = await supabase
         .from('milk_production')
-        .select('*')
+        .select('id, user_id, animal_id, production_date, morning_yield, evening_yield, total_yield, quality_grade, fat_content, notes, created_at, updated_at')
         .eq('user_id', user.id)
         .order('production_date', { ascending: false });
       
       if (error) throw error;
       return data as MilkProductionRecord[];
     },
-    enabled: !!user
+    enabled: !!user,
+    staleTime: 30000,
   });
 
   const recordMilkProduction = useMutation({
@@ -69,10 +69,10 @@ export const useMilkProduction = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['milk-production'] });
-      showSuccess('Milk Production Recorded', 'Daily milk production has been recorded successfully.');
+      toast.success('Daily milk production has been recorded successfully.');
     },
-    onError: (error: any) => {
-      showError('Recording Failed', error.message || 'Failed to record milk production');
+    onError: (error: Error) => {
+      toast.error(error.message || 'Failed to record milk production');
     }
   });
 

@@ -4,6 +4,7 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { useTranslation } from '@/hooks/useTranslation';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import type { Notification } from '@/services/notificationService';
 
 export function NotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
@@ -34,15 +35,15 @@ export function NotificationDropdown() {
     }
   }, [isOpen]);
 
-  const handleNotificationClick = (notification: any) => {
+  const handleNotificationClick = (notification: Notification) => {
     // Mark as read
     if (!notification.is_read) {
       markAsRead(notification.id);
     }
 
     // Navigate based on notification type
-    if (notification.type === 'buyer_interest' && notification.data?.listing_id) {
-      navigate(`/listing/${notification.data.listing_id}`);
+    if (notification.type === 'buyer_interest' && notification.metadata?.listing_id) {
+      navigate(`/listing/${notification.metadata.listing_id}`);
     }
 
     setIsOpen(false);

@@ -175,3 +175,45 @@ export function getEthiopianMonthName(month: number, language: 'en' | 'am' = 'en
 export function getCurrentEthiopianDate(): EthiopianDate {
   return gregorianToEthiopian(new Date());
 }
+
+/**
+ * Ethiopian agricultural seasons
+ */
+export const ETHIOPIAN_SEASONS = {
+  en: [
+    { name: 'Harvest', nameAm: 'መኸር' },    // Meskerem, Tikimt, Hidar (months 1-3)
+    { name: 'Dry Season', nameAm: 'በጋ' },   // Tahsas, Tir, Yekatit (months 4-6)
+    { name: 'Spring', nameAm: 'ፀደይ' },     // Megabit, Miyazya, Ginbot (months 7-9)
+    { name: 'Rainy Season', nameAm: 'ክረምት' },  // Sene, Hamle, Nehase (months 10-12)
+    { name: 'Pagumen', nameAm: 'ጳጉሜን' },   // Pagumen (month 13)
+  ]
+};
+
+/**
+ * Get the Ethiopian agricultural season for a given month (1-13)
+ */
+export function getEthiopianSeason(month: number): { name: string; nameAm: string } {
+  if (month < 1 || month > 13) return { name: 'Unknown', nameAm: 'ያልታወቀ' };
+  const seasonIndex = month === 13 ? 4 : Math.floor((month - 1) / 3);
+  return ETHIOPIAN_SEASONS.en[seasonIndex];
+}
+
+/**
+ * Format current Ethiopian date with season for dashboard
+ */
+export function formatEthiopianDashboard(language: 'en' | 'am' = 'en'): string {
+  const now = new Date();
+  const ethDate = gregorianToEthiopian(now);
+  const season = getEthiopianSeason(ethDate.month);
+  const monthName = getEthiopianMonthName(ethDate.month, language);
+
+  const weekdays_en = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const weekdays_am = ['እሁድ', 'ሰኞ', 'ማክሰኞ', 'ረቡዕ', 'ሐሙስ', 'አርብ', 'ቅዳሜ'];
+  const weekdays = language === 'am' ? weekdays_am : weekdays_en;
+  const weekdayName = weekdays[now.getDay()];
+
+  if (language === 'am') {
+    return `${weekdayName}, ${monthName} ${ethDate.day} · ${season.nameAm}`;
+  }
+  return `${weekdayName}, ${monthName} ${ethDate.day} · ${season.name}`;
+}

@@ -1,0 +1,204 @@
+﻿node.exe : npm info using npm@10.9.2
+At D:\Program Files\nodejs\npx.ps1:29 char:3
++   & $NODE_EXE $NPX_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (npm info using npm@10.9.2:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+npm info using node@v22.17.0
+
+[1m[46m RUN [49m[22m [36mv3.2.4 [39m[90mD:/ethio-herd-connect[39m
+
+ [31mΓ¥»[39m src/__tests__/localization.test.ts [2m([22m[2m13 tests[22m[2m | [22m[31m9 failed[39m[2m)[22m[32m 26[2mms[22m[39m
+[31m   [31m├ù[31m Localization System[2m > [22mTranslation Hook[2m > [22mshould return translation for existing keys[39m[32m 6[2mms[22m[39m
+[31m     ΓåÆ Cannot find module '../hooks/useTranslations'
+Require stack:
+- D:\ethio-herd-connect\src\__tests__\localization.test.ts[39m
+[31m   [31m├ù[31m Localization System[2m > [22mTranslation Hook[2m > [22mshould fallback to English for missing translations[39m[32m 1[2mms[22m[39m
+[31m     ΓåÆ Cannot find module '../hooks/useTranslations'
+Require stack:
+- D:\ethio-herd-connect\src\__tests__\localization.test.ts[39m
+[31m   [31m├ù[31m Localization System[2m > [22mTranslation Hook[2m > [22mshould handle nested translation keys[39m[32m 1[2mms[22m[39m
+[31m     ΓåÆ Cannot find module '../hooks/useTranslations'
+Require stack:
+- D:\ethio-herd-connect\src\__tests__\localization.test.ts[39m
+[31m   [31m├ù[31m Localization System[2m > [22mTranslation Hook[2m > [22mshould translate animal types correctly[39m[32m 1[2mms[22m[39m
+[31m     ΓåÆ Cannot find module '../hooks/useTranslations'
+Require stack:
+- D:\ethio-herd-connect\src\__tests__\localization.test.ts[39m
+[31m   [31m├ù[31m Localization System[2m > [22mLanguage Context[2m > [22mshould provide language state[39m[32m 1[2mms[22m[39m
+[31m     ΓåÆ Cannot find module '../contexts/LanguageContext'
+Require stack:
+- D:\ethio-herd-connect\src\__tests__\localization.test.ts[39m
+[31m   [31m├ù[31m Localization System[2m > [22mLanguage Context[2m > [22mshould handle language switching[39m[32m 1[2mms[22m[39m
+[31m     ΓåÆ Cannot find module '../contexts/LanguageContext'
+Require stack:
+- D:\ethio-herd-connect\src\__tests__\localization.test.ts[39m
+   [32mΓ£ô[39m Localization System[2m > [22mTranslation Files[2m > [22mshould have consistent structure across languages[32m 4[2mms[22m[39m
+[31m   [31m├ù[31m Localization System[2m > [22mTranslation Files[2m > [22mshould contain Ethiopian-specific content[39m[32m 4[2mms[22m[39m
+[31m     ΓåÆ expected 'ßïêßï¡ßìêßèò' to be 'ßïêßï¡ßìêßèò/ßîèßï░ßê¡' // Object.is equality[39m
+   [32mΓ£ô[39m Localization System[2m > [22mTranslation Files[2m > [22mshould handle pluralization patterns[32m 1[2mms[22m[39m
+   [32mΓ£ô[39m Localization System[2m > [22mAccessibility[2m > [22mshould set proper HTML lang attributes[32m 0[2mms[22m[39m
+   [32mΓ£ô[39m Localization System[2m > [22mAccessibility[2m > [22mshould support screen readers[32m 0[2mms[22m[39m
+[31m   [31m├ù[31m Localization System[2m > [22mPerformance[2m > [22mshould load translations efficiently[39m[32m 1[2mms[22m[39m
+[31m     ΓåÆ Cannot find module '../hooks/useTranslations'
+Require stack:
+- D:\ethio-herd-connect\src\__tests__\localization.test.ts[39m
+[31m   [31m├ù[31m Localization System[2m > [22mPerformance[2m > [22mshould cache translations[39m[32m 2[2mms[22m[39m
+[31m     ΓåÆ Cannot find module '../hooks/useTranslations'
+Require stack:
+- D:\ethio-herd-connect\src\__tests__\localization.test.ts[39m
+ [32mΓ£ô[39m src/__tests__/localization.test.tsx [2m([22m[2m13 tests[22m[2m)[22m[32m 93[2mms[22m[39m
+
+[31mΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[39m[1m[41m Failed Tests 9 [49m[22m[31mΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/localization.test.ts[2m > [22mLocalization System[2m > [22mTranslation 
+Hook[2m > [22mshould return translation for existing keys
+[31m[1mError[22m: Cannot find module '../hooks/useTranslations'
+Require stack:
+- D:\ethio-herd-connect\src\__tests__\localization.test.ts[39m
+[36m [2mΓ¥»[22m src/__tests__/localization.test.ts:[2m24:41[22m[39m
+    [90m 22| [39m    [34mdescribe[39m([32m'Translation Hook'[39m[33m,[39m () [33m=>[39m {
+    [90m 23| [39m        [34mit[39m([32m'should return translation for existing keys'[39m[33m,[39m () 
+[33m=>[39m {
+    [90m 24| [39m            const { useTranslations } = require('../hooks/useTranslatiΓÇª
+    [90m   | [39m                                        [31m^[39m
+    [90m 25| [39m            [35mconst[39m { t } [33m=[39m [34museTranslations[39m()[33m;[39m
+    [90m 26| [39m
+
+[31m[2mΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[1/9]ΓÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/localization.test.ts[2m > [22mLocalization System[2m > [22mTranslation 
+Hook[2m > [22mshould fallback to English for missing translations
+[31m[1mError[22m: Cannot find module '../hooks/useTranslations'
+Require stack:
+- D:\ethio-herd-connect\src\__tests__\localization.test.ts[39m
+[36m [2mΓ¥»[22m src/__tests__/localization.test.ts:[2m34:41[22m[39m
+    [90m 32| [39m
+    [90m 33| [39m        it('should fallback to English for missing translations', () =ΓÇª
+    [90m 34| [39m            const { useTranslations } = require('../hooks/useTranslatiΓÇª
+    [90m   | [39m                                        [31m^[39m
+    [90m 35| [39m            [35mconst[39m { t } [33m=[39m [34museTranslations[39m()[33m;[39m
+    [90m 36| [39m
+
+[31m[2mΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[2/9]ΓÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/localization.test.ts[2m > [22mLocalization System[2m > [22mTranslation 
+Hook[2m > [22mshould handle nested translation keys
+[31m[1mError[22m: Cannot find module '../hooks/useTranslations'
+Require stack:
+- D:\ethio-herd-connect\src\__tests__\localization.test.ts[39m
+[36m [2mΓ¥»[22m src/__tests__/localization.test.ts:[2m43:41[22m[39m
+    [90m 41| [39m
+    [90m 42| [39m        [34mit[39m([32m'should handle nested translation keys'[39m[33m,[39m () [33m=>[39m {
+    [90m 43| [39m            const { useTranslations } = require('../hooks/useTranslatiΓÇª
+    [90m   | [39m                                        [31m^[39m
+    [90m 44| [39m            [35mconst[39m { t } [33m=[39m [34museTranslations[39m()[33m;[39m
+    [90m 45| [39m
+
+[31m[2mΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[3/9]ΓÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/localization.test.ts[2m > [22mLocalization System[2m > [22mTranslation 
+Hook[2m > [22mshould translate animal types correctly
+[31m[1mError[22m: Cannot find module '../hooks/useTranslations'
+Require stack:
+- D:\ethio-herd-connect\src\__tests__\localization.test.ts[39m
+[36m [2mΓ¥»[22m src/__tests__/localization.test.ts:[2m51:41[22m[39m
+    [90m 49| [39m
+    [90m 50| [39m        [34mit[39m([32m'should translate animal types correctly'[39m[33m,[39m () [33m=>[39m 
+{
+    [90m 51| [39m            const { useTranslations } = require('../hooks/useTranslatiΓÇª
+    [90m   | [39m                                        [31m^[39m
+    [90m 52| [39m            [35mconst[39m { getAnimalTypeTranslation } [33m=[39m 
+[34museTranslations[39m()[33m;[39m
+    [90m 53| [39m
+
+[31m[2mΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[4/9]ΓÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/localization.test.ts[2m > [22mLocalization System[2m > [22mLanguage 
+Context[2m > [22mshould provide language state
+[31m[1mError[22m: Cannot find module '../contexts/LanguageContext'
+Require stack:
+- D:\ethio-herd-connect\src\__tests__\localization.test.ts[39m
+[36m [2mΓ¥»[22m src/__tests__/localization.test.ts:[2m62:37[22m[39m
+    [90m 60| [39m    [34mdescribe[39m([32m'Language Context'[39m[33m,[39m () [33m=>[39m {
+    [90m 61| [39m        [34mit[39m([32m'should provide language state'[39m[33m,[39m () [33m=>[39m {
+    [90m 62| [39m            const { useLanguage } = require('../contexts/LanguageConteΓÇª
+    [90m   | [39m                                    [31m^[39m
+    [90m 63| [39m            [35mconst[39m context [33m=[39m [34museLanguage[39m()[33m;[39m
+    [90m 64| [39m
+
+[31m[2mΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[5/9]ΓÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/localization.test.ts[2m > [22mLocalization System[2m > [22mLanguage 
+Context[2m > [22mshould handle language switching
+[31m[1mError[22m: Cannot find module '../contexts/LanguageContext'
+Require stack:
+- D:\ethio-herd-connect\src\__tests__\localization.test.ts[39m
+[36m [2mΓ¥»[22m src/__tests__/localization.test.ts:[2m72:37[22m[39m
+    [90m 70| [39m
+    [90m 71| [39m        [34mit[39m([32m'should handle language switching'[39m[33m,[39m () [33m=>[39m {
+    [90m 72| [39m            const { useLanguage } = require('../contexts/LanguageConteΓÇª
+    [90m   | [39m                                    [31m^[39m
+    [90m 73| [39m            [35mconst[39m context [33m=[39m [34museLanguage[39m()[33m;[39m
+    [90m 74| [39m
+
+[31m[2mΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[6/9]ΓÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/localization.test.ts[2m > [22mLocalization System[2m > [22mTranslation 
+Files[2m > [22mshould contain Ethiopian-specific content
+[31m[1mAssertionError[22m: expected 'ßïêßï¡ßìêßèò' to be 'ßïêßï¡ßìêßèò/ßîèßï░ßê¡' // Object.is equality[39m
+
+Expected: [32m"ßïêßï¡ßìêßèò[7m/ßîèßï░ßê¡[27m"[39m
+Received: [31m"ßïêßï¡ßìêßèò"[39m
+
+[36m [2mΓ¥»[22m src/__tests__/localization.test.ts:[2m97:53[22m[39m
+    [90m 95| [39m            [90m// Check for Ethiopian animal terms[39m
+    [90m 96| [39m            [34mexpect[39m(amTranslations[33m.[39manimalTypes[33m.[39mcow)[33m.[39m[34mtoBe
+[39m([32m'ßêïßê¥'[39m)[33m;[39m
+    [90m 97| [39m            [34mexpect[39m(amTranslations[33m.[39manimalTypes[33m.[39mbull)[33m.[39m[34mtoB
+e[39m([32m'ßïêßï¡ßìêßèò/ßîèßï░ßê¡'[39m)[33m;[39m
+    [90m   | [39m                                                    [31m^[39m
+    [90m 98| [39m            [34mexpect[39m(amTranslations[33m.[39manimalTypes[33m.[39mcalf)[33m.[39m[34mtoB
+e[39m([32m'ßîÑßîâ'[39m)[33m;[39m
+    [90m 99| [39m
+
+[31m[2mΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[7/9]ΓÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/localization.test.ts[2m > [22mLocalization System[2m > [22mPerformance[2m 
+> [22mshould load translations efficiently
+[31m[1mError[22m: Cannot find module '../hooks/useTranslations'
+Require stack:
+- D:\ethio-herd-connect\src\__tests__\localization.test.ts[39m
+[36m [2mΓ¥»[22m src/__tests__/localization.test.ts:[2m128:41[22m[39m
+    [90m126| [39m        [34mit[39m([32m'should load translations efficiently'[39m[33m,[39m () [33m=>[39m {
+    [90m127| [39m            [35mconst[39m startTime [33m=[39m 
+[33mDate[39m[33m.[39m[34mnow[39m()[33m;[39m
+    [90m128| [39m            const { useTranslations } = require('../hooks/useTranslatiΓÇª
+    [90m   | [39m                                        [31m^[39m
+    [90m129| [39m            [35mconst[39m { t } [33m=[39m [34museTranslations[39m()[33m;[39m
+    [90m130| [39m
+
+[31m[2mΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[8/9]ΓÄ»[22m[39m
+
+[41m[1m FAIL [22m[49m src/__tests__/localization.test.ts[2m > [22mLocalization System[2m > [22mPerformance[2m 
+> [22mshould cache translations
+[31m[1mError[22m: Cannot find module '../hooks/useTranslations'
+Require stack:
+- D:\ethio-herd-connect\src\__tests__\localization.test.ts[39m
+[36m [2mΓ¥»[22m src/__tests__/localization.test.ts:[2m146:41[22m[39m
+    [90m144| [39m
+    [90m145| [39m        [34mit[39m([32m'should cache translations'[39m[33m,[39m () [33m=>[39m {
+    [90m146| [39m            const { useTranslations } = require('../hooks/useTranslatiΓÇª
+    [90m   | [39m                                        [31m^[39m
+    [90m147| [39m            [35mconst[39m { t } [33m=[39m [34museTranslations[39m()[33m;[39m
+    [90m148| [39m
+
+[31m[2mΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»ΓÄ»[9/9]ΓÄ»[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[31m9 failed[39m[22m[2m | [22m[1m[32m17 passed[39m[22m[90m (26)[39m
+[2m   Start at [22m 02:27:47
+[2m   Duration [22m 2.57s[2m (transform 146ms, setup 373ms, collect 336ms, tests 119ms, environment 2.39s, prepare 270ms)[22m
+

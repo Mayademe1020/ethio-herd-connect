@@ -8,6 +8,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { logger } from '@/utils/logger';
 import type { DeviceCapability, InferenceMode } from '@/types/muzzle';
 
 // Minimum requirements for local ML inference
@@ -145,9 +146,7 @@ async function getBatteryInfo(): Promise<{ level: number; isCharging: boolean } 
         isCharging: battery.charging
       };
     }
-  } catch {
-    // Battery API not available or failed
-  }
+  } catch (e) { logger.warn('Battery API not available or failed:', e); }
   return null;
 }
 
@@ -348,9 +347,7 @@ export function useDeviceCapability(): UseDeviceCapabilityReturn {
           
           batteryRef.current = { battery, handler: handleBatteryChange };
         }
-      } catch {
-        // Battery API not available
-      }
+      } catch (e) { logger.warn('Battery API not available:', e); }
     };
     
     setupBatteryListener();

@@ -106,7 +106,7 @@ class PerformanceMonitor {
    * Calculate Total Blocking Time
    */
   private calculateTBT(): void {
-    const longTasks = performance.getEntriesByType('longtask') as any[];
+    const longTasks = performance.getEntriesByType('longtask') as PerformanceEntry[];
     let tbt = 0;
 
     longTasks.forEach(task => {
@@ -128,9 +128,10 @@ class PerformanceMonitor {
     try {
       const observer = new PerformanceObserver((list) => {
         const entries = list.getEntries();
-        entries.forEach((entry: any) => {
-          if (entry.name === 'first-input') {
-            this.metrics.fid = entry.processingStart - entry.startTime;
+        entries.forEach((entry) => {
+          const firstInput = entry as PerformanceEntry & { processingStart?: number };
+          if (entry.name === 'first-input' && typeof firstInput.processingStart === 'number') {
+            this.metrics.fid = firstInput.processingStart - entry.startTime;
             console.log('⚡ First Input Delay:', `${this.metrics.fid}ms`);
           }
         });
@@ -151,8 +152,9 @@ class PerformanceMonitor {
     try {
       const observer = new PerformanceObserver((list) => {
         const entries = list.getEntries();
-        const lastEntry = entries[entries.length - 1] as any;
-        this.metrics.lcp = lastEntry.renderTime || lastEntry.loadTime;
+        const lastEntry = entries[entries.length - 1] as (PerformanceEntry & { renderTime?: number; loadTime?: number }) | undefined;
+        if (!lastEntry) return;
+        this.metrics.lcp = lastEntry.renderTime ?? lastEntry.loadTime ?? 0;
         console.log('🎨 Largest Contentful Paint:', `${this.metrics.lcp}ms`);
       });
 
@@ -172,9 +174,10 @@ class PerformanceMonitor {
       let clsValue = 0;
       const observer = new PerformanceObserver((list) => {
         const entries = list.getEntries();
-        entries.forEach((entry: any) => {
-          if (!entry.hadRecentInput) {
-            clsValue += entry.value;
+        entries.forEach((entry) => {
+          const layoutShift = entry as PerformanceEntry & { hadRecentInput?: boolean; value?: number };
+          if (!layoutShift.hadRecentInput) {
+            clsValue += layoutShift.value ?? 0;
           }
         });
         this.metrics.cls = clsValue;
@@ -190,7 +193,7 @@ class PerformanceMonitor {
    * Get memory usage (Chrome only)
    */
   getMemoryUsage(): PerformanceMetrics['memoryUsage'] | null {
-    const memory = (performance as any).memory;
+    const memory = performance.memory;
     if (!memory) return null;
 
     return {
@@ -204,10 +207,8 @@ class PerformanceMonitor {
    * Get network information
    */
   getNetworkInfo(): PerformanceMetrics['networkInfo'] | null {
-    const connection = (navigator as any).connection || 
-                      (navigator as any).mozConnection || 
-                      (navigator as any).webkitConnection;
-    
+    const connection = navigator.connection ?? navigator.mozConnection ?? navigator.webkitConnection;
+
     if (!connection) return null;
 
     return {
@@ -381,6 +382,11 @@ class PerformanceMonitor {
 // Create singleton instance
 export const performanceMonitor = new PerformanceMonitor();
 
+/**
+ * Public type for the performance monitor instance, used for global declarations
+ */
+export type PerformanceMonitorInstance = PerformanceMonitor;
+
 // Auto-initialize in browser
 if (typeof window !== 'undefined') {
   performanceMonitor.init();
@@ -388,5 +394,5 @@ if (typeof window !== 'undefined') {
 
 // Expose to window for manual testing
 if (typeof window !== 'undefined') {
-  (window as any).performanceMonitor = performanceMonitor;
+  window.performanceMonitor = performanceMonitor;
 }

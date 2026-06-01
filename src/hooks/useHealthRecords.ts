@@ -3,7 +3,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContextMVP';
-import { useToastContext } from '@/contexts/ToastContext';
+import { toast } from 'sonner';
 import { getUserFriendlyError, getSuccessMessage } from '@/lib/errorMessages';
 import { analytics, ANALYTICS_EVENTS } from '@/lib/analytics';
 import {
@@ -25,7 +25,6 @@ const generateTempId = () => `temp_${Date.now()}_${Math.random().toString(36).su
 export const useHealthRecords = (animalId: string) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const toastContext = useToastContext();
 
   // Query to fetch health records
   const healthRecordsQuery = useQuery({
@@ -94,7 +93,7 @@ export const useHealthRecords = (animalId: string) => {
 
       console.error('Error creating health record:', error);
       const errorMsg = getUserFriendlyError(error, 'amharic');
-      toastContext.error(errorMsg.message, errorMsg.icon);
+      toast.error(errorMsg.message, errorMsg.icon ? { icon: errorMsg.icon } : undefined);
     },
     onSuccess: (data, input) => {
       queryClient.invalidateQueries({ queryKey: ['health-records', animalId] });
@@ -102,7 +101,7 @@ export const useHealthRecords = (animalId: string) => {
       queryClient.invalidateQueries({ queryKey: ['vaccinations', animalId] });
 
       const successMsg = getSuccessMessage('health_record_created', 'amharic');
-      toastContext.success(successMsg.message || 'Health record created successfully', successMsg.icon);
+      toast.success(successMsg.message || 'Health record created successfully', successMsg.icon ? { icon: successMsg.icon } : undefined);
 
       analytics.track(ANALYTICS_EVENTS.HEALTH_RECORDED, {
         record_type: input.record_type,
@@ -143,7 +142,7 @@ export const useHealthRecords = (animalId: string) => {
 
       console.error('Error updating health record:', error);
       const errorMsg = getUserFriendlyError(error, 'amharic');
-      toastContext.error(errorMsg.message, errorMsg.icon);
+      toast.error(errorMsg.message, errorMsg.icon ? { icon: errorMsg.icon } : undefined);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['health-records', animalId] });
@@ -151,7 +150,7 @@ export const useHealthRecords = (animalId: string) => {
       queryClient.invalidateQueries({ queryKey: ['vaccinations', animalId] });
 
       const successMsg = getSuccessMessage('health_record_updated', 'amharic');
-      toastContext.success(successMsg.message || 'Health record updated successfully', successMsg.icon);
+      toast.success(successMsg.message || 'Health record updated successfully', successMsg.icon ? { icon: successMsg.icon } : undefined);
     }
   });
 
@@ -182,7 +181,7 @@ export const useHealthRecords = (animalId: string) => {
 
       console.error('Error deleting health record:', error);
       const errorMsg = getUserFriendlyError(error, 'amharic');
-      toastContext.error(errorMsg.message, errorMsg.icon);
+      toast.error(errorMsg.message, errorMsg.icon ? { icon: errorMsg.icon } : undefined);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['health-records', animalId] });
@@ -190,7 +189,7 @@ export const useHealthRecords = (animalId: string) => {
       queryClient.invalidateQueries({ queryKey: ['vaccinations', animalId] });
 
       const successMsg = getSuccessMessage('health_record_deleted', 'amharic');
-      toastContext.success(successMsg.message || 'Health record deleted successfully', successMsg.icon);
+      toast.success(successMsg.message || 'Health record deleted successfully', successMsg.icon ? { icon: successMsg.icon } : undefined);
     }
   });
 

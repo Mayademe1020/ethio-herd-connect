@@ -9,7 +9,7 @@ interface Animal {
   name: string;
   type: string;
   subtype?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface UseAnimalSearchReturn {

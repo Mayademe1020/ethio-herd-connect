@@ -264,16 +264,20 @@ export const SellAnimalModal: React.FC<SellAnimalModalProps> = ({
         onClose();
       }, 3000);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error creating listing:', error);
-      
+
+      const errMessage = typeof error === 'object' && error !== null && 'message' in error
+        ? String((error as { message?: string }).message)
+        : '';
+
       // Provide user-friendly error messages
-      const errorMessage = error?.message?.includes('already listed')
+      const errorMessage = errMessage.includes('already listed')
         ? 'This animal is already listed for sale'
-        : error?.message?.includes('permission')
+        : errMessage.includes('permission')
         ? 'Unable to create listing. Please try again.'
         : 'Failed to list animal. Please try again.';
-      
+
       toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
@@ -433,6 +437,7 @@ export const SellAnimalModal: React.FC<SellAnimalModalProps> = ({
                     alt={`${animal.name} - ${animal.type}`}
                     className="w-16 h-16 object-cover rounded-lg"
                     loading="lazy"
+                    decoding="async"
                   />
                   <div>
                     <p className="font-medium">{animal.name}</p>

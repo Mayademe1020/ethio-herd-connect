@@ -1,21 +1,13 @@
+import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { FarmStatsCard } from '@/components/FarmStatsCard';
 import type { FarmStats } from '@/hooks/useFarmStats';
 
-// Mock the useTranslation hook
-vi.mock('@/hooks/useTranslation', () => ({
-  useTranslation: () => ({
-    t: (key: string) => {
-      const translations: Record<string, string> = {
-        'profile.farmStatistics': 'Farm Statistics',
-        'profile.animals': 'Animals',
-        'profile.milkLast30Days': 'Milk (30 days)',
-        'profile.listings': 'Listings',
-      };
-      return translations[key] || key;
-    },
-  }),
+// Mock LanguageContext to provide English translations
+vi.mock('@/contexts/LanguageContext', () => ({
+  useLanguage: () => ({ language: 'en', setLanguage: vi.fn(), isAmharic: false, isEnglish: true }),
+  LanguageProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 describe('FarmStatsCard', () => {
@@ -40,9 +32,9 @@ describe('FarmStatsCard', () => {
     expect(screen.getByText('Farm Statistics')).toBeInTheDocument();
 
     // Check for stat values
-    expect(screen.getByText('5')).toBeInTheDocument();
-    expect(screen.getByText('150.5 L')).toBeInTheDocument();
-    expect(screen.getByText('2')).toBeInTheDocument();
+    expect(screen.getByTestId('stat-total-animals')).toHaveTextContent('5');
+    expect(screen.getByTestId('stat-milk-amount')).toHaveTextContent('150.5L');
+    expect(screen.getByTestId('stat-active-listings')).toHaveTextContent('2');
 
     // Check for labels
     expect(screen.getByText('Animals')).toBeInTheDocument();
@@ -60,16 +52,18 @@ describe('FarmStatsCard', () => {
     render(<FarmStatsCard stats={mockStats} isLoading={false} />);
 
     // Check that zeros are displayed
-    expect(screen.getAllByText('0').length).toBeGreaterThan(0);
-    expect(screen.getByText('0 L')).toBeInTheDocument();
+    expect(screen.getByTestId('stat-total-animals')).toHaveTextContent('0');
+    expect(screen.getByTestId('stat-milk-amount')).toHaveTextContent('0L');
+    expect(screen.getByTestId('stat-active-listings')).toHaveTextContent('0');
   });
 
   it('should handle null stats by showing zeros', () => {
     render(<FarmStatsCard stats={null} isLoading={false} />);
 
     // Check that zeros are displayed when stats is null
-    expect(screen.getAllByText('0').length).toBeGreaterThan(0);
-    expect(screen.getByText('0 L')).toBeInTheDocument();
+    expect(screen.getByTestId('stat-total-animals')).toHaveTextContent('0');
+    expect(screen.getByTestId('stat-milk-amount')).toHaveTextContent('0L');
+    expect(screen.getByTestId('stat-active-listings')).toHaveTextContent('0');
   });
 
   it('should display animal icon', () => {
@@ -81,8 +75,9 @@ describe('FarmStatsCard', () => {
 
     const { container } = render(<FarmStatsCard stats={mockStats} isLoading={false} />);
 
-    // Check for cow emoji
-    expect(container.textContent).toContain('🐄');
+    // Check for Beef icon
+    const beefIcon = container.querySelector('.lucide-beef');
+    expect(beefIcon).toBeInTheDocument();
   });
 
   it('should render in a 3-column grid', () => {

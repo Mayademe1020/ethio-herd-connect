@@ -32,19 +32,25 @@ const InterestsList: React.FC<InterestsListProps> = ({ interests }) => {
       
       const buyerIds = [...new Set(interests.map(i => i.buyer_id))];
       
-      // Fetch user data from auth.users (phone is stored there)
-      const phones: Record<string, string> = {};
+      // Batch fetch all buyer profiles in a single query
+      const { data: profiles } = await supabase
+        .from('profiles' as any)
+        .select('id, phone')
+        .in('id', buyerIds);
       
-      for (const buyerId of buyerIds) {
-        const { data } = await supabase.auth.admin.getUserById(buyerId);
-        if (data?.user?.phone) {
-          phones[buyerId] = data.user.phone;
+      const phones: Record<string, string> = {};
+      if (profiles) {
+        for (const profile of profiles as any[]) {
+          if (profile.phone) {
+            phones[profile.id] = profile.phone;
+          }
         }
       }
       
       return phones;
     },
-    enabled: interests.length > 0
+    enabled: interests.length > 0,
+    staleTime: 300000,
   });
 
   const formatDate = (dateString: string) => {

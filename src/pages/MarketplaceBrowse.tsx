@@ -1,6 +1,6 @@
 // src/pages/MarketplaceBrowse.tsx - MVP Marketplace Browse
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -8,6 +8,9 @@ import ListingCard from '@/components/ListingCard';
 import { EnhancedButton } from '@/components/ui/enhanced-button';
 import { MarketplaceBrowseSkeleton } from '@/components/MarketplaceBrowseSkeleton';
 import { ArrowLeft } from 'lucide-react';
+import { logger } from '@/utils/logger';
+import { useNetworkStatus } from '@/contexts/NetworkStatusContext';
+import { MarketListing } from '@/types/marketplace';
 
 type AnimalType = 'all' | 'cattle' | 'goat' | 'sheep';
 type SortOption = 'newest' | 'price_low' | 'price_high';
@@ -17,85 +20,96 @@ const MarketplaceBrowse = () => {
   const [filterType, setFilterType] = useState<AnimalType>('all');
   const [sortOption, setSortOption] = useState<SortOption>('newest');
   const [page, setPage] = useState(0);
-  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
+  const { isOnline } = useNetworkStatus();
   const ITEMS_PER_PAGE = 20;
-
-  useEffect(() => {
-    const on = () => setIsOnline(true);
-    const off = () => setIsOnline(false);
-    window.addEventListener('online', on);
-    window.addEventListener('offline', off);
-    return () => {
-      window.removeEventListener('online', on);
-      window.removeEventListener('offline', off);
-    };
-  }, []);
 
   // Fetch active listings with animal data (with pagination)
   const { data: listings, isLoading, error, refetch } = useQuery({
     queryKey: ['marketplace-listings', filterType, sortOption, page],
     queryFn: async () => {
-      if (!isOnline) return [];
       const from = page * ITEMS_PER_PAGE;
       const to = from + ITEMS_PER_PAGE - 1;
 
-      let query = supabase
-        .from('market_listings')
-        .select(`
-          id,
-          user_id,
-          animal_id,
-          price,
-          is_negotiable,
-          location,
-          status,
-          views_count,
-          created_at,
-          animal:animals(id, name, type, subtype, photo_url)
-        `)
-        .eq('status', 'active');
+      try {
+        let query = supabase
+          .from('market_listings')
+          .select(`
+            id,
+            user_id,
+            animal_id,
+            price,
+            is_negotiable,
+            location,
+            status,
+            views_count,
+            created_at,
+            animal:animals(id, name, type, subtype, photo_url)
+          `)
+          .eq('status', 'active');
 
-      // Note: Type filtering is done client-side after fetching
-      // because Supabase join filtering has limitations
+        // Note: Type filtering is done client-side after fetching
+        // because Supabase join filtering has limitations
 
-      // Apply sorting
-      switch (sortOption) {
-        case 'newest':
-          query = query.order('created_at', { ascending: false });
-          break;
-        case 'price_low':
-          query = query.order('price', { ascending: true });
-          break;
-        case 'price_high':
-          query = query.order('price', { ascending: false });
-          break;
-      }
-
-      // Apply pagination
-      query = query.range(from, to);
-
-      const { data, error } = await query;
-
-      if (error) {
-        const msg = String(error?.message || '').toLowerCase();
-        const isAborted = error?.name === 'AbortError' || msg.includes('abort') || msg.includes('cancel');
-        if (!isAborted) {
-          throw error;
+        // Apply sorting
+        switch (sortOption) {
+          case 'newest':
+            query = query.order('created_at', { ascending: false });
+            break;
+          case 'price_low':
+            query = query.order('price', { ascending: true });
+            break;
+          case 'price_high':
+            query = query.order('price', { ascending: false });
+            break;
         }
-        return [];
-      }
 
-      // Filter by animal type if needed (since join filter might not work)
-      let filteredData = data || [];
-      if (filterType !== 'all') {
-        filteredData = filteredData.filter(
-          (listing: any) => listing.animal?.type?.toLowerCase() === filterType
-        );
-      }
+        // Apply pagination
+        query = query.range(from, to);
 
-      return filteredData;
+        const { data, error } = await query;
+
+        if (error) {
+          const msg = String(error?.message || '').toLowerCase();
+          const isAborted = error?.name === 'AbortError' || msg.includes('abort') || msg.includes('cancel');
+          if (!isAborted) {
+            throw error;
+          }
+          return [];
+        }
+
+        // Filter by animal type if needed (since join filter might not work)
+        let filteredData = (data || []) as MarketListing[];
+        if (filterType !== 'all') {
+          filteredData = filteredData.filter(
+            (listing: MarketListing) => listing.animal?.type?.toLowerCase() === filterType
+          );
+        }
+
+        // Cache for offline use
+        try {
+          const { cacheData, STORES } = await import('@/utils/indexedDB');
+          await cacheData(STORES.MARKET_LISTINGS, filteredData, 'marketplace');
+        } catch (e) { logger.warn('Failed to cache marketplace listings:', e); }
+
+        return filteredData;
+      } catch {
+        // Offline fallback: read from cache
+        try {
+          const { getCachedData, STORES } = await import('@/utils/indexedDB');
+          const cached = await getCachedData<MarketListing>(STORES.MARKET_LISTINGS, 'marketplace');
+          let filteredData = cached.map(c => c.data);
+          if (filterType !== 'all') {
+            filteredData = filteredData.filter(
+              (listing: MarketListing) => listing.animal?.type?.toLowerCase() === filterType
+            );
+          }
+          return filteredData;
+        } catch {
+          return [];
+        }
+      }
     },
-    enabled: isOnline,
+    staleTime: 30000,
   });
 
   return (
@@ -227,7 +241,7 @@ const MarketplaceBrowse = () => {
               {listings.length} {listings.length === 1 ? 'listing' : 'listings'} found
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {listings.map((listing: any) => (
+              {listings.map((listing: MarketListing) => (
                 <ListingCard key={listing.id} listing={listing} />
               ))}
             </div>

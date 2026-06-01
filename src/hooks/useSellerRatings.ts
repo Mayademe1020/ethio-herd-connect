@@ -31,7 +31,7 @@ export const useSellerRatings = (userId?: string) => {
       
       const { data, error } = await supabase
         .from('seller_ratings')
-        .select('*')
+        .select('id, transaction_id, rater_id, rated_user_id, rating, comment, created_at')
         .eq('rater_id', user.id)
         .order('created_at', { ascending: false });
 
@@ -53,7 +53,7 @@ export const useSellerRatings = (userId?: string) => {
       
       const { data, error } = await supabase
         .from('seller_ratings')
-        .select('*')
+        .select('id, transaction_id, rater_id, rated_user_id, rating, comment, created_at')
         .eq('rated_user_id', targetUserId)
         .order('created_at', { ascending: false });
 
@@ -140,7 +140,7 @@ export const useCanRate = (transactionId: string, ratedUserId: string) => {
       
       const { data, error } = await supabase
         .from('seller_ratings')
-        .select('*')
+        .select('id, transaction_id, rater_id, rated_user_id, rating, comment, created_at')
         .eq('transaction_id', transactionId)
         .eq('rater_id', user.id)
         .maybeSingle();

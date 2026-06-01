@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContextMVP';
 import { useOfflineCache } from './useOfflineCache';
 import { useEnhancedOfflineSync } from './useEnhancedOfflineSync';
 import { supabase } from '@/integrations/supabase/client';

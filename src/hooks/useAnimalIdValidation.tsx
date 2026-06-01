@@ -1,7 +1,7 @@
 
 import { useState, useCallback } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useToastNotifications } from '@/hooks/useToastNotifications';
+import { useAuth } from '@/contexts/AuthContextMVP';
+import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
 interface AnimalIdValidationResult {
@@ -14,7 +14,6 @@ interface AnimalIdValidationResult {
 export const useAnimalIdValidation = () => {
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
-  const { showError, showSuccess } = useToastNotifications();
 
   const validateAnimalId = useCallback(async (animalId: string): Promise<AnimalIdValidationResult> => {
     if (!user) {
@@ -78,12 +77,11 @@ export const useAnimalIdValidation = () => {
     };
 
     const featureName = featureNames[feature as keyof typeof featureNames] || feature;
-    
-    showError(
-      'Animal ID Required',
+
+    toast.error(
       `${featureName} requires an Animal ID. Please register your animal first or select an existing animal.`
     );
-  }, [showError]);
+  }, []);
 
   return {
     validateAnimalId,

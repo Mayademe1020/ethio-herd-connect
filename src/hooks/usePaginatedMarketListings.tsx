@@ -21,7 +21,7 @@
 
 import { useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContextMVP';
 import { usePaginatedQuery } from './usePaginatedQuery';
 import { MARKET_LISTING_FIELDS } from '@/lib/queryBuilders';
 import { logger } from '@/utils/logger';

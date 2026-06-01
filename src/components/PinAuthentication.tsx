@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useToastNotifications } from '@/hooks/useToastNotifications';
+import { useAuth } from '@/contexts/AuthContextMVP';
+import { toast } from 'sonner';
 import { useTranslations } from '@/hooks/useTranslations';
 import { secureLocalStorage, hashData, verifyPassword } from '@/utils/securityUtils';
 import { Button } from '@/components/ui/button';
@@ -24,7 +24,6 @@ export const PinAuthentication: React.FC<PinAuthenticationProps> = ({
   const [isLocked, setIsLocked] = useState(false);
   const [lockTime, setLockTime] = useState<number | null>(null);
   const { user } = useAuth();
-  const { showError, showSuccess } = useToastNotifications();
   const { t } = useTranslations();
 
   // Check if PIN is already set up
@@ -62,16 +61,14 @@ export const PinAuthentication: React.FC<PinAuthenticationProps> = ({
     if (!user) return;
     
     if (pin.length < 4) {
-      showError(
-        t('pin.tooShort', 'PIN too short'),
+      toast.error(
         t('pin.minimumLength', 'PIN must be at least 4 digits')
       );
       return;
     }
-    
+
     if (pin !== confirmPin) {
-      showError(
-        t('pin.mismatch', 'PINs do not match'),
+      toast.error(
         t('pin.tryAgain', 'Please enter the same PIN in both fields')
       );
       return;
@@ -82,8 +79,7 @@ export const PinAuthentication: React.FC<PinAuthenticationProps> = ({
     secureLocalStorage.setItem(`pin-hash-${user.id}`, hashedPin);
     secureLocalStorage.setItem(`pin-setup-${user.id}`, true);
     
-    showSuccess(
-      t('pin.setupSuccess', 'PIN Setup Complete'),
+    toast.success(
       t('pin.setupMessage', 'Your PIN has been set up successfully')
     );
     
@@ -106,8 +102,7 @@ export const PinAuthentication: React.FC<PinAuthenticationProps> = ({
       setAttempts(0);
       secureLocalStorage.setItem(`pin-attempts-${user.id}`, 0);
       
-      showSuccess(
-        t('pin.correct', 'PIN Correct'),
+      toast.success(
         t('pin.accessGranted', 'Access granted')
       );
       
@@ -127,13 +122,11 @@ export const PinAuthentication: React.FC<PinAuthenticationProps> = ({
         setIsLocked(true);
         setLockTime(lockoutTime.getTime());
         
-        showError(
-          t('pin.accountLocked', 'Account Locked'),
+        toast.error(
           t('pin.tooManyAttempts', 'Too many incorrect attempts. Try again in 15 minutes.')
         );
       } else {
-        showError(
-          t('pin.incorrect', 'Incorrect PIN'),
+        toast.error(
           t('pin.attemptsRemaining', 'Incorrect PIN. {attempts} attempts remaining.', {
             attempts: 5 - newAttempts
           })

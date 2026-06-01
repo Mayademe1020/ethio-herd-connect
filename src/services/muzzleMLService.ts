@@ -1,13 +1,20 @@
 /**
  * Muzzle ML Service — Server-Side Processing
- * 
+ *
+ * The farmer takes a photo. That's it.
+ * All ML runs on the server. Client stays small and fast.
+ *
  * Flow:
- * 1. Compress image client-side
- * 2. Upload to Supabase Storage
- * 3. Call edge function for feature extraction
- * 4. Receive 1280-dim embedding
- * 
- * No TF.js on client — works on any phone including 2GB devices.
+ * 1. Client captures image from camera
+ * 2. Client compresses image to reduce upload size (<100KB)
+ * 3. Client uploads compressed image to Supabase Storage
+ * 4. Client calls edge function with storage path
+ * 5. Server downloads image, runs MobileNetV2, returns 1280-dim embedding
+ * 6. Server stores embedding in pgvector for similarity search
+ * 7. Client receives embedding + quality metrics
+ *
+ * No ML on client. No model downloads. No memory pressure.
+ * Works on any phone including $20 Androids with 1GB RAM.
  */
 
 import { supabase } from '@/integrations/supabase/client';
@@ -35,42 +42,40 @@ export interface CropInfo {
   height: number;
 }
 
-const MODEL_VERSION = '2.0.0-server-mobilenetv2';
+const MODEL_VERSION = '3.0.0-server-mobilenetv2';
 const STORAGE_BUCKET = 'muzzle-images';
 const EXTRACTION_TIMEOUT_MS = 30000;
 
 export class MuzzleMLService {
   private _initialized = false;
-  private _modelLoaded = false;
 
   /**
-   * Initialize the ML service (server-side — no client model to load)
+   * Initialize the service. No model to load — server handles everything.
    */
   async initialize(): Promise<void> {
     if (this._initialized) return;
     this._initialized = true;
-    logger.info('MuzzleMLService initialized (server-side processing mode)');
+    logger.info('[MuzzleML] Service initialized (server-side processing)');
   }
 
   /**
-   * Load the model — no-op for server-side processing
+   * No-op — model lives on server, not in client.
    */
   async loadModel(): Promise<void> {
     if (!this._initialized) {
       await this.initialize();
     }
-    this._modelLoaded = true;
-    logger.info('Model loaded (server-side — no client model required)');
+    logger.info('[MuzzleML] Model loaded on server (no client model needed)');
   }
 
   /**
-   * Check image quality using client-side canvas analysis
+   * Quick client-side quality check before uploading.
+   * If quality is too poor, don't waste bandwidth uploading.
    */
   qualityCheck(imageData: ImageData): QualityCheckResult {
     const { data, width, height } = imageData;
     const totalPixels = width * height;
 
-    // Brightness: average luminance across all pixels
     let totalBrightness = 0;
     for (let i = 0; i < data.length; i += 4) {
       const r = data[i];
@@ -81,7 +86,6 @@ export class MuzzleMLService {
     const avgBrightness = totalBrightness / totalPixels;
     const brightnessScore = this.mapToScore(avgBrightness, 40, 200);
 
-    // Sharpness: measure edge density using Laplacian-like variance
     let variance = 0;
     const stride = width * 4;
     for (let y = 1; y < height - 1; y++) {
@@ -99,9 +103,6 @@ export class MuzzleMLService {
     const edgeDensity = variance / ((width - 2) * (height - 2));
     const sharpnessScore = this.mapToScore(edgeDensity, 5, 80);
 
-    // Coverage: check if center region has sufficient content (not too dark/bright)
-    const marginX = Math.floor(width * 0.15);
-    const marginY = Math.floor(height * 0.1);
     const centerX = Math.floor(width / 2);
     const centerY = Math.floor(height / 2);
     const sampleRadius = Math.min(width, height) * 0.3;
@@ -120,7 +121,6 @@ export class MuzzleMLService {
       }
     }
     const coverageScore = totalSampled > 0 ? (coveredPixels / totalSampled) * 100 : 50;
-
     const overall = (brightnessScore * 0.3 + sharpnessScore * 0.4 + coverageScore * 0.3);
 
     return {
@@ -133,14 +133,15 @@ export class MuzzleMLService {
   }
 
   /**
-   * Generate embedding from a canvas element by converting to blob and extracting features
+   * Generate embedding by sending image to server.
+   * Client compresses + uploads, server runs ML.
    */
   async generateEmbedding(canvas: HTMLCanvasElement): Promise<number[]> {
     const blob = await new Promise<Blob>((resolve, reject) => {
       canvas.toBlob(
         (b) => (b ? resolve(b) : reject(new Error('Canvas to blob failed'))),
         'image/jpeg',
-        0.9
+        0.85
       );
     });
 
@@ -149,7 +150,8 @@ export class MuzzleMLService {
   }
 
   /**
-   * Extract features by uploading to server and processing
+   * Extract features by sending image to server.
+   * Server runs MobileNetV2, returns 1280-dim embedding.
    */
   async extractFeatures(
     imageSource: Blob | File | HTMLImageElement | string,
@@ -173,8 +175,10 @@ export class MuzzleMLService {
         throw new Error('Unsupported image source type');
       }
 
+      options?.onProgress?.({ stage: 'compressing', progress: 10, message: 'Compressing image...' });
       const compressedBlob = await this.compressImage(blob);
 
+      options?.onProgress?.({ stage: 'uploading', progress: 30, message: 'Uploading image...' });
       const storagePath = `temp/${crypto.randomUUID()}.jpg`;
       const { error: uploadError } = await supabase.storage
         .from(STORAGE_BUCKET)
@@ -186,6 +190,8 @@ export class MuzzleMLService {
       if (uploadError) {
         throw new Error(`Upload failed: ${uploadError.message}`);
       }
+
+      options?.onProgress?.({ stage: 'extracting', progress: 60, message: 'Server extracting features...' });
 
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) {
@@ -215,11 +221,13 @@ export class MuzzleMLService {
         throw new Error(result.error || 'Extraction failed');
       }
 
+      options?.onProgress?.({ stage: 'complete', progress: 100, message: 'Done' });
+
       const embedding: MuzzleEmbedding = {
         id: crypto.randomUUID(),
         vector: new Float32Array(result.embedding.vector),
         confidence: result.embedding.confidence,
-        modelVersion: result.embedding.modelVersion || options?.modelVersion || MODEL_VERSION,
+        modelVersion: result.embedding.modelVersion || MODEL_VERSION,
         extractedAt: result.embedding.extractedAt || new Date().toISOString(),
         imageQuality: result.embedding.imageQuality || {
           overall: 80,
@@ -238,11 +246,11 @@ export class MuzzleMLService {
       return {
         embedding,
         extractionTimeMs: performance.now() - startTime,
-        modelVersion: options?.modelVersion || MODEL_VERSION,
+        modelVersion: MODEL_VERSION,
       };
 
     } catch (error) {
-      logger.error('Feature extraction failed', error);
+      logger.error('[MuzzleML] Feature extraction failed', error);
       throw this.createError(
         MuzzleErrorCode.EXTRACTION_FAILED,
         `Extraction failed: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -250,9 +258,6 @@ export class MuzzleMLService {
     }
   }
 
-  /**
-   * Convert HTMLImageElement to Blob
-   */
   private async imageElementToBlob(img: HTMLImageElement): Promise<Blob> {
     const canvas = document.createElement('canvas');
     canvas.width = img.naturalWidth;
@@ -263,14 +268,11 @@ export class MuzzleMLService {
       canvas.toBlob(
         (b) => (b ? resolve(b) : reject(new Error('Image to blob failed'))),
         'image/jpeg',
-        0.9
+        0.85
       );
     });
   }
 
-  /**
-   * Convert data URL or remote URL to Blob
-   */
   private async dataUrlOrUrlToBlob(url: string): Promise<Blob> {
     if (url.startsWith('data:')) {
       const response = await fetch(url);
@@ -284,14 +286,13 @@ export class MuzzleMLService {
   }
 
   /**
-   * Compress image to reduce upload size
-   * Target: <100KB for fast upload on 3G
+   * Compress image to <100KB for fast upload on 3G.
    */
   private async compressImage(source: Blob | File): Promise<Blob> {
     return new Promise((resolve, reject) => {
       const img = new Image();
       img.onload = () => {
-        const maxSize = 800;
+        const maxSize = 600;
         let width = img.width;
         let height = img.height;
         if (width > maxSize || height > maxSize) {
@@ -324,9 +325,6 @@ export class MuzzleMLService {
     });
   }
 
-  /**
-   * Map a raw value to a 0-100 score given min/max bounds
-   */
   private mapToScore(value: number, min: number, max: number): number {
     if (value <= min) return 0;
     if (value >= max) return 100;
@@ -339,13 +337,12 @@ export class MuzzleMLService {
       modelVersion: MODEL_VERSION,
       embeddingDimension: 1280,
       backend: 'server',
-      modelLoaded: this._modelLoaded,
+      modelLoaded: this._initialized,
     };
   }
 
   async clearCache(): Promise<void> {
     this._initialized = false;
-    this._modelLoaded = false;
   }
 
   private createError(code: MuzzleErrorCode, message: string): MuzzleError {

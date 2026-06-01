@@ -7,27 +7,15 @@ import { X, MessageSquare, Mail, MapPin, Shield, Edit, Trash2 } from 'lucide-rea
 import { Language } from '@/types';
 import { useDateDisplay } from '@/hooks/useDateDisplay';
 import { useMarketListingManagement } from '@/hooks/useMarketListingManagement';
+import type { MarketListing } from '@/types/marketplace';
 
 interface MarketListingDetailsProps {
-  listing: {
-    id: string;
-    title: string;
-    category: string;
-    price: number | null;
-    location: string;
-    description: string;
-    photo: string;
-    is_vet_verified?: boolean;
-    contact_method?: string;
-    contact_value?: string;
-    user_id?: string;
-    status?: 'active' | 'inactive' | 'sold';
-  };
+  listing: MarketListing & { photo?: string };
   language: Language;
   currentUserId?: string;
   onClose: () => void;
-  onContact: (listing: any) => void;
-  onEdit: (listing: any) => void;
+  onContact: (listing: MarketListing) => void;
+  onEdit: (listing: MarketListing) => void;
   onDelete: (listingId: string) => void;
 }
 

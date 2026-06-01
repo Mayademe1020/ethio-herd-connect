@@ -3,6 +3,8 @@
  * Optimized for Ethiopian farmers using basic smartphones
  */
 
+import { logger } from '@/utils/logger';
+
 interface MemoryStats {
   used: number;
   total: number;
@@ -211,9 +213,7 @@ class MemoryMonitor {
         cacheKeys.forEach(key => {
           try {
             localStorage.removeItem(key);
-          } catch {
-            // Ignore errors
-          }
+          } catch (e) { logger.warn('Failed to remove cache key:', e); }
         });
       }
     } catch (error) {

@@ -2,6 +2,7 @@
 // Simple approach: Native lazy loading + Service Worker cache + error fallback
 
 import { useState, useEffect, useRef } from 'react';
+import { logger } from '@/utils/logger';
 
 interface OfflineFirstImageProps {
   src: string;
@@ -137,12 +138,12 @@ export const prefetchImages = (urls: string[]): void => {
               reader.result as string
             );
           } catch (e) {
-            // Storage full or unavailable
+            logger.warn('Image cache storage failed:', e);
           }
         };
         reader.readAsDataURL(blob);
       })
-      .catch(() => {});
+      .catch((err) => logger.warn('Image prefetch failed:', err));
   });
 };
 

@@ -1,7 +1,7 @@
 // src/pages/MyTransfers.tsx - Transfer Management Page
 // Mobile-first, shows pending and completed transfers
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,6 +13,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
+import { logger } from '@/utils/logger';
+import { useNetworkStatus } from '@/contexts/NetworkStatusContext';
 
 interface Transfer {
   id: string;
@@ -36,18 +38,7 @@ const MyTransfers = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<TabType>('pending');
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
-
-  useEffect(() => {
-    const onOnline = () => setIsOnline(true);
-    const onOffline = () => setIsOnline(false);
-    window.addEventListener('online', onOnline);
-    window.addEventListener('offline', onOffline);
-    return () => {
-      window.removeEventListener('online', onOnline);
-      window.removeEventListener('offline', onOffline);
-    };
-  }, []);
+  const { isOnline } = useNetworkStatus();
 
   // Fetch transfers
   const { data: transfers = [], isLoading, refetch } = useQuery<Transfer[]>({
@@ -59,14 +50,14 @@ const MyTransfers = () => {
         // Fetch as seller
         const { data: sellerData, error: sellerError } = await supabase
           .from('ownership_transfers')
-          .select('*')
+          .select('id, animal_id, animal_name, animal_type, seller_id, seller_name, buyer_id, buyer_name, agreed_price, status, initiated_at, expires_at, completed_at')
           .eq('seller_id', user.id)
           .order('initiated_at', { ascending: false });
 
         // Fetch as buyer
         const { data: buyerData, error: buyerError } = await supabase
           .from('ownership_transfers')
-          .select('*')
+          .select('id, animal_id, animal_name, animal_type, seller_id, seller_name, buyer_id, buyer_name, agreed_price, status, initiated_at, expires_at, completed_at')
           .eq('buyer_id', user.id)
           .order('initiated_at', { ascending: false });
 
@@ -93,13 +84,26 @@ const MyTransfers = () => {
           completedAt: t.completed_at,
         }));
 
+        // Cache for offline use
+        try {
+          const { cacheData, STORES } = await import('@/utils/indexedDB');
+          await cacheData(STORES.METADATA, [{ id: 'transfers', data: mapped }], user.id);
+        } catch (e) { logger.warn('Failed to cache transfers in IndexedDB:', e); }
+
         return mapped;
-      } catch (error) {
-        console.error('Failed to fetch transfers:', error);
-        return [];
+      } catch {
+        // Offline fallback: read from cache
+        try {
+          const { getCachedData, STORES } = await import('@/utils/indexedDB');
+          const cached = await getCachedData<any>(STORES.METADATA, user.id);
+          const transferItem = cached.find(c => c.id === 'transfers');
+          return transferItem?.data || [];
+        } catch {
+          return [];
+        }
       }
     },
-    enabled: !!user && isOnline,
+    enabled: !!user,
     staleTime: 30000,
   });
 

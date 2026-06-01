@@ -5,6 +5,17 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContextMVP';
 import { startOfWeek, endOfWeek, subWeeks, format, parseISO } from 'date-fns';
+import type { Database } from '@/integrations/supabase/types';
+
+type MilkRecordRow = Database['public']['Tables']['milk_records']['Row'];
+type AnimalRow = Pick<Database['public']['Tables']['animals']['Row'], 'id' | 'name'>;
+
+interface MilkRecord {
+  id: string;
+  amount: number;
+  recorded_at: string;
+  animal_id: string;
+}
 
 export interface MilkAnalytics {
   // Current week stats
@@ -27,6 +38,16 @@ export interface MilkAnalytics {
   trendPercentage: number;
 }
 
+const toMilkRecord = (row: MilkRecordRow): MilkRecord | null => {
+  if (row.recorded_at === null) return null;
+  return {
+    id: row.id,
+    amount: row.amount ?? 0,
+    recorded_at: row.recorded_at,
+    animal_id: row.animal_id,
+  };
+};
+
 export const useMilkAnalytics = () => {
   const { user } = useAuth();
 
@@ -42,8 +63,8 @@ export const useMilkAnalytics = () => {
       const lastWeekEnd = endOfWeek(subWeeks(now, 1), { weekStartsOn: 1 });
 
       // Fetch milk records for current and last week
-      const { data: milkRecords, error } = await supabase
-        .from('milk_records' as any)
+      const { data: milkRecordRows, error } = await supabase
+        .from('milk_records')
         .select(`
           id,
           amount,
@@ -57,42 +78,48 @@ export const useMilkAnalytics = () => {
 
       if (error) throw error;
 
+      const milkRecords: MilkRecord[] = (milkRecordRows ?? [])
+        .map(toMilkRecord)
+        .filter((r): r is MilkRecord => r !== null);
+
       // Fetch animal names separately to avoid join issues
-      const animalIds = [...new Set((milkRecords as any)?.map((r: any) => r.animal_id) || [])];
+      const animalIds = [...new Set(milkRecords.map((r) => r.animal_id))];
       const { data: animals } = await supabase
-        .from('animals' as any)
+        .from('animals')
         .select('id, name')
         .in('id', animalIds);
 
-      const animalMap = new Map((animals as any)?.map((a: any) => [a.id, a.name]) || []);
+      const animalMap = new Map(
+        (animals ?? []).map((a: AnimalRow) => [a.id, a.name])
+      );
 
       // Process data
-      const thisWeekRecords = (milkRecords as any)?.filter((record: any) =>
+      const thisWeekRecords = milkRecords.filter((record) =>
         new Date(record.recorded_at) >= weekStart && new Date(record.recorded_at) <= weekEnd
-      ) || [];
+      );
 
-      const lastWeekRecords = (milkRecords as any)?.filter((record: any) =>
+      const lastWeekRecords = milkRecords.filter((record) =>
         new Date(record.recorded_at) >= lastWeekStart && new Date(record.recorded_at) <= lastWeekEnd
-      ) || [];
+      );
 
       // Calculate weekly totals
-      const thisWeekTotal = thisWeekRecords.reduce((sum: number, record: any) => sum + record.amount, 0);
-      const lastWeekTotal = lastWeekRecords.reduce((sum: number, record: any) => sum + record.amount, 0);
+      const thisWeekTotal = thisWeekRecords.reduce((sum, record) => sum + record.amount, 0);
+      const lastWeekTotal = lastWeekRecords.reduce((sum, record) => sum + record.amount, 0);
 
       // Calculate daily totals for current week
-      const dailyTotals = [];
+      const dailyTotals: { date: string; total: number; recordings: number }[] = [];
       for (let i = 0; i < 7; i++) {
         const date = new Date(weekStart);
         date.setDate(date.getDate() + i);
         const dateStr = format(date, 'yyyy-MM-dd');
 
-        const dayRecords = thisWeekRecords.filter((record: any) =>
+        const dayRecords = thisWeekRecords.filter((record) =>
           format(parseISO(record.recorded_at), 'yyyy-MM-dd') === dateStr
         );
 
         dailyTotals.push({
           date: dateStr,
-          total: dayRecords.reduce((sum: number, record: any) => sum + record.amount, 0),
+          total: dayRecords.reduce((sum, record) => sum + record.amount, 0),
           recordings: dayRecords.length
         });
       }
@@ -100,7 +127,7 @@ export const useMilkAnalytics = () => {
       // Calculate animal performance
       const animalStats = new Map<string, { name: string; total: number; recordings: number }>();
 
-      thisWeekRecords.forEach((record: any) => {
+      thisWeekRecords.forEach((record) => {
         const animalId = record.animal_id;
         const animalName = animalMap.get(animalId) || 'Unknown';
         const current = animalStats.get(animalId) || {
@@ -110,7 +137,7 @@ export const useMilkAnalytics = () => {
         };
 
         animalStats.set(animalId, {
-          name: current.name as string,
+          name: current.name,
           total: current.total + record.amount,
           recordings: current.recordings + 1
         });
@@ -148,8 +175,7 @@ export const useMilkAnalytics = () => {
       };
     },
     enabled: !!user,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 30 * 60 * 1000, // 30 minutes
+    staleTime: 30000,
   });
 
   return {

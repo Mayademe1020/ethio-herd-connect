@@ -4,9 +4,9 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContextMVP';
 import { supabase } from '@/integrations/supabase/client';
-import { useToastNotifications } from '@/hooks/useToastNotifications';
+import { toast } from 'sonner';
 import { useTranslations } from '@/hooks/useTranslations';
 import { sanitizeInput } from '@/utils/animalIdGenerator';
 import { logger } from '@/utils/logger';
@@ -16,7 +16,8 @@ import {
   removeFromSyncQueue,
   updateSyncQueueRetryCount,
   STORES,
-  StoreName
+  StoreName,
+  SyncQueueItem
 } from '@/utils/indexedDB';
 
 const MAX_RETRY_COUNT = 5;
@@ -38,7 +39,6 @@ interface SyncStatus {
 
 export const useEnhancedOfflineSync = () => {
   const { user } = useAuth();
-  const { showSuccess, showError, showInfo, showWarning } = useToastNotifications();
   const { t } = useTranslations();
 
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({
@@ -60,18 +60,18 @@ export const useEnhancedOfflineSync = () => {
   /**
    * Sanitize data before syncing
    */
-  const sanitizeDataForSync = useCallback((data: any): any => {
-    const sanitized = { ...data };
-    
+  const sanitizeDataForSync = useCallback((data: Record<string, unknown>): Record<string, unknown> => {
+    const sanitized: Record<string, unknown> = { ...data };
+
     // Sanitize text fields
-    if (sanitized.name) sanitized.name = sanitizeInput(sanitized.name);
-    if (sanitized.description) sanitized.description = sanitizeInput(sanitized.description);
-    if (sanitized.notes) sanitized.notes = sanitizeInput(sanitized.notes);
-    if (sanitized.symptoms) sanitized.symptoms = sanitizeInput(sanitized.symptoms);
-    if (sanitized.medicine_name) sanitized.medicine_name = sanitizeInput(sanitized.medicine_name);
-    if (sanitized.group_name) sanitized.group_name = sanitizeInput(sanitized.group_name);
-    if (sanitized.title) sanitized.title = sanitizeInput(sanitized.title);
-    
+    if (typeof sanitized.name === 'string') sanitized.name = sanitizeInput(sanitized.name);
+    if (typeof sanitized.description === 'string') sanitized.description = sanitizeInput(sanitized.description);
+    if (typeof sanitized.notes === 'string') sanitized.notes = sanitizeInput(sanitized.notes);
+    if (typeof sanitized.symptoms === 'string') sanitized.symptoms = sanitizeInput(sanitized.symptoms);
+    if (typeof sanitized.medicine_name === 'string') sanitized.medicine_name = sanitizeInput(sanitized.medicine_name);
+    if (typeof sanitized.group_name === 'string') sanitized.group_name = sanitizeInput(sanitized.group_name);
+    if (typeof sanitized.title === 'string') sanitized.title = sanitizeInput(sanitized.title);
+
     return sanitized;
   }, []);
 
@@ -81,7 +81,7 @@ export const useEnhancedOfflineSync = () => {
   const queueAction = useCallback(async (
     type: 'create' | 'update' | 'delete',
     table: StoreName,
-    data: any
+    data: Record<string, unknown>
   ) => {
     if (!user) {
       logger.warn('Cannot queue action: user not authenticated');
@@ -102,28 +102,27 @@ export const useEnhancedOfflineSync = () => {
       if (syncStatus.isOnline && !syncStatus.syncing) {
         syncAll();
       } else {
-        showInfo(
-          t('Saved offline'),
+        toast.info(
           t('Your changes will sync when you\'re back online')
         );
       }
     } catch (error) {
       logger.error('Failed to queue action', error);
-      showError(
-        t('Save error'),
+      toast.error(
         t('Failed to save your changes. Please try again.')
       );
     }
-  }, [user, syncStatus.isOnline, syncStatus.syncing, sanitizeDataForSync, showInfo, showError, t]);
+  }, [user, syncStatus.isOnline, syncStatus.syncing, sanitizeDataForSync, t]);
 
   /**
    * Sync a single queue item
    */
-  const syncQueueItem = useCallback(async (item: any): Promise<boolean> => {
+  const syncQueueItem = useCallback(async (item: SyncQueueItem): Promise<boolean> => {
     try {
       logger.debug('Syncing queue item', { item });
 
-      const { type, table, data } = item;
+      const { type, table } = item;
+      const data = item.data as Record<string, unknown>;
 
       // Map STORES constants to actual table names
       const tableMap: Record<string, string> = {
@@ -134,39 +133,40 @@ export const useEnhancedOfflineSync = () => {
       };
 
       const actualTable = tableMap[table] || table;
-      let result: { error?: any } | null = null;
+      let result: { error?: unknown } | null = null;
 
       switch (actualTable) {
         case 'animals':
           if (type === 'create') {
             result = await supabase.from('animals').insert([data]);
           } else if (type === 'update') {
-            result = await supabase.from('animals').update(data).eq('id', data.id);
+            result = await supabase.from('animals').update(data).eq('id', data.id as string);
           } else if (type === 'delete') {
-            result = await supabase.from('animals').delete().eq('id', data.id);
+            result = await supabase.from('animals').delete().eq('id', data.id as string);
           }
           break;
 
         case 'health_records':
           if (type === 'create') {
             // Handle bulk vaccination
-            if (data.animalIds && Array.isArray(data.animalIds)) {
-              const healthRecords = data.animalIds.map((animalId: string) => ({
+            const animalIds = data.animalIds;
+            if (Array.isArray(animalIds)) {
+              const healthRecords = (animalIds as string[]).map((animalId) => ({
                 animal_id: animalId,
-                user_id: data.user_id,
+                user_id: data.user_id as string,
                 record_type: 'vaccination',
-                medicine_name: data.medicine,
-                administered_date: data.date,
-                notes: data.notes
+                medicine_name: data.medicine as string,
+                administered_date: data.date as string,
+                notes: data.notes as string
               }));
               result = await supabase.from('health_records').insert(healthRecords);
             } else {
               result = await supabase.from('health_records').insert([data]);
             }
           } else if (type === 'update') {
-            result = await supabase.from('health_records').update(data).eq('id', data.id);
+            result = await supabase.from('health_records').update(data).eq('id', data.id as string);
           } else if (type === 'delete') {
-            result = await supabase.from('health_records').delete().eq('id', data.id);
+            result = await supabase.from('health_records').delete().eq('id', data.id as string);
           }
           break;
 
@@ -174,9 +174,9 @@ export const useEnhancedOfflineSync = () => {
           if (type === 'create') {
             result = await supabase.from('milk_production').insert([data]);
           } else if (type === 'update') {
-            result = await supabase.from('milk_production').update(data).eq('id', data.id);
+            result = await supabase.from('milk_production').update(data).eq('id', data.id as string);
           } else if (type === 'delete') {
-            result = await supabase.from('milk_production').delete().eq('id', data.id);
+            result = await supabase.from('milk_production').delete().eq('id', data.id as string);
           }
           break;
 
@@ -184,9 +184,9 @@ export const useEnhancedOfflineSync = () => {
           if (type === 'create') {
             result = await supabase.from('market_listings').insert([data]);
           } else if (type === 'update') {
-            result = await supabase.from('market_listings').update(data).eq('id', data.id);
+            result = await supabase.from('market_listings').update(data).eq('id', data.id as string);
           } else if (type === 'delete') {
-            result = await supabase.from('market_listings').delete().eq('id', data.id);
+            result = await supabase.from('market_listings').delete().eq('id', data.id as string);
           }
           break;
 
@@ -231,8 +231,7 @@ export const useEnhancedOfflineSync = () => {
         return;
       }
 
-      showInfo(
-        t('Syncing data'),
+      toast.info(
         `${t('Syncing')} ${itemsToSync.length} ${t('pending changes')}...`
       );
 
@@ -257,8 +256,7 @@ export const useEnhancedOfflineSync = () => {
 
           // Show warning if max retries reached
           if (item.retryCount + 1 >= MAX_RETRY_COUNT) {
-            showWarning(
-              t('Sync failed'),
+            toast.warning(
               `${t('Failed to sync')} ${item.table} ${t('after')} ${MAX_RETRY_COUNT} ${t('attempts')}`
             );
           }
@@ -290,8 +288,7 @@ export const useEnhancedOfflineSync = () => {
       }));
 
       if (completed > 0) {
-        showSuccess(
-          t('Sync complete'),
+        toast.success(
           `${t('Successfully synced')} ${completed} ${t('items')}` +
           (failed > 0 ? `, ${failed} ${t('failed')}` : '')
         );
@@ -305,12 +302,11 @@ export const useEnhancedOfflineSync = () => {
         syncing: false,
         status: 'error'
       }));
-      showError(
-        t('Sync error'),
+      toast.error(
         t('Failed to sync your changes. Will retry later.')
       );
     }
-  }, [user, syncStatus.isOnline, syncStatus.syncing, syncQueueItem, showInfo, showSuccess, showWarning, showError, t]);
+  }, [user, syncStatus.isOnline, syncStatus.syncing, syncQueueItem, t]);
 
   /**
    * Get sync status message
@@ -344,14 +340,13 @@ export const useEnhancedOfflineSync = () => {
   useEffect(() => {
     const handleOnline = () => {
       setSyncStatus(prev => ({ ...prev, isOnline: true }));
-      showInfo(t('Back online'), t('Starting to sync pending changes...'));
+      toast.info(t('Starting to sync pending changes...'));
       syncAll();
     };
 
     const handleOffline = () => {
       setSyncStatus(prev => ({ ...prev, isOnline: false, status: 'idle' }));
-      showInfo(
-        t('Offline mode'),
+      toast.info(
         t('Changes will be saved locally and synced when online.')
       );
     };
@@ -363,7 +358,7 @@ export const useEnhancedOfflineSync = () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, [syncAll, showInfo, t]);
+  }, [syncAll, t]);
 
   /**
    * Periodic sync

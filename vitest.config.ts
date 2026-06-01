@@ -8,13 +8,12 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./src/test/setup.ts'],
-    coverage: {
-      reporter: ['text', 'html'],
-    },
+    exclude: ['_cleanup_backup/**', 'node_modules/**'],
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@tensorflow/tfjs': path.resolve(__dirname, './src/test/mocks/tensorflowMock.ts'),
     },
   },
 });

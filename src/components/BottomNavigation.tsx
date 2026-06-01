@@ -1,17 +1,19 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Home, Beef, ShoppingCart, Milk, User } from 'lucide-react';
 import { EnhancedButton } from '@/components/ui/enhanced-button';
+import { useTranslations } from '@/hooks/useTranslations';
 
 const BottomNavigation = () => {
+  const { t } = useTranslations();
   const navigate = useNavigate();
   const location = useLocation();
 
   const tabs = [
-    { path: '/', icon: Home, label: 'Home' },
-    { path: '/animals', icon: Beef, label: 'Animals' },
-    { path: '/marketplace', icon: ShoppingCart, label: 'Market', badge: 3 },
-    { path: '/milk/record', icon: Milk, label: 'Record' },
-    { path: '/profile', icon: User, label: 'Profile' },
+    { path: '/', icon: Home, label: t('bottomNav.home') },
+    { path: '/animals', icon: Beef, label: t('bottomNav.animals') },
+    { path: '/marketplace', icon: ShoppingCart, label: t('bottomNav.market') },
+    { path: '/milk/record', icon: Milk, label: t('bottomNav.record') },
+    { path: '/profile', icon: User, label: t('bottomNav.profile') },
   ];
 
   const isActive = (path: string) => {

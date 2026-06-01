@@ -29,6 +29,8 @@ import { useAuth } from '@/contexts/AuthContextMVP';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import BottomNavigation from '@/components/BottomNavigation';
+import { settingsTranslations } from '@/i18n/settingsTranslations';
+import { useNetworkStatus } from '@/contexts/NetworkStatusContext';
 
 type Language = 'am' | 'en' | 'or' | 'sw';
 
@@ -66,6 +68,7 @@ const Settings = () => {
   const { calendarSystem, setCalendarSystem } = useCalendar();
   const { user } = useAuth();
   const { profile } = useProfile();
+  const { isOnline } = useNetworkStatus();
   const {
     settings,
     isLoading: notificationsLoading,
@@ -78,7 +81,6 @@ const Settings = () => {
   } = useNotificationSettings();
 
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
-  const [isOnline, setIsOnline] = useState(true);
   const [isPendingSync, setIsPendingSync] = useState(false);
   
   // Accessibility preferences
@@ -109,25 +111,6 @@ const Settings = () => {
     document.documentElement.classList.toggle('high-contrast', highContrast);
   }, [highContrast]);
 
-  // Network status awareness
-  useEffect(() => {
-    setIsOnline(navigator.onLine);
-    
-    const handleOnline = () => {
-      setIsOnline(true);
-      toast.success(tt.synced);
-    };
-    const handleOffline = () => setIsOnline(false);
-    
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-    
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
-
   // Check for pending sync items
   useEffect(() => {
     const checkPendingSync = () => {
@@ -139,150 +122,7 @@ const Settings = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const t = {
-    am: {
-      settings: 'ቅንብሮች',
-      back: 'ተመለስ',
-      languageRegion: 'ቋንቋ እና ክልል',
-      language: 'ቋንቋ',
-      calendar: 'የቀን አቆጣጠር',
-      notifications: 'ማሳወቂያዎች',
-      pushNotifications: 'አፕ ማሳወቂያዎች',
-      emailNotifications: 'ኢሜይል ማሳወቂያዎች',
-      telegramNotifications: 'ተለግረም ማሳወቂያዎች',
-      connectTelegram: 'ተለግረም ገናይ',
-      connected: 'ተያይዟል',
-      account: 'መለያ',
-      editProfile: 'መገለጫ አርትዕ',
-      deleteAccount: 'መለያ ሰርዝ',
-      about: 'ስለ',
-      version: 'እትም',
-      privacyPolicy: 'የግላዊነት ፖሊሲ',
-      terms: 'የአገልግሎት ውሎች',
-      logout: 'ውጣ',
-      ethiopian: 'የኢትዮጵያ',
-      gregorian: 'ግሪጎሪያን',
-      // New translations
-      offlineMode: 'ከመስመር ውጪ',
-      settingsWillSync: 'ቅንብሮች እንዲሁይ ይቀመጣሉ',
-      pendingSync: 'የተስተካከለ ማስታወሻ',
-      synced: 'ተደርቷል',
-      errorTryAgain: 'ስህተት ነበር። እንደገና ይሞክሩ',
-      errorNoInternet: 'ኢንተርኔት የለም። ቅንብሮች ይቀመጣሉ',
-      logoutConfirmTitle: 'እርግጠኛ ነዎት?',
-      logoutConfirmMessage: 'ከገቡ ውጪ ከወጡ ዝርዝር መረጃዎች ላይስተካከል አይችሉም።',
-      logoutConfirmButton: 'ውጣ',
-      cancelButton: 'ሰርዝ',
-      calendarInfo: 'የኢትዮጵያ ቀን አቆጣጠር ለግብርና ወቅቶች እና በዓላት ጥቅም ይሆናል',
-    },
-    en: {
-      settings: 'Settings',
-      back: 'Back',
-      languageRegion: 'Language & Region',
-      language: 'Language',
-      calendar: 'Calendar',
-      notifications: 'Notifications',
-      pushNotifications: 'Push Notifications',
-      emailNotifications: 'Email Notifications',
-      telegramNotifications: 'Telegram Notifications',
-      connectTelegram: 'Connect Telegram',
-      connected: 'Connected',
-      account: 'Account',
-      editProfile: 'Edit Profile',
-      deleteAccount: 'Delete Account',
-      about: 'About',
-      version: 'Version',
-      privacyPolicy: 'Privacy Policy',
-      terms: 'Terms of Service',
-      logout: 'Logout',
-      ethiopian: 'Ethiopian',
-      gregorian: 'Gregorian',
-      // New translations
-      offlineMode: 'Offline Mode',
-      settingsWillSync: 'Settings will sync when online',
-      pendingSync: 'pending sync',
-      synced: 'Synced successfully',
-      errorTryAgain: 'Something went wrong. Please try again.',
-      errorNoInternet: 'No internet. Settings saved for later.',
-      logoutConfirmTitle: 'Are you sure?',
-      logoutConfirmMessage: 'If you log out, any unsaved changes will be lost.',
-      logoutConfirmButton: 'Logout',
-      cancelButton: 'Cancel',
-      calendarInfo: 'Ethiopian calendar is useful for farming seasons and holidays',
-    },
-    or: {
-      settings: 'Sagantaa',
-      back: 'Dubbii',
-      languageRegion: 'Afaan & Naannoo',
-      language: 'Afaan',
-      calendar: 'Calandarii',
-      notifications: 'Odeeffannoo',
-      pushNotifications: 'Odeeffannoo Appii',
-      emailNotifications: 'Odeeffannoo Emailii',
-      telegramNotifications: 'Odeeffannoo Telegram',
-      connectTelegram: 'Telegram Qubuu',
-      connected: 'Qabatame',
-      account: 'Akkawnta',
-      editProfile: 'Profayil Edituu',
-      deleteAccount: 'Akkawnta Delete',
-      about: "Waa'ee",
-      version: 'Version',
-      privacyPolicy: 'Polishii Sirna',
-      terms: 'Yaada tajaajila',
-      logout: "Ba'uu",
-      ethiopian: 'Itoophiyaa',
-      gregorian: 'Gorgoriyaan',
-      // New translations
-      offlineMode: 'Offline',
-      settingsWillSync: 'Sagantoonni online taataniin sinjiiffama',
-      pendingSync: 'sinjiifama jira',
-      synced: 'Sinjiifame',
-      errorTryAgain: 'Rakkoo. Yeroo biraa irratti yaada.',
-      errorNoInternet: 'Internet hin jiruu. Sagantoonni har Wiederholen.',
-      logoutConfirmTitle: 'Ammu?',
-      logoutConfirmMessage: "Ba'ee booda waa'ee hundaa'a.",
-      logoutConfirmButton: "Ba'uu",
-      cancelButton: 'Haalu',
-      calendarInfo: 'Calandarii Itoophiyaa waxtummaa qonnaa fi guyyaa diinaaaf',
-    },
-    sw: {
-      settings: 'Mipangilio',
-      back: 'Rudi',
-      languageRegion: 'Lugha na Mikoa',
-      language: 'Lugha',
-      calendar: 'Kalenda',
-      notifications: 'Arifa',
-      pushNotifications: 'Arifa za App',
-      emailNotifications: 'Arifa za Barua pepe',
-      telegramNotifications: 'Arifa za Telegram',
-      connectTelegram: 'Unganisha Telegram',
-      connected: 'Imunganishwa',
-      account: 'Akaunti',
-      editProfile: 'Hariri Profaili',
-      deleteAccount: 'Futa Akaunti',
-      about: 'Kuhusu',
-      version: 'Toleo',
-      privacyPolicy: 'Sera ya Faragha',
-      terms: 'Sheria za Huduma',
-      logout: 'Onoka',
-      ethiopian: 'Uhabeshi',
-      gregorian: 'Gregori',
-      // New translations
-      offlineMode: 'Hali ya Offline',
-      settingsWillSync: 'Mipangilio itasawazishwa mtandaoni',
-      pendingSync: 'inach等待同步',
-      synced: 'Imesawazishwa',
-      errorTryAgain: 'Hitilafu. Jaribu tena.',
-      hakunaInternet: 'Hakuna mtandao. Mipangilio itahifadhiwa.',
-      logoutConfirmTitle: 'Una uhakika?',
-      logoutConfirmMessage: 'Ukionoka, mabadiliko yoyote yatayokufa.',
-      logoutConfirmButton: 'Onoka',
-      cancelButton: 'Ghairi',
-      calendarInfo: 'Kalenda ya Ethiopia ni muhimu kwa msimu wa kilimo',
-    }
-  };
-
-  const tt = t[language] || t.en;
+  const tt = settingsTranslations[language] || settingsTranslations.en;
 
   const languageOptions: { value: Language; label: string }[] = [
     { value: 'am', label: 'አማርኛ' },
@@ -335,23 +175,6 @@ const Settings = () => {
     }
     try {
       await setEmailNotifications(enabled);
-      toast.success(tt.synced);
-    } catch {
-      toast.error(tt.errorTryAgain, { duration: 8000 });
-    }
-  };
-
-  const handleTelegramToggle = async (enabled: boolean) => {
-    if (!isTelegramConnected && enabled) {
-      toast.info('Telegram integration coming soon');
-      return;
-    }
-    if (!isOnline) {
-      toast.info(tt.errorNoInternet, { duration: 8000 });
-      return;
-    }
-    try {
-      await setTelegramNotifications(enabled);
       toast.success(tt.synced);
     } catch {
       toast.error(tt.errorTryAgain, { duration: 8000 });
@@ -573,26 +396,6 @@ const Settings = () => {
                       aria-label={tt.emailNotifications}
                     />
                   </div>
-                  <Separator />
-                  <div className="flex items-center justify-between px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <Bell className="w-5 h-5 text-gray-400" aria-hidden="true" />
-                      <div className="flex flex-col">
-                        <span className="text-sm text-gray-900">{tt.telegramNotifications}</span>
-                        {isTelegramConnected && telegramUsername && (
-                          <span className="text-xs text-green-600 flex items-center gap-1">
-                            <Check className="w-3 h-3" /> @{telegramUsername} ({tt.connected})
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <Switch
-                      checked={settings?.telegram_notifications_enabled ?? false}
-                      onCheckedChange={handleTelegramToggle}
-                      disabled={isUpdating || !isTelegramConnected}
-                      aria-label={tt.telegramNotifications}
-                    />
-                  </div>
                 </>
               )}
             </CardContent>
@@ -610,13 +413,6 @@ const Settings = () => {
                 icon={<User className="w-5 h-5" />}
                 label={tt.editProfile}
                 onClick={() => navigate('/profile')}
-              />
-              <Separator />
-              <SettingsItem
-                icon={<Shield className="w-5 h-5" />}
-                label={tt.deleteAccount}
-                danger
-                onClick={() => toast.info('Contact support to delete account')}
               />
             </CardContent>
           </Card>

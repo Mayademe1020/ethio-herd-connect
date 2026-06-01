@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContextMVP';
 import { toast } from 'sonner';
 import { v4 as uuidv4 } from 'uuid';
 import { offlineQueue } from '@/lib/offlineQueue';
-import { useToastContext } from '@/contexts/ToastContext';
+import { logger } from '@/utils/logger';
 import { getUserFriendlyError, getSuccessMessage } from '@/lib/errorMessages';
 import { analytics, ANALYTICS_EVENTS } from '@/lib/analytics';
 
@@ -57,7 +57,6 @@ export const useAnimalRegistration = (): UseAnimalRegistrationReturn => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [error, setError] = useState<Error | null>(null);
-  const toastContext = useToastContext();
 
   const mutation = useMutation({
     mutationFn: async (data: AnimalRegistrationData) => {
@@ -84,7 +83,7 @@ export const useAnimalRegistration = (): UseAnimalRegistrationReturn => {
           .maybeSingle();
         farmId = (membership as any)?.farm_id;
       } catch (_) {
-        // Farm membership lookup failed - continue without farm_id
+        logger.warn('Farm membership lookup failed - continuing without farm_id', _);
       }
 
       const animalData = {
@@ -108,7 +107,7 @@ export const useAnimalRegistration = (): UseAnimalRegistrationReturn => {
         await offlineQueue.addToQueue('animal_registration', animalData);
 
         const networkError = getUserFriendlyError({ message: 'network' }, 'amharic');
-        toastContext.info(networkError.message, networkError.icon);
+        toast.info(networkError.message, networkError.icon ? { icon: networkError.icon } : undefined);
 
         return { id: tempId, animal_id: animalId, offline: true };
       }
@@ -125,7 +124,7 @@ export const useAnimalRegistration = (): UseAnimalRegistrationReturn => {
         await offlineQueue.addToQueue('animal_registration', animalData);
 
         const errorMsg = getUserFriendlyError(saveError, 'amharic');
-        toastContext.warning(errorMsg.message, errorMsg.icon);
+        toast.warning(errorMsg.message, errorMsg.icon ? { icon: errorMsg.icon } : undefined);
 
         return { id: tempId, animal_id: animalId, offline: true };
       }
@@ -139,7 +138,7 @@ export const useAnimalRegistration = (): UseAnimalRegistrationReturn => {
 
       if (!result.offline) {
         const successMsg = getSuccessMessage('animal_registered', 'amharic');
-        toastContext.success(successMsg.message, successMsg.icon);
+        toast.success(successMsg.message, successMsg.icon ? { icon: successMsg.icon } : undefined);
       }
 
       // Track analytics event
@@ -154,7 +153,7 @@ export const useAnimalRegistration = (): UseAnimalRegistrationReturn => {
     onError: (err: Error) => {
       setError(err);
       const errorMsg = getUserFriendlyError(err, 'amharic');
-      toastContext.error(errorMsg.message, errorMsg.icon);
+      toast.error(errorMsg.message, errorMsg.icon ? { icon: errorMsg.icon } : undefined);
     }
   });
 

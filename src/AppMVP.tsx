@@ -7,12 +7,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProviderMVP } from "@/contexts/AuthContextMVP";
 import { AdminProvider } from "@/contexts/AdminContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { ToastProvider } from "@/contexts/ToastContext";
 import { AnalyticsProvider } from "@/contexts/AnalyticsContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { CalendarProvider } from "@/contexts/CalendarContext";
 import { DemoModeProvider } from "@/contexts/DemoModeContext";
 import { NetworkStatusProvider } from "@/contexts/NetworkStatusContext";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { memoryMonitor } from "@/utils/memoryMonitor";
 import { animationOptimizer } from "@/utils/animationOptimizer";
 import { register as registerServiceWorker } from "@/utils/serviceWorker";
@@ -39,6 +39,12 @@ const ListingDetail = lazy(() => import("./pages/ListingDetail").then(m => ({ de
 const CreateListing = lazy(() => import("./pages/CreateListing").then(m => ({ default: m.default })));
 const MyListings = lazy(() => import("./pages/MyListings").then(m => ({ default: m.default })));
 const ProfilePage = lazy(() => import("./pages/Profile").then(m => ({ default: m.default })));
+
+// Orphaned pages now routed
+const FeedRationing = lazy(() => import("./pages/FeedRationing").then(m => ({ default: m.default })));
+const Favorites = lazy(() => import("./pages/Favorites").then(m => ({ default: m.default })));
+const NotificationSettings = lazy(() => import("./pages/NotificationSettings").then(m => ({ default: m.default })));
+const RegisterPage = lazy(() => import("./pages/RegisterPage").then(m => ({ default: m.default })));
 
 // Admin Routes
 const AdminLogin = lazy(() => import("./pages/AdminLogin").then(m => ({ default: m.default })));
@@ -95,9 +101,9 @@ function AppMVP() {
             <AdminProvider>
               <CalendarProvider>
                 <DemoModeProvider>
-                  <ToastProvider>
                     <AnalyticsProvider>
                     <BrowserRouter>
+                      <ErrorBoundary level="global">
                       <Suspense fallback={<LoadingFallback />}>
                         <AppLayout>
                           <Routes>
@@ -260,6 +266,35 @@ function AppMVP() {
                           </ProtectedRoute>
                         }
                       />
+                      {/* Newly routed pages */}
+                      <Route
+                        path="/feed-rationing"
+                        element={
+                          <ProtectedRoute>
+                            <FeedRationing />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/favorites"
+                        element={
+                          <ProtectedRoute>
+                            <Favorites />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/notification-settings"
+                        element={
+                          <ProtectedRoute>
+                            <NotificationSettings />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/register"
+                        element={<RegisterPage />}
+                      />
                       {/* Admin Routes */}
                       <Route
                         path="/admin"
@@ -272,10 +307,10 @@ function AppMVP() {
                           </Routes>
                         </AppLayout>
                       </Suspense>
+                      </ErrorBoundary>
                     </BrowserRouter>
                   </AnalyticsProvider>
                   <Sonner />
-                </ToastProvider>
               </DemoModeProvider>
             </CalendarProvider>
           </AdminProvider>

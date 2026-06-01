@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContextMVP';
 import { offlineQueue } from '@/lib/offlineQueue';
 import { v4 as uuidv4 } from 'uuid';
-import { useToastContext } from '@/contexts/ToastContext';
+import { toast } from 'sonner';
 import { getUserFriendlyError, getSuccessMessage } from '@/lib/errorMessages';
 import { analytics, ANALYTICS_EVENTS } from '@/lib/analytics';
 
@@ -29,10 +29,18 @@ interface CreateListingData {
   healthDisclaimerChecked: boolean;
 }
 
+type UpdateListingFields = {
+  price?: number;
+  is_negotiable?: boolean;
+  description?: string;
+  photo_url?: string;
+  video_url?: string;
+  video_thumbnail?: string;
+};
+
 export const useMarketplaceListing = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const toastContext = useToastContext();
 
   const createListing = useMutation({
     mutationFn: async (data: CreateListingData) => {
@@ -70,7 +78,7 @@ export const useMarketplaceListing = () => {
         await offlineQueue.addToQueue('listing_creation', listingData);
         
         const networkError = getUserFriendlyError({ message: 'network' }, 'amharic');
-        toastContext.info(networkError.message, networkError.icon);
+        toast.info(networkError.message, networkError.icon ? { icon: networkError.icon } : undefined);
 
         return { id: tempId, offline: true };
       }
@@ -88,13 +96,13 @@ export const useMarketplaceListing = () => {
           await offlineQueue.addToQueue('listing_creation', listingData);
           
           const errorMsg = getUserFriendlyError(error, 'amharic');
-          toastContext.warning(errorMsg.message, errorMsg.icon);
+          toast.warning(errorMsg.message, errorMsg.icon ? { icon: errorMsg.icon } : undefined);
 
           return { id: tempId, offline: true };
         }
 
         const successMsg = getSuccessMessage('listing_created', 'amharic');
-        toastContext.success(successMsg.message, successMsg.icon);
+        toast.success(successMsg.message, successMsg.icon ? { icon: successMsg.icon } : undefined);
 
         return { id: savedListing.id, offline: false };
       } catch (error) {
@@ -102,7 +110,7 @@ export const useMarketplaceListing = () => {
         await offlineQueue.addToQueue('listing_creation', listingData);
         
         const errorMsg = getUserFriendlyError(error, 'amharic');
-        toastContext.warning(errorMsg.message, errorMsg.icon);
+        toast.warning(errorMsg.message, errorMsg.icon ? { icon: errorMsg.icon } : undefined);
 
         return { id: tempId, offline: true };
       }
@@ -150,28 +158,21 @@ export const useMarketplaceListing = () => {
       queryClient.invalidateQueries({ queryKey: ['my-listings'] });
       
       const successMsg = getSuccessMessage('listing_sold', 'amharic');
-      toastContext.success(successMsg.message, successMsg.icon);
+      toast.success(successMsg.message, successMsg.icon ? { icon: successMsg.icon } : undefined);
     },
     onError: (error) => {
       const errorMsg = getUserFriendlyError(error, 'amharic');
-      toastContext.error(errorMsg.message, errorMsg.icon);
+      toast.error(errorMsg.message, errorMsg.icon ? { icon: errorMsg.icon } : undefined);
     },
   });
 
   const updateListing = useMutation({
-    mutationFn: async ({ 
-      listingId, 
-      updates 
-    }: { 
-      listingId: string; 
-      updates: {
-        price?: number;
-        is_negotiable?: boolean;
-        description?: string;
-        photo_url?: string;
-        video_url?: string;
-        video_thumbnail?: string;
-      }
+    mutationFn: async ({
+      listingId,
+      updates
+    }: {
+      listingId: string;
+      updates: UpdateListingFields;
     }) => {
       if (!user) {
         throw new Error('User not authenticated');
@@ -209,7 +210,7 @@ export const useMarketplaceListing = () => {
         });
 
         const networkError = getUserFriendlyError({ message: 'network' }, 'amharic');
-        toastContext.info(networkError.message, networkError.icon);
+        toast.info(networkError.message, networkError.icon ? { icon: networkError.icon } : undefined);
 
         return { success: true, offline: true };
       }
@@ -232,7 +233,7 @@ export const useMarketplaceListing = () => {
         });
 
         const errorMsg = getUserFriendlyError(updateError, 'amharic');
-        toastContext.warning(errorMsg.message, errorMsg.icon);
+        toast.warning(errorMsg.message, errorMsg.icon ? { icon: errorMsg.icon } : undefined);
 
         return { success: true, offline: true };
       }
@@ -247,18 +248,18 @@ export const useMarketplaceListing = () => {
 
       if (!result.offline) {
         const successMsg = getSuccessMessage('changes_saved', 'amharic');
-        toastContext.success(successMsg.message, successMsg.icon);
+        toast.success(successMsg.message, successMsg.icon ? { icon: successMsg.icon } : undefined);
       }
     },
     onError: (error) => {
       const errorMsg = getUserFriendlyError(error, 'amharic');
-      toastContext.error(errorMsg.message, errorMsg.icon);
+      toast.error(errorMsg.message, errorMsg.icon ? { icon: errorMsg.icon } : undefined);
     },
   });
 
   return {
     createListing: createListing.mutateAsync,
-    updateListing: async (listingId: string, updates: any) => {
+    updateListing: async (listingId: string, updates: UpdateListingFields) => {
       const result = await updateListing.mutateAsync({ listingId, updates });
       return result.success;
     },

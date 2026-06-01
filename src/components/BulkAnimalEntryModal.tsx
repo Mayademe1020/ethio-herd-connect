@@ -65,10 +65,13 @@ export function BulkAnimalEntryModal({ isOpen, onClose, onSuccess }: BulkAnimalE
       onSuccess();
       onClose();
       resetForm();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Bulk registration error:', error);
+      const message = typeof error === 'object' && error !== null && 'message' in error
+        ? String((error as { message?: string }).message)
+        : 'Failed to register animals';
       toast.error('ስህተት / Error', {
-        description: error.message || 'Failed to register animals'
+        description: message
       });
     } finally {
       setIsLoading(false);

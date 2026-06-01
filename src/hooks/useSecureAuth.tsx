@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { useToastNotifications } from '@/hooks/useToastNotifications';
+import { toast } from 'sonner';
 
 interface AccountSecurity {
   failed_login_attempts: number;
@@ -13,7 +13,7 @@ export const useSecureAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const { showError, showSuccess } = useToastNotifications();
+
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -51,8 +51,7 @@ export const useSecureAuth = () => {
         const lockUntil = new Date(data.account_locked_until);
         if (lockUntil > new Date()) {
           const minutesLeft = Math.ceil((lockUntil.getTime() - Date.now()) / 60000);
-          showError(
-            'Account Locked',
+          toast.error(
             `Your account is locked due to multiple failed login attempts. Try again in ${minutesLeft} minutes.`
           );
           return true;
@@ -70,7 +69,7 @@ export const useSecureAuth = () => {
     try {
       const { data: existingSecurity } = await supabase
         .from('account_security')
-        .select('*')
+        .select('id, user_id, failed_login_attempts, last_failed_login, account_locked_until, updated_at')
         .eq('user_id', email)
         .maybeSingle();
 
@@ -100,13 +99,11 @@ export const useSecureAuth = () => {
       }
 
       if (shouldLock) {
-        showError(
-          'Account Locked',
+        toast.error(
           'Too many failed login attempts. Your account has been locked for 15 minutes.'
         );
       } else {
-        showError(
-          'Login Failed',
+        toast.error(
           `Invalid credentials. ${5 - failedAttempts} attempts remaining before account lock.`
         );
       }
@@ -150,7 +147,7 @@ export const useSecureAuth = () => {
 
       if (data.user) {
         await clearFailedLogins(data.user.id);
-        showSuccess('Welcome back!', 'You have been successfully signed in.');
+        toast.success('You have been successfully signed in.');
       }
 
       return { error: null };
@@ -160,7 +157,7 @@ export const useSecureAuth = () => {
     }
   };
 
-  const auditLog = async (action: string, tableName: string, recordId?: string, oldValues?: any, newValues?: any) => {
+  const auditLog = async (action: string, tableName: string, recordId?: string, oldValues?: Record<string, unknown>, newValues?: Record<string, unknown>) => {
     if (!user) return;
 
     try {

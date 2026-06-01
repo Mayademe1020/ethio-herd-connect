@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useToastNotifications } from '@/hooks/useToastNotifications';
+import { useAuth } from '@/contexts/AuthContextMVP';
+import { toast } from 'sonner';
 import { useTranslations } from '@/hooks/useTranslations';
 import { secureLocalStorage } from '@/utils/securityUtils';
 
@@ -26,7 +26,6 @@ const DEFAULT_PRIVACY_SETTINGS: PrivacySettings = {
 
 export const usePrivacyControls = () => {
   const { user } = useAuth();
-  const { showSuccess, showError } = useToastNotifications();
   const { t } = useTranslations();
   const [privacySettings, setPrivacySettings] = useState<PrivacySettings>(DEFAULT_PRIVACY_SETTINGS);
   const [isLoading, setIsLoading] = useState(false);
@@ -67,15 +66,13 @@ export const usePrivacyControls = () => {
         await new Promise(resolve => setTimeout(resolve, 500));
       }
       
-      showSuccess(
-        t('privacy.settingsSaved', 'Privacy Settings Saved'),
-        isOnline 
+      toast.success(
+        isOnline
           ? t('privacy.settingsSyncedOnline', 'Your settings have been saved and synced')
           : t('privacy.settingsSavedOffline', 'Your settings have been saved locally and will sync when online')
       );
     } catch (error) {
-      showError(
-        t('privacy.saveFailed', 'Failed to Save Settings'),
+      toast.error(
         t('privacy.tryAgain', 'Please try again later')
       );
     } finally {
@@ -84,7 +81,7 @@ export const usePrivacyControls = () => {
   };
 
   // Update a single privacy setting
-  const updatePrivacySetting = async (key: keyof PrivacySettings, value: any) => {
+  const updatePrivacySetting = async (key: keyof PrivacySettings, value: string | number | boolean) => {
     const updatedSettings = {
       ...privacySettings,
       [key]: value
@@ -110,13 +107,11 @@ export const usePrivacyControls = () => {
       // Mark data for deletion in local storage
       secureLocalStorage.setItem(`data-deletion-requested-${user.id}`, new Date().toISOString());
       
-      showSuccess(
-        t('privacy.deletionRequested', 'Data Deletion Requested'),
+      toast.success(
         t('privacy.deletionProcessing', 'Your request is being processed. This may take up to 30 days.')
       );
     } catch (error) {
-      showError(
-        t('privacy.deletionFailed', 'Request Failed'),
+      toast.error(
         t('privacy.tryAgainLater', 'Please try again later')
       );
     } finally {

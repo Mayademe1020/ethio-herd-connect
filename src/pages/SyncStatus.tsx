@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SyncStatusIndicator } from '@/components/SyncStatusIndicator';
 import { useOfflineActionQueue } from '@/hooks/useOfflineActionQueue';
 import { useTranslations } from '@/hooks/useTranslations';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContextMVP';
 import { getSyncQueue } from '@/utils/indexedDB';
 import { logger } from '@/utils/logger';
 
@@ -20,7 +20,7 @@ interface QueueItem {
   id: string;
   type: 'create' | 'update' | 'delete';
   table: string;
-  data: any;
+  data: Record<string, unknown>;
   timestamp: number;
   retryCount: number;
   userId: string;

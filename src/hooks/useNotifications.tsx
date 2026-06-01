@@ -10,11 +10,11 @@ import {
   Notification,
   NotificationType,
 } from '@/services/notificationService';
-import { useToast } from '@/hooks/useToast';
+import { toast } from 'sonner';
 
 export function useNotifications() {
   const { user } = useAuth();
-  const { showToast } = useToast();
+
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -49,11 +49,11 @@ export function useNotifications() {
       }
       const data = await getNotifications(filter);
       setNotifications(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Ignore aborted network calls to prevent noisy logs
-      const msg = String(error?.message || '')
+      const msg = String((error as Error)?.message || '')
         .toLowerCase();
-      const isAborted = error?.name === 'AbortError' || msg.includes('abort') || msg.includes('cancel');
+      const isAborted = (error as Error)?.name === 'AbortError' || msg.includes('abort') || msg.includes('cancel');
       if (!isAborted) {
         console.error('Error fetching notifications:', error);
       }
@@ -73,9 +73,9 @@ export function useNotifications() {
       }
       const count = await getUnreadCount();
       setUnreadCount(count);
-    } catch (error: any) {
-      const msg = String(error?.message || '').toLowerCase();
-      const isAborted = error?.name === 'AbortError' || msg.includes('abort') || msg.includes('cancel');
+    } catch (error: unknown) {
+      const msg = String((error as Error)?.message || '').toLowerCase();
+      const isAborted = (error as Error)?.name === 'AbortError' || msg.includes('abort') || msg.includes('cancel');
       if (!isAborted) {
         console.error('Error fetching unread count:', error);
       }
@@ -103,9 +103,9 @@ export function useNotifications() {
         prev.map(n => ({ ...n, is_read: true }))
       );
       setUnreadCount(0);
-      showToast('All notifications marked as read', 'success');
+      toast.success('All notifications marked as read');
     }
-  }, [showToast]);
+  }, []);
 
   // Delete notification
   const handleDelete = useCallback(async (notificationId: string) => {
@@ -140,12 +140,12 @@ export function useNotifications() {
 
       // Show toast for high-priority notifications
       if (newNotification.priority === 'high') {
-        showToast(newNotification.title, 'info');
+        toast.info(newNotification.title);
       }
     });
 
     return unsubscribe;
-  }, [user, showToast]);
+  }, [user]);
 
   return {
     notifications,

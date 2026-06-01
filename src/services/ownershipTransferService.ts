@@ -67,6 +67,31 @@ export interface TransferSteps {
   }[];
 }
 
+export interface DbOwnershipTransfer {
+  id: string;
+  animal_id: string;
+  animal_name?: string | null;
+  animal_code?: string | null;
+  animal_type?: string | null;
+  seller_id: string;
+  seller_name?: string | null;
+  seller_phone?: string | null;
+  buyer_id: string;
+  buyer_name?: string | null;
+  buyer_phone?: string | null;
+  agreed_price: number;
+  currency?: string | null;
+  status: TransferStatus;
+  verification_request_id?: string | null;
+  payment_reference?: string | null;
+  initiated_at: string;
+  expires_at: string;
+  completed_at?: string | null;
+  cancelled_at?: string | null;
+  cancelled_by?: string | null;
+  cancellation_reason?: string | null;
+}
+
 // ============================================================================
 // CONSTANTS
 // ============================================================================
@@ -395,7 +420,7 @@ if (!seller || !buyer) {
         return this.getTransferLocal(transferId);
       }
 
-      return this.mapDbToTransfer(data);
+      return this.mapDbToTransfer(data as any);
     } catch {
       return this.getTransferLocal(transferId);
     }
@@ -428,7 +453,7 @@ if (!seller || !buyer) {
         return this.getUserTransfersLocal(userId);
       }
 
-      return (data || []).map(this.mapDbToTransfer);
+      return ((data as any) || []).map(this.mapDbToTransfer);
     } catch {
       return this.getUserTransfersLocal(userId);
     }
@@ -600,34 +625,34 @@ if (!seller || !buyer) {
     }
   }
 
-  private mapDbToTransfer(data: any): TransferRequest {
+  private mapDbToTransfer(data: DbOwnershipTransfer): TransferRequest {
     return {
       id: data.id,
       animalId: data.animal_id,
-      animalName: data.animal_name,
-      animalCode: data.animal_code,
-      animalType: data.animal_type,
+      animalName: data.animal_name ?? '',
+      animalCode: data.animal_code ?? '',
+      animalType: data.animal_type ?? '',
       sellerId: data.seller_id,
-      sellerName: data.seller_name,
-      sellerPhone: data.seller_phone,
+      sellerName: data.seller_name ?? '',
+      sellerPhone: data.seller_phone ?? '',
       buyerId: data.buyer_id,
-      buyerName: data.buyer_name,
-      buyerPhone: data.buyer_phone,
+      buyerName: data.buyer_name ?? '',
+      buyerPhone: data.buyer_phone ?? '',
       agreedPrice: data.agreed_price,
       currency: data.currency || 'ETB',
       status: data.status,
-      verificationRequestId: data.verification_request_id,
-      paymentReference: data.payment_reference,
+      verificationRequestId: data.verification_request_id ?? undefined,
+      paymentReference: data.payment_reference ?? undefined,
       initiatedAt: data.initiated_at,
       expiresAt: data.expires_at,
-      completedAt: data.completed_at,
-      cancelledAt: data.cancelled_at,
-      cancelledBy: data.cancelled_by,
-      cancellationReason: data.cancellation_reason,
+      completedAt: data.completed_at ?? undefined,
+      cancelledAt: data.cancelled_at ?? undefined,
+      cancelledBy: data.cancelled_by ?? undefined,
+      cancellationReason: data.cancellation_reason ?? undefined,
     };
   }
 
-  private mapToDbFormat(transfer: TransferRequest): any {
+  private mapToDbFormat(transfer: TransferRequest): DbOwnershipTransfer {
     return {
       id: transfer.id,
       animal_id: transfer.animalId,
@@ -643,14 +668,14 @@ if (!seller || !buyer) {
       agreed_price: transfer.agreedPrice,
       currency: transfer.currency,
       status: transfer.status,
-      verification_request_id: transfer.verificationRequestId,
-      payment_reference: transfer.paymentReference,
+      verification_request_id: transfer.verificationRequestId ?? null,
+      payment_reference: transfer.paymentReference ?? null,
       initiated_at: transfer.initiatedAt,
       expires_at: transfer.expiresAt,
-      completed_at: transfer.completedAt,
-      cancelled_at: transfer.cancelledAt,
-      cancelled_by: transfer.cancelledBy,
-      cancellation_reason: transfer.cancellationReason,
+      completed_at: transfer.completedAt ?? null,
+      cancelled_at: transfer.cancelledAt ?? null,
+      cancelled_by: transfer.cancelledBy ?? null,
+      cancellation_reason: transfer.cancellationReason ?? null,
     };
   }
 

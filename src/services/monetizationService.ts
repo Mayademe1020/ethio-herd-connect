@@ -56,6 +56,53 @@ export interface VerificationRequest {
   fee_amount: number;
 }
 
+export interface Sponsorship {
+  id: string;
+  ngo_id: string;
+  amount: number;
+  duration_months: number;
+  benefits: string[];
+  start_date: string;
+  end_date: string;
+  status: string;
+}
+
+export interface PaymentDetails {
+  phone_number?: string;
+  account_number?: string;
+  reference?: string;
+  [key: string]: unknown;
+}
+
+export interface RevenueAnalytics {
+  total_revenue: number;
+  transaction_count: number;
+  posting_fees_count: number;
+  verification_fees_count: number;
+  average_transaction: number;
+}
+
+export interface EthiopianPricingStrategy {
+  posting_fees: {
+    basic: { cattle: number; goat: number };
+    premium: { cattle: number; goat: number };
+    rationale: string;
+  };
+  verification: {
+    fee: number;
+    rationale: string;
+  };
+  advertising: {
+    cpc: number;
+    daily_budget_min: number;
+    rationale: string;
+  };
+  ngo_sponsorship: {
+    monthly_fee: number;
+    benefits: string[];
+  };
+}
+
 class MonetizationService {
   private static instance: MonetizationService;
 
@@ -214,8 +261,8 @@ class MonetizationService {
     amount: number,
     duration_months: number,
     benefits: string[]
-  ): Promise<any> {
-    const sponsorship = {
+  ): Promise<Sponsorship> {
+    const sponsorship: Sponsorship = {
       id: `sponsor_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       ngo_id: ngoId,
       amount,
@@ -279,7 +326,7 @@ class MonetizationService {
   // Payment Processing (simulated for Ethiopian payment methods)
   async processPayment(
     transactionId: string,
-    paymentDetails: any
+    paymentDetails: PaymentDetails
   ): Promise<PaymentTransaction> {
     // Simulate payment processing delay
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -300,7 +347,7 @@ class MonetizationService {
   }
 
   // Revenue Analytics
-  getRevenueAnalytics(timeframe: 'week' | 'month' | 'year' = 'month'): any {
+  getRevenueAnalytics(timeframe: 'week' | 'month' | 'year' = 'month'): RevenueAnalytics {
     const transactions = this.getTransactionsLocally();
     const now = new Date();
     const timeframeStart = new Date();
@@ -383,13 +430,13 @@ class MonetizationService {
     localStorage.setItem('ethio_herd_ads', JSON.stringify(ads));
   }
 
-  private saveSponsorshipLocally(sponsorship: any): void {
+  private saveSponsorshipLocally(sponsorship: Sponsorship): void {
     const sponsors = this.getSponsorshipsLocally();
     sponsors.push(sponsorship);
     localStorage.setItem('ethio_herd_sponsors', JSON.stringify(sponsors));
   }
 
-  private getSponsorshipsLocally(): any[] {
+  private getSponsorshipsLocally(): Sponsorship[] {
     try {
       const stored = localStorage.getItem('ethio_herd_sponsors');
       return stored ? JSON.parse(stored) : [];
@@ -430,7 +477,7 @@ class MonetizationService {
   }
 
   // Ethiopian market-specific pricing recommendations
-  getEthiopianPricingStrategy(): any {
+  getEthiopianPricingStrategy(): EthiopianPricingStrategy {
     return {
       posting_fees: {
         basic: { cattle: 50, goat: 30 },

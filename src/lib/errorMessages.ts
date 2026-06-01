@@ -17,6 +17,7 @@ export interface ErrorMessage {
 export type ErrorType =
   | 'network'
   | 'auth_expired'
+  | 'auth_invalid_otp'
   | 'auth_phone_invalid'
   | 'photo_too_large'
   | 'photo_upload_failed'
@@ -43,6 +44,11 @@ export const ERROR_MESSAGES: Record<ErrorType, Omit<ErrorMessage, 'action'>> = {
     amharic: 'ክፍለ ጊዜዎ አልቋል። እባክዎ እንደገና ይግቡ።',
     english: 'Your session expired. Please log in again.',
     icon: '🔐',
+  },
+  auth_invalid_otp: {
+    amharic: 'የተሳሳተ ኮድ። እባክዎ እንደገና ይሞክሩ።',
+    english: 'Invalid code. Please try again.',
+    icon: '❌',
   },
   auth_phone_invalid: {
     amharic: 'የተሳሳተ ስልክ ቁጥር። እባክዎ ያረጋግጡ።',
@@ -121,53 +127,71 @@ export const ERROR_MESSAGES: Record<ErrorType, Omit<ErrorMessage, 'action'>> = {
   },
 };
 
+interface ErrorLike {
+  message?: string;
+  code?: string;
+  status?: number;
+}
+
+function toErrorLike(error: unknown): ErrorLike {
+  if (error === null || error === undefined) return {};
+  if (typeof error === 'string') return { message: error };
+  if (error instanceof Error) return { message: error.message };
+  if (typeof error === 'object') return error as ErrorLike;
+  return { message: String(error) };
+}
+
 /**
  * Maps technical error codes/messages to user-friendly error types
  */
-export function mapTechnicalError(error: any): ErrorType {
+export function mapTechnicalError(error: unknown): ErrorType {
+  const e = toErrorLike(error);
+  const message = e.message ?? '';
+  const code = e.code ?? '';
+
   // Network errors
-  if (!navigator.onLine || error?.message?.includes('network') || error?.message?.includes('fetch')) {
+  if (!navigator.onLine || message.includes('network') || message.includes('fetch')) {
     return 'network';
   }
 
   // Supabase auth errors
-  if (error?.message?.includes('JWT') || error?.message?.includes('token') || error?.status === 401) {
+  if (message.includes('JWT') || message.includes('token') || e.status === 401) {
     return 'auth_expired';
   }
 
-  if (error?.message?.includes('Invalid login credentials')) {
-    return 'auth_expired';
+  if (message.includes('Invalid login credentials')) {
+    return 'auth_invalid_otp';
   }
 
   // Supabase RLS errors
-  if (error?.code === 'PGRST301' || error?.message?.includes('permission') || error?.status === 403) {
+  if (code === 'PGRST301' || message.includes('permission') || e.status === 403) {
     return 'permission_denied';
   }
 
   // Not found errors
-  if (error?.status === 404 || error?.code === 'PGRST116') {
+  if (e.status === 404 || code === 'PGRST116') {
     return 'not_found';
   }
 
   // Database errors
-  if (error?.code?.startsWith('PGRST') || error?.code?.startsWith('23')) {
+  if (code.startsWith('PGRST') || code.startsWith('23')) {
     return 'database_error';
   }
 
   // File upload errors
-  if (error?.message?.includes('file') || error?.message?.includes('upload')) {
-    if (error?.message?.includes('size') || error?.message?.includes('large')) {
+  if (message.includes('file') || message.includes('upload')) {
+    if (message.includes('size') || message.includes('large')) {
       return 'photo_too_large';
     }
     return 'photo_upload_failed';
   }
 
   // Validation errors
-  if (error?.message?.includes('required') || error?.message?.includes('missing')) {
+  if (message.includes('required') || message.includes('missing')) {
     return 'validation_required';
   }
 
-  if (error?.message?.includes('invalid') || error?.message?.includes('format')) {
+  if (message.includes('invalid') || message.includes('format')) {
     return 'validation_invalid';
   }
 
@@ -177,7 +201,7 @@ export function mapTechnicalError(error: any): ErrorType {
 /**
  * Gets user-friendly error message for display
  */
-export function getUserFriendlyError(error: any, language: 'amharic' | 'english' = 'amharic'): {
+export function getUserFriendlyError(error: unknown, language: 'amharic' | 'english' = 'amharic'): {
   message: string;
   icon: string;
   type: ErrorType;

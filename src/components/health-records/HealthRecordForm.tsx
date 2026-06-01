@@ -19,18 +19,18 @@ const schema = z.object({
   administered_date: z.string().min(1, 'Date is required'),
 });
 
-type FormData = z.infer<typeof schema>;
+export type HealthRecordFormData = z.infer<typeof schema>;
 
 interface Props {
   animalId: string;
   initialData?: HealthRecord;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: HealthRecordFormData) => void;
   onCancel?: () => void;
   isSubmitting?: boolean;
 }
 
 export function HealthRecordForm({ initialData, onSubmit, onCancel, isSubmitting }: Props) {
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<HealthRecordFormData>({
     resolver: zodResolver(schema),
     defaultValues: initialData ? {
       record_type: initialData.record_type,

@@ -53,7 +53,7 @@ export const useProfile = () => {
         // Fetch profile data
         const { data: profileData, error: profileError } = await supabase
           .from('profiles' as any)
-          .select('*')
+          .select('id, phone, farmer_name, farm_name, created_at, updated_at')
           .eq('id', user.id)
           .maybeSingle();
 
@@ -113,7 +113,6 @@ export const useProfile = () => {
     enabled: !!user,
     staleTime: 5 * 60 * 1000, // 5 minutes - data is considered fresh for 5 minutes
     gcTime: 24 * 60 * 60 * 1000, // 24 hours - cache persists for 24 hours (formerly cacheTime)
-    retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 

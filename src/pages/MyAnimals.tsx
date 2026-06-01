@@ -12,23 +12,28 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Plus, RefreshCw, Search, Users } from 'lucide-react';
 import { toast } from 'sonner';
+import { logger } from '@/utils/logger';
 import { BulkAnimalEntryModal } from '@/components/BulkAnimalEntryModal';
+import type { Database } from '@/integrations/supabase/types';
 
 type AnimalType = 'all' | 'cattle' | 'goat' | 'sheep';
 
+type AnimalRow = Database['public']['Tables']['animals']['Row'];
+type SupabaseQueryError = { message?: string; name?: string; code?: string };
+
 interface Animal {
   id: string;
-  animal_id?: string; // Professional animal ID
+  animal_id?: string | null; // Professional animal ID
   name: string;
-  type: 'cattle' | 'goat' | 'sheep';
-  subtype?: string; // Optional until migration is run
-  photo_url?: string;
-  registration_date?: string; // Optional, fallback to created_at
-  is_active?: boolean; // Optional, default to true
-  status?: string; // Professional status system
-  muzzle_status?: 'pending' | 'registered' | 'failed';
+  type: string;
+  subtype?: string | null; // Optional until migration is run
+  photo_url?: string | null;
+  registration_date?: string | null; // Optional, fallback to created_at
+  is_active?: boolean | null; // Optional, default to true
+  status?: string | null; // Professional status system
+  muzzle_status?: 'pending' | 'registered' | 'failed' | null;
   created_at?: string;
-  [key: string]: any; // Allow additional properties for search
+  [key: string]: unknown; // Allow additional properties for search
 }
 
 export const MyAnimals = () => {
@@ -69,7 +74,7 @@ export const MyAnimals = () => {
             const parsed = JSON.parse(cached);
             return Array.isArray(parsed?.items) ? parsed.items : [];
           }
-        } catch {}
+        } catch (e) { logger.warn('Failed to read cached animals:', e); }
         return [];
       }
 
@@ -78,7 +83,7 @@ export const MyAnimals = () => {
 
       try {
         // @ts-ignore - Supabase type instantiation issue with complex queries
-        const result: any = await supabase
+        const result: { data: AnimalRow[] | null; error: SupabaseQueryError | null } = await supabase
           .from('animals')
           .select('id, animal_id, name, type, subtype, photo_url, registration_date, is_active, status, created_at, muzzle_status')
           .eq('user_id', user.id)
@@ -96,7 +101,7 @@ export const MyAnimals = () => {
                 const parsed = JSON.parse(cached);
                 return Array.isArray(parsed?.items) ? parsed.items : [];
               }
-            } catch {}
+            } catch (e) { logger.warn('Failed to read cached animals after abort:', e); }
             return [];
           }
           toast.error('❌ Error loading animals');
@@ -104,19 +109,19 @@ export const MyAnimals = () => {
         }
 
         // Map to include default values for MVP fields
-        const data = result.data as any[];
-        const mapped = (data || []).map((animal: any) => ({
+        const data = result.data;
+        const mapped: Animal[] = (data || []).map((animal: AnimalRow) => ({
           id: animal.id,
-          animal_id: animal.animal_id,
+          animal_id: animal.animal_id ?? undefined,
           name: animal.name,
           type: animal.type,
           subtype: animal.subtype || animal.type, // Fallback: use type as subtype
-          photo_url: animal.photo_url,
+          photo_url: animal.photo_url ?? undefined,
           registration_date: animal.registration_date || animal.created_at,
           is_active: animal.is_active !== false,
           status: animal.status || 'active',
           created_at: animal.created_at
-        })) as Animal[];
+        }));
 
         // Cache result for offline usage; avoid sensitive data
         try {
@@ -124,12 +129,12 @@ export const MyAnimals = () => {
             cacheKey,
             JSON.stringify({ items: mapped, timestamp: Date.now() })
           );
-        } catch {}
-
+        } catch (e) { logger.warn('Failed to cache animals in localStorage:', e); }
         return mapped;
-      } catch (err: any) {
-        const msg = String(err?.message || '').toLowerCase();
-        const isAbort = err?.name === 'AbortError' || msg.includes('abort') || msg.includes('aborted') || msg.includes('cancel');
+      } catch (err) {
+        const errorObj = err as { message?: string; name?: string };
+        const msg = String(errorObj?.message || '').toLowerCase();
+        const isAbort = errorObj?.name === 'AbortError' || msg.includes('abort') || msg.includes('aborted') || msg.includes('cancel');
         if (isAbort) {
           try {
             const cached = localStorage.getItem(cacheKey);
@@ -137,7 +142,7 @@ export const MyAnimals = () => {
               const parsed = JSON.parse(cached);
               return Array.isArray(parsed?.items) ? parsed.items : [];
             }
-          } catch {}
+          } catch (e) { logger.warn('Failed to read cached animals after error:', e); }
           return [];
         }
         toast.error('❌ Error loading animals');
@@ -401,6 +406,8 @@ const CompactAnimalCard = ({ animal }: CompactAnimalCardProps) => {
               src={animal.photo_url}
               alt={animal.name}
               className="w-full h-full object-cover"
+              loading="lazy"
+              decoding="async"
             />
           ) : (
             <span className="text-2xl">🐄</span>

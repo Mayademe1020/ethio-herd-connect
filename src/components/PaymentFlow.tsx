@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { CheckCircle, CreditCard, Smartphone, Building } from 'lucide-react';
-import { useToast } from '@/hooks/useToast';
+import { toast } from 'sonner';
 
 interface PaymentFlowProps {
   animalType: string;
@@ -29,7 +29,7 @@ export const PaymentFlow: React.FC<PaymentFlowProps> = ({
   const navigate = useNavigate();
   const { user } = useAuth();
   const { t } = useTranslations();
-  const { showToast } = useToast();
+
 
   const [selectedFee, setSelectedFee] = useState<PostingFee | null>(null);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('');
@@ -40,7 +40,7 @@ export const PaymentFlow: React.FC<PaymentFlowProps> = ({
 
   const handlePayment = async () => {
     if (!selectedFee || !selectedPaymentMethod || !user) {
-      showToast('እባክዎ ሁሉንም መረጃ ይምረጡ / Please select all required information', 'error');
+      toast.error('እባክዎ ሁሉንም መረጃ ይምረጡ / Please select all required information');
       return;
     }
 
@@ -60,15 +60,12 @@ export const PaymentFlow: React.FC<PaymentFlowProps> = ({
         { paymentMethod: selectedPaymentMethod }
       );
 
-      showToast(
-        `✅ ክፍያ ተሳክቷል! / Payment successful! Listing will be active for ${selectedFee.duration_days} days.`,
-        'success'
-      );
+      toast.success(`✅ ክፍያ ተሳክቷል! / Payment successful! Listing will be active for ${selectedFee.duration_days} days.`);
 
       onPaymentComplete(selectedFee);
     } catch (error) {
       console.error('Payment error:', error);
-      showToast('ክፍያ አልተሳካም። እንደገና ይሞክሩ / Payment failed. Please try again.', 'error');
+      toast.error('ክፍያ አልተሳካም። እንደገና ይሞክሩ / Payment failed. Please try again.');
     } finally {
       setIsProcessing(false);
     }

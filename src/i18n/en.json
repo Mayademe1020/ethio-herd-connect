@@ -25,7 +25,8 @@
     "syncNow": "Sync Now",
     "allSynced": "All synced",
     "pendingSync": "{{count}} pending",
-    "retrying": "Will retry when online"
+    "retrying": "Will retry when online",
+    "syncStatus": "Sync Status"
   },
   "common": {
     "save": "Save",
@@ -77,7 +78,8 @@
     "unsavedChangesWarning": "Are you sure you want to discard your changes?",
     "days": "days",
     "animal": "Animal",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "reorder": "Reorder"
   },
   "analytics": {
     "title": "Activity Analytics",
@@ -97,6 +99,13 @@
     "listingCreated": "Listings Created",
     "listingViewed": "Listings Viewed",
     "interestExpressed": "Interests Expressed"
+  },
+  "bottomNav": {
+    "home": "Home",
+    "animals": "Animals",
+    "market": "Market",
+    "record": "Record",
+    "profile": "Profile"
   },
   "forms": {
     "draftFound": "Draft Found",
@@ -449,7 +458,7 @@
     "dueToday": "Due Today!",
     "deliveryToday": "Delivery expected today!",
     "expectedToday": "Expected delivery today",
-    "overdue": "Overdue",
+    "overdue": "Overdue by {{days}} days",
     "overdueBy": "Overdue by {{days}} days",
     "futureDate": "Breeding date cannot be in the future",
     "calculationError": "Could not calculate delivery date",

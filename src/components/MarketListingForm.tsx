@@ -11,11 +11,19 @@ import { useTranslations } from '@/hooks/useTranslations';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { ANIMAL_TYPES, ANIMAL_TYPE_ICONS } from '@/utils/animalTypes';
 import { useDateDisplay } from '@/hooks/useDateDisplay';
+import type { MarketListing } from '@/types/marketplace';
+
+export type MarketListingFormSubmit = Partial<MarketListing> & {
+  price: number;
+  contactMethod?: string;
+  contactValue?: string;
+  is_negotiable?: boolean;
+};
 
 interface MarketListingFormProps {
   language: Language;
   onClose: () => void;
-  onSubmit?: (listing: any) => void;
+  onSubmit?: (listing: MarketListingFormSubmit) => void;
   onSuccess?: () => void;
 }
 

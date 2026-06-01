@@ -72,8 +72,8 @@ export function usePushNotifications(): UsePushNotificationsReturn {
       if (perm !== 'granted') {
         setError('Permission denied. Please enable notifications in your browser settings.');
       }
-    } catch (err: any) {
-      setError(err.message || 'Failed to request permission');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Failed to request permission');
     } finally {
       setIsLoading(false);
     }
@@ -106,8 +106,8 @@ export function usePushNotifications(): UsePushNotificationsReturn {
         setError('Failed to subscribe to push notifications');
         return false;
       }
-    } catch (err: any) {
-      setError(err.message || 'Subscription failed');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Subscription failed');
       return false;
     } finally {
       setIsLoading(false);
@@ -124,8 +124,8 @@ export function usePushNotifications(): UsePushNotificationsReturn {
         setIsSubscribed(false);
       }
       return success;
-    } catch (err: any) {
-      setError(err.message || 'Unsubscribe failed');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Unsubscribe failed');
       return false;
     } finally {
       setIsLoading(false);

@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Plus, Upload, X, Camera, MapPin, Tag, DollarSign } from 'lucide-react';
 import { Language } from '@/types';
 import { useDateDisplay } from '@/hooks/useDateDisplay';
@@ -13,12 +13,32 @@ import { sanitizeFormData } from '@/utils/securityUtils';
 import { useFormDraft } from '@/hooks/useFormDraft';
 import { DraftRestorePrompt } from '@/components/DraftRestorePrompt';
 
+export interface AnimalListingFormData {
+  title: string;
+  description: string;
+  animalType: string;
+  breed: string;
+  age: string;
+  weight: string;
+  price: string;
+  location: string;
+  contactMethod: string;
+  contactValue: string;
+  isVetVerified: boolean;
+  photos: File[];
+}
+
+export type AnimalListingSubmitData = AnimalListingFormData & {
+  animal_id?: string;
+  animal_database_id?: string;
+};
+
 interface AnimalListingFormProps {
   isOpen: boolean;
   onClose: () => void;
   language: Language;
   selectedAnimal?: { id: string; animal_id?: string; name: string; type: string };
-  onSubmit: (data: any) => Promise<void>;
+  onSubmit: (data: AnimalListingSubmitData) => Promise<void>;
 }
 
 export const AnimalListingForm = ({
@@ -28,7 +48,7 @@ export const AnimalListingForm = ({
   selectedAnimal,
   onSubmit
 }: AnimalListingFormProps) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<AnimalListingFormData>({
     title: '',
     description: '',
     animalType: '',
@@ -40,12 +60,11 @@ export const AnimalListingForm = ({
     contactMethod: 'phone',
     contactValue: '',
     isVetVerified: false,
-    photos: [] as File[]
+    photos: []
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
   const [showDraftPrompt, setShowDraftPrompt] = useState(false);
-  const { toast } = useToast();
 
   // Form draft functionality
   const {
@@ -230,17 +249,15 @@ export const AnimalListingForm = ({
 
   const t = translations[language];
 
-  const handleInputChange = (key: string, value: any) => {
+  const handleInputChange = <K extends keyof AnimalListingFormData>(key: K, value: AnimalListingFormData[K]) => {
     setFormData(prev => ({ ...prev, [key]: value }));
   };
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (formData.photos.length + files.length > 5) {
-      toast({
-        title: "Too many photos",
+      toast.error("Too many photos", {
         description: "Maximum 5 photos allowed",
-        variant: "destructive",
       });
       return;
     }
@@ -281,8 +298,7 @@ export const AnimalListingForm = ({
       };
 
       await onSubmit(submissionData);
-      toast({
-        title: t.success,
+      toast.success(t.success, {
         description: selectedAnimal
           ? `${selectedAnimal.name} is now listed for sale.`
           : "Your listing is now live on the marketplace.",
@@ -302,14 +318,12 @@ export const AnimalListingForm = ({
         contactMethod: 'phone',
         contactValue: '',
         isVetVerified: false,
-        photos: []
+        photos: [] as File[]
       });
       setPhotoPreviews([]);
     } catch (error) {
-      toast({
-        title: t.error,
+      toast.error(t.error, {
         description: "Please try again later.",
-        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);
@@ -514,6 +528,8 @@ export const AnimalListingForm = ({
                             src={preview}
                             alt={`Preview ${index + 1}`}
                             className="w-full h-24 object-cover rounded-lg"
+                            loading="lazy"
+                            decoding="async"
                           />
                           <Button
                             type="button"

@@ -6,7 +6,7 @@ import { Edit, Trash2, Syringe, TrendingUp, ShoppingCart } from 'lucide-react';
 import { Language, AnimalData } from '@/types';
 import { useAnimalPageStore } from '@/stores/animalPageStore';
 import { useAnimalStore } from '@/stores/animalStore';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContextMVP';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { logger } from '@/utils/logger';

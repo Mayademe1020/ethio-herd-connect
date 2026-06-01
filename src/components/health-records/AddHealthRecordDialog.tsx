@@ -4,9 +4,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { HealthRecordForm } from './HealthRecordForm';
+import { HealthRecordForm, type HealthRecordFormData } from './HealthRecordForm';
 import { useHealthRecords } from '@/hooks/useHealthRecords';
-import type { HealthRecord } from '@/types/healthRecord';
+import type { HealthRecord, UpdateHealthRecordInput } from '@/types/healthRecord';
 
 interface Props {
   animalId: string;
@@ -19,10 +19,19 @@ interface Props {
 export function AddHealthRecordDialog({ animalId, open, onOpenChange, initialData, onSuccess }: Props) {
   const { createHealthRecordAsync, updateHealthRecordAsync, isCreating, isUpdating } = useHealthRecords(animalId);
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: HealthRecordFormData) => {
     try {
       if (initialData) {
-        await updateHealthRecordAsync({ id: initialData.id, ...data });
+        const updatePayload: UpdateHealthRecordInput = {
+          id: initialData.id,
+          record_type: data.record_type,
+          medicine_name: data.medicine_name,
+          symptoms: data.symptoms,
+          severity: data.severity,
+          notes: data.notes,
+          administered_date: data.administered_date,
+        };
+        await updateHealthRecordAsync(updatePayload);
       } else {
         await createHealthRecordAsync({ animal_id: animalId, ...data });
       }

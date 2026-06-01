@@ -7,28 +7,26 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { 
-  Filter, 
-  MapPin, 
-  DollarSign, 
-  Shield, 
+import {
+  Filter,
+  MapPin,
+  DollarSign,
+  Shield,
   Tag,
   X
 } from 'lucide-react';
 import { Language } from '@/types';
+import type { MarketplaceSidebarFilters } from '@/types/marketplace';
+
+type SidebarFilterKey = keyof MarketplaceSidebarFilters;
+type SidebarFilterValue = MarketplaceSidebarFilters[SidebarFilterKey];
 
 interface MarketplaceSidebarProps {
   language: Language;
   isOpen: boolean;
   onClose: () => void;
-  filters: {
-    category: string;
-    minPrice: string;
-    maxPrice: string;
-    location: string;
-    verifiedOnly: boolean;
-  };
-  onFiltersChange: (filters: any) => void;
+  filters: MarketplaceSidebarFilters;
+  onFiltersChange: (filters: MarketplaceSidebarFilters) => void;
 }
 
 // MarketplaceSidebar component
@@ -106,14 +104,14 @@ export const MarketplaceSidebar = ({ language, isOpen, onClose, filters, onFilte
 
   const t = translations[language];
 
-  const handleFilterChange = (key: string, value: any) => {
-    const newValue = value === 'all' ? '' : value;
-    const newFilters = { ...filters, [key]: newValue };
+  const handleFilterChange = <K extends SidebarFilterKey>(key: K, value: SidebarFilterValue) => {
+    const newValue: SidebarFilterValue = (key === 'category' || key === 'location') && value === 'all' ? '' : value;
+    const newFilters = { ...filters, [key]: newValue } as MarketplaceSidebarFilters;
     onFiltersChange(newFilters);
   };
 
   const handleClearAll = () => {
-    const clearedFilters = {
+    const clearedFilters: MarketplaceSidebarFilters = {
       category: '',
       minPrice: '',
       maxPrice: '',

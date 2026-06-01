@@ -12,7 +12,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Eye, Video, Image as ImageIcon, Loader2, CheckCircle, XCircle, Edit, Users } from 'lucide-react';
-import { useToast } from '@/hooks/useToast';
+import { toast } from 'sonner';
 import { ANIMAL_TYPE_ICONS } from '@/utils/animalTypes';
 
 interface Listing {
@@ -47,7 +47,7 @@ const MyListings = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { t } = useTranslations();
-  const { showToast } = useToast();
+
   const { markAsSold, cancelListing, updateListing, isUpdating } = useMarketplaceListing();
   const [editingListing, setEditingListing] = useState<Listing | null>(null);
   const [buyerInterestsCount, setBuyerInterestsCount] = useState(0);
@@ -75,7 +75,8 @@ const MyListings = () => {
       if (error) throw error;
       return (data as unknown) as Listing[];
     },
-    enabled: !!user
+    enabled: !!user,
+    staleTime: 30000,
   });
 
   // Fetch buyer interests count for each listing
@@ -96,13 +97,14 @@ const MyListings = () => {
 
       // Count interests per listing
       const counts: Record<string, number> = {};
-      data?.forEach((interest: any) => {
+      data?.forEach((interest: { listing_id: string }) => {
         counts[interest.listing_id] = (counts[interest.listing_id] || 0) + 1;
       });
 
       return counts;
     },
-    enabled: !!user && !!listings && listings.length > 0
+    enabled: !!user && !!listings && listings.length > 0,
+    staleTime: 300000,
   });
 
   const handleMarkAsSold = async (listingId: string) => {
@@ -111,7 +113,7 @@ const MyListings = () => {
       refetch();
     } catch (error) {
       console.error('Error marking as sold:', error);
-      showToast(t('errors.unknownError'), 'error');
+      toast.error(t('errors.unknownError'));
     }
   };
 
@@ -129,7 +131,7 @@ const MyListings = () => {
       refetch();
     } catch (error) {
       console.error('Error cancelling listing:', error);
-      showToast(t('errors.unknownError'), 'error');
+      toast.error(t('errors.unknownError'));
     }
   };
 
@@ -150,17 +152,24 @@ const MyListings = () => {
     }
   };
 
-  const handleSaveEdit = async (updates: any) => {
+  const handleSaveEdit = async (updates: {
+    price: number;
+    is_negotiable: boolean;
+    description?: string;
+    photo_url?: string;
+    video_url?: string;
+    video_thumbnail?: string;
+  }) => {
     if (!editingListing) return;
 
     try {
       await updateListing(editingListing.id, updates);
-      showToast(t('marketplace.listingUpdated'), 'success');
+      toast.success(t('marketplace.listingUpdated'));
       setEditingListing(null);
       refetch();
     } catch (error) {
       console.error('Error updating listing:', error);
-      showToast(t('errors.unknownError'), 'error');
+      toast.error(t('errors.unknownError'));
       throw error; // Re-throw to let modal handle it
     }
   };
@@ -257,6 +266,8 @@ const MyListings = () => {
                           src={listing.photo_url}
                           alt={listing.animals?.name}
                           className="w-full h-full object-cover"
+                          loading="lazy"
+                          decoding="async"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-4xl">

@@ -1,6 +1,23 @@
 import { supabase } from '@/integrations/supabase/client';
 import { createNotification } from './notificationService';
 
+export interface MarketListingWithAnimal {
+  id: string;
+  title: string;
+  price: number;
+  location: string | null;
+  created_at: string;
+  animal_id: string;
+  animals: { type: string; breed?: string | null } | null;
+  distance?: number | null;
+}
+
+export interface PriceAnalysisRow {
+  price: number;
+  animal_id: string;
+  animals: { type: string } | null;
+}
+
 export interface MarketAlert {
   type: 'new_listing' | 'price_change' | 'opportunity';
   title: string;
@@ -81,7 +98,7 @@ function parseLocation(location: string | null): {
 export async function detectNewListings(
   userLocation?: { lat: number; lon: number },
   distanceThresholdKm: number = 50
-): Promise<any[]> {
+): Promise<MarketListingWithAnimal[]> {
   try {
     const twentyFourHoursAgo = new Date();
     twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
@@ -106,7 +123,7 @@ export async function detectNewListings(
 
     if (error) throw error;
 
-    let listings = data || [];
+    let listings: MarketListingWithAnimal[] = (data as MarketListingWithAnimal[] | null) || [];
 
     // Filter by distance if user location is provided
     if (userLocation) {
@@ -183,7 +200,7 @@ export async function analyzePriceChanges(): Promise<PriceTrend[]> {
 
     // Process current week data
     const currentPrices: Map<string, number[]> = new Map();
-    currentWeekData?.forEach((listing: any) => {
+    (currentWeekData as PriceAnalysisRow[] | null)?.forEach((listing) => {
       const animalType = listing.animals?.type || 'unknown';
       if (!currentPrices.has(animalType)) {
         currentPrices.set(animalType, []);
@@ -193,7 +210,7 @@ export async function analyzePriceChanges(): Promise<PriceTrend[]> {
 
     // Process previous week data
     const previousPrices: Map<string, number[]> = new Map();
-    previousWeekData?.forEach((listing: any) => {
+    (previousWeekData as PriceAnalysisRow[] | null)?.forEach((listing) => {
       const animalType = listing.animals?.type || 'unknown';
       if (!previousPrices.has(animalType)) {
         previousPrices.set(animalType, []);

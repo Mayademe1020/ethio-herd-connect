@@ -484,6 +484,8 @@ const RegisterAnimal = () => {
                       src={photoPreview}
                       alt="Animal Preview"
                       className="w-full h-64 object-cover"
+                      loading="lazy"
+                      decoding="async"
                     />
                     <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-bold">
                       Photo Ready
@@ -586,7 +588,7 @@ const RegisterAnimal = () => {
 
             {muzzlePreview ? (
               <div className="relative border-2 border-green-500 rounded-lg overflow-hidden mb-4">
-                <img src={muzzlePreview} alt="Muzzle Preview" className="w-full h-64 object-cover" />
+                <img src={muzzlePreview} alt="Muzzle Preview" className="w-full h-64 object-cover" loading="lazy" decoding="async" />
                 <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-bold">
                   Muzzle Captured
                 </div>

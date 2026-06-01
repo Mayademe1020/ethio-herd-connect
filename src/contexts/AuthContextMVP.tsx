@@ -1,14 +1,13 @@
-// src/contexts/AuthContextMVP.tsx - Resilient MVP Authentication Context
-
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { logger } from '@/utils/logger';
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  isLocalUser: boolean;
   signOut: () => Promise<void>;
 }
 
@@ -22,13 +21,22 @@ export const useAuth = () => {
   return context;
 };
 
-// Demo user for offline mode
-const createDemoUser = (): User => ({
-  id: 'demo-user-123',
-  email: 'demo@ethioherdconnect.app',
+const STORAGE_KEY = 'ethio-herd-user-id';
+
+const getOrCreateLocalUserId = (): string => {
+  let userId = localStorage.getItem(STORAGE_KEY);
+  if (!userId) {
+    userId = crypto.randomUUID();
+    localStorage.setItem(STORAGE_KEY, userId);
+  }
+  return userId;
+};
+
+const createLocalUser = (userId: string): User => ({
+  id: userId,
+  email: null,
   user_metadata: {
-    full_name: 'Demo Farmer',
-    phone: '+251911000000',
+    is_local: true,
   },
   app_metadata: {},
   aud: 'authenticated',
@@ -43,129 +51,66 @@ export const AuthProviderMVP: React.FC<{ children: React.ReactNode }> = ({ child
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isDemoMode, setIsDemoMode] = useState(false);
+  const [isLocalUser, setIsLocalUser] = useState(false);
   const initRef = useRef(false);
 
   useEffect(() => {
-    // Prevent double initialization
     if (initRef.current) return;
     initRef.current = true;
 
-    // Check for demo user in localStorage first
-    const demoUserJson = localStorage.getItem('demo-user');
-    if (demoUserJson) {
-      try {
-        const demoUser = JSON.parse(demoUserJson);
-        const mockUser = createDemoUser();
-        mockUser.user_metadata = demoUser.user_metadata || mockUser.user_metadata;
-        setUser(mockUser);
-        setIsDemoMode(true);
-        setLoading(false);
-        console.log('[Auth] Demo user loaded from localStorage');
-        return;
-      } catch (e) {
-        console.error('[Auth] Failed to parse demo user:', e);
-        localStorage.removeItem('demo-user');
-      }
-    }
+    const localUserId = getOrCreateLocalUserId();
+    let cancelled = false;
 
-    // If Supabase is not configured, enable demo mode automatically
     if (!isSupabaseConfigured || !supabase) {
-      console.log('[Auth] Supabase not configured - enabling demo mode');
-      const demoUser = createDemoUser();
-      setUser(demoUser);
-      setIsDemoMode(true);
-      localStorage.setItem('demo-user', JSON.stringify({
-        id: demoUser.id,
-        email: demoUser.email,
-        user_metadata: demoUser.user_metadata,
-      }));
+      setUser(createLocalUser(localUserId));
+      setIsLocalUser(true);
       setLoading(false);
       return;
     }
 
-    // Set a timeout to ensure loading completes even if Supabase is slow
-    const timeoutId = setTimeout(() => {
-      console.log('[Auth] Timeout reached - enabling demo mode fallback');
-      if (loading) {
-        const demoUser = createDemoUser();
-        setUser(demoUser);
-        setIsDemoMode(true);
-        localStorage.setItem('demo-user', JSON.stringify({
-          id: demoUser.id,
-          email: demoUser.email,
-          user_metadata: demoUser.user_metadata,
-        }));
-        setLoading(false);
-      }
-    }, 5000); // 5 second timeout
-
-    // Check for existing session on mount
     supabase.auth.getSession().then(({ data: { session } }) => {
-      clearTimeout(timeoutId);
+      if (cancelled) return;
       if (session?.user) {
         setSession(session);
         setUser(session.user);
-        console.log('[Auth] Session loaded:', session.user.id);
+        setIsLocalUser(false);
       } else {
-        console.log('[Auth] No existing session');
+        setUser(createLocalUser(localUserId));
+        setIsLocalUser(true);
       }
       setLoading(false);
-    }).catch((error) => {
-      clearTimeout(timeoutId);
-      console.warn('[Auth] Supabase error, enabling demo mode:', error.message);
-      const demoUser = createDemoUser();
-      setUser(demoUser);
-      setIsDemoMode(true);
-      localStorage.setItem('demo-user', JSON.stringify({
-        id: demoUser.id,
-        email: demoUser.email,
-        user_metadata: demoUser.user_metadata,
-      }));
+    }).catch(() => {
+      if (cancelled) return;
+      setUser(createLocalUser(localUserId));
+      setIsLocalUser(true);
       setLoading(false);
     });
 
-    // Listen for auth state changes (only if supabase exists)
-    let subscription: { unsubscribe: () => void } | null = null;
-    
-    try {
-      const { data } = supabase.auth.onAuthStateChange((event, session) => {
-        console.log('[Auth] State changed:', event);
-        if (session?.user) {
-          setSession(session);
-          setUser(session.user);
-        }
-        setLoading(false);
-      });
-      subscription = data.subscription;
-    } catch (error) {
-      console.warn('[Auth] Failed to subscribe to auth changes:', error);
-    }
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        setSession(session);
+        setUser(session.user);
+        setIsLocalUser(false);
+      }
+      setLoading(false);
+    });
 
     return () => {
-      clearTimeout(timeoutId);
-      if (subscription) {
-        subscription.unsubscribe();
-      }
+      cancelled = true;
+      data.subscription.unsubscribe();
     };
   }, []);
 
   const signOut = async () => {
-    if (isDemoMode) {
-      localStorage.removeItem('demo-user');
-      setUser(null);
-      setSession(null);
-      setIsDemoMode(false);
-      toast.success('✓ Demo mode ended / ዴሞ ጨረሰ');
-      return;
-    }
+    const localUserId = localStorage.getItem(STORAGE_KEY) || crypto.randomUUID();
+    setUser(createLocalUser(localUserId));
+    setIsLocalUser(true);
+    setSession(null);
 
     if (supabase) {
       try {
         await supabase.auth.signOut();
-      } catch (error) {
-        console.error('[Auth] Sign out error:', error);
-      }
+      } catch (e) { logger.warn('Failed to sign out from Supabase:', e); }
     }
   };
 
@@ -173,7 +118,8 @@ export const AuthProviderMVP: React.FC<{ children: React.ReactNode }> = ({ child
     user,
     session,
     loading,
-    signOut
+    isLocalUser,
+    signOut,
   };
 
   return (

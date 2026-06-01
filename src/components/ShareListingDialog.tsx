@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { sharingUtils } from '@/utils/sharingUtils';
 import { MessageCircle, Mail, Link2, Share2, MessageSquare } from 'lucide-react';
 
@@ -18,8 +18,6 @@ interface ShareListingDialogProps {
 }
 
 export const ShareListingDialog = ({ isOpen, onClose, listing, language = 'en' }: ShareListingDialogProps) => {
-  const { toast } = useToast();
-
   const translations = {
     en: {
       title: 'Share Listing',
@@ -85,16 +83,13 @@ export const ShareListingDialog = ({ isOpen, onClose, listing, language = 'en' }
   const handleCopyLink = async () => {
     const success = await sharingUtils.copyLink(listing.id);
     if (success) {
-      toast({
-        title: t.linkCopied,
+      toast.success(t.linkCopied, {
         description: t.linkCopiedDesc,
       });
       onClose();
     } else {
-      toast({
-        title: t.shareFailed,
+      toast.error(t.shareFailed, {
         description: t.shareFailedDesc,
-        variant: 'destructive',
       });
     }
   };

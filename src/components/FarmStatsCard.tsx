@@ -17,13 +17,14 @@ interface StatItemProps {
   value: string | number;
   label: string;
   color: 'emerald' | 'blue' | 'purple';
+  testId?: string;
   trend?: {
     value: string;
     isPositive: boolean;
   };
 }
 
-const StatItem: React.FC<StatItemProps> = ({ icon, value, label, color, trend }) => {
+const StatItem: React.FC<StatItemProps> = ({ icon, value, label, color, trend, testId }) => {
   const colorClasses = {
     emerald: {
       container: 'bg-emerald-50',
@@ -54,7 +55,7 @@ const StatItem: React.FC<StatItemProps> = ({ icon, value, label, color, trend })
       </div>
       
       {/* Number - Large and bold */}
-      <div className="text-3xl font-bold text-gray-900 mb-1 leading-tight">
+      <div data-testid={testId} className="text-3xl font-bold text-gray-900 mb-1 leading-tight">
         {value}
       </div>
       
@@ -135,6 +136,7 @@ export const FarmStatsCard: React.FC<FarmStatsCardProps> = ({ stats, isLoading, 
             value={displayStats.totalAnimals}
             label={t('profile.animals')}
             color="emerald"
+            testId="stat-total-animals"
             trend={{
               value: '+2 this week',
               isPositive: true
@@ -145,6 +147,7 @@ export const FarmStatsCard: React.FC<FarmStatsCardProps> = ({ stats, isLoading, 
             value={`${displayStats.milkLast30Days}L`}
             label={t('profile.milkLast30Days')}
             color="blue"
+            testId="stat-milk-amount"
             trend={{
               value: '+12% this month',
               isPositive: true
@@ -155,6 +158,7 @@ export const FarmStatsCard: React.FC<FarmStatsCardProps> = ({ stats, isLoading, 
             value={displayStats.activeListings}
             label={t('profile.listings')}
             color="purple"
+            testId="stat-active-listings"
             trend={{
               value: '-1 this week',
               isPositive: false

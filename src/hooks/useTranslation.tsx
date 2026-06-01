@@ -1,31 +1,35 @@
 import { useLanguage } from '../contexts/LanguageContext';
 import enTranslations from '../i18n/en.json';
 import amTranslations from '../i18n/am.json';
+import orTranslations from '../i18n/or.json';
+import swTranslations from '../i18n/sw.json';
 
 type TranslationKey = string;
 type Translations = typeof enTranslations;
 
-const translations: Record<'en' | 'am', Translations> = {
+const translations: Record<string, Translations> = {
   en: enTranslations,
   am: amTranslations,
+  or: orTranslations,
+  sw: swTranslations,
 };
 
 /**
  * Get nested value from object using dot notation
  * e.g., "auth.login" => translations.auth.login
  */
-const getNestedValue = (obj: any, path: string): string | undefined => {
+const getNestedValue = (obj: Translations, path: string): string | undefined => {
   const keys = path.split('.');
-  let current = obj;
-  
+  let current: unknown = obj;
+
   for (const key of keys) {
-    if (current && typeof current === 'object' && key in current) {
-      current = current[key];
+    if (current && typeof current === 'object' && key in (current as Record<string, unknown>)) {
+      current = (current as Record<string, unknown>)[key];
     } else {
       return undefined;
     }
   }
-  
+
   return typeof current === 'string' ? current : undefined;
 };
 
@@ -44,6 +48,10 @@ const interpolate = (str: string, values?: Record<string, string | number>): str
 export const useTranslation = () => {
   const { language } = useLanguage();
 
+  const getAnimalTypeTranslation = (type: string): string => {
+    return t(`animalTypes.${type}`);
+  };
+
   /**
    * Translate a key with optional interpolation values
    * Falls back to English if Amharic translation is missing
@@ -53,8 +61,8 @@ export const useTranslation = () => {
     // Try to get translation in current language
     let translation = getNestedValue(translations[language], key);
     
-    // Fallback to English if Amharic translation is missing
-    if (!translation && language === 'am') {
+    // Fallback to English if current language translation is missing
+    if (!translation && language !== 'en') {
       translation = getNestedValue(translations.en, key);
     }
     
@@ -68,5 +76,5 @@ export const useTranslation = () => {
     return interpolate(translation, values);
   };
 
-  return { t };
+  return { t, getAnimalTypeTranslation };
 };

@@ -5,21 +5,29 @@ import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
 
 // Mock the auth context
-vi.mock('@/contexts/AuthContextMVP', () => ({
-  useAuth: () => ({
-    user: { id: 'test-user-id' }
-  })
-}));
+vi.mock('@/contexts/AuthContextMVP', async () => {
+  const actual = await vi.importActual<typeof import('@/contexts/AuthContextMVP')>('@/contexts/AuthContextMVP');
+  return {
+    ...actual,
+    useAuth: () => ({
+      user: { id: 'test-user-id' }
+    })
+  };
+});
 
 // Mock Supabase client
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: {
-    from: vi.fn(),
-    auth: {
-      getUser: vi.fn()
+vi.mock('@/integrations/supabase/client', async () => {
+  const actual = await vi.importActual<typeof import('@/integrations/supabase/client')>('@/integrations/supabase/client');
+  return {
+    ...actual,
+    supabase: {
+      from: vi.fn(),
+      auth: {
+        getUser: vi.fn()
+      }
     }
-  }
-}));
+  };
+});
 
 describe('useProfile - Update Mutation', () => {
   let queryClient: QueryClient;
@@ -104,6 +112,15 @@ describe('useProfile - Update Mutation', () => {
           update: mockUpdate
         };
       }
+      if (table === 'farm_profiles') {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null })
+            })
+          })
+        };
+      }
       return {};
     });
 
@@ -167,6 +184,15 @@ describe('useProfile - Update Mutation', () => {
             })
           }),
           update: mockUpdate
+        };
+      }
+      if (table === 'farm_profiles') {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null })
+            })
+          })
         };
       }
       return {};

@@ -159,8 +159,11 @@ export const TeamManagement: React.FC = () => {
       setShowAddModal(false);
       setPhone('');
       setPhoneError('');
-    } catch (err: any) {
-      toast.error(err.message || t('Failed to add member', 'አባል ማከል አልተቻለም'));
+    } catch (err: unknown) {
+      const message = typeof err === 'object' && err !== null && 'message' in err
+        ? String((err as { message?: string }).message)
+        : '';
+      toast.error(message || t('Failed to add member', 'አባል ማከል አልተቻለም'));
     }
   };
 

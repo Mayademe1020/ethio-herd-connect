@@ -8,27 +8,14 @@ import { Language } from '@/types';
 import { useDateDisplay } from '@/hooks/useDateDisplay';
 import { useMarketListingManagement } from '@/hooks/useMarketListingManagement';
 import { OfflineFirstImage } from '@/components/OfflineFirstImage';
+import type { MarketListing } from '@/types/marketplace';
 
 interface MarketListingCardProps {
-  listing: {
-    id: string;
-    title: string;
-    category?: string;
-    price: number | null;
-    location: string | null;
-    description: string | null;
-    photo?: string;
-    photos?: string[] | null;
-    isFeatured?: boolean;
-    isFavorite?: boolean;
-    is_vet_verified?: boolean;
-    user_id?: string;
-    status?: 'active' | 'inactive' | 'sold';
-  };
+  listing: MarketListing & { photo?: string; isFavorite?: boolean };
   language: Language;
   currentUserId?: string;
-  onViewDetails: (listing: any) => void;
-  onExpressInterest: (listing: any) => void;
+  onViewDetails: (listing: MarketListing) => void;
+  onExpressInterest: (listing: MarketListing) => void;
   onToggleFavorite?: (listingId: string) => void;
 }
 

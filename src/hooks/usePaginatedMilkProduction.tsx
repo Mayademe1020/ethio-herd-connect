@@ -21,7 +21,7 @@
 
 import { useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContextMVP';
 import { usePaginatedQuery } from './usePaginatedQuery';
 import { buildMilkProductionQuery, MILK_PRODUCTION_FIELDS } from '@/lib/queryBuilders';
 import { logger } from '@/utils/logger';
@@ -91,8 +91,9 @@ interface UsePaginatedMilkProductionOptions {
  * });
  * ```
  */
-export const usePaginatedMilkProduction = (options?: any) => {
+export const usePaginatedMilkProduction = (options?: UsePaginatedMilkProductionOptions) => {
   const { user } = useAuth();
+  const { filters = {}, sortBy, sortOrder, pageSize, enabled = true } = options ?? {};
 
   // Create query function with filters and sorting
   const queryFn = useMemo(

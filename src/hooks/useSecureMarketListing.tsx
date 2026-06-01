@@ -1,12 +1,11 @@
 
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToastNotifications } from '@/hooks/useToastNotifications';
-import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContextMVP';
 
 export const useSecureMarketListing = () => {
   const [loading, setLoading] = useState(false);
-  const { showSuccess, showError } = useToastNotifications();
   const { user } = useAuth();
 
   const createListing = async (listingData: {
@@ -22,7 +21,7 @@ export const useSecureMarketListing = () => {
     photos?: string[];
   }) => {
     if (!user) {
-      showError('Authentication Required', 'Please sign in to create market listings.');
+      toast.error('Authentication Required');
       return { error: new Error('User not authenticated') };
     }
 
@@ -87,11 +86,11 @@ export const useSecureMarketListing = () => {
           new_values: sanitizedData
         });
 
-      showSuccess('Listing Created', 'Your market listing has been created successfully.');
+      toast.success('Your market listing has been created successfully.');
       return { data, error: null };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Market listing error:', error);
-      showError('Listing Failed', error.message || 'Failed to create market listing');
+      toast.error('Listing Failed');
       return { error };
     } finally {
       setLoading(false);
@@ -128,11 +127,11 @@ export const useSecureMarketListing = () => {
           new_values: { status }
         });
 
-      showSuccess('Listing Updated', 'Listing status has been updated successfully.');
+      toast.success('Listing status has been updated successfully.');
       return { data, error: null };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Listing update error:', error);
-      showError('Update Failed', error.message || 'Failed to update listing');
+      toast.error('Update Failed');
       return { error };
     }
   };

@@ -2,10 +2,28 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, TrendingUp, Scale, Calendar, Target } from 'lucide-react';
 import { GrowthChart } from '@/components/GrowthChart';
-import { Language } from '@/types';
+import { AnimalData, Language } from '@/types';
 import { useDateDisplay } from '@/hooks/useDateDisplay';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { useGrowthRecords } from '@/hooks/useGrowthRecords';
+
+interface GrowthRecord {
+  animal_id: string;
+  weight: number | string;
+  recorded_date: string;
+  [key: string]: unknown;
+}
+
+type DashboardAnimal = AnimalData & { last_weighed?: string };
+
+interface EnrichedAnimal {
+  id: string;
+  name: string;
+  currentWeight: number;
+  lastWeight: number;
+  trend: 'up' | 'down' | 'stable';
+  lastWeighed: string;
+}
 
 interface GrowthDetailViewProps {
   language: Language;
@@ -34,9 +52,9 @@ export const GrowthDetailView = ({ language, type, onBack }: GrowthDetailViewPro
   // Build per-animal growth summary from records
   const byAnimal: Record<
     string,
-    { latest?: any; previous?: any }
+    { latest?: GrowthRecord; previous?: GrowthRecord }
   > = {};
-  growthRecords.forEach((r) => {
+  growthRecords.forEach((r: GrowthRecord) => {
     if (!byAnimal[r.animal_id]) byAnimal[r.animal_id] = {};
     const curr = byAnimal[r.animal_id].latest;
     if (!curr || new Date(r.recorded_date) > new Date(curr.recorded_date)) {
@@ -47,13 +65,13 @@ export const GrowthDetailView = ({ language, type, onBack }: GrowthDetailViewPro
     }
   });
 
-  const enrichedAnimals = animals.map((a: any) => {
+  const enrichedAnimals: EnrichedAnimal[] = animals.map((a: DashboardAnimal) => {
     const rec = byAnimal[a.id] || {};
     const latest = rec.latest;
     const previous = rec.previous;
     const currentWeight = latest ? Number(latest.weight) : Number(a.weight || 0);
     const lastWeight = previous ? Number(previous.weight) : Number(a.weight || 0);
-    const trend = currentWeight > lastWeight ? 'up' : currentWeight < lastWeight ? 'down' : 'stable';
+    const trend: EnrichedAnimal['trend'] = currentWeight > lastWeight ? 'up' : currentWeight < lastWeight ? 'down' : 'stable';
     const lastWeighed = latest ? formatDate(latest.recorded_date) : a.last_weighed ? formatDate(a.last_weighed) : '';
     return {
       id: a.id,
@@ -67,8 +85,7 @@ export const GrowthDetailView = ({ language, type, onBack }: GrowthDetailViewPro
 
   const renderGrowingAnimals = () => (
     <div className="space-y-4">
-      {enrichedAnimals.filter((a: any) => a.trend === 'up').map((animal: any, index: number) => (
-        <Card key={animal.id} className="hover-scale transition-all duration-300 hover:shadow-lg border-l-4 border-l-green-500" style={{ animationDelay: `${index * 100}ms` }}>
+      {enrichedAnimals.filter((a) => a.trend === 'up').map((animal, index) => (
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
@@ -102,7 +119,7 @@ export const GrowthDetailView = ({ language, type, onBack }: GrowthDetailViewPro
           {language === 'am' ? 'የእድገት ቻርቶች' : language === 'or' ? 'Chaartii Guddina' : language === 'sw' ? 'Chati za Ukuaji' : 'Growth Charts'}
         </h3>
         <div className="space-y-6">
-          {enrichedAnimals.filter((a: any) => a.trend === 'up').map((animal: any) => (
+          {enrichedAnimals.filter((a) => a.trend === 'up').map((animal) => (
             <GrowthChart key={animal.id} language={language} animalId={animal.id} animalName={animal.name} />
           ))}
         </div>
@@ -113,7 +130,7 @@ export const GrowthDetailView = ({ language, type, onBack }: GrowthDetailViewPro
   const renderAllAnimals = () => (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {enrichedAnimals.map((animal: any, index: number) => (
+        {enrichedAnimals.map((animal, index) => (
           <Card key={animal.id} className="hover-scale transition-all duration-300 hover:shadow-md" style={{ animationDelay: `${index * 100}ms` }}>
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center space-x-2">

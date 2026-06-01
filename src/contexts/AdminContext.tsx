@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { AdminUser, AdminRole, AdminPermission } from '@/types/admin';
-import { useToastNotifications } from '@/hooks/useToastNotifications';
+import { toast } from 'sonner';
 
 interface AdminContextType {
   adminUser: AdminUser | null;
@@ -10,7 +10,7 @@ interface AdminContextType {
   isSuperAdmin: boolean;
   permissions: AdminPermission[];
   loading: boolean;
-  signInAsAdmin: (email: string, password: string) => Promise<{ error: any }>;
+  signInAsAdmin: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOutAdmin: () => Promise<void>;
   hasPermission: (resource: string, action: string) => boolean;
   refreshPermissions: () => Promise<void>;
@@ -56,7 +56,6 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
   const [permissions, setPermissions] = useState<AdminPermission[]>([]);
   const [loading, setLoading] = useState(true);
-  const { showSuccess, showError } = useToastNotifications();
 
   // Check if current user is an admin
   const checkAdminStatus = async (user: User): Promise<AdminUser | null> => {
@@ -126,7 +125,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return () => subscription.unsubscribe();
   }, []);
 
-  const signInAsAdmin = async (email: string, password: string) => {
+  const signInAsAdmin = async (email: string, password: string): Promise<{ error: Error | null }> => {
     try {
       setLoading(true);
 
@@ -136,7 +135,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         password,
       });
 
-      if (error) return { error };
+      if (error) return { error: error as Error };
 
       if (data.user) {
         // Check if user is an admin
@@ -149,13 +148,13 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
         setAdminUser(adminData);
         setPermissions(adminData.permissions);
-        showSuccess('Admin Access Granted', `Welcome back, ${adminData.full_name}`);
+        toast.success(`Welcome back, ${adminData.full_name}`);
       }
 
       return { error: null };
     } catch (error) {
       console.error('Admin sign in error:', error);
-      return { error };
+      return { error: error instanceof Error ? error : new Error('Admin sign in failed') };
     } finally {
       setLoading(false);
     }
@@ -167,10 +166,10 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       await supabase.auth.signOut();
       setAdminUser(null);
       setPermissions([]);
-      showSuccess('Admin Signed Out', 'You have been signed out of admin mode.');
+      toast.success('You have been signed out of admin mode.');
     } catch (error) {
       console.error('Admin sign out error:', error);
-      showError('Sign Out Error', 'Failed to sign out properly.');
+      toast.error('Failed to sign out properly.');
     } finally {
       setLoading(false);
     }

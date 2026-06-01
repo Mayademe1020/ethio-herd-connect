@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Camera, X, User, Weight, Calendar, Baby, Lightbulb } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useOfflineSync } from '@/hooks/useOfflineSync';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { DatePicker } from './DatePicker';
 import { breedsByType } from '@/utils/breedData';
 import { AnimalIdDisplay } from '@/components/AnimalIdDisplay';
@@ -41,7 +41,6 @@ export const CalfRegistrationForm: React.FC<CalfRegistrationFormProps> = ({
   const [generatedAnimalId, setGeneratedAnimalId] = useState<string>('');
   
   const { addToQueue, isOnline } = useOfflineSync();
-  const { toast } = useToast();
 
   React.useEffect(() => {
     fetchFarmProfile();
@@ -132,16 +131,14 @@ export const CalfRegistrationForm: React.FC<CalfRegistrationFormProps> = ({
         const { error } = await supabase.from('animals').insert([calfData]);
         if (error) throw error;
 
-        toast({
-          title: language === 'am' ? 'ተሳክቷል' : 'Success',
+        toast.success(language === 'am' ? 'ተሳክቷል' : 'Success', {
           description: language === 'am' 
             ? `${formData.name} (${generatedAnimalId}) ተመዝግቧል` 
             : `${formData.name} (${generatedAnimalId}) registered successfully`
         });
       } else {
         addToQueue('animal', calfData);
-        toast({
-          title: language === 'am' ? 'ኦፍላይን ተቀምጧል' : 'Saved Offline',
+        toast(language === 'am' ? 'ኦፍላይን ተቀምጧል' : 'Saved Offline', {
           description: language === 'am' ? 'በመስመር ላይ ሲሆኑ ይመጣል' : 'Will sync when online'
         });
       }
@@ -149,10 +146,8 @@ export const CalfRegistrationForm: React.FC<CalfRegistrationFormProps> = ({
       setShowTips(true);
     } catch (error) {
       console.error('Error registering calf:', error);
-      toast({
-        title: language === 'am' ? 'ስህተት' : 'Error',
+      toast.error(language === 'am' ? 'ስህተት' : 'Error', {
         description: language === 'am' ? 'ጥጃ መመዝገብ አልተሳካም' : 'Failed to register calf',
-        variant: 'destructive'
       });
     } finally {
       setLoading(false);

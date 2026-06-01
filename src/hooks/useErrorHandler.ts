@@ -47,7 +47,7 @@ export function useErrorHandler(options: UseErrorHandlerOptions) {
    * Handle an error with standardized processing
    */
   const handleErrorFn = useCallback((
-    error: any,
+    error: unknown,
     severity: ErrorSeverity = 'error',
     config?: Partial<ErrorHandlerConfig>
   ): AppError => {
@@ -81,7 +81,7 @@ export function useErrorHandler(options: UseErrorHandlerOptions) {
    * Create error without displaying (for custom handling)
    */
   const createErrorFn = useCallback((
-    error: any,
+    error: unknown,
     severity: ErrorSeverity = 'error'
   ): AppError => {
     return createError(error, severity, { language, showToast: false });
@@ -104,14 +104,14 @@ export function useErrorHandler(options: UseErrorHandlerOptions) {
  * const safeFetch = withErrorHandling(fetchAnimals, 'MyComponent');
  * const animals = await safeFetch();
  */
-export function withErrorHandling<T extends (...args: any[]) => Promise<any>>(
+export function withErrorHandling<T extends (...args: unknown[]) => Promise<unknown>>(
   fn: T,
   source: string,
   language: 'amharic' | 'english' = 'amharic'
 ): (...args: Parameters<T>) => Promise<ReturnType<T> | null> {
   return async (...args: Parameters<T>): Promise<ReturnType<T> | null> => {
     try {
-      return await fn(...args);
+      return (await fn(...args)) as ReturnType<T>;
     } catch (error) {
       handleError(error, source, 'error', { language });
       return null;
@@ -133,7 +133,7 @@ export function useFormErrorHandler(source: string) {
     handleError(error, 'warning');
   }, [handleError]);
 
-  const handleSubmitError = useCallback((error: any): void => {
+  const handleSubmitError = useCallback((error: unknown): void => {
     handleError(error, 'error');
   }, [handleError]);
 

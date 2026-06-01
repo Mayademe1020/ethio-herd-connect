@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Video, Phone, CheckCircle, XCircle, Clock, User } from 'lucide-react';
-import { useToast } from '@/hooks/useToast';
+import { toast } from 'sonner';
 
 interface VideoVerificationProps {
   listingId: string;
@@ -25,7 +25,7 @@ export const VideoVerification: React.FC<VideoVerificationProps> = ({
   mode = 'seller'
 }) => {
   const { user } = useAuth();
-  const { showToast } = useToast();
+
 
   const [verification, setVerification] = useState<VerificationRequest | null>(null);
   const [loading, setLoading] = useState(true);
@@ -67,10 +67,10 @@ export const VideoVerification: React.FC<VideoVerificationProps> = ({
       );
 
       setVerification(newVerification);
-      showToast('የማረጋገጫ ጥያቄ ተልኳል። በቅርቡ እንሐዛለን። / Verification request sent. We will contact you soon.', 'success');
+      toast.success('የማረጋገጫ ጥያቄ ተልኳል። በቅርቡ እንሐዛለን። / Verification request sent. We will contact you soon.');
     } catch (error) {
       console.error('Error requesting verification:', error);
-      showToast('ጥያቄ መላክ አልተሳካም። እንደገና ይሞክሩ። / Failed to send request. Please try again.', 'error');
+      toast.error('ጥያቄ መላክ አልተሳካም። እንደገና ይሞክሩ። / Failed to send request. Please try again.');
     } finally {
       setActionLoading(false);
     }
@@ -90,10 +90,10 @@ export const VideoVerification: React.FC<VideoVerificationProps> = ({
         video_call_scheduled: scheduledTime
       } : null);
 
-      showToast('የቪዲዮ ጥሪ ተያዘ። ከተጠቃሚ ጋር እንገናኛለን። / Video call scheduled. We will connect with the seller.', 'success');
+      toast.success('የቪዲዮ ጥሪ ተያዘ። ከተጠቃሚ ጋር እንገናኛለን። / Video call scheduled. We will connect with the seller.');
     } catch (error) {
       console.error('Error scheduling call:', error);
-      showToast('መርሐግብር መያዝ አልተሳካም። / Failed to schedule call.', 'error');
+      toast.error('መርሐግብር መያዝ አልተሳካም። / Failed to schedule call.');
     } finally {
       setActionLoading(false);
     }
@@ -119,15 +119,14 @@ export const VideoVerification: React.FC<VideoVerificationProps> = ({
 
       onVerificationComplete?.(approved, expertNotes);
 
-      showToast(
-        approved
-          ? 'ማረጋገጫ ተሳክቷል። ዝርዝር አሁን የተረጋገጠ ነው። / Verification completed. Listing is now verified.'
-          : 'ማረጋገጫ ተሰረዘ። ለተጠቃሚ መልእክት ተልኳል። / Verification rejected. User has been notified.',
-        approved ? 'success' : 'warning'
-      );
+      if (approved) {
+        toast.success('ማረጋገጫ ተሳክቷል። ዝርዝር አሁን የተረጋገጠ ነው። / Verification completed. Listing is now verified.');
+      } else {
+        toast.warning('ማረጋገጫ ተሰረዘ። ለተጠቃሚ መልእክት ተልኳል። / Verification rejected. User has been notified.');
+      }
     } catch (error) {
       console.error('Error completing verification:', error);
-      showToast('ማረጋገጫ መጠናቀቅ አልተሳካም። / Failed to complete verification.', 'error');
+      toast.error('ማረጋገጫ መጠናቀቅ አልተሳካም። / Failed to complete verification.');
     } finally {
       setActionLoading(false);
     }

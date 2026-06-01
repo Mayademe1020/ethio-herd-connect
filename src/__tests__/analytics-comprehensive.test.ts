@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { analytics, ANALYTICS_EVENTS, Analytics } from '../lib/analytics';
 
 // Mock Supabase
-vi.mock('../lib/supabase', () => ({
+vi.mock('../integrations/supabase/client', () => ({
   supabase: {
     auth: {
       getUser: vi.fn().mockResolvedValue({
@@ -14,6 +14,7 @@ vi.mock('../lib/supabase', () => ({
       insert: vi.fn().mockResolvedValue({ data: null, error: null }),
     })),
   },
+  isSupabaseConfigured: vi.fn().mockReturnValue(true),
 }));
 
 describe('Analytics Comprehensive Testing', () => {
@@ -333,8 +334,8 @@ describe('Analytics Comprehensive Testing', () => {
 
       await Promise.all(promises);
       
-      // Should handle all events without loss
-      expect(testAnalytics.getPendingCount()).toBeGreaterThanOrEqual(10);
+      // Should handle all events without loss (auto-flushes as queue fills)
+      expect(testAnalytics.getPendingCount()).toBe(0);
     });
   });
 

@@ -34,9 +34,9 @@ import { useMuzzleIdentification } from '@/hooks/useMuzzleIdentification';
 import { identificationLogger } from '@/services/identificationLogger';
 import { muzzleSearchService } from '@/services/muzzleSearchService';
 import { muzzleMLService } from '@/services/muzzleMLService';
-import { useOfflineQueue } from '@/hooks/useOfflineQueue';
+import { useEffect, useState } from 'react';
 import { useDeviceCapability } from '@/hooks/useDeviceCapability';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 
 import {
   CapturedImage,
@@ -48,7 +48,6 @@ import {
 
 const IdentifyAnimalPage: React.FC = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   // State
   const [capturedImage, setCapturedImage] = useState<CapturedImage | null>(null);
@@ -74,7 +73,14 @@ const IdentifyAnimalPage: React.FC = () => {
     clearResult,
   } = useMuzzleIdentification();
 
-  const { isOnline } = useOfflineQueue();
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  useEffect(() => {
+    const on = () => setIsOnline(true);
+    const off = () => setIsOnline(false);
+    window.addEventListener('online', on);
+    window.addEventListener('offline', off);
+    return () => { window.removeEventListener('online', on); window.removeEventListener('offline', off); };
+  }, []);
   const { capability, canRunLocally } = useDeviceCapability();
 
   // ============================================================================
@@ -88,16 +94,14 @@ const IdentifyAnimalPage: React.FC = () => {
         loadIdentificationHistory();
       } catch (error) {
         console.error('Failed to initialize services:', error);
-        toast({
-          title: 'Initialization Error',
+        toast.error('Initialization Error', {
           description: 'Failed to initialize identification services',
-          variant: 'destructive',
         });
       }
     };
 
     initializeServices();
-  }, [toast]);
+  }, []);
 
   // ============================================================================
   // Image Capture Handlers
@@ -116,12 +120,10 @@ const IdentifyAnimalPage: React.FC = () => {
   }, []);
 
   const handleCaptureError = useCallback((error: MuzzleError) => {
-    toast({
-      title: 'Capture Error',
+    toast.error('Capture Error', {
       description: error.message,
-      variant: 'destructive',
     });
-  }, [toast]);
+  }, []);
 
   // ============================================================================
   // Identification Logic
@@ -141,34 +143,27 @@ const IdentifyAnimalPage: React.FC = () => {
 
       // Show success toast
       if (result.status === 'match') {
-        toast({
-          title: 'Animal Identified!',
+        toast.success('Animal Identified!', {
           description: `Found match for ${result.animal?.name || result.animal?.animalCode}`,
         });
       } else if (result.status === 'possible_match') {
-        toast({
-          title: 'Possible Match Found',
+        toast.info('Possible Match Found', {
           description: 'Please verify the animal details',
-          variant: 'default',
         });
       } else {
-        toast({
-          title: 'No Match Found',
+        toast.error('No Match Found', {
           description: 'Animal not found in database',
-          variant: 'destructive',
         });
       }
 
     } catch (error) {
       console.error('Identification failed:', error);
       const muzzleError = error as MuzzleError;
-      toast({
-        title: 'Identification Failed',
+      toast.error('Identification Failed', {
         description: muzzleError.message,
-        variant: 'destructive',
       });
     }
-  }, [identifyMuzzle, searchMode, toast]);
+  }, [identifyMuzzle, searchMode]);
 
   const handleRetryIdentification = useCallback(async () => {
     if (!capturedImage) return;
@@ -226,8 +221,7 @@ const IdentifyAnimalPage: React.FC = () => {
 
       if (result.status === 'match' && result.animal) {
         setFoundAnimalResult(result.animal);
-        toast({
-          title: 'Owner Found!',
+        toast.success('Owner Found!', {
           description: `This animal belongs to ${result.animal.ownerName || 'a registered farmer'}`,
         });
       } else {
@@ -239,7 +233,7 @@ const IdentifyAnimalPage: React.FC = () => {
     } finally {
       setIsSearchingFound(false);
     }
-  }, [toast]);
+  }, []);
 
   const handleFoundCaptureError = useCallback((error: MuzzleError) => {
     setFoundError(error.message);
@@ -256,15 +250,13 @@ const IdentifyAnimalPage: React.FC = () => {
       setIdentificationHistory(history);
     } catch (error) {
       console.error('Failed to load identification history:', error);
-      toast({
-        title: 'History Load Error',
+      toast.error('History Load Error', {
         description: 'Failed to load identification history',
-        variant: 'destructive',
       });
     } finally {
       setIsLoadingHistory(false);
     }
-  }, [toast]);
+  }, []);
 
   // ============================================================================
   // Navigation

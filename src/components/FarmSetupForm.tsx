@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { X, Save, MapPin, User, Phone, Mail } from 'lucide-react';
 import { Language } from '@/types';
-import { useToastNotifications } from '@/hooks/useToastNotifications';
+import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { sanitizeFormData } from '@/utils/securityUtils';
 
@@ -28,7 +28,6 @@ export const FarmSetupForm = ({ language, onClose, editMode = false }: FarmSetup
     description: ''
   });
   const [loading, setLoading] = useState(false);
-  const { showSuccess, showError } = useToastNotifications();
 
   const translations = {
     am: {
@@ -110,7 +109,7 @@ export const FarmSetupForm = ({ language, onClose, editMode = false }: FarmSetup
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        showError('Error', 'You must be logged in to save farm information');
+        toast.error('You must be logged in to save farm information');
         return;
       }
 
@@ -139,11 +138,11 @@ export const FarmSetupForm = ({ language, onClose, editMode = false }: FarmSetup
 
       if (error) throw error;
 
-      showSuccess('Success', 'Farm information saved successfully');
+      toast.success('Farm information saved successfully');
       onClose();
     } catch (error) {
       console.error('Error saving farm profile:', error);
-      showError('Error', 'Failed to save farm information');
+      toast.error('Failed to save farm information');
     } finally {
       setLoading(false);
     }

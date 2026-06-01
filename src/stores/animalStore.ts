@@ -27,16 +27,18 @@ export const useAnimalStore = create<AnimalState>((set) => ({
 
       if (error) throw error;
 
-      const transformedData = (data || []).map((animal: any) => ({
+      type AnimalRow = AnimalData & { health_status?: string };
+      const transformedData = (data || []).map((animal: AnimalRow) => ({
         ...animal,
-        health_status: ['healthy', 'sick', 'attention', 'critical'].includes(animal.health_status) 
-          ? animal.health_status 
+        health_status: ['healthy', 'sick', 'attention', 'critical'].includes(animal.health_status ?? '')
+          ? (animal.health_status as AnimalData['health_status'])
           : 'healthy'
       })) as AnimalData[];
 
       set({ animals: transformedData, isLoading: false });
-    } catch (error: any) {
-      set({ error, isLoading: false });
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error('Failed to fetch animals');
+      set({ error: err, isLoading: false });
       console.error('Error fetching animals:', error);
     }
   },

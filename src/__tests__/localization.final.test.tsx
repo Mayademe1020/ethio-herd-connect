@@ -331,9 +331,48 @@ describe('Localization System - Automated Tests', () => {
 });
 
 describe('Localization Testing Summary', () => {
+  const countLeafStrings = (node: Record<string, unknown>): number => {
+    return Object.values(node).reduce<number>((total, value) => {
+      if (typeof value === 'string') {
+        return total + 1;
+      }
+      if (value && typeof value === 'object') {
+        return total + countLeafStrings(value as Record<string, unknown>);
+      }
+      return total;
+    }, 0);
+  };
+
   it('should pass all automated localization tests', () => {
-    // This test serves as a summary marker
-    expect(true).toBe(true);
+    const enAsRecord = enTranslations as unknown as Record<string, unknown>;
+    const amAsRecord = amTranslations as unknown as Record<string, unknown>;
+
+    const enLeafCount = countLeafStrings(enAsRecord);
+    const amLeafCount = countLeafStrings(amAsRecord);
+
+    expect(amLeafCount).toBe(enLeafCount);
+    expect(enLeafCount).toBeGreaterThan(100);
+
+    const requiredCategories = [
+      'auth',
+      'common',
+      'home',
+      'animals',
+      'animalTypes',
+      'milk',
+      'marketplace',
+      'sync',
+      'errors',
+      'profile',
+      'validation'
+    ];
+
+    requiredCategories.forEach(category => {
+      const enSection = enAsRecord[category] as Record<string, unknown>;
+      const amSection = amAsRecord[category] as Record<string, unknown>;
+      expect(Object.keys(enSection).length, `${category} should have keys`).toBeGreaterThan(0);
+      expect(Object.keys(amSection).length, `${category} should have keys`).toBeGreaterThan(0);
+    });
   });
 
   it('should document manual testing requirements', () => {

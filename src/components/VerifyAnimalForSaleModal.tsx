@@ -143,7 +143,7 @@ export const VerifyAnimalForSaleModal: React.FC<VerifyAnimalForSaleModalProps> =
 
             {muzzlePreview ? (
               <div className="relative border-2 border-green-500 rounded-lg overflow-hidden">
-                <img src={muzzlePreview} alt="Muzzle" className="w-full h-48 object-cover" />
+                <img src={muzzlePreview} alt="Muzzle" className="w-full h-48 object-cover" loading="lazy" decoding="async" />
                 <button
                   onClick={() => { setMuzzleFile(null); setMuzzlePreview(null); }}
                   className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs"

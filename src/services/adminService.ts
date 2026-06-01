@@ -1,6 +1,17 @@
 // Admin Service - Handles all admin-related API calls and data management
 
 import { supabase } from '@/integrations/supabase/client';
+
+export interface MigrationResult {
+  id?: string;
+  name?: string;
+  version?: string;
+  status?: 'success' | 'failed' | 'pending' | 'skipped';
+  applied_at?: string;
+  duration_ms?: number;
+  error?: string;
+  [key: string]: unknown;
+}
 import {
   SystemHealth,
   UserAnalytics,
@@ -382,7 +393,7 @@ class AdminService {
     }
   }
 
-  async runDatabaseMigrations(): Promise<{ success: boolean; migrations?: any[] }> {
+  async runDatabaseMigrations(): Promise<{ success: boolean; migrations?: MigrationResult[] }> {
     try {
       const response = await fetch('/api/admin/database/migrate', { method: 'POST' });
       if (!response.ok) {

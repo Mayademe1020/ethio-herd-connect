@@ -57,7 +57,8 @@ export const AnimalSelectorForListing: React.FC<AnimalSelectorForListingProps> =
       const listedAnimalIds = new Set(activeListings?.map(l => l.animal_id) || []);
       return allAnimals?.filter(animal => !listedAnimalIds.has(animal.id)) || [];
     },
-    enabled: !!user
+    enabled: !!user,
+    staleTime: 300000,
   });
 
   // Determine if animal is female based on subtype

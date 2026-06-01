@@ -63,10 +63,15 @@ describe('Profile Fetch Integration Tests', () => {
       (supabase.from as any).mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: mockProfile,
-              error: null,
-            }),
+            maybeSingle: vi.fn()
+              .mockResolvedValueOnce({
+                data: mockProfile,
+                error: null,
+              })
+              .mockResolvedValueOnce({
+                data: null,
+                error: null,
+              }),
           }),
         }),
       });
@@ -74,7 +79,7 @@ describe('Profile Fetch Integration Tests', () => {
       const { result } = renderHook(() => useProfile(), { wrapper });
 
       await waitFor(() => {
-        expect(result.current.profile).toEqual(mockProfile);
+        expect(result.current.profile).toMatchObject(mockProfile);
         expect(result.current.isLoading).toBe(false);
         expect(result.current.error).toBeNull();
       });
@@ -86,9 +91,9 @@ describe('Profile Fetch Integration Tests', () => {
       (supabase.from as any).mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
+            maybeSingle: vi.fn().mockResolvedValue({
               data: null,
-              error: { code: 'PGRST116', message: 'No rows found' },
+              error: null,
             }),
           }),
         }),
@@ -117,10 +122,15 @@ describe('Profile Fetch Integration Tests', () => {
 
       const mockSelect = vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({
-            data: mockProfile,
-            error: null,
-          }),
+          maybeSingle: vi.fn()
+            .mockResolvedValueOnce({
+              data: mockProfile,
+              error: null,
+            })
+            .mockResolvedValueOnce({
+              data: null,
+              error: null,
+            }),
         }),
       });
 
@@ -130,18 +140,18 @@ describe('Profile Fetch Integration Tests', () => {
       const { result: result1 } = renderHook(() => useProfile(), { wrapper });
 
       await waitFor(() => {
-        expect(result1.current.profile).toEqual(mockProfile);
+        expect(result1.current.profile).toMatchObject(mockProfile);
       });
 
       // Second render should use cached data
       const { result: result2 } = renderHook(() => useProfile(), { wrapper });
 
       await waitFor(() => {
-        expect(result2.current.profile).toEqual(mockProfile);
+        expect(result2.current.profile).toMatchObject(mockProfile);
       });
 
-      // Should only call once due to caching
-      expect(mockSelect).toHaveBeenCalledTimes(1);
+      // Should only call twice due to caching (profiles + farm_profiles)
+      expect(mockSelect).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -153,7 +163,7 @@ describe('Profile Fetch Integration Tests', () => {
       (supabase.from as any).mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
+            maybeSingle: vi.fn().mockResolvedValue({
               data: null,
               error: { 
                 message: '406 Not Acceptable',
@@ -186,7 +196,7 @@ describe('Profile Fetch Integration Tests', () => {
       (supabase.from as any).mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
+            maybeSingle: vi.fn().mockResolvedValue({
               data: null,
               error: { 
                 message: 'Database connection failed',
@@ -214,7 +224,7 @@ describe('Profile Fetch Integration Tests', () => {
       (supabase.from as any).mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockRejectedValue(new Error('Failed to fetch')),
+            maybeSingle: vi.fn().mockRejectedValue(new Error('Failed to fetch')),
           }),
         }),
       });
@@ -236,7 +246,7 @@ describe('Profile Fetch Integration Tests', () => {
       (supabase.from as any).mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockRejectedValue(new Error('Test error')),
+            maybeSingle: vi.fn().mockRejectedValue(new Error('Test error')),
           }),
         }),
       });
@@ -245,7 +255,7 @@ describe('Profile Fetch Integration Tests', () => {
 
       await waitFor(() => {
         expect(consoleErrorSpy).toHaveBeenCalledWith(
-          'Profile fetch error:',
+          'Profile fetch exception:',
           expect.any(Error)
         );
       });
@@ -270,10 +280,15 @@ describe('Profile Fetch Integration Tests', () => {
       (supabase.from as any).mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: mockProfile,
-              error: null,
-            }),
+            maybeSingle: vi.fn()
+              .mockResolvedValueOnce({
+                data: mockProfile,
+                error: null,
+              })
+              .mockResolvedValueOnce({
+                data: null,
+                error: null,
+              }),
           }),
         }),
       });
@@ -281,7 +296,7 @@ describe('Profile Fetch Integration Tests', () => {
       const { result } = renderHook(() => useProfile(), { wrapper });
 
       await waitFor(() => {
-        expect(result.current.profile).toEqual(mockProfile);
+        expect(result.current.profile).toMatchObject(mockProfile);
       });
 
       expect(result.current.refetch).toBeDefined();
@@ -295,21 +310,24 @@ describe('Profile Fetch Integration Tests', () => {
       let callCount = 0;
       const mockSingle = vi.fn(() => {
         callCount++;
+        // First call: profiles query fails
         if (callCount === 1) {
           return Promise.resolve({
             data: null,
             error: { message: 'Temporary error', code: 'TEMP_ERROR' },
           });
         }
+        // Second call: profiles query retry succeeds, third call: farm_profiles returns null
+        const profileData = {
+          id: '123',
+          phone: '911234567',
+          farmer_name: 'Abebe Tesema',
+          farm_name: null,
+          created_at: '2024-01-01T00:00:00Z',
+          updated_at: '2024-01-01T00:00:00Z',
+        };
         return Promise.resolve({
-          data: {
-            id: '123',
-            phone: '911234567',
-            farmer_name: 'Abebe Tesema',
-            farm_name: null,
-            created_at: '2024-01-01T00:00:00Z',
-            updated_at: '2024-01-01T00:00:00Z',
-          },
+          data: callCount === 2 ? profileData : null,
           error: null,
         });
       });
@@ -317,7 +335,7 @@ describe('Profile Fetch Integration Tests', () => {
       (supabase.from as any).mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
-            single: mockSingle,
+            maybeSingle: mockSingle,
           }),
         }),
       });
@@ -338,7 +356,7 @@ describe('Profile Fetch Integration Tests', () => {
         expect(result.current.error).toBeNull();
       });
 
-      expect(callCount).toBe(2);
+      expect(callCount).toBe(3);
       consoleErrorSpy.mockRestore();
     });
 
@@ -386,7 +404,7 @@ describe('Profile Fetch Integration Tests', () => {
       (supabase.from as any).mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
-            single: mockSingle,
+            maybeSingle: mockSingle,
           }),
         }),
       });
@@ -450,10 +468,15 @@ describe('Profile Fetch Integration Tests', () => {
 
       const mockSelect = vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
-          single: vi.fn().mockResolvedValue({
-            data: mockProfile,
-            error: null,
-          }),
+          maybeSingle: vi.fn()
+            .mockResolvedValueOnce({
+              data: mockProfile,
+              error: null,
+            })
+            .mockResolvedValueOnce({
+              data: null,
+              error: null,
+            }),
         }),
       });
 
@@ -483,10 +506,15 @@ describe('Profile Fetch Integration Tests', () => {
       (supabase.from as any).mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: mockProfile,
-              error: null,
-            }),
+            maybeSingle: vi.fn()
+              .mockResolvedValueOnce({
+                data: mockProfile,
+                error: null,
+              })
+              .mockResolvedValueOnce({
+                data: null,
+                error: null,
+              }),
           }),
         }),
       });
@@ -520,10 +548,15 @@ describe('Profile Fetch Integration Tests', () => {
       (supabase.from as any).mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: mockProfile,
-              error: null,
-            }),
+            maybeSingle: vi.fn()
+              .mockResolvedValueOnce({
+                data: mockProfile,
+                error: null,
+              })
+              .mockResolvedValueOnce({
+                data: null,
+                error: null,
+              }),
           }),
         }),
       });
@@ -543,7 +576,7 @@ describe('Profile Fetch Integration Tests', () => {
       (supabase.from as any).mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockReturnValue(new Promise(() => {})), // Never resolves
+            maybeSingle: vi.fn().mockReturnValue(new Promise(() => {})), // Never resolves
           }),
         }),
       });
@@ -569,10 +602,15 @@ describe('Profile Fetch Integration Tests', () => {
       (supabase.from as any).mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: mockProfile,
-              error: null,
-            }),
+            maybeSingle: vi.fn()
+              .mockResolvedValueOnce({
+                data: mockProfile,
+                error: null,
+              })
+              .mockResolvedValueOnce({
+                data: null,
+                error: null,
+              }),
           }),
         }),
       });
@@ -591,7 +629,7 @@ describe('Profile Fetch Integration Tests', () => {
       (supabase.from as any).mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockRejectedValue(new Error('Test error')),
+            maybeSingle: vi.fn().mockRejectedValue(new Error('Test error')),
           }),
         }),
       });

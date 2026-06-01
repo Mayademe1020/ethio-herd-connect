@@ -1,7 +1,8 @@
+import type { QueryKey } from '@tanstack/react-query';
 import { usePaginatedQuery } from './usePaginatedQuery';
 
 interface UseSimpleInfiniteListOptions<T> {
-  queryKey: any[];
+  queryKey: QueryKey;
   queryFn: (page: number, size: number) => Promise<{ data: T[]; count: number }>;
   pageSize?: number;
   enabled?: boolean;

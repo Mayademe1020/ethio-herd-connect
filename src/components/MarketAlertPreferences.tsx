@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslations } from '@/hooks/useTranslations';
 import { supabase } from '@/integrations/supabase/client';
-import { useToastNotifications } from '@/hooks/useToastNotifications';
+import { toast } from 'sonner';
 import { Bell, TrendingUp, MapPin, DollarSign } from 'lucide-react';
 
 interface AlertPreferences {
@@ -14,7 +14,6 @@ interface AlertPreferences {
 
 export const MarketAlertPreferences: React.FC = () => {
   const { t } = useTranslations();
-  const { showInfo, showError } = useToastNotifications();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [preferences, setPreferences] = useState<AlertPreferences>({
@@ -55,7 +54,7 @@ export const MarketAlertPreferences: React.FC = () => {
           ...data.alert_preferences,
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error loading alert preferences:', error);
     } finally {
       setLoading(false);
@@ -77,16 +76,16 @@ export const MarketAlertPreferences: React.FC = () => {
         // Silently handle missing column error
         if (error.code === '42703' || error.code === '42P01') {
           console.warn('alert_preferences column not found - feature not yet enabled');
-          showInfo('Feature not yet available');
+          toast.info('Feature not yet available');
           return;
         }
         throw error;
       }
 
-      showInfo('Alert preferences saved');
+      toast.info('Alert preferences saved');
     } catch (error) {
       console.error('Error saving alert preferences:', error);
-      showError('Failed to save preferences');
+      toast.error('Failed to save preferences');
     } finally {
       setSaving(false);
     }

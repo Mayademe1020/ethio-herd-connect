@@ -3,9 +3,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileText, X, Check } from 'lucide-react';
 import { useTranslation } from '@/hooks/useTranslation';
+import type { FormDraftData } from '@/hooks/useFormDraft';
 
 interface DraftRestorePromptProps {
-  draftData: any;
+  draftData: FormDraftData;
   onRestore: () => void;
   onDiscard: () => void;
   formName: string;

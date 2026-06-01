@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContextMVP';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { muzzleMLService } from '@/services/muzzleMLService';
-import { useMuzzleCapture } from '@/hooks/useMuzzleCapture';
+import { useMuzzleCapture, type MuzzleCaptureResult } from '@/hooks/useMuzzleCapture';
 import { searchOffline, SimpleSearchResult } from '@/services/muzzleSearchService';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -32,6 +32,14 @@ interface MatchResult {
   confirmed_match: boolean | null;
 }
 
+interface EmbeddingWithAnimal {
+  id?: string;
+  animal_id: string;
+  embedding: number[] | string;
+  animal: { name: string; type: string; photo_url: string | null } | null;
+  capture_date?: string | null;
+}
+
 const MuzzleScanPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,7 +47,7 @@ const MuzzleScanPage: React.FC = () => {
   const { language } = useLanguage();
   
   const [step, setStep] = useState<'instructions' | 'capture' | 'processing' | 'results'>('instructions');
-  const [captureResult, setCaptureResult] = useState<any>(null);
+  const [captureResult, setCaptureResult] = useState<MuzzleCaptureResult | null>(null);
   const [matches, setMatches] = useState<MatchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
@@ -69,9 +77,9 @@ const MuzzleScanPage: React.FC = () => {
       try {
         await muzzleMLService.initialize();
         setMlReady(true);
-      } catch (err: any) {
+      } catch (err) {
         console.error('ML init failed:', err);
-        setMlError(err.message || 'ML model unavailable');
+        setMlError(err instanceof Error ? err.message : 'ML model unavailable');
       }
     };
     initML();
@@ -335,14 +343,15 @@ const MuzzleScanPage: React.FC = () => {
       if (error) {
         console.error('Search error:', error);
         // Try alternative: fetch all and calculate locally
-        const { data: embeddings } = await (supabase as any)
+        const fallback: { data: EmbeddingWithAnimal[] | null } = await supabase
           .from('muzzle_embeddings')
           .select('id, animal_id, embedding, animal:animals(name, type, photo_url)')
           .eq('user_id', user.id)
           .eq('is_primary', true);
 
+        const embeddings = fallback.data;
         if (embeddings && embeddings.length > 0) {
-           const results = embeddings.map((e: any) => ({
+           const results = embeddings.map((e: EmbeddingWithAnimal) => ({
              id: e.id || '',
              animal_id: e.animal_id,
              animal_name: e.animal?.name || 'Unknown',
@@ -392,7 +401,7 @@ const MuzzleScanPage: React.FC = () => {
     
     setIsConfirming(true);
     try {
-      await (supabase as any)
+      await supabase
         .from('muzzle_embeddings')
         .update({
           confirmed_match: isSame,
@@ -670,7 +679,7 @@ const MuzzleScanPage: React.FC = () => {
                     <div className="flex items-center gap-3">
                       <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
                         {match.image_url ? (
-                          <img src={match.image_url} alt="" className="w-full h-full object-cover rounded-lg" />
+                          <img src={match.image_url} alt="" className="w-full h-full object-cover rounded-lg" loading="lazy" decoding="async" />
                         ) : (
                           <Camera className="w-6 h-6 text-gray-400" />
                         )}

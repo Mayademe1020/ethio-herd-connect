@@ -3,6 +3,7 @@
 // Professional livestock management system with farm-specific prefixes
 
 import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
 
 export interface AnimalIdComponents {
   farmPrefix: string;
@@ -332,7 +333,7 @@ export const changeAnimalStatus = async (
     });
 
     // Update animal status
-    const updateData: any = {
+    const updateData: Database['public']['Tables']['animals']['Update'] = {
       status: newStatus,
       updated_at: new Date().toISOString()
     };

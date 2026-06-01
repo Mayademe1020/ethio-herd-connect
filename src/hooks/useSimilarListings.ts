@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+import type { MarketListing } from '@/types/marketplace';
 
 interface UseSimilarListingsOptions {
   currentListingId?: string;
@@ -46,7 +47,7 @@ export const useSimilarListings = ({
       if (error || !listings) return [];
 
       // Score each listing based on similarity
-      const scoredListings = (listings || []).map((listing: any) => {
+      const scoredListings = (listings || []).map((listing: MarketListing) => {
         let score = 0;
 
         // Same animal type: +10 points

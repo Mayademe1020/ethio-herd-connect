@@ -1,12 +1,21 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToastNotifications } from '@/hooks/useToastNotifications';
-import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContextMVP';
 import { validateAndSanitizeText, validateEmail, validateInput, sanitizeInput } from '@/utils/inputValidation';
+import type { AnimalData } from '@/types';
+
+export type UpdateAnimalInput = {
+  name?: string;
+  subtype?: string;
+  photo_url?: string;
+  breed?: string;
+  color?: string;
+  notes?: string;
+};
 
 export const useSecureAnimalRegistration = () => {
   const [loading, setLoading] = useState(false);
-  const { showSuccess, showError } = useToastNotifications();
   const { user } = useAuth();
 
   const validateInput = (input: string, fieldName: string): boolean => {
@@ -33,7 +42,7 @@ export const useSecureAnimalRegistration = () => {
     photo_url?: string;
   }) => {
     if (!user) {
-      showError('Authentication Required', 'Please sign in to register animals.');
+      toast.error('Authentication Required');
       return { error: new Error('User not authenticated') };
     }
 
@@ -106,20 +115,20 @@ export const useSecureAnimalRegistration = () => {
           new_values: sanitizedData
         });
 
-      showSuccess('Animal Registered', `${animalData.name} has been registered successfully with ID: ${animalCode}`);
+      toast.success(`${animalData.name} has been registered successfully with ID: ${animalCode}`);
       return { data, error: null };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Animal registration error:', error);
-      showError('Registration Failed', error.message || 'Failed to register animal');
+      toast.error('Registration Failed');
       return { error };
     } finally {
       setLoading(false);
     }
   };
 
-  const updateAnimal = async (animalId: string, updateData: any) => {
+  const updateAnimal = async (animalId: string, updateData: UpdateAnimalInput) => {
     if (!user) {
-      showError('Authentication Required', 'Please sign in to update animals.');
+      toast.error('Authentication Required');
       return { error: new Error('User not authenticated') };
     }
 
@@ -129,7 +138,7 @@ export const useSecureAnimalRegistration = () => {
       // Get current animal data for audit log - select all fields we need
       const { data: currentAnimal } = await supabase
         .from('animals')
-        .select('*')
+        .select('id, name, breed, color, notes, updated_at')
         .eq('id', animalId)
         .eq('user_id', user.id)
         .single();
@@ -138,13 +147,15 @@ export const useSecureAnimalRegistration = () => {
         throw new Error('Animal not found or you do not have permission to update it');
       }
 
+      const typedCurrentAnimal = currentAnimal as AnimalData;
+
       // Sanitize update data with safe property access
       const sanitizedData = {
         ...updateData,
         name: updateData.name ? sanitizeInput(updateData.name) : currentAnimal.name,
         breed: updateData.breed ? sanitizeInput(updateData.breed) : currentAnimal.breed,
-        color: updateData.color ? sanitizeInput(updateData.color) : (currentAnimal as any).color || null,
-        notes: updateData.notes ? sanitizeInput(updateData.notes) : (currentAnimal as any).notes || null,
+        color: updateData.color ? sanitizeInput(updateData.color) : typedCurrentAnimal.color || null,
+        notes: updateData.notes ? sanitizeInput(updateData.notes) : typedCurrentAnimal.notes || null,
         updated_at: new Date().toISOString()
       };
 
@@ -170,11 +181,11 @@ export const useSecureAnimalRegistration = () => {
           new_values: sanitizedData
         });
 
-      showSuccess('Animal Updated', 'Animal information has been updated successfully.');
+      toast.success('Animal information has been updated successfully.');
       return { data, error: null };
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Animal update error:', error);
-      showError('Update Failed', error.message || 'Failed to update animal');
+      toast.error('Update Failed');
       return { error };
     } finally {
       setLoading(false);

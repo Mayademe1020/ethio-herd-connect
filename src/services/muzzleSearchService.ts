@@ -26,11 +26,33 @@ export interface SearchOptions {
   userId?: string;
 }
 
+export interface MuzzleMatchRegistrationData {
+  registration_id?: string;
+  user_id?: string;
+  owner_name?: string;
+  farm_name?: string;
+  location?: string;
+  owner_phone?: string;
+  animal_name?: string;
+  animal_type?: string;
+  animal_breed?: string;
+  animal_code?: string;
+  breed?: string;
+  created_at?: string;
+}
+
+export interface MuzzleCloudSearchRow {
+  registration_id: string;
+  user_id: string;
+  animal_id: string;
+  similarity: string | number;
+}
+
 export interface VectorSimilarityResult {
   animalId: string;
   similarity: number;
   embedding: Float32Array;
-  registrationData: any;
+  registrationData: MuzzleMatchRegistrationData;
 }
 
 export interface LocalSearchResult {
@@ -175,7 +197,7 @@ export class MuzzleSearchService {
           animalId: stored.animalId,
           similarity: this.cosineSimilarity(queryVector, stored.embedding),
           embedding: stored.embedding,
-          registrationData: {},
+          registrationData: {} as MuzzleMatchRegistrationData,
         }))
         .filter(result => result.similarity >= options.confidenceThreshold)
         .sort((a, b) => b.similarity - a.similarity)
@@ -220,9 +242,10 @@ export class MuzzleSearchService {
 
       // Fetch owner details for each match
       const results: VectorSimilarityResult[] = [];
-      if (data && data.length > 0) {
-        const userIds = [...new Set(data.map((r: any) => r.user_id))];
-        const animalIds = [...new Set(data.map((r: any) => r.animal_id))];
+      const searchRows = (data as MuzzleCloudSearchRow[] | null) || [];
+      if (searchRows.length > 0) {
+        const userIds = [...new Set(searchRows.map(r => r.user_id))];
+        const animalIds = [...new Set(searchRows.map(r => r.animal_id))];
 
         // Fetch farm profiles for owners
         const { data: profiles } = await supabase
@@ -239,12 +262,12 @@ export class MuzzleSearchService {
         const profileMap = new Map((profiles || []).map(p => [p.user_id, p]));
         const animalMap = new Map((animals || []).map(a => [a.id, a]));
 
-        for (const row of data) {
+        for (const row of searchRows) {
           const profile = profileMap.get(row.user_id);
           const animal = animalMap.get(row.animal_id);
           results.push({
             animalId: row.animal_id,
-            similarity: parseFloat(row.similarity),
+            similarity: parseFloat(String(row.similarity)),
             embedding: new Float32Array(),
             registrationData: {
               registration_id: row.registration_id,

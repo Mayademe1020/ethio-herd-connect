@@ -9,7 +9,7 @@ import { useMuzzleFeatureExtractor } from './useMuzzleFeatureExtractor';
 import { muzzleSearchService, type SearchOptions } from '@/services/muzzleSearchService';
 import { rateLimiter } from '@/utils/rateLimiter';
 import { identificationLogger } from '@/services/identificationLogger';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContextMVP';
 import {
   type IdentificationResult,
   type SearchMode,

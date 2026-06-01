@@ -4,7 +4,7 @@ import { Bell, Menu, Search, X, Shield, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContextMVP';
 import { useNavigate } from 'react-router-dom';
 import { logger } from '@/utils/logger';
 import { OfflineStatusIndicator } from '@/components/OfflineStatusIndicator';

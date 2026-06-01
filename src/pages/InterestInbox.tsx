@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContextMVP';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslations } from '@/hooks/useTranslations';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,14 +12,14 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Mail, CheckCircle, XCircle, Clock, User, MessageCircle } from 'lucide-react';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useDateDisplay } from '@/hooks/useDateDisplay';
+import { BuyerInterest } from '@/types/marketplace';
 
 const InterestInbox = () => {
   const { user } = useAuth();
   const { language } = useLanguage();
   const { t } = useTranslations();
-  const { toast } = useToast();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState('pending');
   const { formatDateTime } = useDateDisplay();
@@ -44,6 +44,7 @@ const InterestInbox = () => {
       return data || [];
     },
     enabled: !!user,
+    staleTime: 30000,
   });
 
   // Update interest status mutation
@@ -59,16 +60,13 @@ const InterestInbox = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['buyer-interests-inbox'] });
-      toast({
-        title: t('inbox.statusUpdated') || 'Status Updated',
+      toast.success(t('inbox.statusUpdated') || 'Status Updated', {
         description: t('inbox.statusUpdateSuccess') || 'Interest status updated successfully',
       });
     },
-    onError: (error: any) => {
-      toast({
-        title: t('common.error') || 'Error',
+    onError: (error: Error) => {
+      toast.error(t('common.error') || 'Error', {
         description: error.message || 'Failed to update status',
-        variant: 'destructive',
       });
     },
   });
@@ -207,7 +205,15 @@ const InterestInbox = () => {
 };
 
 // Interest List Component
-const InterestList = ({ interests, onApprove, onReject, showActions, t }: any) => {
+interface InterestListProps {
+  interests: BuyerInterest[];
+  onApprove: (interestId: string) => void;
+  onReject: (interestId: string) => void;
+  showActions: boolean;
+  t: (key: string) => string;
+}
+
+const InterestList = ({ interests, onApprove, onReject, showActions, t }: InterestListProps) => {
   if (interests.length === 0) {
     return (
       <Card className="p-12 text-center bg-white">
@@ -219,7 +225,7 @@ const InterestList = ({ interests, onApprove, onReject, showActions, t }: any) =
 
   return (
     <div className="space-y-4">
-      {interests.map((interest: any) => (
+      {interests.map((interest: BuyerInterest) => (
         <Card key={interest.id} className="p-6 bg-white hover:shadow-lg transition-shadow">
           <div className="flex gap-4">
             {/* Listing Photo */}
@@ -229,6 +235,8 @@ const InterestList = ({ interests, onApprove, onReject, showActions, t }: any) =
                   src={interest.listing.photos[0]} 
                   alt={interest.listing.title}
                   className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">

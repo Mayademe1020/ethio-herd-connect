@@ -39,7 +39,7 @@ export const useAnalytics = () => {
 
       const { data, error } = await supabase
         .from('analytics_events')
-        .select('*')
+        .select('id, event_name, user_id, properties, created_at')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 

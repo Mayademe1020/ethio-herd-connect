@@ -4,9 +4,50 @@
  * Optimized for offline-first and low-connectivity environments
  */
 
-import { useToastNotifications } from '@/hooks/useToastNotifications';
+import { toast } from 'sonner';
 import { useTranslations } from '@/hooks/useTranslations';
 import { logger } from './logger';
+
+/**
+ * Safely extract a message string from an unknown error value
+ */
+const getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) return error.message;
+  if (typeof error === 'string') return error;
+  if (error && typeof error === 'object' && 'message' in error && typeof (error as { message: unknown }).message === 'string') {
+    return (error as { message: string }).message;
+  }
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return String(error);
+  }
+};
+
+/**
+ * Extract common Error properties from an unknown value
+ */
+const getErrorInfo = (error: unknown): { name?: string; message?: string; code?: string; stack?: string } => {
+  if (error instanceof Error) {
+    const code = (error as Error & { code?: unknown }).code;
+    return {
+      name: error.name,
+      message: error.message,
+      stack: error.stack,
+      code: typeof code === 'string' ? code : undefined,
+    };
+  }
+  if (error && typeof error === 'object') {
+    const obj = error as Record<string, unknown>;
+    return {
+      name: typeof obj.name === 'string' ? obj.name : undefined,
+      message: typeof obj.message === 'string' ? obj.message : undefined,
+      code: typeof obj.code === 'string' ? obj.code : undefined,
+      stack: typeof obj.stack === 'string' ? obj.stack : undefined,
+    };
+  }
+  return {};
+};
 
 // Error severity levels
 export enum ErrorSeverity {
@@ -36,7 +77,7 @@ export interface AppError {
   severity: ErrorSeverity;
   category: ErrorCategory;
   timestamp: number;
-  data?: any;
+  data?: unknown;
 }
 
 // Store recent errors for debugging and reporting
@@ -84,7 +125,7 @@ export const createError = (
   severity: ErrorSeverity = ErrorSeverity.ERROR,
   details?: string,
   code?: string,
-  data?: any
+  data?: unknown
 ): AppError => {
   return {
     message,
@@ -100,14 +141,14 @@ export const createError = (
 /**
  * Handle network errors with appropriate user feedback
  */
-export const handleNetworkError = (error: any, t: (key: string) => string): AppError => {
+export const handleNetworkError = (error: unknown, t: (key: string) => string): AppError => {
   const appError = createError(
     t('Network connection issue'),
     ErrorCategory.NETWORK,
     ErrorSeverity.WARNING,
-    error.message
+    getErrorMessage(error)
   );
-  
+
   logError(appError);
   return appError;
 };
@@ -115,14 +156,14 @@ export const handleNetworkError = (error: any, t: (key: string) => string): AppE
 /**
  * Handle database errors with appropriate user feedback
  */
-export const handleDatabaseError = (error: any, t: (key: string) => string): AppError => {
+export const handleDatabaseError = (error: unknown, t: (key: string) => string): AppError => {
   const appError = createError(
     t('Database operation failed'),
     ErrorCategory.DATABASE,
     ErrorSeverity.ERROR,
-    error.message
+    getErrorMessage(error)
   );
-  
+
   logError(appError);
   return appError;
 };
@@ -150,28 +191,28 @@ export const clearErrorLog = (): void => {
  * Hook for using the error handling system
  */
 export const useErrorHandler = () => {
-  const { showError, showWarning, showInfo } = useToastNotifications();
   const { t } = useTranslations();
   
-  const handleError = (error: any, category?: ErrorCategory): AppError => {
+  const handleError = (error: unknown, category?: ErrorCategory): AppError => {
+    const errorInfo = getErrorInfo(error);
     // Determine error category if not provided
     if (!category) {
-      if (error.name === 'NetworkError' || error.message?.includes('network')) {
+      if (errorInfo.name === 'NetworkError' || (typeof errorInfo.message === 'string' && errorInfo.message.includes('network'))) {
         category = ErrorCategory.NETWORK;
-      } else if (error.code?.startsWith('auth/')) {
+      } else if (typeof errorInfo.code === 'string' && errorInfo.code.startsWith('auth/')) {
         category = ErrorCategory.AUTHENTICATION;
       } else {
         category = ErrorCategory.UNKNOWN;
       }
     }
-    
+
     // Create structured error
     const appError = createError(
-      error.message || t('An error occurred'),
+      errorInfo.message || t('An error occurred'),
       category,
       category === ErrorCategory.NETWORK ? ErrorSeverity.WARNING : ErrorSeverity.ERROR,
-      error.stack,
-      error.code
+      errorInfo.stack,
+      errorInfo.code
     );
     
     // Log error
@@ -180,14 +221,14 @@ export const useErrorHandler = () => {
     // Show appropriate notification
     switch (appError.severity) {
       case ErrorSeverity.WARNING:
-        showWarning(appError.message, appError.details || '');
+        toast.warning(appError.message);
         break;
       case ErrorSeverity.ERROR:
       case ErrorSeverity.CRITICAL:
-        showError(appError.message, appError.details || '');
+        toast.error(appError.message);
         break;
       default:
-        showInfo(appError.message, appError.details || '');
+        toast.info(appError.message);
     }
     
     return appError;
@@ -195,8 +236,8 @@ export const useErrorHandler = () => {
   
   return {
     handleError,
-    handleNetworkError: (error: any) => handleNetworkError(error, t),
-    handleDatabaseError: (error: any) => handleDatabaseError(error, t),
+    handleNetworkError: (error: unknown) => handleNetworkError(error, t),
+    handleDatabaseError: (error: unknown) => handleDatabaseError(error, t),
     logError,
     getErrorLog,
     clearErrorLog

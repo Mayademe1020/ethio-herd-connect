@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContextMVP';
 import { offlineQueue } from '@/lib/offlineQueue';
-import { useToastContext } from '@/contexts/ToastContext';
+import { toast } from 'sonner';
 import { getUserFriendlyError, getSuccessMessage } from '@/lib/errorMessages';
 
 export interface AnimalUpdateData {
@@ -21,7 +21,6 @@ interface UseAnimalUpdateReturn {
 export const useAnimalUpdate = (): UseAnimalUpdateReturn => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const toastContext = useToastContext();
 
   const mutation = useMutation({
     mutationFn: async ({ animalId, updates }: { animalId: string; updates: AnimalUpdateData }) => {
@@ -47,7 +46,7 @@ export const useAnimalUpdate = (): UseAnimalUpdateReturn => {
         });
 
         const networkError = getUserFriendlyError({ message: 'network' }, 'amharic');
-        toastContext.info(networkError.message, networkError.icon);
+        toast.info(networkError.message, networkError.icon ? { icon: networkError.icon } : undefined);
 
         return { success: true, offline: true };
       }
@@ -86,7 +85,7 @@ export const useAnimalUpdate = (): UseAnimalUpdateReturn => {
         });
 
         const errorMsg = getUserFriendlyError(updateError, 'amharic');
-        toastContext.warning(errorMsg.message, errorMsg.icon);
+        toast.warning(errorMsg.message, errorMsg.icon ? { icon: errorMsg.icon } : undefined);
 
         return { success: true, offline: true };
       }
@@ -100,12 +99,12 @@ export const useAnimalUpdate = (): UseAnimalUpdateReturn => {
 
       if (!result.offline) {
         const successMsg = getSuccessMessage('changes_saved', 'amharic');
-        toastContext.success(successMsg.message, successMsg.icon);
+        toast.success(successMsg.message, successMsg.icon ? { icon: successMsg.icon } : undefined);
       }
     },
     onError: (err: Error) => {
       const errorMsg = getUserFriendlyError(err, 'amharic');
-      toastContext.error(errorMsg.message, errorMsg.icon);
+      toast.error(errorMsg.message, errorMsg.icon ? { icon: errorMsg.icon } : undefined);
     }
   });
 

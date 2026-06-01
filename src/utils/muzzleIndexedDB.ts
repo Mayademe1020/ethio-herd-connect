@@ -15,7 +15,7 @@ const getEncryptionKey = async (): Promise<CryptoKey> => {
     if (storedKeyData) {
       return await crypto.subtle.importKey(
         'raw',
-        new Uint8Array(storedKeyData),
+        new Uint8Array(storedKeyData as ArrayLike<number>),
         { name: 'AES-GCM', length: 256 },
         false,
         ['encrypt', 'decrypt']
@@ -98,7 +98,7 @@ export interface MuzzleEmbedding {
 
 export interface MuzzleMetadata {
   key: string;
-  value: any;
+  value: unknown;
   timestamp: number;
 }
 
@@ -297,7 +297,7 @@ export const getMuzzleEmbedding = async (
       try {
         const ivData = await getMuzzleMetadata(`${latestEmbedding.id}_iv`);
         if (!ivData) return null;
-        const iv = new Uint8Array(ivData);
+        const iv = new Uint8Array(ivData as ArrayLike<number>);
         latestEmbedding.embedding = await decryptBiometricData(latestEmbedding.embedding.buffer as ArrayBuffer, iv);
         latestEmbedding.encrypted = false;
       } catch (decryptError) {
@@ -338,7 +338,7 @@ export const getAllMuzzleEmbeddings = async (userId: string): Promise<MuzzleEmbe
           try {
             const ivData = await getMuzzleMetadata(`${embedding.id}_iv`);
             if (!ivData) return null;
-            const iv = new Uint8Array(ivData);
+            const iv = new Uint8Array(ivData as ArrayLike<number>);
             const decrypted = await decryptBiometricData(embedding.embedding.buffer as ArrayBuffer, iv);
             return { ...embedding, embedding: decrypted, encrypted: false };
           } catch (decryptError) {
@@ -359,7 +359,7 @@ export const getAllMuzzleEmbeddings = async (userId: string): Promise<MuzzleEmbe
 /**
  * Get muzzle metadata
  */
-export const getMuzzleMetadata = async (key: string): Promise<any> => {
+export const getMuzzleMetadata = async (key: string): Promise<unknown> => {
   try {
     const db = await initMuzzleDB();
     const transaction = db.transaction([MUZZLE_STORES.METADATA], 'readonly');
@@ -367,7 +367,7 @@ export const getMuzzleMetadata = async (key: string): Promise<any> => {
 
     const request = store.get(key);
 
-    const result = await new Promise<any>((resolve, reject) => {
+    const result = await new Promise<unknown>((resolve, reject) => {
       request.onsuccess = () => resolve(request.result?.value);
       request.onerror = () => reject(request.error);
     });
@@ -383,7 +383,7 @@ export const getMuzzleMetadata = async (key: string): Promise<any> => {
 /**
  * Set muzzle metadata
  */
-export const setMuzzleMetadata = async (key: string, value: any): Promise<void> => {
+export const setMuzzleMetadata = async (key: string, value: unknown): Promise<void> => {
   try {
     const db = await initMuzzleDB();
     const transaction = db.transaction([MUZZLE_STORES.METADATA], 'readwrite');

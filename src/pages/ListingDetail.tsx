@@ -4,10 +4,36 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
 import { useAuth } from '@/contexts/AuthContextMVP';
 import InterestsList from '@/components/InterestsList';
 import { VideoPlayer } from '@/components/VideoPlayer';
 import { analytics, ANALYTICS_EVENTS } from '@/lib/analytics';
+
+interface AnimalRef {
+  id: string;
+  name: string;
+  type: string;
+  subtype: string;
+  photo_url: string;
+}
+
+interface ListingDetailData {
+  id: string;
+  price: number;
+  is_negotiable: boolean;
+  user_id: string;
+  video_url: string | null;
+  video_thumbnail: string | null;
+  location: string | null;
+  created_at: string;
+  views_count: number;
+  status: string | null;
+  contact_phone: string | null;
+  animal: AnimalRef | null;
+}
+
+type BuyerInterestRow = Database['public']['Tables']['buyer_interests']['Row'];
 
 const ListingDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -18,65 +44,66 @@ const ListingDetail = () => {
   const [interestMessage, setInterestMessage] = useState('');
 
   // Fetch listing details
-  const { data: listing, isLoading, error } = useQuery<any>({
+  const { data: listing, isLoading, error } = useQuery<ListingDetailData>({
     queryKey: ['listing-detail', id],
     queryFn: async () => {
+      const listingId = id!;
       const { data, error } = await supabase
         .from('market_listings')
         .select(`
-          *,
-          animal:animals(*)
+          id, price, is_negotiable, user_id, video_url, video_thumbnail, location, created_at, views_count, status, contact_phone,
+          animal:animals(id, name, type, subtype, photo_url)
         `)
-        .eq('id', id)
+        .eq('id', listingId)
         .single();
 
       if (error) throw error;
 
-      // Increment views count
+      const listingData = data as unknown as ListingDetailData;
+
       await supabase
         .from('market_listings')
-        .update({ views_count: ((data as any).views_count || 0) + 1 } as any)
-        .eq('id', id);
+        .update({ views_count: (listingData.views_count || 0) + 1 } satisfies Partial<Database['public']['Tables']['market_listings']['Update']>)
+        .eq('id', listingId);
 
-      return data as any;
+      return listingData;
     },
     enabled: !!id,
   });
 
   // Fetch buyer interests if user is the seller
-  const { data: interests } = useQuery<any>({
+  const { data: interests } = useQuery<BuyerInterestRow[]>({
     queryKey: ['listing-interests', id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('buyer_interests')
-        .select('*')
-        .eq('listing_id', id)
+        .select('id, listing_id, buyer_id, message, status, created_at')
+        .eq('listing_id', id!)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as any;
+      return (data ?? []) as BuyerInterestRow[];
     },
-    enabled: !!id && !!user && (listing as any)?.user_id === user.id,
+    enabled: !!id && !!user && listing?.user_id === user.id,
   });
 
   // Check if current user has already expressed interest
-  const { data: userInterest } = useQuery<any>({
+  const { data: userInterest } = useQuery<BuyerInterestRow | null>({
     queryKey: ['user-interest', id, user?.id],
     queryFn: async () => {
-      if (!user) return null;
-      
-      const query: any = supabase
+      if (!user || !id) return null;
+
+      const { data, error } = await supabase
         .from('buyer_interests')
-        .select('*')
+        .select('id, listing_id, buyer_id, message, status, created_at')
         .eq('listing_id', id)
-        .eq('buyer_id', user.id);
-      
-      const { data, error } = await query.maybeSingle();
+        .eq('buyer_id', user.id)
+        .maybeSingle();
 
       if (error) throw error;
-      return data;
+      return data as BuyerInterestRow | null;
     },
-    enabled: !!id && !!user && (listing as any)?.user_id !== user?.id,
+    enabled: !!id && !!user && listing?.user_id !== user?.id,
   });
 
   // Track listing view analytics
@@ -95,7 +122,7 @@ const ListingDetail = () => {
   // Express interest mutation
   const expressInterestMutation = useMutation({
     mutationFn: async (message: string) => {
-      if (!user) throw new Error('Must be logged in');
+      if (!user || !id) throw new Error('Must be logged in');
 
       const { data, error } = await supabase
         .from('buyer_interests')
@@ -104,12 +131,12 @@ const ListingDetail = () => {
           buyer_id: user.id,
           message: message || null,
           status: 'pending',
-        } as any)
+        } satisfies Database['public']['Tables']['buyer_interests']['Insert'])
         .select()
         .single();
 
       if (error) throw error;
-      return data as any;
+      return data as BuyerInterestRow;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-interest', id, user?.id] });
@@ -117,7 +144,7 @@ const ListingDetail = () => {
       setInterestMessage('');
       alert('Interest expressed successfully! The seller will contact you.');
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       alert('Failed to express interest: ' + error.message);
     },
   });
@@ -191,7 +218,7 @@ const ListingDetail = () => {
     );
   }
 
-  const isOwner = user?.id === (listing as any)?.user_id;
+  const isOwner = user?.id === listing.user_id;
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -224,24 +251,26 @@ const ListingDetail = () => {
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           {/* Video or Photo */}
           <div className="relative h-64 md:h-96 bg-gray-200">
-            {(listing as any).video_url && (listing as any).video_thumbnail ? (
+            {listing.video_url && listing.video_thumbnail ? (
               <VideoPlayer
-                videoUrl={(listing as any).video_url}
-                thumbnailUrl={(listing as any).video_thumbnail}
+                videoUrl={listing.video_url}
+                thumbnailUrl={listing.video_thumbnail}
                 className="h-full"
               />
-            ) : (listing as any).animal?.photo_url ? (
+            ) : listing.animal?.photo_url ? (
               <img
-                src={(listing as any).animal.photo_url}
-                alt={(listing as any).animal.name}
+                src={listing.animal.photo_url}
+                alt={listing.animal.name}
                 className="w-full h-full object-cover"
+                loading="lazy"
+                decoding="async"
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-8xl">
-                {getAnimalIcon((listing as any).animal?.type || '')}
+                {getAnimalIcon(listing.animal?.type || '')}
               </div>
             )}
-            {(listing as any).is_negotiable && (
+            {listing.is_negotiable && (
               <div className="absolute top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-full font-bold z-10">
                 Negotiable
               </div>
@@ -252,19 +281,19 @@ const ListingDetail = () => {
           <div className="p-6">
             {/* Animal Name and Type */}
             <div className="flex items-center gap-3 mb-4">
-              <span className="text-5xl">{getAnimalIcon((listing as any).animal?.type || '')}</span>
+              <span className="text-5xl">{getAnimalIcon(listing.animal?.type || '')}</span>
               <div>
                 <h1 className="text-3xl font-bold text-gray-900">
-                  {(listing as any).animal?.name || 'Unnamed'}
+                  {listing.animal?.name || 'Unnamed'}
                 </h1>
-                <p className="text-lg text-gray-600">{(listing as any).animal?.subtype || (listing as any).animal?.type}</p>
+                <p className="text-lg text-gray-600">{listing.animal?.subtype || listing.animal?.type}</p>
               </div>
             </div>
 
             {/* Price */}
             <div className="mb-6">
               <p className="text-4xl font-bold text-green-600">
-                {formatPrice((listing as any).price)}
+                {formatPrice(listing.price)}
               </p>
             </div>
 
@@ -272,27 +301,27 @@ const ListingDetail = () => {
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div>
                 <p className="text-sm text-gray-500">Location</p>
-                <p className="font-medium">📍 {(listing as any).location || 'Not specified'}</p>
+                <p className="font-medium">📍 {listing.location || 'Not specified'}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Listed</p>
-                <p className="font-medium">📅 {formatDate((listing as any).created_at)}</p>
+                <p className="font-medium">📅 {formatDate(listing.created_at)}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Views</p>
-                <p className="font-medium">👁️ {(listing as any).views_count || 0}</p>
+                <p className="font-medium">👁️ {listing.views_count || 0}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500">Status</p>
-                <p className="font-medium">✓ {(listing as any).status}</p>
+                <p className="font-medium">✓ {listing.status}</p>
               </div>
             </div>
 
             {/* Seller Contact (only for non-owners) */}
-            {!isOwner && (listing as any).contact_phone && (
+            {!isOwner && listing.contact_phone && (
               <div className="bg-gray-50 rounded-lg p-4 mb-6">
                 <p className="text-sm text-gray-500 mb-2">Seller Contact</p>
-                <p className="font-medium text-lg">📞 {(listing as any).contact_phone}</p>
+                <p className="font-medium text-lg">📞 {listing.contact_phone}</p>
               </div>
             )}
 
@@ -345,9 +374,9 @@ const ListingDetail = () => {
                   </>
                 )}
 
-                {(listing as any).contact_phone && (
+                {listing.contact_phone && (
                   <a
-                    href={`tel:${(listing as any).contact_phone}`}
+                    href={`tel:${listing.contact_phone}`}
                     className="block w-full bg-blue-600 text-white py-4 rounded-lg font-bold text-lg text-center hover:bg-blue-700"
                   >
                     📞 Call Seller

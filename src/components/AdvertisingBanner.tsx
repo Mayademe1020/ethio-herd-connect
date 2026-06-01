@@ -112,6 +112,8 @@ export const AdvertisingBanner: React.FC<AdvertisingBannerProps> = ({
                     src={ad.image_url}
                     alt={ad.business_name}
                     className="w-full h-full object-cover rounded-lg"
+                    loading="lazy"
+                    decoding="async"
                   />
                 ) : (
                   <div className="text-2xl">

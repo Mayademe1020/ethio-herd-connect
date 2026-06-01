@@ -1,8 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { mockMarketplaceListings } from '@/data/mockMarketplaceData';
+import { useAuth } from '@/contexts/AuthContextMVP';
 
 interface SecurePublicListing {
   id: string;
@@ -38,36 +37,28 @@ export const useSecurePublicMarketplace = () => {
       const tableName = user ? 'public_market_listings' : 'public_market_view';
       const query = supabase
         .from(tableName)
-        .select('*')
+        .select('id, title, description, location, photos, created_at, status, is_vet_verified, price, contact_method, contact_value, user_id, animal_id, weight, age, updated_at')
         .order('created_at', { ascending: false });
       
-      // Only filter by status if using the main table (authenticated users)
-      if (user) {
-        query.eq('status', 'active');
-      }
-      
-      const { data, error } = await query;
-
-      if (error) {
-        console.error('Database error fetching listings:', error.message);
-        setError(error.message);
-        // Fallback to mock listings for preview when unauthenticated
-        if (!user) {
-          setListings(mockMarketplaceListings as unknown as SecurePublicListing[]);
-        } else {
-          setListings([]);
-        }
-      } else {
-        // Use only real data from database; if none available for public, show mock for preview
-        if ((!data || data.length === 0) && !user) {
-          setListings(mockMarketplaceListings as unknown as SecurePublicListing[]);
-        } else {
-          setListings(data || []);
-        }
-      }
-    } catch (err: any) {
+       // Only filter by status if using the main table (authenticated users)
+       if (user) {
+         query.eq('status', 'active');
+       }
+       
+       const { data, error } = await query;
+ 
+       if (error) {
+         console.error('Database error fetching listings:', error.message);
+         setError(error.message);
+         // No fallback to mock data - show empty list or error
+         setListings([]);
+       } else {
+         // Use only real data from database
+         setListings(data || []);
+       }
+    } catch (err: unknown) {
       console.error('Error fetching secure public listings:', err);
-      setError(err.message || 'Failed to fetch listings');
+      setError((err as Error).message || 'Failed to fetch listings');
       // Fallback to mock listings for preview when unauthenticated
       if (!user) {
         setListings(mockMarketplaceListings as unknown as SecurePublicListing[]);

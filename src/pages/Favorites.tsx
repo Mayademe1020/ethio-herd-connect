@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContextMVP';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslations } from '@/hooks/useTranslations';
 import { useSecurePublicMarketplace } from '@/hooks/useSecurePublicMarketplace';
@@ -14,6 +14,25 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { MarketListingDetails } from '@/components/MarketListingDetails';
 import { ContactSellerModal } from '@/components/ContactSellerModal';
 
+interface FavoriteListing {
+  id: string;
+  title: string;
+  description: string | null;
+  location: string | null;
+  photos: string[] | null;
+  created_at: string;
+  status: string;
+  is_vet_verified: boolean | null;
+  price: number | null;
+  contact_method: string | null;
+  contact_value: string | null;
+  user_id: string | null;
+  animal_id: string | null;
+  weight: number | null;
+  age: number | null;
+  updated_at: string | null;
+}
+
 const Favorites = () => {
   const { user } = useAuth();
   const { language } = useLanguage();
@@ -21,8 +40,8 @@ const Favorites = () => {
   const { listings, loading: isLoading } = useSecurePublicMarketplace();
   const { favorites, toggleFavorite, isLoading: favoritesLoading } = useListingFavorites();
 
-  const [selectedListing, setSelectedListing] = useState<any>(null);
-  const [contactListing, setContactListing] = useState<any>(null);
+  const [selectedListing, setSelectedListing] = useState<FavoriteListing | null>(null);
+  const [contactListing, setContactListing] = useState<FavoriteListing | null>(null);
 
   // Filter to only favorited listings
   const favoriteListings = listings?.filter(l => favorites.includes(l.id)) || [];
@@ -94,7 +113,7 @@ const Favorites = () => {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {favoriteListings.map((listing: any) => (
+            {favoriteListings.map((listing: FavoriteListing) => (
               <Card key={listing.id} className="overflow-hidden bg-white hover:shadow-xl transition-all duration-300">
                 {/* Image */}
                 <div className="relative h-48 bg-gray-200">
@@ -103,6 +122,8 @@ const Favorites = () => {
                       src={listing.photos[0]} 
                       alt={listing.title}
                       className="w-full h-full object-cover"
+                      loading="lazy"
+                      decoding="async"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">

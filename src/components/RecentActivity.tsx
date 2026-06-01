@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Syringe, Scale, Heart, Plus, TrendingUp } from 'lucide-react';
+import { Clock, Syringe, Scale, Heart, Plus, TrendingUp, type LucideIcon } from 'lucide-react';
 import { Language } from '@/types';
 
 interface RecentActivityProps {
@@ -14,7 +14,7 @@ interface ActivityItem {
   animal: string;
   action: string;
   time: string;
-  icon: any;
+  icon: LucideIcon;
   color: string;
 }
 

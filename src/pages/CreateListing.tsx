@@ -14,7 +14,7 @@ import { HealthDisclaimerCheckbox } from '@/components/HealthDisclaimerCheckbox'
 import { BackButtonConfirmation } from '@/components/BackButtonConfirmation';
 import { BackButton } from '@/components/BackButton';
 import { ArrowRight, ArrowLeft, Check, Loader2, AlertTriangle, CheckCircle } from 'lucide-react';
-import { useToast } from '@/hooks/useToast';
+import { toast } from 'sonner';
 import { getMuzzleEmbedding } from '@/utils/muzzleIndexedDB';
 
 interface Animal {
@@ -29,7 +29,7 @@ const CreateListing = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { t } = useTranslations();
-  const { showToast } = useToast();
+
   const { createListing, isCreating } = useMarketplaceListing();
 
   // Form state
@@ -195,7 +195,7 @@ const CreateListing = () => {
       navigate('/marketplace');
     } catch (error) {
       console.error('Error creating listing:', error);
-      showToast(t('errors.unknownError'), 'error');
+      toast.error(t('errors.unknownError'));
     } finally {
       setIsSubmitting(false);
     }
@@ -292,7 +292,7 @@ const CreateListing = () => {
             <PhotoUploadField
               value={photoUrl || undefined}
               onChange={setPhotoUrl}
-              onError={(error) => showToast(error, 'error')}
+              onError={(error) => toast.error(error)}
             />
             <VideoUploadField
               value={videoUrl || undefined}
@@ -301,7 +301,7 @@ const CreateListing = () => {
                 setVideoUrl(video);
                 setVideoThumbnailUrl(thumbnail || null);
               }}
-              onError={(error) => showToast(error, 'error')}
+              onError={(error) => toast.error(error)}
             />
           </div>
         );

@@ -74,13 +74,14 @@ const Onboarding = () => {
       setTimeout(() => {
         navigate('/', { replace: true });
       }, 500);
-    } catch (error: any) {
-      console.error('Onboarding error:', error);
-      
+    } catch (error) {
+      const err = error as Error;
+      console.error('Onboarding error:', err);
+
       // Detect network errors specifically
-      if (error.message?.includes('fetch') || 
-          error.message?.includes('network') || 
-          error.message?.includes('Failed to fetch') ||
+      if (err.message?.includes('fetch') ||
+          err.message?.includes('network') ||
+          err.message?.includes('Failed to fetch') ||
           !navigator.onLine) {
         toast.error('የኢንተርኔት ግንኙነት ችግር / Network Error', {
           description: 'እባክዎ ግንኙነትዎን ያረጋግጡ / Please check your connection',
@@ -92,7 +93,7 @@ const Onboarding = () => {
       } else {
         // Show bilingual error messages
         toast.error('መረጃ ማስቀመጥ አልተቻለም / Failed to save', {
-          description: error.message || 'Please try again'
+          description: err.message || 'Please try again'
         });
       }
     } finally {

@@ -2,6 +2,7 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { logger } from '@/utils/logger';
 import { Lock, Eye, TrendingUp } from 'lucide-react';
 import { Language } from '@/types';
 
@@ -135,7 +136,7 @@ export const AuthGateModal = ({
                     JSON.stringify({ ...intendedAction, timestamp: Date.now() })
                   );
                 }
-              } catch {}
+              } catch (e) { logger.warn('Failed to store intended action:', e); }
               onLogin();
             }} 
             className="flex-1 bg-orange-600 hover:bg-orange-700"

@@ -8,18 +8,26 @@ import { supabase } from '@/integrations/supabase/client';
 import React from 'react';
 
 // Mock the auth context
-vi.mock('@/contexts/AuthContextMVP', () => ({
-  useAuth: () => ({
-    user: { id: 'test-user-id' }
-  })
-}));
+vi.mock('@/contexts/AuthContextMVP', async () => {
+  const actual = await vi.importActual<typeof import('@/contexts/AuthContextMVP')>('@/contexts/AuthContextMVP');
+  return {
+    ...actual,
+    useAuth: () => ({
+      user: { id: 'test-user-id' }
+    })
+  };
+});
 
 // Mock supabase client
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: {
-    from: vi.fn()
-  }
-}));
+vi.mock('@/integrations/supabase/client', async () => {
+  const actual = await vi.importActual<typeof import('@/integrations/supabase/client')>('@/integrations/supabase/client');
+  return {
+    ...actual,
+    supabase: {
+      from: vi.fn()
+    }
+  };
+});
 
 describe('useFarmStats', () => {
   let queryClient: QueryClient;
@@ -57,9 +65,9 @@ describe('useFarmStats', () => {
       eq: vi.fn().mockReturnThis(),
       gte: vi.fn().mockResolvedValue({
         data: [
-          { total_yield: 10.5 },
-          { total_yield: 12.3 },
-          { total_yield: 8.7 }
+          { liters: 10.5 },
+          { liters: 12.3 },
+          { liters: 8.7 }
         ],
         error: null
       })

@@ -151,6 +151,8 @@ export const EditAnimalModal = ({
                     src={photoPreview}
                     alt="Preview"
                     className="w-full h-full object-cover"
+                    loading="lazy"
+                    decoding="async"
                   />
                   <button
                     onClick={() => {

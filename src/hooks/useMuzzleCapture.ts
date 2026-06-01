@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { logger } from '@/utils/logger';
 import { muzzleMLService, type QualityCheckResult, type CropInfo } from '@/services/muzzleMLService';
 
 export interface MuzzleCaptureResult {
@@ -127,7 +128,7 @@ export const useMuzzleCapture = (): UseMuzzleCaptureReturn => {
           const result = muzzleMLService.qualityCheck(imageData);
           setQuality(result);
         } catch (err) {
-          // Ignore quality check errors during monitoring
+          logger.warn('Quality check error during monitoring:', err);
         }
       }
 

@@ -4,9 +4,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { offlineQueue } from '@/lib/offlineQueue';
 import { v4 as uuidv4 } from 'uuid';
-import { useToastContext } from '@/contexts/ToastContext';
+import { toast } from 'sonner';
 import { getUserFriendlyError, getSuccessMessage } from '@/lib/errorMessages';
 import { analytics, ANALYTICS_EVENTS } from '@/lib/analytics';
+import type { BuyerInterest } from '@/types/marketplace';
 
 interface ExpressInterestParams {
   listingId: string;
@@ -21,7 +22,6 @@ interface UpdateInterestStatusParams {
 
 export const useBuyerInterest = () => {
   const queryClient = useQueryClient();
-  const toastContext = useToastContext();
 
   // Express interest mutation
   const expressInterest = useMutation({
@@ -71,7 +71,7 @@ export const useBuyerInterest = () => {
       queryClient.invalidateQueries({ queryKey: ['listing-interests', variables.listingId] });
 
       const successMsg = getSuccessMessage('interest_sent', 'amharic');
-      toastContext.success(successMsg.message, successMsg.icon);
+      toast.success(successMsg.message, successMsg.icon ? { icon: successMsg.icon } : undefined);
 
       // Track analytics event
       analytics.track(ANALYTICS_EVENTS.INTEREST_EXPRESSED, {
@@ -82,7 +82,7 @@ export const useBuyerInterest = () => {
     },
     onError: (error) => {
       const errorMsg = getUserFriendlyError(error, 'amharic');
-      toastContext.error(errorMsg.message, errorMsg.icon);
+      toast.error(errorMsg.message, errorMsg.icon ? { icon: errorMsg.icon } : undefined);
     },
   });
 
@@ -99,15 +99,15 @@ export const useBuyerInterest = () => {
       if (error) throw error;
       return data as any;
     },
-    onSuccess: (data: any) => {
+    onSuccess: (data: BuyerInterest) => {
       // Invalidate listing interests query
       queryClient.invalidateQueries({ queryKey: ['listing-interests', data.listing_id] });
 
-      toastContext.success('ተሳክቷል! / Updated!', '✓');
+      toast.success('ተሳክቷል! / Updated!', { icon: '✓' });
     },
     onError: (error) => {
       const errorMsg = getUserFriendlyError(error, 'amharic');
-      toastContext.error(errorMsg.message, errorMsg.icon);
+      toast.error(errorMsg.message, errorMsg.icon ? { icon: errorMsg.icon } : undefined);
     },
   });
 

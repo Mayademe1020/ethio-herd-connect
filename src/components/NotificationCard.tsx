@@ -5,7 +5,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { useNavigate } from 'react-router-dom';
 import { snoozeReminder } from '@/services/reminderService';
 import { useAuth } from '@/contexts/AuthContextMVP';
-import { useToast } from '@/hooks/useToast';
+import { toast } from 'sonner';
 import { MarketAlertCard } from './MarketAlertCard';
 
 interface NotificationCardProps {
@@ -46,7 +46,7 @@ export function NotificationCard({ notification, onMarkAsRead, onDelete }: Notif
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { showToast } = useToast();
+
 
   // Use MarketAlertCard for market alerts
   if (notification.type === 'market_alert') {
@@ -75,14 +75,14 @@ export function NotificationCard({ notification, onMarkAsRead, onDelete }: Notif
       );
 
       if (result.success) {
-        showToast(t('reminders.snoozed'), 'success');
+        toast.success(t('reminders.snoozed'));
         onMarkAsRead(notification.id);
       } else {
-        showToast(result.error || t('reminders.snoozeFailed'), 'error');
+        toast.error(result.error || t('reminders.snoozeFailed'));
       }
     } catch (error) {
       console.error('Error snoozing reminder:', error);
-      showToast(t('reminders.snoozeFailed'), 'error');
+      toast.error(t('reminders.snoozeFailed'));
     }
   };
 

@@ -215,6 +215,8 @@ export const VideoUploadField: React.FC<VideoUploadFieldProps> = ({
                 src={thumbnailUrl}
                 alt="Video thumbnail"
                 className="w-full h-full object-cover"
+                loading="lazy"
+                decoding="async"
               />
             ) : (
               <video

@@ -7,7 +7,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useAuth } from '@/contexts/AuthContextMVP';
-import { useToast } from '@/hooks/useToast';
+import { toast } from 'sonner';
 import {
   scheduleReminder,
   getUserReminders,
@@ -23,7 +23,7 @@ interface ReminderSettingsProps {
 export const ReminderSettings: React.FC<ReminderSettingsProps> = ({ className = '' }) => {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { showToast } = useToast();
+
 
   const [morningEnabled, setMorningEnabled] = useState(false);
   const [morningTime, setMorningTime] = useState(getDefaultReminderTime('milk_morning'));
@@ -59,10 +59,10 @@ export const ReminderSettings: React.FC<ReminderSettingsProps> = ({ className = 
           }
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error loading reminders:', error);
       // Silently handle missing table error (42P01)
-      if (error?.code === '42P01') {
+      if (typeof error === 'object' && error !== null && 'code' in error && (error as { code?: string }).code === '42P01') {
         console.warn('Reminders table not found - feature not yet enabled');
       }
     } finally {
@@ -82,13 +82,13 @@ export const ReminderSettings: React.FC<ReminderSettingsProps> = ({ className = 
       const result = await scheduleReminder(user.id, type, time, enabled);
 
       if (result.success) {
-        showToast(t('reminders.saved'), 'success');
+        toast.success(t('reminders.saved'));
       } else {
-        showToast(result.error || t('reminders.saveFailed'), 'error');
+        toast.error(result.error || t('reminders.saveFailed'));
       }
     } catch (error) {
       console.error('Error saving reminder:', error);
-      showToast(t('reminders.saveFailed'), 'error');
+      toast.error(t('reminders.saveFailed'));
     } finally {
       setSaving(false);
     }

@@ -6,6 +6,7 @@ import { useFeedback } from '@/hooks/useFeedback';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { FeedbackType, getFeedbackTypeLabel } from '@/services/feedbackService';
 import { StarRating } from '@/components/StarRating';
+import { logger } from '@/utils/logger';
 import { cn } from '@/lib/utils';
 
 const feedbackTypes: FeedbackType[] = ['praise', 'feature', 'general', 'bug'];
@@ -39,7 +40,7 @@ export const FeedbackWidget: React.FC = () => {
         closeFeedback();
       }, 2000);
     } catch (error) {
-      // Error handled by hook
+      logger.warn('Feedback submission failed:', error);
     }
   };
 

@@ -72,17 +72,23 @@ export interface User {
 }
 
 // Helper function to transform database data to our AnimalData interface
-export const transformAnimalData = (dbAnimal: any): AnimalData => {
-  const health_status = dbAnimal.health_status || 'healthy';
-  const validHealthStatus = ['healthy', 'sick', 'attention', 'critical'].includes(health_status) 
-    ? health_status 
+export const transformAnimalData = (dbAnimal: unknown): AnimalData => {
+  const record = (dbAnimal ?? {}) as Partial<AnimalData> & {
+    health_status?: string;
+    updated_at?: string;
+    created_at?: string;
+    user_id?: string;
+  };
+  const health_status = record.health_status ?? 'healthy';
+  const validHealthStatus = ['healthy', 'sick', 'attention', 'critical'].includes(health_status)
+    ? (health_status as AnimalData['health_status'])
     : 'healthy';
-    
+
   return {
-    ...dbAnimal,
-    health_status: validHealthStatus as 'healthy' | 'sick' | 'attention' | 'critical',
-    updated_at: dbAnimal.updated_at || dbAnimal.created_at,
-    user_id: dbAnimal.user_id || 'current-user-id'
+    ...(record as AnimalData),
+    health_status: validHealthStatus,
+    updated_at: record.updated_at ?? record.created_at ?? new Date().toISOString(),
+    user_id: record.user_id ?? 'current-user-id'
   };
 };
 

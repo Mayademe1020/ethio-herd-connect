@@ -146,6 +146,8 @@ export function AiDiagnosisDialog({
                   src={previewUrl}
                   alt="Selected"
                   className="w-full h-64 object-cover rounded-lg"
+                  loading="lazy"
+                  decoding="async"
                 />
                 <button
                   onClick={handleReset}

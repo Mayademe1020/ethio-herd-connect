@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Camera, RotateCcw, Zap, ZapOff } from 'lucide-react';
 import { useDeviceCapability } from '@/hooks/useDeviceCapability';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { CapturedImage, ImageMetadata, MuzzleError, MuzzleErrorCode } from '@/types/muzzle';
 import { logger } from '@/utils/logger';
 
@@ -39,7 +39,6 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
   const [error, setError] = useState<MuzzleError | null>(null);
 
   const { deviceCapability } = useDeviceCapability();
-  const { toast } = useToast();
 
   // ============================================================================
   // Camera Management
@@ -136,19 +135,16 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
       });
 
       setTorchEnabled(!torchEnabled);
-      toast({
-        title: torchEnabled ? 'Torch Off' : 'Torch On',
+      toast(torchEnabled ? 'Torch Off' : 'Torch On', {
         description: torchEnabled ? 'Flashlight turned off' : 'Flashlight turned on',
       });
     } catch (err) {
       logger.error('Failed to toggle torch', err);
-      toast({
-        title: 'Torch Error',
+      toast.error('Torch Error', {
         description: 'Failed to control flashlight',
-        variant: 'destructive',
       });
     }
-  }, [torchEnabled, torchSupported, toast]);
+  }, [torchEnabled, torchSupported]);
 
   // ============================================================================
   // Image Capture
@@ -199,18 +195,14 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
 
       // Validate image quality
       if (metadata.brightness < 30) {
-        toast({
-          title: 'Low Light Warning',
+        toast.error('Low Light Warning', {
           description: 'Image may be too dark. Consider using torch or better lighting.',
-          variant: 'destructive',
         });
       }
 
       if (metadata.blur > 70) {
-        toast({
-          title: 'Blurry Image',
+        toast.error('Blurry Image', {
           description: 'Image appears blurry. Please hold camera steady.',
-          variant: 'destructive',
         });
       }
 
@@ -231,7 +223,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({
     } finally {
       setIsCapturing(false);
     }
-  }, [isStreaming, onImageCaptured, onError, toast]);
+  }, [isStreaming, onImageCaptured, onError]);
 
   // ============================================================================
   // Image Quality Analysis

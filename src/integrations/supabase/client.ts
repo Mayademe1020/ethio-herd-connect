@@ -4,8 +4,9 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
 // Environment variables for Supabase configuration
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+// Falls back to hardcoded values when Lovable deployment doesn't inject env vars
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://pbtaolycccmmqmwurinp.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_5HTur9hSY0pa9YveTXwOyQ_9jB7wJ66';
 
 // Check if environment variables are configured
 const isConfigured = !!(SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY);

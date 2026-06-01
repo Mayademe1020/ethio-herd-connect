@@ -25,7 +25,8 @@
     "syncNow": "አሁን አመሳስል",
     "allSynced": "ሁሉም ተመሳስሏል",
     "pendingSync": "{{count}} በመጠባበቅ ላይ",
-    "retrying": "በመስመር ላይ ሲሆኑ እንደገና ይሞክራል"
+    "retrying": "በመስመር ላይ ሲሆኑ እንደገና ይሞክራል",
+    "syncStatus": "የማመሳሰል ሁኔታ"
   },
   "common": {
     "save": "አስቀምጥ",
@@ -77,7 +78,8 @@
     "unsavedChangesWarning": "ለውጦችዎን ማስወገድ ይፈልጋሉ?",
     "days": "ቀናት",
     "animal": "እንስሳ",
-    "saving": "በማስቀመጥ ላይ..."
+    "saving": "በማስቀመጥ ላይ...",
+    "reorder": "እንደገና አደራደር"
   },
   "analytics": {
     "title": "የእንቅስቃሴ ትንተና",
@@ -97,6 +99,13 @@
     "listingCreated": "ዝርዝሮች ተፈጥረዋል",
     "listingViewed": "ዝርዝሮች ታይተዋል",
     "interestExpressed": "ፍላጎቶች ተገልጸዋል"
+  },
+  "bottomNav": {
+    "home": "ቤት",
+    "animals": "እንስሳት",
+    "market": "ገበያ",
+    "record": "መዝገብ",
+    "profile": "መገለጫ"
   },
   "forms": {
     "draftFound": "ረቂቅ ተለያ",
@@ -449,7 +458,7 @@
     "dueToday": "ዛሬ ይጠበቃል!",
     "deliveryToday": "ወሊድ ዛሬ ይጠበቃል!",
     "expectedToday": "ዛሬ የሚጠበቀው ወሊድ",
-    "overdue": "ዘግይቷል",
+    "overdue": "በ{{days}} ቀናት ዘግይቷል",
     "overdueBy": "በ{{days}} ቀናት ዘግይቷል",
     "futureDate": "የመራባት ቀን ወደፊት መሆን አይችልም",
     "calculationError": "የወሊድ ቀን ማስላት አልተቻለም",

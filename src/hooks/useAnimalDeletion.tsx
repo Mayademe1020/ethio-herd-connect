@@ -3,8 +3,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContextMVP';
-import { useToastContext } from '@/contexts/ToastContext';
+import { toast } from 'sonner';
 import { getUserFriendlyError, getSuccessMessage } from '@/lib/errorMessages';
+import type { AnimalData } from '@/types';
 
 interface UseAnimalDeletionReturn {
   deleteAnimal: (animalId: string) => Promise<boolean>;
@@ -14,7 +15,6 @@ interface UseAnimalDeletionReturn {
 export const useAnimalDeletion = (): UseAnimalDeletionReturn => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const toastContext = useToastContext();
 
   const mutation = useMutation({
     mutationFn: async (animalId: string) => {
@@ -25,7 +25,7 @@ export const useAnimalDeletion = (): UseAnimalDeletionReturn => {
       const isOnline = navigator.onLine;
 
       // Optimistic update - remove from local cache immediately
-      queryClient.setQueryData(['animals', user.id], (old: any[] = []) => 
+      queryClient.setQueryData(['animals', user.id], (old: AnimalData[] = []) => 
         old.filter(animal => animal.id !== animalId)
       );
 
@@ -42,7 +42,7 @@ export const useAnimalDeletion = (): UseAnimalDeletionReturn => {
         localStorage.setItem('offline_queue', JSON.stringify(offlineQueue));
 
         const networkError = getUserFriendlyError({ message: 'network' }, 'amharic');
-        toastContext.info(networkError.message, networkError.icon);
+        toast.info(networkError.message, networkError.icon ? { icon: networkError.icon } : undefined);
 
         return { success: true, offline: true };
       }
@@ -67,7 +67,7 @@ export const useAnimalDeletion = (): UseAnimalDeletionReturn => {
         localStorage.setItem('offline_queue', JSON.stringify(offlineQueue));
 
         const errorMsg = getUserFriendlyError(error, 'amharic');
-        toastContext.warning(errorMsg.message, errorMsg.icon);
+        toast.warning(errorMsg.message, errorMsg.icon ? { icon: errorMsg.icon } : undefined);
 
         return { success: true, offline: true };
       }
@@ -81,12 +81,12 @@ export const useAnimalDeletion = (): UseAnimalDeletionReturn => {
 
       if (!result.offline) {
         const successMsg = getSuccessMessage('animal_deleted', 'amharic');
-        toastContext.success(successMsg.message, successMsg.icon);
+        toast.success(successMsg.message, successMsg.icon ? { icon: successMsg.icon } : undefined);
       }
     },
     onError: (error: Error) => {
       const errorMsg = getUserFriendlyError(error, 'amharic');
-      toastContext.error(errorMsg.message, errorMsg.icon);
+      toast.error(errorMsg.message, errorMsg.icon ? { icon: errorMsg.icon } : undefined);
       
       // Revert optimistic update on error
       queryClient.invalidateQueries({ queryKey: ['animals'] });

@@ -193,19 +193,23 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
           navigate('/', { replace: true });
         }, 500);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Registration error:', error);
-      
-      if (error.message?.includes('fetch') || 
-          error.message?.includes('network') || 
-          error.message?.includes('Failed to fetch') ||
+
+      const errMessage = typeof error === 'object' && error !== null && 'message' in error
+        ? String((error as { message?: string }).message)
+        : '';
+
+      if (errMessage.includes('fetch') ||
+          errMessage.includes('network') ||
+          errMessage.includes('Failed to fetch') ||
           !navigator.onLine) {
         toast.error('የኢንተርኔት ግንኙነት ችግር / Network Error', {
           description: 'እባክዎ ግንኙነትዎን ያረጋግጡ / Please check your connection'
         });
       } else {
         toast.error('መለያ መፍጠር አልተቻለም / Registration failed', {
-          description: error.message || 'Please try again'
+          description: errMessage || 'Please try again'
         });
       }
     } finally {

@@ -18,7 +18,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, type QueryKey } from '@tanstack/react-query';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { logger } from '@/utils/logger';
 
@@ -84,7 +84,7 @@ export function usePaginatedQuery<T>({
   cacheKey,
   enabled = true,
 }: {
-  queryKey: any[];
+  queryKey: QueryKey;
   queryFn: QueryFunction<T>;
   pageSize?: number;
   prefetchPages?: number;
@@ -264,7 +264,7 @@ export function usePaginatedQuery<T>({
 async function cachePageData(
   cacheKey: string,
   page: number,
-  data: any
+  data: unknown
 ): Promise<void> {
   try {
     const dbName = 'ethioherd-pagination-cache';
@@ -294,7 +294,7 @@ async function cachePageData(
 async function loadCachedPage(
   cacheKey: string,
   page: number
-): Promise<any | null> {
+): Promise<unknown> {
   try {
     const dbName = 'ethioherd-pagination-cache';
     const storeName = 'pages';

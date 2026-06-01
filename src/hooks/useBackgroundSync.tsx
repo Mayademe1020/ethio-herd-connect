@@ -6,46 +6,8 @@ import { toast } from 'sonner';
 
 export const useBackgroundSync = () => {
   useEffect(() => {
-    // Register service worker with safe cloning implementation
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js')
-        .then(registration => {
-          console.log('Service Worker registered:', registration.scope);
-
-          // Listen for messages from service worker
-          navigator.serviceWorker.addEventListener('message', (event) => {
-            if (event.data && event.data.type === 'SYNC_OFFLINE_QUEUE') {
-              console.log('Service Worker: Received sync request');
-              offlineQueue.processQueue().then(() => {
-                toast.success('✓ ተመሳሳይ ተደርጓል / Synced', {
-                  description: 'All offline data synced successfully'
-                });
-              }).catch((error) => {
-                console.error('Sync error:', error);
-              });
-            }
-          });
-
-          // Register background sync event when coming online
-          if ('sync' in registration && typeof registration.sync === 'object') {
-            window.addEventListener('online', () => {
-              console.log('Service Worker: Online event, registering background sync');
-              (registration.sync as any).register('sync-offline-queue')
-                .then(() => {
-                  console.log('Service Worker: Background sync registered successfully');
-                })
-                .catch((error: unknown) => {
-                  console.error('Service Worker: Background sync registration failed:', error);
-                  // Fallback to manual sync
-                  offlineQueue.processQueue();
-                });
-            });
-          }
-        })
-        .catch(error => {
-          console.error('Service Worker registration failed:', error);
-        });
-    }
+    // Service worker disabled in dev — skip registration
+    // Online fallback below still works
 
     // Auto-process queue when coming online (fallback for browsers without sync)
     const handleOnline = () => {

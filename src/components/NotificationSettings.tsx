@@ -74,42 +74,37 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = ({
     setLoading(false);
   };
 
+  const setPreferencePath = (path: string, value: boolean | string) => {
+    const newPrefs: NotificationPreferences = { ...preferences };
+    const pathParts = path.split('.');
+    const lastKey = pathParts[pathParts.length - 1];
+
+    if (pathParts.length === 1) {
+      (newPrefs as unknown as Record<string, boolean | string>)[lastKey] = value;
+    } else {
+      let obj: Record<string, unknown> = newPrefs as unknown as Record<string, unknown>;
+      for (let i = 0; i < pathParts.length - 1; i++) {
+        const next = obj[pathParts[i]];
+        if (next && typeof next === 'object') {
+          obj = next as Record<string, unknown>;
+        } else {
+          return;
+        }
+      }
+      obj[lastKey] = value;
+    }
+
+    setPreferences(newPrefs);
+  };
+
   const handleToggle = (path: string, value: boolean) => {
     setHasChanges(true);
-    
-    const newPrefs = { ...preferences };
-    const pathParts = path.split('.');
-    
-    if (pathParts.length === 1) {
-      (newPrefs as any)[pathParts[0]] = value;
-    } else {
-      let obj: any = newPrefs;
-      for (let i = 0; i < pathParts.length - 1; i++) {
-        obj = obj[pathParts[i]];
-      }
-      obj[pathParts[pathParts.length - 1]] = value;
-    }
-    
-    setPreferences(newPrefs);
+    setPreferencePath(path, value);
   };
 
   const handleTimeChange = (path: string, time: string) => {
     setHasChanges(true);
-    
-    const newPrefs = { ...preferences };
-    const pathParts = path.split('.');
-    
-    if (pathParts.length === 1) {
-      (newPrefs as any)[pathParts[0]] = time;
-    } else {
-      let obj: any = newPrefs;
-      for (let i = 0; i < pathParts.length - 1; i++) {
-        obj = obj[pathParts[i]];
-      }
-      obj[pathParts[pathParts.length - 1]] = time;
-    }
-    
-    setPreferences(newPrefs);
+    setPreferencePath(path, time);
   };
 
   const handleSave = async () => {

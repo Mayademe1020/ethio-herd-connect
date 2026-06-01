@@ -101,6 +101,28 @@ export interface PaymentMethod {
   accountNumber?: string;
 }
 
+interface DbVerificationRequest {
+  id: string;
+  type: VerificationType;
+  animal_id: string;
+  animal_name: string;
+  animal_code: string;
+  requester_id: string;
+  owner_id: string;
+  owner_name: string;
+  status: VerificationStatus;
+  fee_amount: number;
+  fee_paid: boolean;
+  payment_method?: string | null;
+  payment_reference?: string | null;
+  requested_at: string;
+  expires_at: string;
+  verified_at?: string | null;
+  verifier_id?: string | null;
+  verification_result?: string | null;
+  metadata?: string | null;
+}
+
 // ============================================================================
 // VERIFICATION FEES (ETHIOPIAN MARKET PRICING)
 // ============================================================================
@@ -557,7 +579,7 @@ Ethio Herd Connect - www.ethioherdconnect.com
   }
 
   // Database mapping
-  private mapDbToVerificationRequest(data: any): VerificationRequest {
+  private mapDbToVerificationRequest(data: DbVerificationRequest): VerificationRequest {
     return {
       id: data.id,
       type: data.type,
@@ -581,7 +603,7 @@ Ethio Herd Connect - www.ethioherdconnect.com
     };
   }
 
-  private mapToDbFormat(request: VerificationRequest): any {
+  private mapToDbFormat(request: VerificationRequest): DbVerificationRequest {
     return {
       id: request.id,
       type: request.type,

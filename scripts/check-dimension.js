@@ -1,9 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
+import 'dotenv/config';
 
-const supabase = createClient(
-  'https://pbtaolycccmmqmwurinp.supabase.co',
-  'eyJhbGciOiJzdXBhYmFzZSIsInJlZiI6InBidGFvbHljY2NtbXFtd3VyaW5wIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDE5MDMzMiwiZXhwIjoyMDY1NzY2MzMyfQ.SWe6iaYO7tP9xnJ5A26LcVcFZ5RUsj-TJUid6xbYxPo'
-);
+const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://pbtaolycccmmqmwurinp.supabase.co';
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!serviceRoleKey) {
+  console.error('SUPABASE_SERVICE_ROLE_KEY environment variable is required');
+  process.exit(1);
+}
+
+const supabase = createClient(supabaseUrl, serviceRoleKey);
 
 // Check embedding column dimension
 const { data, error } = await supabase

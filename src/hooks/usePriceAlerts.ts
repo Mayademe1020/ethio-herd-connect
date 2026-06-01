@@ -34,7 +34,7 @@ export const usePriceAlerts = (listingId?: string) => {
       
       let query = supabase
         .from('price_alerts')
-        .select('*')
+        .select('id, user_id, listing_id, target_price, original_price, status, created_at, triggered_at')
         .eq('user_id', user.id)
         .eq('status', 'active');
 
@@ -123,7 +123,7 @@ export const useCheckPriceAlerts = () => {
       // Get all active alerts for this listing
       const { data: alerts } = await supabase
         .from('price_alerts')
-        .select('*')
+        .select('id, user_id, listing_id, status')
         .eq('listing_id', listingId)
         .eq('status', 'active')
         .lte('target_price', newPrice);

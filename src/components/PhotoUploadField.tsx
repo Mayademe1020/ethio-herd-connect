@@ -226,6 +226,8 @@ export const PhotoUploadField: React.FC<PhotoUploadFieldProps> = ({
             src={previewUrl}
             alt="Preview"
             className="w-full h-48 object-cover rounded-lg border-2 border-gray-200"
+            loading="lazy"
+            decoding="async"
           />
           
           {/* Remove button */}

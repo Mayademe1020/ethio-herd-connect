@@ -4,7 +4,7 @@ export interface AnalyticsEvent {
   user_id?: string;
   session_id: string;
   properties: {
-    [key: string]: any;
+    [key: string]: unknown;
   };
   created_at?: string;
 }

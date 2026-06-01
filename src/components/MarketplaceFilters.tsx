@@ -6,10 +6,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { 
-  Search, 
-  MapPin, 
-  Filter, 
+import {
+  Search,
+  MapPin,
+  Filter,
   X,
   Shield,
   Tag,
@@ -17,23 +17,22 @@ import {
   Weight
 } from 'lucide-react';
 import { Language } from '@/types';
+import type { MarketListingFilters } from '@/types/marketplace';
+
+export type MarketplaceFilterValue =
+  | string
+  | number
+  | boolean
+  | [number, number];
+
+export type MarketplaceFilterKey = keyof MarketListingFilters;
 
 interface MarketplaceFiltersProps {
   language: Language;
   searchTerm: string;
   onSearchChange: (value: string) => void;
-  filters: {
-    animalType: string;
-    location: string;
-    minPrice: number;
-    maxPrice: number;
-    ageRange: [number, number];
-    weightRange: [number, number];
-    healthStatus: string;
-    verifiedOnly: boolean;
-    sellerRating: number;
-  };
-  onFiltersChange: (filters: any) => void;
+  filters: MarketListingFilters;
+  onFiltersChange: (filters: MarketListingFilters) => void;
   showMobileFilters?: boolean;
   onToggleMobileFilters?: () => void;
   isAuthenticated: boolean;
@@ -162,7 +161,7 @@ export const MarketplaceFilters = ({
 
   const t = translations[language];
 
-  const updateFilter = (key: string, value: any) => {
+  const updateFilter = <K extends MarketplaceFilterKey>(key: K, value: MarketListingFilters[K]) => {
     onFiltersChange({ ...filters, [key]: value });
   };
 

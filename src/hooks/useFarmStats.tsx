@@ -83,9 +83,9 @@ export const useFarmStats = () => {
 
         console.log('Farm stats loaded successfully:', farmStats);
         return farmStats;
-      } catch (err: any) {
-        const msg = String(err?.message || '').toLowerCase();
-        const isAborted = err?.name === 'AbortError' || msg.includes('abort') || msg.includes('cancel');
+      } catch (err: unknown) {
+        const msg = String((err as Error)?.message || '').toLowerCase();
+        const isAborted = (err as Error)?.name === 'AbortError' || msg.includes('abort') || msg.includes('cancel');
         if (!isAborted) {
           console.error('Farm stats fetch exception:', err);
         }

@@ -124,6 +124,8 @@ export const MuzzleCapturePreview: React.FC<MuzzleCapturePreviewProps> = ({
             src={selectedImage.dataUrl}
             alt={t('muzzle.capturedImage')}
             className="w-full h-64 object-cover"
+            loading="lazy"
+            decoding="async"
           />
 
           {/* Best image badge */}
@@ -268,6 +270,8 @@ export const MuzzleCapturePreview: React.FC<MuzzleCapturePreviewProps> = ({
                 src={img.dataUrl}
                 alt={`${t('muzzle.capture')} ${index + 1}`}
                 className="w-full h-full object-cover"
+                loading="lazy"
+                decoding="async"
               />
               {/* Best indicator */}
               {index === bestImageIndex && (

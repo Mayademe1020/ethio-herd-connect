@@ -17,25 +17,25 @@ class Logger {
     this.config = config;
   }
 
-  debug(message: string, data?: any): void {
+  debug(message: string, data?: unknown): void {
     if (this.config.enableDebug) {
       console.debug(`[DEBUG] ${message}`, data || '');
     }
   }
 
-  info(message: string, data?: any): void {
+  info(message: string, data?: unknown): void {
     if (this.config.enableInfo) {
       console.info(`[INFO] ${message}`, data || '');
     }
   }
 
-  warn(message: string, data?: any): void {
+  warn(message: string, data?: unknown): void {
     if (this.config.enableWarn) {
       console.warn(`[WARN] ${message}`, data || '');
     }
   }
 
-  error(message: string, error?: any): void {
+  error(message: string, error?: unknown): void {
     if (this.config.enableError) {
       console.error(`[ERROR] ${message}`, error || '');
       // Future: Send to error tracking service (Sentry)

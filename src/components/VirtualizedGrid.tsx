@@ -1,14 +1,18 @@
 // VirtualizedGrid.tsx - Virtualized grid for rendering large lists efficiently
 
 import React, { useRef, useCallback, useEffect } from 'react';
-import { FixedSizeGrid as Grid, GridChildComponentProps } from 'react-window';
+import {
+  FixedSizeGrid as Grid,
+  GridChildComponentProps,
+  FixedSizeList as List,
+} from 'react-window';
 
-interface VirtualizedGridProps {
-  items: any[];
+interface VirtualizedGridProps<T = unknown> {
+  items: T[];
   columnCount: number;
   rowHeight: number;
   columnWidth: number | ((containerWidth: number) => number);
-  renderItem: (item: any, style: React.CSSProperties) => React.ReactNode;
+  renderItem: (item: T, style: React.CSSProperties) => React.ReactNode;
   overscanRowCount?: number;
   className?: string;
   onItemsRendered?: (visibleStartIndex: number, visibleEndIndex: number) => void;
@@ -22,7 +26,7 @@ const getDefaultColumnCount = (containerWidth: number, columnWidth: number): num
   return 2; // Default to 2 columns
 };
 
-export const VirtualizedGrid: React.FC<VirtualizedGridProps> = ({
+export const VirtualizedGrid = <T = unknown,>({
   items,
   columnCount,
   rowHeight,
@@ -31,7 +35,7 @@ export const VirtualizedGrid: React.FC<VirtualizedGridProps> = ({
   overscanRowCount = 2,
   className = '',
   onItemsRendered
-}) => {
+}: VirtualizedGridProps<T>) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = React.useState(600);
   const [containerHeight, setContainerHeight] = React.useState(400);
@@ -59,10 +63,10 @@ export const VirtualizedGrid: React.FC<VirtualizedGridProps> = ({
     : columnWidth;
 
   // Handle items rendered callback
-  const handleItemsRendered = useCallback((props: any) => {
+  const handleItemsRendered = useCallback(({ visibleRowStartIndex, visibleRowStopIndex }: { visibleRowStartIndex: number; visibleRowStopIndex: number }) => {
     if (onItemsRendered) {
-      const visibleStartIndex = props.visibleRowStartIndex * columnCount;
-      const visibleEndIndex = props.visibleRowStopIndex * columnCount + columnCount;
+      const visibleStartIndex = visibleRowStartIndex * columnCount;
+      const visibleEndIndex = visibleRowStopIndex * columnCount + columnCount;
       onItemsRendered(visibleStartIndex, Math.min(visibleEndIndex, items.length));
     }
   }, [onItemsRendered, columnCount, items.length]);
@@ -99,19 +103,17 @@ export const VirtualizedGrid: React.FC<VirtualizedGridProps> = ({
 };
 
 // Simple virtualized list for single-column layouts
-interface VirtualizedListProps {
-  items: any[];
+interface VirtualizedListProps<T = unknown> {
+  items: T[];
   height: number;
   itemHeight: number;
-  renderItem: (item: any, index: number, style: React.CSSProperties) => React.ReactNode;
+  renderItem: (item: T, index: number, style: React.CSSProperties) => React.ReactNode;
   overscanCount?: number;
   className?: string;
   onItemsRendered?: (visibleStartIndex: number, visibleEndIndex: number) => void;
 }
 
-import { FixedSizeList as List } from 'react-window';
-
-export const VirtualizedList: React.FC<VirtualizedListProps> = ({
+export const VirtualizedList = <T = unknown,>({
   items,
   height,
   itemHeight,
@@ -119,10 +121,10 @@ export const VirtualizedList: React.FC<VirtualizedListProps> = ({
   overscanCount = 3,
   className = '',
   onItemsRendered
-}) => {
-  const handleItemsRendered = useCallback((props: any) => {
+}: VirtualizedListProps<T>) => {
+  const handleItemsRendered = useCallback(({ visibleStartIndex, visibleStopIndex }: { visibleStartIndex: number; visibleStopIndex: number }) => {
     if (onItemsRendered) {
-      onItemsRendered(props.visibleStartIndex, props.visibleStopIndex);
+      onItemsRendered(visibleStartIndex, visibleStopIndex);
     }
   }, [onItemsRendered]);
 

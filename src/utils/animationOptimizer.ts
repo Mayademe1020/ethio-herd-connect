@@ -30,13 +30,13 @@ class AnimationOptimizer {
   private detectCapabilities(): DeviceCapabilities {
     // Detect low-end device
     const hardwareConcurrency = navigator.hardwareConcurrency || 1;
-    const deviceMemory = (navigator as any).deviceMemory || 1;
+    const deviceMemory = navigator.deviceMemory ?? 1;
     const isLowEnd = hardwareConcurrency <= 2 || deviceMemory <= 2;
 
     // Check battery level
     let batteryLevel: number | null = null;
     if ('getBattery' in navigator) {
-      (navigator as any).getBattery().then((battery: any) => {
+      navigator.getBattery().then((battery) => {
         batteryLevel = battery.level * 100;
         this.capabilities.batteryLevel = batteryLevel;
       });
@@ -111,8 +111,8 @@ class AnimationOptimizer {
 
   private applyReducedMotion(): void {
     // Override common animation libraries
-    if ((window as any).gsap) {
-      (window as any).gsap.set('*', { duration: 0 });
+    if (window.gsap) {
+      window.gsap.set('*', { duration: 0 });
     }
 
     // Disable Framer Motion animations
@@ -147,7 +147,7 @@ class AnimationOptimizer {
 
   private monitorBatteryChanges(): void {
     if ('getBattery' in navigator) {
-      (navigator as any).getBattery().then((battery: any) => {
+      navigator.getBattery().then((battery) => {
         const updateBatteryLevel = () => {
           this.capabilities.batteryLevel = battery.level * 100;
           this.applyAnimationOptimizations();
@@ -167,8 +167,9 @@ class AnimationOptimizer {
 
   private monitorMemoryPressure(): void {
     // Listen for memory monitor updates
-    window.addEventListener('memory-pressure-change', (event: any) => {
-      this.capabilities.memoryPressure = event.detail.level;
+    window.addEventListener('memory-pressure-change', (event) => {
+      const customEvent = event as CustomEvent<{ level: DeviceCapabilities['memoryPressure'] }>;
+      this.capabilities.memoryPressure = customEvent.detail.level;
       this.applyAnimationOptimizations();
     });
   }

@@ -1,4 +1,5 @@
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
+import { logger } from '@/utils/logger';
 
 // Queue action types
 export type QueueActionType =
@@ -25,7 +26,7 @@ export type QueueActionType =
 export interface QueueItem {
   id: string;
   action_type: QueueActionType; // Changed to match test expectations
-  payload: any;
+  payload: unknown;
   status: 'pending' | 'processing' | 'failed' | 'completed' | 'synced';
   retry_count: number; // Changed to match test expectations
   created_at: string; // Changed to match test expectations
@@ -55,25 +56,38 @@ class OfflineQueueManager {
   private db: IDBPDatabase<OfflineQueueDB> | null = null;
   private processingQueue = false;
   private listeners: Set<() => void> = new Set();
+  private memoryStore: Map<string, QueueItem> = new Map();
+  private useMemoryFallback = false;
 
   async init() {
     if (this.db) return;
+    if (this.useMemoryFallback) return;
 
-    this.db = await openDB<OfflineQueueDB>(DB_NAME, DB_VERSION, {
-      upgrade(db) {
-        if (!db.objectStoreNames.contains(STORE_NAME)) {
-          const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
-          store.createIndex('by-status', 'status');
-          store.createIndex('by-created', 'createdAt');
-        }
-      },
-    });
+    try {
+      this.db = await openDB<OfflineQueueDB>(DB_NAME, DB_VERSION, {
+        upgrade(db) {
+          if (!db.objectStoreNames.contains(STORE_NAME)) {
+            const store = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+            store.createIndex('by-status', 'status');
+            store.createIndex('by-created', 'createdAt');
+          }
+        },
+      });
+    } catch {
+      this.useMemoryFallback = true;
+    }
+  }
+
+  // Force memory-only mode (used in test environments)
+  forceMemoryOnly(): void {
+    this.db = null;
+    this.useMemoryFallback = true;
   }
 
   // Add item to queue
-  async addToQueue(actionType: QueueActionType, payload: any): Promise<string> {
+  async addToQueue(actionType: QueueActionType, payload: unknown): Promise<string> {
     await this.init();
-    
+
     const item: QueueItem = {
       id: `${actionType}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       action_type: actionType,
@@ -83,9 +97,13 @@ class OfflineQueueManager {
       created_at: new Date().toISOString(),
     };
 
-    await this.db!.add(STORE_NAME, item);
+    if (this.useMemoryFallback) {
+      this.memoryStore.set(item.id, item);
+    } else {
+      await this.db!.add(STORE_NAME, item);
+    }
     this.notifyListeners();
-    
+
     // Try to process immediately if online
     if (navigator.onLine) {
       this.processQueue();
@@ -94,8 +112,8 @@ class OfflineQueueManager {
     return item.id;
   }
 
-  // Simplified add method for tests
-  add(data: { action_type: QueueActionType; payload: any }): QueueItem {
+  // Simplified add method that stores in memory for synchronous access
+  add(data: { action_type: QueueActionType; payload: unknown }): QueueItem {
     const item: QueueItem = {
       id: `${data.action_type}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       action_type: data.action_type,
@@ -105,43 +123,54 @@ class OfflineQueueManager {
       created_at: new Date().toISOString(),
     };
 
-    // Store in memory for synchronous access (for tests)
-    this.addToQueue(data.action_type, data.payload);
-    
+    this.memoryStore.set(item.id, item);
+
     return item;
   }
 
   // Get all items synchronously (for tests)
   getAll(): QueueItem[] {
-    // This is a simplified version for tests
-    // In production, use getAllItems() which is async
-    return [];
+    return Array.from(this.memoryStore.values());
   }
 
-  // Clear all items (for tests)
+  // Clear all items
   clear(): void {
+    this.memoryStore.clear();
     if (this.db) {
-      this.db.clear(STORE_NAME);
+      this.db.clear(STORE_NAME).catch((err) => logger.warn('Failed to clear offline queue:', err));
     }
   }
 
   // Get all pending items
   async getPendingItems(): Promise<QueueItem[]> {
     await this.init();
+    const memoryItems = Array.from(this.memoryStore.values()).filter(i => i.status === 'pending');
+    if (this.useMemoryFallback) return memoryItems;
     const tx = this.db!.transaction(STORE_NAME, 'readonly');
     const index = tx.store.index('by-status');
-    return await index.getAll('pending');
+    const dbItems = await index.getAll('pending');
+    const dbMap = new Map(dbItems.map(i => [i.id, i]));
+    for (const item of memoryItems) {
+      if (!dbMap.has(item.id)) dbMap.set(item.id, item);
+    }
+    return Array.from(dbMap.values());
   }
 
   // Get all items (for display)
   async getAllItems(): Promise<QueueItem[]> {
     await this.init();
-    return await this.db!.getAll(STORE_NAME);
+    const memoryItems = Array.from(this.memoryStore.values());
+    if (this.useMemoryFallback) return memoryItems;
+    const dbItems = await this.db!.getAll(STORE_NAME);
+    const dbMap = new Map(dbItems.map(i => [i.id, i]));
+    for (const item of memoryItems) {
+      if (!dbMap.has(item.id)) dbMap.set(item.id, item);
+    }
+    return Array.from(dbMap.values());
   }
 
   // Get pending count
   async getPendingCount(): Promise<number> {
-    await this.init();
     const items = await this.getPendingItems();
     return items.length;
   }
@@ -149,17 +178,26 @@ class OfflineQueueManager {
   // Update item status
   async updateItem(id: string, updates: Partial<QueueItem>) {
     await this.init();
-    const item = await this.db!.get(STORE_NAME, id);
-    if (item) {
-      await this.db!.put(STORE_NAME, { ...item, ...updates });
-      this.notifyListeners();
+    const existing = this.memoryStore.get(id);
+    if (existing) {
+      this.memoryStore.set(id, { ...existing, ...updates } as QueueItem);
     }
+    if (!this.useMemoryFallback) {
+      const dbItem = await this.db!.get(STORE_NAME, id);
+      if (dbItem) {
+        await this.db!.put(STORE_NAME, { ...dbItem, ...updates });
+      }
+    }
+    this.notifyListeners();
   }
 
   // Remove item from queue
   async removeItem(id: string) {
     await this.init();
-    await this.db!.delete(STORE_NAME, id);
+    this.memoryStore.delete(id);
+    if (!this.useMemoryFallback) {
+      await this.db!.delete(STORE_NAME, id);
+    }
     this.notifyListeners();
   }
 
@@ -234,7 +272,9 @@ class OfflineQueueManager {
 
   // Process individual item based on action type
   private async processItem(item: QueueItem): Promise<void> {
-    const { action_type, payload } = item;
+    const { action_type, payload: rawPayload } = item;
+    // Per-action-type payload narrowing is not yet implemented; cast to any for supabase operations.
+    const payload = rawPayload as any;
 
     // Import Supabase client
     const { supabase } = await import('@/integrations/supabase/client');
@@ -437,6 +477,16 @@ class OfflineQueueManager {
   // Retry failed items
   async retryFailedItems() {
     await this.init();
+    if (this.useMemoryFallback) {
+      for (const [id, item] of this.memoryStore) {
+        if (item.status === 'failed') {
+          this.memoryStore.set(id, { ...item, status: 'pending', retry_count: 0, error: undefined });
+        }
+      }
+      this.notifyListeners();
+      if (navigator.onLine) this.processQueue();
+      return;
+    }
     const tx = this.db!.transaction(STORE_NAME, 'readwrite');
     const index = tx.store.index('by-status');
     const failedItems = await index.getAll('failed');
@@ -461,6 +511,15 @@ class OfflineQueueManager {
   // Clear completed items (cleanup)
   async clearCompleted() {
     await this.init();
+    if (this.useMemoryFallback) {
+      for (const [id, item] of this.memoryStore) {
+        if (item.status === 'completed' || item.status === 'synced') {
+          this.memoryStore.delete(id);
+        }
+      }
+      this.notifyListeners();
+      return;
+    }
     const tx = this.db!.transaction(STORE_NAME, 'readwrite');
     const index = tx.store.index('by-status');
     const completedItems = await index.getAll('completed');
@@ -503,7 +562,7 @@ class OfflineQueueManager {
     return {
       isOnline: navigator.onLine,
       isSyncing: this.processingQueue,
-      pendingCount: 0, // Will be updated by async call
+      pendingCount: Array.from(this.memoryStore.values()).filter(i => i.status === 'pending').length,
       lastSyncAt: undefined,
     };
   }

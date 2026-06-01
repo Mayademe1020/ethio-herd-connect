@@ -33,7 +33,6 @@ import { SecurityDashboard } from '@/components/admin/SecurityDashboard';
 import { DatabaseManager } from '@/components/admin/DatabaseManager';
 import { EthiopianMarketMonitor } from '@/components/admin/EthiopianMarketMonitor';
 import { TestRunner } from '@/components/admin/TestRunner';
-import { PerformanceMonitor } from '@/components/admin/PerformanceMonitor';
 
 const AdminDashboard: React.FC = () => {
   const { adminUser, isAdmin, signOutAdmin } = useAdmin();
@@ -339,9 +338,7 @@ const AdminDashboard: React.FC = () => {
             <SecurityDashboard />
           </TabsContent>
 
-          <TabsContent value="performance">
-            <PerformanceMonitor />
-          </TabsContent>
+
 
           <TabsContent value="database">
             <DatabaseManager />

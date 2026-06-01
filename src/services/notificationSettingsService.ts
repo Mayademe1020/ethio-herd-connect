@@ -34,9 +34,9 @@ export async function getUserNotificationPreferences(userId: string): Promise<Se
     }
 
     return { success: true, data };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error getting notification preferences:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: (error as Error)?.message };
   }
 }
 
@@ -60,9 +60,9 @@ export async function createDefaultPreferences(userId: string): Promise<ServiceR
     if (error) throw error;
 
     return { success: true, data };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating default preferences:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: (error as Error)?.message };
   }
 }
 
@@ -104,7 +104,7 @@ export async function updateNotificationPreferences(
     };
 
     // Flatten nested objects for Supabase
-    const flattenedUpdates: any = {
+    const flattenedUpdates: Partial<NotificationPreferences> = {
       ...mergedUpdates,
     };
 
@@ -118,9 +118,9 @@ export async function updateNotificationPreferences(
     if (error) throw error;
 
     return { success: true, data };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error updating notification preferences:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: (error as Error)?.message };
   }
 }
 
@@ -133,8 +133,8 @@ export async function toggleNotificationCategory(
   enabled: boolean
 ): Promise<ServiceResult> {
   try {
-    const updates: any = {};
-    
+    const updates: NotificationPreferencesUpdate = {};
+
     // Map category to nested property
     if (category === 'milk_reminders') {
       updates.milk_reminders = { enabled };
@@ -149,9 +149,9 @@ export async function toggleNotificationCategory(
     }
 
     return await updateNotificationPreferences(userId, updates);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error toggling notification category:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: (error as Error)?.message };
   }
 }
 
@@ -222,7 +222,7 @@ export async function getNotificationSummary(userId: string): Promise<{
     };
 
     return { unreadCount, categories };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error getting notification summary:', error);
     return { unreadCount: 0, categories: { milk: 0, market: 0, health: 0, account: 0 } };
   }
@@ -247,12 +247,12 @@ export async function batchMilkReminders(userId: string): Promise<ServiceResult>
 
     // Group by animals needing milk recording
     const animalsNeedingMilk = new Set(
-      pendingReminders?.map((r: any) => r.animal_id) || []
+      pendingReminders?.map((r: { animal_id: string }) => r.animal_id) || []
     );
 
     return { success: true, data: { count: animalsNeedingMilk.size } };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error batching milk reminders:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: (error as Error)?.message };
   }
 }

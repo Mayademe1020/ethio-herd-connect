@@ -3,12 +3,17 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
 import { useAuth } from '@/contexts/AuthContextMVP';
 import { offlineQueue } from '@/lib/offlineQueue';
-import { useToastContext } from '@/contexts/ToastContext';
+import { toast } from 'sonner';
 import { getUserFriendlyError, getSuccessMessage } from '@/lib/errorMessages';
 import { analytics, ANALYTICS_EVENTS } from '@/lib/analytics';
 import { checkAndNotifyCompletion } from '@/services/milkCompletionService';
+
+type MilkRecordRow = Database['public']['Tables']['milk_production']['Row'];
+type MilkRecordInsert = Database['public']['Tables']['milk_production']['Insert'];
+type MilkEditHistoryInsert = Database['public']['Tables']['milk_edit_history']['Insert'];
 
 interface MilkRecordInput {
   animal_id: string;
@@ -25,6 +30,33 @@ interface MilkRecord {
   session: 'morning' | 'evening';
 }
 
+interface MilkRecordOfflinePayload {
+  user_id: string;
+  animal_id: string;
+  liters: number;
+  recorded_at: string;
+  session: 'morning' | 'evening';
+}
+
+class DuplicateMilkRecordError extends Error {
+  readonly existingRecord: { id: string; liters: number } | undefined;
+  readonly session: 'morning' | 'evening';
+  readonly date: string;
+
+  constructor(
+    message: string,
+    existingRecord: { id: string; liters: number } | undefined,
+    session: 'morning' | 'evening',
+    date: string
+  ) {
+    super(message);
+    this.name = 'DuplicateMilkRecordError';
+    this.existingRecord = existingRecord;
+    this.session = session;
+    this.date = date;
+  }
+}
+
 // Detect session based on time of day
 const detectSession = (): 'morning' | 'evening' => {
   const hour = new Date().getHours();
@@ -35,14 +67,13 @@ const detectSession = (): 'morning' | 'evening' => {
 const generateTempId = () => `temp_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
 
 // Add to offline queue using IndexedDB
-const addToOfflineQueue = async (payload: any) => {
+const addToOfflineQueue = async (payload: MilkRecordOfflinePayload) => {
   await offlineQueue.addToQueue('milk_record', payload);
 };
 
 export const useMilkRecording = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const toastContext = useToastContext();
 
   // Update milk record mutation
   const updateMilkRecord = useMutation({
@@ -76,7 +107,7 @@ export const useMilkRecording = () => {
         });
 
         const networkError = getUserFriendlyError({ message: 'network' }, 'amharic');
-        toastContext.info(networkError.message, networkError.icon);
+        toast.info(networkError.message, networkError.icon ? { icon: networkError.icon } : undefined);
 
         // Return optimistic update
         return {
@@ -118,18 +149,18 @@ export const useMilkRecording = () => {
 
       // Create edit history entry (after migration is run)
       try {
-        // Use type assertion since table might not be in types yet
-        await (supabase as any)
+        const historyEntry: MilkEditHistoryInsert = {
+          milk_record_id: recordId,
+          previous_liters: currentRecord.liters,
+          new_liters: amount,
+          previous_session: currentRecord.session,
+          new_session: session,
+          edited_by: user.id,
+          edited_at: new Date().toISOString()
+        };
+        await supabase
           .from('milk_edit_history')
-          .insert({
-            milk_record_id: recordId,
-            previous_liters: currentRecord.liters,
-            new_liters: amount,
-            previous_session: currentRecord.session,
-            new_session: session,
-            edited_by: user.id,
-            edited_at: new Date().toISOString()
-          });
+          .insert(historyEntry);
       } catch (historyError) {
         console.error('Error creating edit history:', historyError);
         // Don't fail the update if history fails (table might not exist yet)
@@ -153,7 +184,7 @@ export const useMilkRecording = () => {
       queryClient.invalidateQueries({ queryKey: ['paginated-milk-production'] });
 
       const successMsg = getSuccessMessage('milk_updated', 'amharic');
-      toastContext.success(successMsg.message || 'Record updated successfully / መዝገብ በተሳካ ሁኔታ ተዘምኗል', '✓');
+      toast.success(successMsg.message || 'Record updated successfully / መዝገብ በተሳካ ሁኔታ ተዘምኗል', '✓' ? { icon: '✓' } : undefined);
 
       // Track analytics event
       analytics.track(ANALYTICS_EVENTS.MILK_RECORDED, {
@@ -163,10 +194,10 @@ export const useMilkRecording = () => {
         animal_id: data.animal_id,
       });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error('Error updating milk record:', error);
       const errorMsg = getUserFriendlyError(error, 'amharic');
-      toastContext.error(errorMsg.message, errorMsg.icon);
+      toast.error(errorMsg.message, errorMsg.icon ? { icon: errorMsg.icon } : undefined);
     }
   });
 
@@ -180,7 +211,7 @@ export const useMilkRecording = () => {
       const recordedAt = new Date().toISOString();
       const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
 
-      const milkRecord = {
+      const milkRecord: MilkRecordOfflinePayload = {
         user_id: user.id,
         animal_id: input.animal_id,
         liters: input.liters,
@@ -204,7 +235,7 @@ export const useMilkRecording = () => {
         await addToOfflineQueue(milkRecord);
 
         const networkError = getUserFriendlyError({ message: 'network' }, 'amharic');
-        toastContext.info(networkError.message, networkError.icon);
+        toast.info(networkError.message, networkError.icon ? { icon: networkError.icon } : undefined);
 
         return tempRecord;
       }
@@ -229,17 +260,18 @@ export const useMilkRecording = () => {
         if (existingRecords && existingRecords.length > 0) {
           // Duplicate found - throw specific error
           const existingRecord = existingRecords[0];
-          const error = new Error('DUPLICATE_MILK_RECORD');
-          (error as any).existingRecord = existingRecord;
-          (error as any).session = session;
-          (error as any).date = today;
-          throw error;
+          throw new DuplicateMilkRecordError(
+            'DUPLICATE_MILK_RECORD',
+            existingRecord,
+            session,
+            today
+          );
         }
 
         // No duplicate - proceed with insert
         const { data, error } = await supabase
           .from('milk_production')
-          .insert(milkRecord as any)
+          .insert(milkRecord satisfies MilkRecordInsert)
           .select()
           .single();
 
@@ -248,16 +280,16 @@ export const useMilkRecording = () => {
           throw error; // Don't fallback to offline queue for now
         }
 
-        // Map response to MilkRecord format (handle both old and new schema)
+        // Map response to MilkRecord format
         const savedRecord: MilkRecord = {
-          id: (data as any).id,
-          user_id: (data as any).user_id,
-          animal_id: (data as any).animal_id,
-          liters: (data as any).amount || (data as any).liters || (data as any).total_yield || 0,
-          recorded_at: (data as any).recorded_at || (data as any).created_at,
-          session: (data as any).session || 'morning'
+          id: data.id,
+          user_id: data.user_id,
+          animal_id: data.animal_id ?? '',
+          liters: data.liters || data.total_yield || 0,
+          recorded_at: data.recorded_at || data.created_at || recordedAt,
+          session: (data.session as 'morning' | 'evening') || 'morning'
         };
-        
+
         return savedRecord;
       } catch (error) {
         console.error('Error recording milk:', error);
@@ -283,7 +315,7 @@ export const useMilkRecording = () => {
         session: input.session || detectSession()
       };
 
-      queryClient.setQueryData(['milk-records', input.animal_id], (old: any) => {
+      queryClient.setQueryData(['milk-records', input.animal_id], (old: MilkRecord[] | undefined) => {
         return old ? [tempRecord, ...old] : [tempRecord];
       });
 
@@ -294,7 +326,7 @@ export const useMilkRecording = () => {
 
       return { previousMilkRecords, previousWeeklyMilk };
     },
-    onError: (error: any, input, context) => {
+    onError: (error: Error, input, context) => {
       // Rollback on error
       if (context?.previousMilkRecords) {
         queryClient.setQueryData(['milk-records', input.animal_id], context.previousMilkRecords);
@@ -302,20 +334,20 @@ export const useMilkRecording = () => {
       if (context?.previousWeeklyMilk !== undefined) {
         queryClient.setQueryData(['weekly-milk', user?.id], context.previousWeeklyMilk);
       }
-      
+
       console.error('Error in milk recording mutation:', error);
-      
+
       // Handle duplicate record error specially
-      if (error.message === 'DUPLICATE_MILK_RECORD') {
-        const session = error.session === 'morning' ? 'ጠዋት / morning' : 'ማታ / evening';
+      if (error instanceof DuplicateMilkRecordError) {
+        const sessionLabel = error.session === 'morning' ? 'ጠዋት / morning' : 'ማታ / evening';
         const existingAmount = error.existingRecord?.liters || 0;
-        toastContext.error(
-          `⚠️ ቀድሞውኑ ተመዝግቧል / Already recorded for ${session} session (${existingAmount}L). Please edit the existing record instead.`,
-          '⚠️'
+        toast.error(
+          `⚠️ ቀድሞውኑ ተመዝግቧል / Already recorded for ${sessionLabel} session (${existingAmount}L). Please edit the existing record instead.`,
+          '⚠️' ? { icon: '⚠️' } : undefined
         );
       } else {
         const errorMsg = getUserFriendlyError(error, 'amharic');
-        toastContext.error(errorMsg.message, errorMsg.icon);
+        toast.error(errorMsg.message, errorMsg.icon ? { icon: errorMsg.icon } : undefined);
       }
     },
     onSuccess: async (data, input) => {
@@ -328,7 +360,7 @@ export const useMilkRecording = () => {
       queryClient.invalidateQueries({ queryKey: ['farmStats', user?.id] }); // Invalidate farm stats
 
       const successMsg = getSuccessMessage('milk_recorded', 'amharic');
-      toastContext.success(successMsg.message, successMsg.icon);
+      toast.success(successMsg.message, successMsg.icon ? { icon: successMsg.icon } : undefined);
 
       // Track analytics event
       const session = input.session || detectSession();

@@ -1,20 +1,22 @@
 // Simple Error Monitoring System - Critical for Production Stability
 // This provides basic error tracking without external dependencies
 
+import { logger } from '@/utils/logger';
+
 // Environment configuration
 const ERROR_MONITORING_ENABLED = import.meta.env.PROD && import.meta.env.VITE_ERROR_MONITORING_ENABLED === 'true';
 const LOG_LEVEL = import.meta.env.VITE_ERROR_LOG_LEVEL || 'error';
 
 // Custom error types for better categorization
 export class PerformanceError extends Error {
-  constructor(message: string, public context: Record<string, any>) {
+  constructor(message: string, public context: Record<string, unknown>) {
     super(message);
     this.name = 'PerformanceError';
   }
 }
 
 export class NetworkError extends Error {
-  constructor(message: string, public statusCode?: number, public context?: any) {
+  constructor(message: string, public statusCode?: number, public context?: Record<string, unknown>) {
     super(message);
     this.name = 'NetworkError';
   }
@@ -32,7 +34,7 @@ interface ErrorReport {
   timestamp: number;
   message: string;
   stack?: string;
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
   userAgent: string;
   url: string;
   userId?: string;
@@ -42,7 +44,7 @@ interface ErrorReport {
 const errorQueue: ErrorReport[] = [];
 
 // Enhanced error reporting with context
-export const reportError = (error: Error, context?: Record<string, any>) => {
+export const reportError = (error: Error, context?: Record<string, unknown>) => {
   const errorReport: ErrorReport = {
     timestamp: Date.now(),
     message: error.message,
@@ -86,9 +88,7 @@ const getCurrentUserId = (): string | undefined => {
       const userData = JSON.parse(user);
       return userData.id;
     }
-  } catch {
-    // Ignore parsing errors
-  }
+  } catch (e) { logger.warn('Failed to parse user data from localStorage:', e); }
   return undefined;
 };
 
@@ -141,7 +141,7 @@ const sendErrorReport = async (errorReport: ErrorReport) => {
 };
 
 // Performance monitoring
-export const trackPerformance = (name: string, duration: number, context?: Record<string, any>) => {
+export const trackPerformance = (name: string, duration: number, context?: Record<string, unknown>) => {
   if (duration > 1000) { // Only track slow operations
     reportError(new PerformanceError(`Slow operation: ${name}`, {
       operation: name,
@@ -178,7 +178,7 @@ export const trackNetworkRequest = (url: string, method: string, duration: numbe
 };
 
 // User action tracking for debugging
-export const trackUserAction = (action: string, details?: Record<string, any>) => {
+export const trackUserAction = (action: string, details?: Record<string, unknown>) => {
   if (import.meta.env.DEV) {
     console.log(`User Action: ${action}`, details);
   }
@@ -229,9 +229,10 @@ export const monitorPageLoad = (pageName: string) => {
 // Memory usage monitoring
 export const monitorMemoryUsage = () => {
   if ('memory' in performance) {
-    const memory = (performance as any).memory;
+    const memory = performance.memory;
+    if (!memory) return;
     const usedMB = Math.round(memory.usedJSHeapSize / 1024 / 1024);
-    
+
     if (usedMB > 50) { // Warn if using more than 50MB
       reportError(new PerformanceError('High memory usage', {
         usedMB,

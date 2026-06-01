@@ -1,6 +1,6 @@
 
 import { useState, useCallback } from 'react';
-import { useToastNotifications } from '@/hooks/useToastNotifications';
+import { toast } from 'sonner';
 
 interface RateLimitConfig {
   maxAttempts: number;
@@ -16,22 +16,20 @@ interface RateLimitState {
 
 export const useRateLimiting = (config: RateLimitConfig) => {
   const [state, setState] = useState<RateLimitState>({ attempts: 0, lastAttempt: 0 });
-  const { showError } = useToastNotifications();
 
   const isBlocked = useCallback(() => {
     const now = Date.now();
     
     if (state.blockedUntil && now < state.blockedUntil) {
       const remainingTime = Math.ceil((state.blockedUntil - now) / 1000);
-      showError(
-        'Rate Limit Exceeded',
+      toast.error(
         `Too many attempts. Please wait ${remainingTime} seconds before trying again.`
       );
       return true;
     }
 
     return false;
-  }, [state.blockedUntil, showError]);
+  }, [state.blockedUntil]);
 
   const recordAttempt = useCallback(() => {
     const now = Date.now();
@@ -50,9 +48,8 @@ export const useRateLimiting = (config: RateLimitConfig) => {
         lastAttempt: now,
         blockedUntil: now + config.blockDurationMs
       });
-      
-      showError(
-        'Rate Limit Exceeded',
+
+      toast.error(
         `Too many attempts. Blocked for ${config.blockDurationMs / 1000} seconds.`
       );
       return false;
@@ -60,7 +57,7 @@ export const useRateLimiting = (config: RateLimitConfig) => {
 
     setState({ attempts: newAttempts, lastAttempt: now });
     return true;
-  }, [state, config, showError]);
+  }, [state, config]);
 
   const reset = useCallback(() => {
     setState({ attempts: 0, lastAttempt: 0 });

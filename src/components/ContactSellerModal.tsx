@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { Phone, Mail, MessageCircle, Send, User, Shield } from 'lucide-react';
 import { Language } from '@/types';
 import { sanitizeFormData } from '@/utils/securityUtils';
@@ -35,7 +35,6 @@ export const ContactSellerModal = ({
   const [senderEmail, setSenderEmail] = useState('');
   const [senderName, setSenderName] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
 
   const translations = {
     am: {
@@ -121,10 +120,8 @@ export const ContactSellerModal = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAuthenticated && (!senderName || !senderEmail)) {
-      toast({
-        title: "Missing Information",
+      toast.error("Missing Information", {
         description: "Please fill in your name and email",
-        variant: "destructive",
       });
       return;
     }
@@ -141,8 +138,7 @@ export const ContactSellerModal = ({
       // TODO: Implement actual message sending to backend with sanitizedData
       await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
       
-      toast({
-        title: t.messageSent,
+      toast.success(t.messageSent, {
         description: "The seller will receive your message shortly.",
       });
       
@@ -151,10 +147,8 @@ export const ContactSellerModal = ({
       setSenderEmail('');
       setSenderName('');
     } catch (error) {
-      toast({
-        title: t.errorSending,
+      toast.error(t.errorSending, {
         description: "Please try again later.",
-        variant: "destructive",
       });
     } finally {
       setIsSubmitting(false);

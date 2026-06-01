@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContextMVP';
 import { EnhancedHeader } from '@/components/EnhancedHeader';
 import BottomNavigation from '@/components/BottomNavigation';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
@@ -18,6 +18,21 @@ import { calculateWeeklySummary, calculateMonthlySummary, MilkSummary } from '@/
 import { supabase } from '@/integrations/supabase/client';
 import { EditMilkRecordModal } from '@/components/EditMilkRecordModal';
 import useMilkRecording from '@/hooks/useMilkRecording';
+
+interface MilkRecordItem {
+  id: string;
+  liters?: number | null;
+  amount?: number | null;
+  total_yield?: number | null;
+  session?: 'morning' | 'afternoon' | 'evening' | null;
+  recorded_at?: string | null;
+  production_date?: string | null;
+  created_at?: string | null;
+  quality_grade?: string | null;
+  animal_name?: string | null;
+  notes?: string | null;
+  animals?: { name?: string | null } | null;
+}
 
 // MilkProductionRecords component
 const MilkProductionRecords = () => {
@@ -37,7 +52,7 @@ const MilkProductionRecords = () => {
   
   // Edit modal states
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editingRecord, setEditingRecord] = useState<any>(null);
+  const [editingRecord, setEditingRecord] = useState<MilkRecordItem | null>(null);
   
   // Get update function from hook
   const { updateMilkRecordAsync } = useMilkRecording();
@@ -223,7 +238,7 @@ const MilkProductionRecords = () => {
     }
   };
 
-  const handleEditRecord = (record: any) => {
+  const handleEditRecord = (record: MilkRecordItem) => {
     setEditingRecord(record);
     setEditModalOpen(true);
   };
@@ -240,7 +255,7 @@ const MilkProductionRecords = () => {
     refresh();
   };
 
-  const MilkRecordCard = ({ record }: { record: any }) => {
+  const MilkRecordCard = ({ record }: { record: MilkRecordItem }) => {
     const animalName = record.animals?.name || record.animal_name || 'Unknown';
     const animalPhoto = record.animals?.photo_url;
     const recordedAt = record.recorded_at || record.production_date || record.created_at;
@@ -258,6 +273,8 @@ const MilkProductionRecords = () => {
                   src={animalPhoto}
                   alt={animalName}
                   className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
             )}

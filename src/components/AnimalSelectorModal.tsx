@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { X, Search } from 'lucide-react';import { AnimalData, Language, transformAnimalData } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { AnimalIdDisplay } from './AnimalIdDisplay';
 
 interface AnimalSelectorModalProps {
@@ -27,7 +27,6 @@ export const AnimalSelectorModal = ({
   const [filteredAnimals, setFilteredAnimals] = useState<AnimalData[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
 
   const translations = {
     am: {
@@ -108,10 +107,8 @@ export const AnimalSelectorModal = ({
       setAnimals(transformedAnimals);
     } catch (error) {
       console.error('Error fetching animals:', error);
-      toast({
-        title: 'Error',
+      toast.error('Error', {
         description: 'Failed to fetch animals',
-        variant: 'destructive'
       });
     } finally {
       setLoading(false);

@@ -5,9 +5,15 @@
  */
 
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/utils/logger';
 
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN || '';
 const LOGROCKET_APP_ID = import.meta.env.VITE_LOGROCKET_APP_ID || '';
+
+interface StackFrame {
+  filename: string;
+  function: string;
+}
 
 interface ErrorInfo {
   message: string;
@@ -53,9 +59,7 @@ class ErrorTrackingService {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       errorInfo.userId = user?.id;
-    } catch {
-      // Auth not available
-    }
+    } catch (e) { logger.warn('Failed to get auth user for error context:', e); }
 
     if (context) {
       errorInfo.message = `${error.message} | Context: ${JSON.stringify(context)}`;
@@ -91,12 +95,10 @@ class ErrorTrackingService {
           extra: context,
         }),
       });
-    } catch {
-      // Sentry send failed, will use local storage
-    }
+    } catch (e) { logger.warn('Failed to send error to Sentry:', e); }
   }
 
-  private parseStackTrace(stack: string): any[] {
+  private parseStackTrace(stack: string): StackFrame[] {
     return stack.split('\n').slice(1).map(line => ({
       filename: line.match(/\((.*?)\)/)?.[1] || 'unknown',
       function: line.match(/at (.*?)\(/)?.[1] || 'unknown',
@@ -114,9 +116,7 @@ class ErrorTrackingService {
           extra: context,
         }),
       });
-    } catch {
-      // LogRocket send failed
-    }
+    } catch (e) { logger.warn('Failed to send error to LogRocket:', e); }
   }
 
   /**
@@ -153,9 +153,7 @@ class ErrorTrackingService {
       const stored = JSON.parse(localStorage.getItem('errorReports') || '[]');
       stored.push(error);
       localStorage.setItem('errorReports', JSON.stringify(stored.slice(-20)));
-    } catch {
-      // localStorage not available
-    }
+    } catch (e) { logger.warn('Failed to store error report in localStorage:', e); }
   }
 
   getLocalErrors(): ErrorInfo[] {

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContextMVP';
+import { toast } from 'sonner';
 import { AnimalData } from '@/types';
 import { buildAnimalQuery, ANIMAL_FIELDS } from '@/lib/queryBuilders';
 import { logger } from '@/utils/logger';
@@ -10,7 +10,6 @@ import { logger } from '@/utils/logger';
 export const useAnimalsDatabase = () => {
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
-  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   // Fetch animals with React Query - OPTIMIZED with specific field selection
@@ -54,11 +53,9 @@ export const useAnimalsDatabase = () => {
       logger.debug(`Query Performance: Fetch animals: ${duration.toFixed(2)}ms`);
       
       return (data || []) as AnimalData[];
-    } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to fetch animals',
-        variant: 'destructive',
+    } catch (error: unknown) {
+      toast.error('Error', {
+        description: (error as Error).message || 'Failed to fetch animals',
       });
       return [];
     } finally {
@@ -68,10 +65,8 @@ export const useAnimalsDatabase = () => {
 
   const createAnimal = async (animalData: Omit<AnimalData, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
     if (!user) {
-      toast({
-        title: 'Authentication Required',
+      toast.error('Authentication Required', {
         description: 'Please log in to add animals',
-        variant: 'destructive',
       });
       return null;
     }
@@ -94,17 +89,14 @@ export const useAnimalsDatabase = () => {
 
       queryClient.invalidateQueries({ queryKey: ['animals'] });
       
-      toast({
-        title: 'Success',
+      toast.success('Success', {
         description: 'Animal registered successfully',
       });
 
       return data as AnimalData;
-    } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to register animal',
-        variant: 'destructive',
+    } catch (error: unknown) {
+      toast.error('Error', {
+        description: (error as Error).message || 'Failed to register animal',
       });
       return null;
     } finally {
@@ -135,17 +127,14 @@ export const useAnimalsDatabase = () => {
 
       queryClient.invalidateQueries({ queryKey: ['animals'] });
       
-      toast({
-        title: 'Success',
+      toast.success('Success', {
         description: 'Animal updated successfully',
       });
 
       return data as AnimalData;
-    } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to update animal',
-        variant: 'destructive',
+    } catch (error: unknown) {
+      toast.error('Error', {
+        description: (error as Error).message || 'Failed to update animal',
       });
       return null;
     } finally {
@@ -168,17 +157,14 @@ export const useAnimalsDatabase = () => {
 
       queryClient.invalidateQueries({ queryKey: ['animals'] });
       
-      toast({
-        title: 'Success',
+      toast.success('Success', {
         description: 'Animal deleted successfully',
       });
 
       return true;
-    } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to delete animal',
-        variant: 'destructive',
+    } catch (error: unknown) {
+      toast.error('Error', {
+        description: (error as Error).message || 'Failed to delete animal',
       });
       return false;
     } finally {
@@ -201,17 +187,14 @@ export const useAnimalsDatabase = () => {
 
       queryClient.invalidateQueries({ queryKey: ['animals'] });
       
-      toast({
-        title: 'Success',
+      toast.success('Success', {
         description: `${animalIds.length} animals deleted successfully`,
       });
 
       return true;
-    } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to delete animals',
-        variant: 'destructive',
+    } catch (error: unknown) {
+      toast.error('Error', {
+        description: (error as Error).message || 'Failed to delete animals',
       });
       return false;
     } finally {

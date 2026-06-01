@@ -8,7 +8,7 @@
  * @param data Any serializable data object
  * @returns Compressed string representation
  */
-export const compressData = (data: any): string => {
+export const compressData = (data: unknown): string => {
   try {
     // Convert data to JSON string
     const jsonString = JSON.stringify(data);
@@ -33,7 +33,7 @@ export const compressData = (data: any): string => {
  * @param compressedString Compressed string to decompress
  * @returns Original data object
  */
-export const decompressData = (compressedString: string): any => {
+export const decompressData = (compressedString: string): unknown => {
   try {
     // Decode the compressed string
     const jsonString = atob(compressedString);
@@ -52,7 +52,7 @@ export const decompressData = (compressedString: string): any => {
  * @param data Any data object
  * @returns Approximate size in bytes
  */
-export const estimateDataSize = (data: any): number => {
+export const estimateDataSize = (data: unknown): number => {
   try {
     const jsonString = JSON.stringify(data);
     return new Blob([jsonString]).size;
@@ -68,7 +68,7 @@ export const estimateDataSize = (data: any): number => {
  * @param maxSizeKB Maximum size in KB
  * @returns Boolean indicating if data exceeds limit
  */
-export const isDataTooLarge = (data: any, maxSizeKB: number = 100): boolean => {
+export const isDataTooLarge = (data: unknown, maxSizeKB: number = 100): boolean => {
   const sizeInBytes = estimateDataSize(data);
   return sizeInBytes > (maxSizeKB * 1024);
 };

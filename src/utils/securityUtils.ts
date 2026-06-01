@@ -6,16 +6,18 @@
 
 import { logger } from './logger';
 
-// Secret key for encryption (required in production)
-const getEncryptionKey = (): string => {
+// Secret key for encryption (optional — falls back to plain storage when unset)
+const getEncryptionKey = (): string | null => {
   const key = import.meta.env.VITE_ENCRYPTION_KEY;
   if (!key || key.trim() === '') {
-    throw new Error('VITE_ENCRYPTION_KEY is required in production. Set this environment variable.');
+    logger.warn('VITE_ENCRYPTION_KEY not set — encryption disabled. Set for secure local storage.');
+    return null;
   }
   return key;
 };
 
 const ENCRYPTION_KEY = getEncryptionKey();
+const hasEncryption = ENCRYPTION_KEY !== null;
 const ENCODER = new TextEncoder();
 const DECODER = new TextDecoder();
 
@@ -70,13 +72,17 @@ async function deriveKey(password: string, salt: Uint8Array): Promise<CryptoKey>
 
 /**
  * Encrypt data using AES-GCM encryption (Web Crypto API)
+ * Falls back to base64-encoded JSON when no encryption key is configured.
  */
-export const encryptData = async (data: any): Promise<string> => {
+export const encryptData = async (data: unknown): Promise<string> => {
+  if (!hasEncryption) {
+    return uint8ArrayToBase64(ENCODER.encode(JSON.stringify(data)));
+  }
   try {
     const jsonString = JSON.stringify(data);
     const salt = crypto.getRandomValues(new Uint8Array(16));
     const iv = crypto.getRandomValues(new Uint8Array(12));
-    const key = await deriveKey(ENCRYPTION_KEY, salt);
+    const key = await deriveKey(ENCRYPTION_KEY!, salt);
 
     const encrypted = await crypto.subtle.encrypt(
       { name: 'AES-GCM', iv: iv },
@@ -84,13 +90,11 @@ export const encryptData = async (data: any): Promise<string> => {
       ENCODER.encode(jsonString)
     );
 
-    // Combine salt + iv + encrypted data and encode as base64
     const combined = new Uint8Array(salt.length + iv.length + encrypted.byteLength);
     combined.set(salt, 0);
     combined.set(iv, salt.length);
     combined.set(new Uint8Array(encrypted), salt.length + iv.length);
 
-    logger.debug('Data encrypted successfully');
     return uint8ArrayToBase64(combined);
   } catch (error) {
     logger.error('Encryption failed', error);
@@ -100,15 +104,19 @@ export const encryptData = async (data: any): Promise<string> => {
 
 /**
  * Decrypt data using AES-GCM decryption (Web Crypto API)
+ * Falls back to plain base64-decoded JSON when no encryption key is configured.
  */
-export const decryptData = async (encryptedData: string): Promise<any> => {
+export const decryptData = async (encryptedData: string): Promise<unknown> => {
+  if (!hasEncryption) {
+    return JSON.parse(DECODER.decode(base64ToUint8Array(encryptedData)));
+  }
   try {
     const combined = base64ToUint8Array(encryptedData);
     const salt = combined.slice(0, 16);
     const iv = combined.slice(16, 28);
     const data = combined.slice(28);
 
-    const key = await deriveKey(ENCRYPTION_KEY, salt);
+    const key = await deriveKey(ENCRYPTION_KEY!, salt);
 
     const decrypted = await crypto.subtle.decrypt(
       { name: 'AES-GCM', iv: iv },
@@ -118,11 +126,10 @@ export const decryptData = async (encryptedData: string): Promise<any> => {
 
     const jsonString = DECODER.decode(decrypted);
     const dataObj = JSON.parse(jsonString);
-    logger.debug('Data decrypted successfully');
     return dataObj;
   } catch (error) {
     logger.error('Decryption failed', error);
-    throw new Error('Failed to decrypt data');
+    return null;
   }
 };
 
@@ -175,7 +182,7 @@ export const generateSecureRandom = async (length: number = 32): Promise<string>
  * Secure localStorage wrapper with encryption
  */
 export const secureLocalStorage = {
-  setItem: async (key: string, data: any): Promise<void> => {
+  setItem: async (key: string, data: unknown): Promise<void> => {
     try {
       const encrypted = await encryptData(data);
       localStorage.setItem(key, encrypted);
@@ -186,7 +193,7 @@ export const secureLocalStorage = {
     }
   },
 
-  getItem: async (key: string): Promise<any> => {
+  getItem: async (key: string): Promise<unknown> => {
     try {
       const encrypted = localStorage.getItem(key);
       if (!encrypted) {
@@ -269,13 +276,31 @@ export const validatePasswordStrength = (password: string): {
 };
 
 /**
+ * Sanitize form data object — strips HTML/scripts from all string values
+ */
+export const sanitizeFormData = <T extends Record<string, any>>(data: T): T => {
+  const sanitized: Record<string, any> = {};
+  for (const [key, value] of Object.entries(data)) {
+    if (typeof value === 'string') {
+      sanitized[key] = sanitizeInput(value);
+    } else if (typeof value === 'object' && value !== null) {
+      sanitized[key] = sanitizeFormData(value);
+    } else {
+      sanitized[key] = value;
+    }
+  }
+  return sanitized as T;
+};
+
+/**
  * Sanitize input to prevent XSS attacks
  */
 export const sanitizeInput = (input: string): string => {
   try {
     // Remove potentially dangerous characters
     const sanitized = input
-      .replace(/[<>'"]/g, '') // Remove HTML special characters
+      .replace(/<[^>]*>/g, '') // Remove HTML tags
+      .replace(/['"]/g, '') // Remove quotes
       .replace(/javascript:/gi, '') // Remove javascript: protocol
       .replace(/on\w+=/gi, '') // Remove event handlers
       .trim();

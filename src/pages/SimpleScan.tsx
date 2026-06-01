@@ -23,6 +23,37 @@ interface SimpleScanProps {
 
 type ScanStep = 'intro' | 'camera' | 'processing' | 'result';
 
+interface ScanAnimalInfo {
+  name?: string;
+  type?: string;
+  subtype?: string;
+}
+
+interface ScanOwnerInfo {
+  owner_name?: string;
+  phone?: string;
+  farm_name?: string;
+  location?: string;
+}
+
+interface ScanResult {
+  found: boolean;
+  confidence: number;
+  animal?: ScanAnimalInfo | null;
+  owner?: ScanOwnerInfo | null;
+  isLocal?: boolean;
+  message?: string;
+  animalName?: string;
+  searchedOnline?: boolean;
+  searchTimeMs?: number;
+}
+
+interface MuzzleRpcMatch {
+  user_id: string;
+  animal_id: string;
+  similarity: string | number;
+}
+
 const SimpleScan = ({ mode = 'verify' }: SimpleScanProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -34,7 +65,7 @@ const SimpleScan = ({ mode = 'verify' }: SimpleScanProps) => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [brightness, setBrightness] = useState<number>(100);
@@ -210,7 +241,7 @@ const SimpleScan = ({ mode = 'verify' }: SimpleScanProps) => {
       }
 
       // Search for match
-      let searchResult: any = null;
+      let searchResult: ScanResult | null = null;
 
       if (isFoundMode) {
         // Search ALL animals (cloud only)
@@ -258,7 +289,7 @@ const SimpleScan = ({ mode = 'verify' }: SimpleScanProps) => {
           });
 
           if (!rpcError && data && data.length > 0) {
-            const ownMatch = data.find((m: any) => m.user_id === user.id);
+            const ownMatch = data.find((m: MuzzleRpcMatch) => m.user_id === user.id);
             if (ownMatch) {
               const { data: animal } = await supabase
                 .from('animals')
@@ -280,9 +311,9 @@ const SimpleScan = ({ mode = 'verify' }: SimpleScanProps) => {
       setResult(searchResult);
       setStep('result');
 
-    } catch (err: any) {
+    } catch (err) {
       console.error('Identification error:', err);
-      setError(err.message || 'Identification failed');
+      setError(err instanceof Error ? err.message : 'Identification failed');
       setStep('result');
     } finally {
       setIsCapturing(false);
@@ -636,7 +667,7 @@ const SimpleScan = ({ mode = 'verify' }: SimpleScanProps) => {
           <Card className="mb-4">
             <CardContent className="p-3">
               <p className="text-xs text-gray-500 mb-2">Captured Image</p>
-              <img src={capturedImage} alt="Captured muzzle" className="w-full h-32 object-cover rounded-lg" />
+              <img src={capturedImage} alt="Captured muzzle" className="w-full h-32 object-cover rounded-lg" loading="lazy" decoding="async" />
             </CardContent>
           </Card>
         )}

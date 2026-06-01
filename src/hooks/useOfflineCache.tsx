@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useState, useCallback } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContextMVP';
 import {
   cacheData,
   getCachedData,
@@ -14,8 +14,12 @@ import {
   getDBSize
 } from '@/utils/indexedDB';
 import { logger } from '@/utils/logger';
-import { useToastNotifications } from './useToastNotifications';
+import { toast } from 'sonner';
 import { useTranslations } from './useTranslations';
+import type { AnimalData } from '@/types';
+import type { HealthRecord } from '@/types/healthRecord';
+import type { MilkProduction } from '@/types/milk';
+import type { MarketListing } from '@/types/marketplace';
 
 interface CacheStatus {
   isInitialized: boolean;
@@ -25,7 +29,6 @@ interface CacheStatus {
 
 export const useOfflineCache = () => {
   const { user } = useAuth();
-  const { showInfo, showError } = useToastNotifications();
   const { t } = useTranslations();
   
   const [cacheStatus, setCacheStatus] = useState<CacheStatus>({
@@ -37,7 +40,7 @@ export const useOfflineCache = () => {
   /**
    * Cache animals data
    */
-  const cacheAnimals = useCallback(async (animals: any[]) => {
+  const cacheAnimals = useCallback(async (animals: AnimalData[]) => {
     if (!user) return;
 
     try {
@@ -49,17 +52,16 @@ export const useOfflineCache = () => {
       logger.debug(`Cached ${animals.length} animals`);
     } catch (error) {
       logger.error('Failed to cache animals', error);
-      showError(
-        t('Cache error'),
-        t('Failed to save animals for offline use')
+      toast.error(
+        t('Cache error')
       );
     }
-  }, [user, showError, t]);
+  }, [user, t]);
 
   /**
    * Cache health records data
    */
-  const cacheHealthRecords = useCallback(async (records: any[]) => {
+  const cacheHealthRecords = useCallback(async (records: HealthRecord[]) => {
     if (!user) return;
 
     try {
@@ -71,17 +73,16 @@ export const useOfflineCache = () => {
       logger.debug(`Cached ${records.length} health records`);
     } catch (error) {
       logger.error('Failed to cache health records', error);
-      showError(
-        t('Cache error'),
-        t('Failed to save health records for offline use')
+      toast.error(
+        t('Cache error')
       );
     }
-  }, [user, showError, t]);
+  }, [user, t]);
 
   /**
    * Cache milk production data
    */
-  const cacheMilkProduction = useCallback(async (records: any[]) => {
+  const cacheMilkProduction = useCallback(async (records: MilkProduction[]) => {
     if (!user) return;
 
     try {
@@ -93,17 +94,16 @@ export const useOfflineCache = () => {
       logger.debug(`Cached ${records.length} milk production records`);
     } catch (error) {
       logger.error('Failed to cache milk production', error);
-      showError(
-        t('Cache error'),
-        t('Failed to save milk production for offline use')
+      toast.error(
+        t('Cache error')
       );
     }
-  }, [user, showError, t]);
+  }, [user, t]);
 
   /**
    * Cache marketplace listings (read-only)
    */
-  const cacheMarketListings = useCallback(async (listings: any[]) => {
+  const cacheMarketListings = useCallback(async (listings: MarketListing[]) => {
     if (!user) return;
 
     try {
@@ -115,12 +115,11 @@ export const useOfflineCache = () => {
       logger.debug(`Cached ${listings.length} market listings`);
     } catch (error) {
       logger.error('Failed to cache market listings', error);
-      showError(
-        t('Cache error'),
-        t('Failed to save marketplace for offline use')
+      toast.error(
+        t('Cache error')
       );
     }
-  }, [user, showError, t]);
+  }, [user, t]);
 
   /**
    * Get cached animals
@@ -204,20 +203,18 @@ export const useOfflineCache = () => {
         cacheSize: 0
       });
 
-      showInfo(
-        t('Cache cleared'),
-        t('All offline data has been cleared')
+      toast.info(
+        t('Cache cleared')
       );
-      
+
       logger.info('Cleared all cached data');
     } catch (error) {
       logger.error('Failed to clear cache', error);
-      showError(
-        t('Clear error'),
-        t('Failed to clear offline data')
+      toast.error(
+        t('Clear error')
       );
     }
-  }, [user, showInfo, showError, t]);
+  }, [user, t]);
 
   /**
    * Update cache size

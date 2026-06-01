@@ -290,7 +290,7 @@ export interface MarketInsight {
   description: string;
   impact: 'high' | 'medium' | 'low';
   confidence: number;
-  data_points: any[];
+  data_points: unknown[];
 }
 
 export interface BusinessRecommendation {
@@ -309,7 +309,7 @@ export interface AdminAction {
   resource_type: string;
   resource_id: string;
   description: string;
-  metadata: any;
+  metadata: Record<string, unknown>;
   timestamp: string;
   ip_address: string;
 }
@@ -320,7 +320,7 @@ export interface AuditLog {
   admin_id?: string;
   action: string;
   resource: string;
-  details: any;
+  details: Record<string, unknown>;
   ip_address: string;
   user_agent: string;
   timestamp: string;

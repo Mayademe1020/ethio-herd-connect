@@ -1,8 +1,8 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToastNotifications } from '@/hooks/useToastNotifications';
-import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContextMVP';
 
 interface SecurityAlert {
   id: string;
@@ -16,7 +16,6 @@ export const useSecurityMonitoring = () => {
   const [alerts, setAlerts] = useState<SecurityAlert[]>([]);
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
-  const { showError, showSuccess } = useToastNotifications();
 
   const checkSecurityStatus = async () => {
     if (!user) return;
@@ -27,7 +26,7 @@ export const useSecurityMonitoring = () => {
       // Check for recent security events
       const { data: securityRecord } = await supabase
         .from('account_security')
-        .select('*')
+        .select('id, user_id, failed_login_attempts, last_failed_login, account_locked_until, updated_at')
         .eq('user_id', user.id)
         .single();
 
@@ -68,7 +67,7 @@ export const useSecurityMonitoring = () => {
     }
   };
 
-  const logSecurityEvent = async (eventType: string, details: any) => {
+  const logSecurityEvent = async (eventType: string, details: Record<string, unknown>) => {
     if (!user) return;
 
     try {
@@ -93,7 +92,7 @@ export const useSecurityMonitoring = () => {
 
   const clearSecurityAlerts = () => {
     setAlerts([]);
-    showSuccess('Security alerts cleared', 'All security alerts have been acknowledged.');
+    toast.success('All security alerts have been acknowledged.');
   };
 
   useEffect(() => {

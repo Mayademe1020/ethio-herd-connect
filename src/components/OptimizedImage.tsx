@@ -75,6 +75,7 @@ export const OptimizedImage = ({
             isLoading ? 'opacity-0' : 'opacity-100'
           }`}
           loading="lazy"
+          decoding="async"
         />
       )}
     </div>

@@ -9,8 +9,6 @@ EthioHerd Connect is a mobile-first livestock management platform designed for E
 - **State Management:** Zustand + TanStack Query
 - **UI:** Tailwind CSS + Radix UI
 - **Offline:** IndexedDB + Service Workers
-- **Authentication:** Phone OTP (Ethiopia-specific)
-
 ## Code Conventions
 
 ### File Organization
@@ -41,8 +39,8 @@ src/
 5. Add RLS (Row Level Security) policies to all database tables
 
 **Critical Update:**
-- `src/utils/securityUtils.ts:31` - No hardcoded encryption key fallback allowed
-- `VITE_ENCRYPTION_KEY` is required for production; missing key will throw error
+- `src/utils/securityUtils.ts:18` - No hardcoded encryption key fallback allowed
+- `VITE_ENCRYPTION_KEY` is optional; when unset, local encryption is disabled and plain storage is used
 
 ### Accessibility (WCAG AA)
 - All interactive elements must have `aria-label` or `aria-labelledby`
@@ -96,6 +94,16 @@ npm run test:e2e
 npm run build
 ```
 
+### Testing with IndexedDB
+Use `fake-indexeddb` for all IndexedDB operations in tests. Import at top of setup:
+```typescript
+import 'fake-indexeddb/auto';
+```
+This provides a full in-memory IDB implementation. The hand-rolled mock in `src/test/setup.ts`
+has been replaced. The offline queue (`src/lib/offlineQueue.ts`) keeps a synchronous
+`memoryStore` as a safety net — all read/write operations update both `memoryStore`
+and IndexedDB to ensure consistency regardless of environment.
+
 ## Critical Files
 - `src/App.tsx` - Main application entry
 - `src/contexts/AuthContext.tsx` - Authentication
@@ -108,8 +116,57 @@ npm run build
 - Time to interactive: <3s on 3G
 - Offline support: Required
 
+## Authentication (MVP)
+- **Local-first**: On first launch, a UUID is generated and stored in localStorage
+- **No OTP required** for basic app usage — farmers start using the app immediately
+- A Supabase session will be used if available (for cloud sync), but the app works fully offline
+- Phone OTP registration can be added later for cross-device sync & account recovery
+- Ethiopian phone format: 9 digits starting with 9
+
 ## Important Notes
-- Phone numbers are the primary auth (not email)
-- Ethiopian format: 9 digits starting with 9
 - Currency: Ethiopian Birr (ETB)
 - Service worker disabled - use online event fallback
+
+## Session Protocol (3-Skill System)
+
+Every session should follow this protocol to compound knowledge over time.
+
+### Files
+- `PROJECT_BRIEF.md` — Living strategy document (read at start, update at end)
+- `SESSION_LOG.md` — Compounding knowledge base (append new entry each session)
+- `VALUE_TRACKER.md` — Income progress tracker (update numbers each session)
+
+### Workflow
+1. **RESEARCH** (start of session): Read PROJECT_BRIEF.md. Ask: "What's the #1 thing to focus on RIGHT NOW?"
+2. **WORK** (middle of session): Do the actual task.
+3. **BUT-FOR-REAL** (after working): "What's wrong with what I just did? What would a real farmer say?"
+4. **LEARNINGS** (end of session): Update all 3 files with what was learned.
+
+### Key Prompts
+
+**Research (start):**
+```
+I'm working on EthioHerd Connect. Before I start, research:
+1. What's the #1 thing I should focus on RIGHT NOW?
+2. What would Josh Shpigford say?
+3. What's the minimum that ships in 24 hours?
+4. What Ethiopian-specific factor am I missing?
+```
+
+**But-For-Real (after working):**
+```
+I just [what you did]. Be brutally honest:
+1. What's wrong with what I did?
+2. What would a real Ethiopian farmer say?
+3. What's the one thing I should fix before next session?
+4. On a scale of 1-10, how much closer am I to 5,000 ETB/month?
+```
+
+**Learnings (end):**
+```
+Update my project brief based on what we did today:
+- What worked: [specific]
+- What didn't: [specific]
+- Key decision made: [if any]
+- ONE thing to remember next session
+```

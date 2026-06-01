@@ -8,9 +8,22 @@ import { Badge } from '@/components/ui/badge';
 import { Filter, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { Language } from '@/types';
 
+export type AdvancedFilterValue = string | { from: string; to: string } | { min: string; max: string };
+
+export interface AdvancedFilters {
+  animalType: string;
+  healthStatus: string;
+  location: string;
+  isVetVerified: string;
+  dateRange: { from: string; to: string };
+  priceRange: { min: string; max: string };
+  ageRange: { min: string; max: string };
+  weightRange: { min: string; max: string };
+}
+
 interface AdvancedSearchFiltersProps {
   language: Language;
-  onFiltersChange: (filters: any) => void;
+  onFiltersChange: (filters: AdvancedFilters) => void;
   onClearFilters: () => void;
   filterCount: number;
   resultCount: number;
@@ -28,7 +41,7 @@ export const AdvancedSearchFilters = ({
   context = 'animals'
 }: AdvancedSearchFiltersProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<AdvancedFilters>({
     animalType: 'all',
     healthStatus: 'all',
     location: '',
@@ -132,14 +145,14 @@ export const AdvancedSearchFilters = ({
 
   const t = translations[language];
 
-  const handleFilterChange = (key: string, value: any) => {
-    const newFilters = { ...filters, [key]: value };
+  const handleFilterChange = <K extends keyof AdvancedFilters>(key: K, value: AdvancedFilters[K]) => {
+    const newFilters: AdvancedFilters = { ...filters, [key]: value };
     setFilters(newFilters);
     onFiltersChange(newFilters);
   };
 
   const handleClearAll = () => {
-    const clearedFilters = {
+    const clearedFilters: AdvancedFilters = {
       animalType: 'all',
       healthStatus: 'all',
       location: '',

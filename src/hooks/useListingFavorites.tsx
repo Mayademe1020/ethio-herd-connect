@@ -1,11 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContextMVP';
+import { toast } from 'sonner';
 
 export const useListingFavorites = () => {
   const { user } = useAuth();
-  const { toast } = useToast();
   const queryClient = useQueryClient();
 
   // Fetch user's favorites
@@ -23,6 +22,7 @@ export const useListingFavorites = () => {
       return (data || []).map(f => f.listing_id);
     },
     enabled: !!user,
+    staleTime: 30000,
   });
 
   // Add favorite mutation
@@ -38,16 +38,13 @@ export const useListingFavorites = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['listing-favorites'] });
-      toast({
-        title: 'Added to favorites',
+      toast.success('Added to favorites', {
         description: 'Listing saved to your favorites',
       });
     },
-    onError: (error: any) => {
-      toast({
-        title: 'Error',
+    onError: (error: Error) => {
+      toast.error('Error', {
         description: error.message || 'Failed to add favorite',
-        variant: 'destructive',
       });
     },
   });
@@ -67,26 +64,21 @@ export const useListingFavorites = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['listing-favorites'] });
-      toast({
-        title: 'Removed from favorites',
+      toast.success('Removed from favorites', {
         description: 'Listing removed from your favorites',
       });
     },
-    onError: (error: any) => {
-      toast({
-        title: 'Error',
+    onError: (error: Error) => {
+      toast.error('Error', {
         description: error.message || 'Failed to remove favorite',
-        variant: 'destructive',
       });
     },
   });
 
   const toggleFavorite = (listingId: string) => {
     if (!user) {
-      toast({
-        title: 'Login required',
+      toast.error('Login required', {
         description: 'Please login to save favorites',
-        variant: 'destructive',
       });
       return;
     }

@@ -34,9 +34,9 @@ const isWebSpeechSupported = (): boolean => {
 };
 
 // Get SpeechRecognition constructor
-const getSpeechRecognition = (): any => {
+const getSpeechRecognition = (): SpeechRecognitionConstructor | null => {
   if (typeof window === 'undefined') return null;
-  return (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
 };
 
 export function useVoiceInput(options: VoiceInputOptions = {}) {
@@ -55,8 +55,8 @@ export function useVoiceInput(options: VoiceInputOptions = {}) {
     error: null,
   });
 
-  const recognitionRef = useRef<any>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Initialize speech recognition
   const initRecognition = useCallback(() => {
@@ -73,7 +73,7 @@ export function useVoiceInput(options: VoiceInputOptions = {}) {
       setState(prev => ({ ...prev, isListening: true, error: null }));
     };
 
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
       let finalTranscript = '';
       let interimTranscript = '';
 
@@ -100,7 +100,7 @@ export function useVoiceInput(options: VoiceInputOptions = {}) {
       }
     };
 
-    recognition.onerror = (event: any) => {
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       let errorMessage = 'Voice recognition error';
       
       switch (event.error) {

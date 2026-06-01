@@ -9,6 +9,40 @@ export interface ExportOptions {
   includeHeaders?: boolean;
 }
 
+export interface HealthRecordExportRow {
+  animal_id?: string | null;
+  record_type?: string | null;
+  medicine_name?: string | null;
+  treatment?: string | null;
+  administered_date?: string | null;
+  record_date?: string | null;
+  notes?: string | null;
+  vet_name?: string | null;
+  cost?: number | null;
+}
+
+export interface MilkRecordExportRow {
+  animal_id?: string | null;
+  animal_name?: string | null;
+  date?: string | null;
+  record_date?: string | null;
+  morning_amount?: number | null;
+  evening_amount?: number | null;
+  total_amount?: number | null;
+  notes?: string | null;
+}
+
+export interface MarketListingExportRow {
+  title?: string | null;
+  animal_type?: string | null;
+  animal?: { type?: string | null } | null;
+  price?: number | null;
+  location?: string | null;
+  status?: string | null;
+  created_at?: string | null;
+  contact_method?: string | null;
+}
+
 class ExportService {
   exportAnimalsToCSV(animals: AnimalData[], options: ExportOptions = {}): void {
     const { filename = 'animals', includeHeaders = true } = options;
@@ -42,7 +76,7 @@ class ExportService {
     this.downloadCSV(headers, rows, filename);
   }
 
-  exportHealthRecordsToCSV(records: any[], options: ExportOptions = {}): void {
+  exportHealthRecordsToCSV(records: HealthRecordExportRow[], options: ExportOptions = {}): void {
     const { filename = 'health_records', includeHeaders = true } = options;
 
     const headers = [
@@ -68,7 +102,7 @@ class ExportService {
     this.downloadCSV(headers, rows, filename);
   }
 
-  exportMilkRecordsToCSV(records: any[], options: ExportOptions = {}): void {
+  exportMilkRecordsToCSV(records: MilkRecordExportRow[], options: ExportOptions = {}): void {
     const { filename = 'milk_records', includeHeaders = true } = options;
 
     const headers = [
@@ -94,7 +128,7 @@ class ExportService {
     this.downloadCSV(headers, rows, filename);
   }
 
-  exportMarketListingsToCSV(listings: any[], options: ExportOptions = {}): void {
+  exportMarketListingsToCSV(listings: MarketListingExportRow[], options: ExportOptions = {}): void {
     const { filename = 'market_listings', includeHeaders = true } = options;
 
     const headers = [

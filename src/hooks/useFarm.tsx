@@ -16,12 +16,12 @@ export const useFarm = () => {
       if (!user) return null;
 
       // Get the user's farm membership
-      const { data: membership, error: membershipError } = await supabase
-        .from('farm_members' as any)
+      const { data: membership, error: membershipError } = await (supabase as any)
+        .from('farm_members')
         .select('farm_id, role')
         .eq('user_id', user.id)
         .eq('is_active', true)
-        .order('role', { ascending: true }) // owner first
+        .order('role', { ascending: true })
         .limit(1)
         .maybeSingle();
 
@@ -35,10 +35,10 @@ export const useFarm = () => {
       }
 
       // Fetch the farm details
-      const { data: farmData, error: farmError } = await supabase
-        .from('farms' as any)
-        .select('*')
-        .eq('id', (membership as any).farm_id)
+      const { data: farmData, error: farmError } = await (supabase as any)
+        .from('farms')
+        .select('id, name, owner_id, location, created_at, updated_at')
+        .eq('id', membership.farm_id)
         .single();
 
       if (farmError) {
@@ -48,7 +48,7 @@ export const useFarm = () => {
 
       return {
         ...farmData,
-        user_role: (membership as any).role,
+        user_role: membership.role,
       } as Farm & { user_role: string };
     },
     enabled: !!user,
@@ -62,9 +62,9 @@ export const useFarm = () => {
     queryFn: async () => {
       if (!farm?.id) return [];
 
-      const { data, error } = await supabase
-        .from('farm_members' as any)
-        .select('*')
+      const { data, error } = await (supabase as any)
+        .from('farm_members')
+        .select('id, farm_id, user_id, role, can_view_financials, invited_by, joined_at, is_active, created_at')
         .eq('farm_id', farm.id)
         .eq('is_active', true)
         .order('role', { ascending: true });
@@ -75,27 +75,27 @@ export const useFarm = () => {
       }
 
       // Fetch profiles for all members
-      const memberList = (data as any[]) || [];
-      const userIds = memberList.map((m: any) => m.user_id);
+      const memberList = (data || []) as Array<{ user_id: string; [key: string]: unknown }>;
+      const userIds = memberList.map((m) => m.user_id);
 
       if (userIds.length === 0) return [];
 
-      const { data: profiles } = await supabase
-        .from('profiles' as any)
+      const { data: profiles } = await (supabase as any)
+        .from('profiles')
         .select('id, farmer_name, phone')
         .in('id', userIds);
 
       const profileMap = new Map(
-        ((profiles as any[]) || []).map((p: any) => [p.id, p])
+        ((profiles || []) as Array<{ id: string; farmer_name: string; phone?: string }>).map((p) => [p.id, p])
       );
 
-      return memberList.map((member: any) => ({
+      return memberList.map((member) => ({
         ...member,
         profile: profileMap.get(member.user_id) || { farmer_name: 'Unknown', phone: '' },
-      })) as FarmMember[];
+      })) as unknown as FarmMember[];
     },
     enabled: !!farm?.id,
-    staleTime: 2 * 60 * 1000,
+    staleTime: 30000,
   });
 
   // Fetch pending invitations
@@ -104,9 +104,9 @@ export const useFarm = () => {
     queryFn: async () => {
       if (!farm?.id) return [];
 
-      const { data, error } = await supabase
-        .from('farm_invitations' as any)
-        .select('*')
+      const { data, error } = await (supabase as any)
+        .from('farm_invitations')
+        .select('id, farm_id, phone, role, invited_by, expires_at, accepted_at, created_at')
         .eq('farm_id', farm.id)
         .is('accepted_at', null)
         .gt('expires_at', new Date().toISOString())
@@ -172,8 +172,8 @@ export const useFarm = () => {
       }
 
       // Check if user already exists
-      const { data: existingProfile } = await supabase
-        .from('profiles' as any)
+      const { data: existingProfile } = await (supabase as any)
+        .from('profiles')
         .select('id')
         .eq('phone', cleanPhone)
         .maybeSingle();
@@ -184,7 +184,7 @@ export const useFarm = () => {
           .from('farm_members')
           .upsert({
             farm_id: farm.id,
-            user_id: (existingProfile as any).id,
+            user_id: existingProfile.id,
             role,
             invited_by: user.id,
             is_active: true,
@@ -273,7 +273,7 @@ export const useFarm = () => {
       return { has_invitation: false };
     }
 
-    return (data as any) as InvitationResult;
+    return data as unknown as InvitationResult;
   };
 
   return {

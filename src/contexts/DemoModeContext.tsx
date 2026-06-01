@@ -21,11 +21,13 @@ export type DemoDataType =
   | 'animal_type'
   | 'animal_subtype';
 
+export type DemoData = string | number | null;
+
 export interface DemoModeContextType {
   isDemoMode: boolean;
   toggleDemoMode: () => void;
-  getDemoData: (type: DemoDataType) => any;
-  getRandomDemoData: (type: DemoDataType) => any;
+  getDemoData: (type: DemoDataType) => DemoData;
+  getRandomDemoData: (type: DemoDataType) => DemoData;
 }
 
 const DEMO_DATA_POOLS = {
@@ -111,21 +113,21 @@ export const DemoModeProvider: React.FC<DemoModeProviderProps> = ({ children }) 
     console.log(`Demo mode ${newState ? 'enabled' : 'disabled'}`);
   };
 
-  const getDemoData = (type: DemoDataType): any => {
+  const getDemoData = (type: DemoDataType): DemoData => {
     const pool = DEMO_DATA_POOLS[type];
     if (!pool) return null;
 
     // Return first item as default
-    return pool[0];
+    return pool[0] ?? null;
   };
 
-  const getRandomDemoData = (type: DemoDataType): any => {
+  const getRandomDemoData = (type: DemoDataType): DemoData => {
     const pool = DEMO_DATA_POOLS[type];
     if (!pool) return null;
 
     // Return random item from pool
     const randomIndex = Math.floor(Math.random() * pool.length);
-    return pool[randomIndex];
+    return pool[randomIndex] ?? null;
   };
 
   const value: DemoModeContextType = {

@@ -8,7 +8,7 @@ import { useState, useEffect, useCallback } from 'react';
  */
 
 export interface FormDraftData {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface UseFormDraftOptions {

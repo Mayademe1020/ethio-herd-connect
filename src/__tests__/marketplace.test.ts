@@ -73,19 +73,6 @@ vi.mock('../contexts/AuthContextMVP', () => ({
   AuthProvider: ({ children }: { children: React.ReactNode }) => children
 }));
 
-// Mock ToastContext
-vi.mock('../contexts/ToastContext', () => ({
-  useToastContext: vi.fn(() => ({
-    showToast: vi.fn(),
-    success: vi.fn(),
-    error: vi.fn(),
-    warning: vi.fn(),
-    info: vi.fn(),
-    dismissToast: vi.fn()
-  })),
-  ToastProvider: ({ children }: { children: React.ReactNode }) => children
-}));
-
 describe('Marketplace Testing', () => {
   let queryClient: QueryClient;
 

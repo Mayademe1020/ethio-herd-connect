@@ -1,26 +1,24 @@
 import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContextMVP';
 import { encryptSensitiveData, decryptSensitiveData } from '@/utils/securityUtils';
-import { useToastNotifications } from '@/hooks/useToastNotifications';
+import { toast } from 'sonner';
 import { useTranslations } from '@/hooks/useTranslations';
 
 interface SensitiveData {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export const useSensitiveDataProtection = () => {
-  const { user, isOnline } = useAuth();
+  const { user } = useAuth();
   const [accessGranted, setAccessGranted] = useState(false);
-  const { showError, showSuccess } = useToastNotifications();
   const { t } = useTranslations();
 
   // Store sensitive data with encryption
-  const storeSensitiveData = (key: string, data: any): boolean => {
+  const storeSensitiveData = (key: string, data: Record<string, unknown>): boolean => {
     try {
       if (!user) {
-        showError(
-          t('security.unauthorized', 'Unauthorized'),
-          t('security.loginRequired', 'You must be logged in to perform this action')
+        toast.error(
+          t('security.unauthorized', 'Unauthorized')
         );
         return false;
       }
@@ -44,30 +42,27 @@ export const useSensitiveDataProtection = () => {
       return true;
     } catch (error) {
       console.error('Error storing sensitive data:', error);
-      showError(
-        t('security.storageError', 'Storage Error'),
-        t('security.dataNotSaved', 'Could not securely save your data')
+      toast.error(
+        t('security.storageError', 'Storage Error')
       );
       return false;
     }
   };
 
   // Retrieve and decrypt sensitive data
-  const retrieveSensitiveData = (key: string): any => {
+  const retrieveSensitiveData = (key: string): unknown => {
     try {
       if (!user) {
-        showError(
-          t('security.unauthorized', 'Unauthorized'),
-          t('security.loginRequired', 'You must be logged in to access this data')
+        toast.error(
+          t('security.unauthorized', 'Unauthorized')
         );
         return null;
       }
 
       // Only allow access if explicitly granted or in emergency mode
       if (!accessGranted) {
-        showError(
-          t('security.accessDenied', 'Access Denied'),
-          t('security.confirmAccess', 'Please confirm access to sensitive data')
+        toast.error(
+          t('security.accessDenied', 'Access Denied')
         );
         return null;
       }
@@ -79,9 +74,8 @@ export const useSensitiveDataProtection = () => {
       return decrypted?.data || null;
     } catch (error) {
       console.error('Error retrieving sensitive data:', error);
-      showError(
-        t('security.decryptionError', 'Decryption Error'),
-        t('security.dataCorrupted', 'Could not decrypt your data')
+      toast.error(
+        t('security.decryptionError', 'Decryption Error')
       );
       return null;
     }

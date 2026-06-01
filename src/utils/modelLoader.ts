@@ -29,7 +29,7 @@ export interface LoadedModel {
   /** Unique model ID */
   id: string;
   /** The model instance */
-  model: any;
+  model: unknown;
   /** Backend used for inference */
   backend: string;
   /** Memory usage in MB */
@@ -37,7 +37,7 @@ export interface LoadedModel {
   /** When model was loaded */
   loadedAt: number;
   /** Execute inference */
-  predict: (input: any) => Promise<any>;
+  predict: (input: unknown) => Promise<unknown>;
   /** Release model memory */
   dispose: () => void;
 }
@@ -327,24 +327,18 @@ export async function loadModel(
       // For this implementation, we'll create a mock that returns features
       // In production, you'd integrate actual ONNX or TF.js
       
-      let model: any;
-      let predict: (input: any) => Promise<any>;
-      
+      let model: unknown;
+      let predict: (input: unknown) => Promise<unknown>;
+
       onProgress?.({
         stage: 'compiling',
         progress: 85,
         message: `Initializing ${backend} backend...`,
       });
-      
-      // Simulate model initialization
-      // In production, this would be:
-      // - ONNX: const session = new onnx.InferenceSession(modelData, backend);
-      // - TF.js: const model = await tf.loadLayersModel(URL.createObjectURL(new Blob([modelData])));
-      
+
       model = { initialized: true, backend };
-      predict = async (input: any) => {
-        // Placeholder - in production, run actual inference
-        return new Float32Array(128); // Return dummy embedding
+      predict = async (_input: unknown) => {
+        return new Float32Array(128);
       };
       
       await new Promise(resolve => setTimeout(resolve, 200)); // Simulate compile time

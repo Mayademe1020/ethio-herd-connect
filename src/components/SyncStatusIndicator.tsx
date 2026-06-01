@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Wifi, WifiOff, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { offlineQueue } from '@/lib/offlineQueue';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { useTranslation } from '@/hooks/useTranslation';
 
 export function SyncStatusIndicator() {
@@ -10,7 +10,6 @@ export function SyncStatusIndicator() {
   const [pendingCount, setPendingCount] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
-  const { toast } = useToast();
   const { t } = useTranslation();
 
   // Update online status
@@ -55,10 +54,8 @@ export function SyncStatusIndicator() {
   // Handle manual sync
   const handleManualSync = async () => {
     if (!isOnline) {
-      toast({
-        title: t('errors.networkError'),
+      toast.error(t('errors.networkError'), {
         description: t('sync.offlineMode'),
-        variant: 'destructive',
       });
       return;
     }
@@ -68,15 +65,12 @@ export function SyncStatusIndicator() {
       await offlineQueue.processQueue();
       setLastSyncTime(new Date());
 
-      toast({
-        title: t('sync.allSynced'),
+      toast.success(t('sync.allSynced'), {
         description: t('sync.syncNow'),
       });
     } catch (error) {
-      toast({
-        title: t('sync.syncFailed'),
+      toast.error(t('sync.syncFailed'), {
         description: t('sync.retrying'),
-        variant: 'destructive',
       });
     } finally {
       setIsProcessing(false);
